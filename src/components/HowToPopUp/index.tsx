@@ -11,7 +11,7 @@ export function HowToPopUp({ onClose }: Props) {
   return (
     <Styled.Container>
       <Styled.PopUp>
-        <h1 style={{ margin: 0 }}>How To Guess❓</h1>
+        <h2 style={{ margin: 0 }}>How To Guess❓</h2>
         <Styled.Spacer />
         <h3>Search for your OST and select your choice.</h3>
         <Styled.Spacer />

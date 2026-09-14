@@ -49,7 +49,6 @@ export const Content = styled.div`
     display: flex;
     align-items: center;
     justify-self: end;
-    align-items: center;
     font-size: 34px;
   }
 
@@ -66,7 +65,6 @@ export const Content = styled.div`
       display: flex;
       align-items: center;
       justify-self: end;
-      align-items: center;
       font-size: 26px;
     }
   }
@@ -75,7 +73,6 @@ export const Content = styled.div`
 export const Logo = styled.img`
   height: 70px;
   width: auto;
-  justify-self: center;
   user-select: none;
   -webkit-touch-callout: none;
 
@@ -84,5 +81,27 @@ export const Logo = styled.img`
 
   @media (max-width: 768px) {
     height: 60px;
+  }
+`;
+
+export const Title = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-self: center;
+  text-align: center;
+`;
+
+export const Tagline = styled.h1`
+  font-family: "Nunito Sans Variable";
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  margin: -4px 0 6px;
+  color: ${({ theme }) => theme.text};
+  opacity: 0.8;
+
+  @media (max-width: 768px) {
+    font-size: 12px;
   }
 `;

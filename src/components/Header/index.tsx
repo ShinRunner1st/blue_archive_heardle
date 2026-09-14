@@ -26,7 +26,14 @@ export function Header({
           <IoInformationCircle onClick={openInfoPopUp} size="1em" />
           <IoGameController onClick={openHowToPopUp} size="1em" />
         </div>
-        <Styled.Logo src={img} alt="Blue Archive Heardle Logo" />
+
+        <Styled.Title>
+          <Styled.Logo src={img} alt="Blue Archive Heardle" />
+          <Styled.Tagline as="h1">
+            Guess the Blue Archive Song
+          </Styled.Tagline>
+        </Styled.Title>
+
         <div className="right-icon">
           <IoBarChart onClick={openStatsPopUp} size="1em" />
         </div>

@@ -13,7 +13,7 @@ export function InfoPopUp({ onClose }: Props) {
   return (
     <Styled.Container>
       <Styled.PopUp>
-        <h1 style={{ margin: 0 }}>Welcome 👋</h1>
+        <h2 style={{ margin: 0 }}>Welcome 👋</h2>
         <Styled.Spacer />
         <Styled.Section>
           <IoMusicalNotes size={30} />
