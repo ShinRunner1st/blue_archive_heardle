@@ -29,7 +29,7 @@ export function Header({
 
         <Styled.Title>
           <Styled.Logo src={img} alt="Blue Archive Heardle" />
-          <Styled.Tagline as="h1">Guess the Blue Archive Song</Styled.Tagline>
+          <Styled.Tagline as="h1">Guess the Blue Archive OST</Styled.Tagline>
         </Styled.Title>
 
         <div className="right-icon">
