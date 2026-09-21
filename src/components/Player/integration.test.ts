@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Player } from "./index";
 import { createHarness } from "../../test/harness";
+import { clearUnplayable, isUnplayable } from "../../helpers/unplayable";
 
 /**
  * Drives the REAL react-youtube and youtube-player against a fake YT.Player.
@@ -15,6 +16,8 @@ import { createHarness } from "../../test/harness";
  * iframe behind - which is what "it appears and disappears" looks like.
  */
 let readyCalls = 0;
+/** When set, the fake reports this error code instead of becoming ready. */
+let failWithCode: number | null = null;
 
 class FakeYTPlayer {
   private iframe: HTMLIFrameElement | null = null;
@@ -30,9 +33,17 @@ class FakeYTPlayer {
       | Record<string, (e: unknown) => void>
       | undefined;
 
-    // The real API fires onReady asynchronously.
+    // The real API fires these asynchronously.
     setTimeout(() => {
       if (!this.iframe?.isConnected) return;
+
+      // A removed, private, region-locked or embedding-disabled video loads an
+      // iframe and then reports an error; onReady never comes.
+      if (failWithCode !== null) {
+        events?.onError?.({ data: failWithCode, target: this });
+        return;
+      }
+
       readyCalls += 1;
       events?.onReady?.({ target: this });
     }, 0);
@@ -84,7 +95,7 @@ function provideApiAfter(ms: number) {
   }, ms);
 }
 
-function renderPlayer(strict: boolean) {
+function renderPlayer(strict: boolean, onSkipTrack?: () => void) {
   const element = React.createElement(Player, {
     id: "SHkF48SgiSA",
     currentTry: 0,
@@ -92,6 +103,7 @@ function renderPlayer(strict: boolean) {
     startTime: 10,
     inputRef: React.createRef<HTMLInputElement>(),
     keyboardEnabled: true,
+    onSkipTrack,
   });
 
   harness.render(
@@ -105,6 +117,8 @@ function iframeCount() {
 
 beforeEach(() => {
   readyCalls = 0;
+  failWithCode = null;
+  clearUnplayable();
   harness = createHarness();
 });
 
@@ -137,5 +151,51 @@ describe("Player against the real react-youtube", () => {
     expect(iframeCount()).toBe(1);
     expect(readyCalls).toBeGreaterThan(0);
     expect(harness.container.textContent).not.toContain("Loading player");
+  });
+});
+
+/**
+ * The failure path is handled by OUR onError prop, but whether the event ever
+ * reaches it depends on react-youtube and youtube-player forwarding the IFrame
+ * API's error event. The unit tests call the handler directly and so cannot
+ * prove that; only this one goes through the real library.
+ */
+describe("Player error handling through the real react-youtube", () => {
+  it("surfaces an IFrame API error rather than loading forever", async () => {
+    // 150: the owner does not allow this video to be embedded.
+    failWithCode = 150;
+    provideApiAfter(20);
+    renderPlayer(false);
+    await settle();
+
+    const alert = harness.container.querySelector('[role="alert"]');
+    expect(alert).not.toBeNull();
+    expect(alert?.textContent).toContain("won’t play");
+    expect(harness.container.textContent).not.toContain("Loading player");
+  });
+
+  it("keeps the failing video out of the rest of the session", async () => {
+    failWithCode = 100;
+    provideApiAfter(20);
+    renderPlayer(false);
+    await settle();
+
+    expect(isUnplayable("SHkF48SgiSA")).toBe(true);
+  });
+
+  it("offers a replacement when one can be dealt", async () => {
+    const onSkipTrack = vi.fn();
+    failWithCode = 150;
+    provideApiAfter(20);
+    renderPlayer(false, onSkipTrack);
+    await settle();
+
+    const skip = Array.from(harness.container.querySelectorAll("button")).find(
+      (button) => button.textContent?.includes("Skip this track")
+    );
+
+    expect(skip).toBeDefined();
+    skip!.click();
+    expect(onSkipTrack).toHaveBeenCalled();
   });
 });
