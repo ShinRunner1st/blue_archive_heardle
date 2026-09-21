@@ -1,20 +1,21 @@
-import { initialize } from "react-ga";
-
-const TRACKING_ID = "INSERT-YOUR-ID-HERE";
-initialize(TRACKING_ID);
-
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import { ThemeProvider } from "styled-components";
-import { theme } from "./constants";
-import "./index.css";
-import App from "./app";
 
-ReactDOM.render(
+import { ErrorBoundary } from "./components";
+import { theme } from "./constants";
+import App from "./app";
+import "./index.css";
+
+const rootElement = document.getElementById("root");
+if (!rootElement) throw new Error("Missing #root element");
+
+createRoot(rootElement).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
-      <App />
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
     </ThemeProvider>
-  </React.StrictMode>,
-  document.getElementById("root")
+  </React.StrictMode>
 );

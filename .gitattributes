@@ -1,2 +1,9 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Shell scripts must keep LF endings or `#!/bin/sh` breaks on Unix and in CI
+.husky/* text eol=lf
+*.sh text eol=lf
+
+# Lockfile is generated - keep it out of diffs and merge noise
+package-lock.json -diff linguist-generated
