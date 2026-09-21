@@ -1,0 +1,177 @@
+import {
+  DAILY_STORAGE_KEY,
+  FIRST_RUN_KEY,
+  MAX_TRIES,
+  MODE_KEY,
+  STORAGE_KEY,
+} from "../constants/game";
+import { GuessType } from "../types/guess";
+import { GameMode, isGameMode } from "../types/mode";
+import { Round } from "../types/stats";
+import { Song } from "../types/song";
+
+/** Each mode keeps its own history, so stats and bags never mix. */
+function keyFor(mode: GameMode): string {
+  return mode === "daily" ? DAILY_STORAGE_KEY : STORAGE_KEY;
+}
+
+/**
+ * localStorage throws in private browsing modes and when site data is blocked,
+ * so every access goes through these two helpers.
+ */
+function readKey(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeKey(key: string, value: string): void {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // Storage unavailable or quota exceeded - the game still plays, it just
+    // won't be remembered across reloads.
+  }
+}
+
+function removeKey(key: string): void {
+  try {
+    localStorage.removeItem(key);
+  } catch {
+    // See writeKey.
+  }
+}
+
+function isSong(value: unknown): value is Song {
+  if (typeof value !== "object" || value === null) return false;
+  const song = value as Record<string, unknown>;
+  return (
+    typeof song.artist === "string" &&
+    typeof song.name === "string" &&
+    typeof song.youtubeId === "string" &&
+    typeof song.themeNo === "string"
+  );
+}
+
+function isGuess(value: unknown): value is GuessType {
+  if (typeof value !== "object" || value === null) return false;
+  const guess = value as Record<string, unknown>;
+  return (
+    (guess.song === undefined || isSong(guess.song)) &&
+    typeof guess.skipped === "boolean" &&
+    (guess.isCorrect === undefined || typeof guess.isCorrect === "boolean")
+  );
+}
+
+export function emptyGuesses(): GuessType[] {
+  // Built fresh each call so no two slots share an object reference.
+  return Array.from({ length: MAX_TRIES }, () => ({
+    song: undefined,
+    skipped: false,
+    isCorrect: undefined,
+  }));
+}
+
+/**
+ * Coerces a persisted entry into a usable Round, or returns null when it is too
+ * damaged to repair. Rounds written by older versions of the game may be
+ * missing fields, so anything absent falls back to a sane default rather than
+ * throwing at render time.
+ */
+function toRound(value: unknown): Round | null {
+  if (typeof value !== "object" || value === null) return null;
+  const round = value as Record<string, unknown>;
+
+  if (!isSong(round.solution)) return null;
+
+  const guesses = Array.isArray(round.guesses)
+    ? round.guesses.filter(isGuess)
+    : [];
+  while (guesses.length < MAX_TRIES) {
+    guesses.push({ song: undefined, skipped: false, isCorrect: undefined });
+  }
+
+  const currentTry =
+    typeof round.currentTry === "number" && Number.isFinite(round.currentTry)
+      ? Math.min(Math.max(Math.trunc(round.currentTry), 0), MAX_TRIES)
+      : 0;
+
+  const day =
+    typeof round.day === "number" && Number.isFinite(round.day)
+      ? Math.trunc(round.day)
+      : undefined;
+
+  return {
+    solution: round.solution,
+    currentTry,
+    didGuess: round.didGuess === true,
+    guesses: guesses.slice(0, MAX_TRIES),
+    startTime:
+      typeof round.startTime === "number" && Number.isFinite(round.startTime)
+        ? round.startTime
+        : null,
+    ...(day === undefined ? {} : { day }),
+  };
+}
+
+/**
+ * Reads the played rounds. Returns an empty array for missing, malformed or
+ * partially corrupted storage - never throws, so a bad value can't white-screen
+ * the app the way an unguarded JSON.parse would.
+ */
+export function loadRounds(mode: GameMode = "endless"): Round[] {
+  const raw = readKey(keyFor(mode));
+  if (!raw) return [];
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return [];
+  }
+
+  if (!Array.isArray(parsed)) return [];
+
+  return parsed.map(toRound).filter((round): round is Round => round !== null);
+}
+
+export function saveRounds(rounds: Round[], mode: GameMode = "endless"): void {
+  writeKey(keyFor(mode), JSON.stringify(rounds));
+}
+
+export function clearRounds(mode: GameMode = "endless"): void {
+  removeKey(keyFor(mode));
+}
+
+/**
+ * The mode last played.
+ *
+ * With no stored preference, a player who already has an endless history is one
+ * who was here before daily mode existed: dropping them into daily would show a
+ * score of 0/0 and read as lost progress, so they land where they left off.
+ * Genuinely new players get daily, which is the mode worth meeting first.
+ *
+ * This signal only works on the very first render after the update, because the
+ * game writes an endless history on mount whether or not it is played - so the
+ * caller pins the answer straight away.
+ */
+export function loadMode(): GameMode {
+  const stored = readKey(MODE_KEY);
+  if (isGameMode(stored)) return stored;
+
+  return readKey(STORAGE_KEY) === null ? "daily" : "endless";
+}
+
+export function saveMode(mode: GameMode): void {
+  writeKey(MODE_KEY, mode);
+}
+
+export function isFirstRun(): boolean {
+  return readKey(FIRST_RUN_KEY) === null;
+}
+
+export function markFirstRunDone(): void {
+  writeKey(FIRST_RUN_KEY, "false");
+}

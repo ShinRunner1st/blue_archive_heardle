@@ -1,18 +1,13 @@
-import { StatsType } from "../types/stats";
+import { Round } from "../types/stats";
+import { isFinished } from "./calStats";
 
-export function calRecentCorrect(stats: StatsType[]) {
-  let currect = [];
+/**
+ * Formats the running score as "wins/finished". The round in progress is not
+ * counted until it is won or lost.
+ */
+export function calRecentCorrect(rounds: Round[]): string {
+  const finished = rounds.filter(isFinished);
+  const won = finished.filter((round) => round.didGuess);
 
-  if (Array.isArray(stats)) {
-    currect = stats.filter((x) => {
-      return x.didGuess == true;
-    });
-  } else currect = [];
-  if (
-    Array.isArray(stats) &&
-    !stats[stats.length - 1].didGuess &&
-    stats[stats.length - 1].currentTry < 6
-  )
-    return currect.length.toString() + "/" + (stats.length - 1).toString();
-  else return currect.length.toString() + "/" + stats.length.toString();
+  return `${won.length}/${finished.length}`;
 }

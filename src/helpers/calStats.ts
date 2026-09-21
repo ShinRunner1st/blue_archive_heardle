@@ -1,13 +1,31 @@
-import { StatsType } from "../types/stats";
+import { MAX_TRIES } from "../constants/game";
+import { Round, StatsTally } from "../types/stats";
 
-export function calStats(stats: StatsType[]) {
-  const arr = [0, 0, 0, 0, 0, 0, 0, 0];
+export function isFinished(round: Round): boolean {
+  return round.didGuess || round.currentTry >= MAX_TRIES;
+}
 
-  stats.forEach((stat) => {
-    if (stat.didGuess) arr[stat.currentTry] += 1;
-    if (!stat.didGuess && stat.currentTry == 6) arr[0] += 1;
-    arr[7] += 1;
+/**
+ * Tallies finished rounds into [losses, win@1 ... win@6, total]. The round in
+ * progress is skipped so it can't inflate the denominator of the stats bars.
+ */
+export function calStats(rounds: Round[]): StatsTally {
+  const tally: StatsTally = [0, 0, 0, 0, 0, 0, 0, 0];
+
+  rounds.forEach((round) => {
+    if (!isFinished(round)) return;
+
+    if (round.didGuess) {
+      // currentTry has already been incremented past the winning guess, so it
+      // doubles as the "solved in N" bucket.
+      const bucket = Math.min(Math.max(round.currentTry, 1), MAX_TRIES);
+      tally[bucket] += 1;
+    } else {
+      tally[0] += 1;
+    }
+
+    tally[7] += 1;
   });
 
-  return arr;
+  return tally;
 }
