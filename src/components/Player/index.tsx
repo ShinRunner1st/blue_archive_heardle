@@ -1,212 +1,318 @@
 import React from "react";
 import YouTube from "react-youtube";
-import { event } from "react-ga";
 
 import { playTimes } from "../../constants";
+import { markUnplayable } from "../../helpers/unplayable";
+import {
+  YouTubeErrorEvent,
+  YouTubePlayerApi,
+  YouTubeReadyEvent,
+} from "../../types/youtube";
+
+import { Button } from "../Button";
 
 import * as Styled from "./index.styled";
 
 interface Props {
   id: string;
   currentTry: number;
-  getStartTime: (time: number) => void;
-  time: number;
-  inputRef: React.RefObject<HTMLInputElement>;
+  setStartTime: (time: number) => void;
+  /** null until a clip window has been rolled for this round. */
+  startTime: number | null;
+  inputRef: React.RefObject<HTMLInputElement | null>;
+  keyboardEnabled: boolean;
+  /**
+   * Deals a different song. Endless mode only - daily has one track a day, so
+   * an unplayable one cannot be swapped out without breaking the shared puzzle.
+   */
+  onSkipTrack?: () => void;
 }
+
+const POLL_INTERVAL_MS = 250;
+const LONGEST_CLIP_SECONDS = playTimes[playTimes.length - 1] / 1000;
+
+/**
+ * How long to wait for onReady before assuming the player is never coming. Long
+ * enough not to fire on a slow connection, short enough that nobody sits in
+ * front of a silent progress bar wondering whether to reload.
+ */
+const READY_TIMEOUT_MS = 12_000;
+
+type Status = "loading" | "ready" | "blocked" | "timedout";
 
 export function Player({
   id,
   currentTry,
-  getStartTime,
-  time,
+  setStartTime,
+  startTime,
   inputRef,
+  keyboardEnabled,
+  onSkipTrack,
 }: Props) {
-  // const opts = {
-  //   width: "0", // Set width to 0
-  //   height: "0", // Set height to 0
-  //   playerVars: {
-  //     controls: 0, // Hide the controls
-  //     modestbranding: 1, // Minimize branding
-  //     rel: 0, // Disable related videos
-  //   },
-  // };
-
-  // react-youtube doesn't export types for this
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const playerRef = React.useRef<any>(null);
-
-  const currentPlayTime = playTimes[currentTry];
+  const playerRef = React.useRef<YouTubePlayerApi | null>(null);
 
   const [play, setPlay] = React.useState<boolean>(false);
-
   const [currentTime, setCurrentTime] = React.useState<number>(0);
+  const [status, setStatus] = React.useState<Status>("loading");
+  // Bumped to remount the iframe, which is the only way to retry a failed load.
+  const [attempt, setAttempt] = React.useState(0);
 
-  const [isReady, setIsReady] = React.useState<boolean>(false);
+  const isReady = status === "ready";
+  const hasFailed = status === "blocked" || status === "timedout";
 
-  const [startTime, setStartTime] = React.useState<number>(0);
+  const currentPlayTime =
+    playTimes[currentTry] ?? playTimes[playTimes.length - 1];
 
+  /**
+   * A new song, or a retry, starts the wait over. This runs during render
+   * rather than in an effect on purpose: child effects fire before the
+   * parent's, so resetting from an effect would clobber the onReady that the
+   * freshly mounted player has already reported and strand it on "loading".
+   */
+  const session = `${id}:${attempt}`;
+  const sessionRef = React.useRef(session);
+
+  if (sessionRef.current !== session) {
+    sessionRef.current = session;
+    setStatus("loading");
+    setPlay(false);
+    playerRef.current = null;
+  }
+
+  /**
+   * Without this the controls never appear: they are gated on onReady, and a
+   * video that never loads leaves the player staring at "Loading player..."
+   * with no explanation and no way forward.
+   */
   React.useEffect(() => {
-    setInterval(() => {
-      playerRef.current?.internalPlayer
-        .getCurrentTime()
-        .then((time: number) => {
-          setCurrentTime(time);
-        });
-    }, 250);
+    if (status !== "loading") return;
+
+    const timer = window.setTimeout(
+      () => setStatus("timedout"),
+      READY_TIMEOUT_MS
+    );
+
+    return () => window.clearTimeout(timer);
+  }, [status, id, attempt]);
+
+  // Only poll while a clip is playing, and always clear the timer - this
+  // component unmounts every time the round ends.
+  React.useEffect(() => {
+    if (!play) return;
+
+    const interval = window.setInterval(() => {
+      const player = playerRef.current;
+      if (!player) return;
+
+      try {
+        setCurrentTime(player.getCurrentTime());
+      } catch {
+        // The iframe can go away mid-poll; the next tick recovers.
+      }
+    }, POLL_INTERVAL_MS);
+
+    return () => window.clearInterval(interval);
+  }, [play]);
+
+  const clipStart = startTime ?? 0;
+
+  const pausePlayback = React.useCallback(() => {
+    playerRef.current?.pauseVideo();
+    playerRef.current?.seekTo(clipStart, true);
+    setCurrentTime(clipStart);
+    setPlay(false);
+  }, [clipStart]);
+
+  const startPlayback = React.useCallback(() => {
+    playerRef.current?.playVideo();
+    setPlay(true);
   }, []);
 
+  // Stop once the clip for this try has run its length.
   React.useEffect(() => {
-    if (play) {
-      if ((currentTime - startTime) * 1000 >= currentPlayTime) {
-        playerRef.current?.internalPlayer.pauseVideo();
-        playerRef.current?.internalPlayer.seekTo(startTime);
-        setCurrentTime(startTime);
-        setPlay(false);
-      }
-    }
-  }, [play, currentTime, startTime]);
+    if (!play) return;
+    if ((currentTime - clipStart) * 1000 < currentPlayTime) return;
 
+    pausePlayback();
+  }, [play, currentTime, clipStart, currentPlayTime, pausePlayback]);
+
+  // Space toggles playback, unless a dialog is open or the player is typing in
+  // the search box.
   React.useEffect(() => {
+    if (!keyboardEnabled || !isReady) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      const active = document.activeElement;
+      if (e.code !== "Space") return;
+      if (document.activeElement === inputRef.current) return;
 
-      // 🛑 If focused inside your input, DO NOT block or override space
-      if (active === inputRef.current) return;
-
-      if (e.code === "Space") {
-        e.preventDefault();
-        if (!play) startPlayback();
-        else pausePlayback();
-      }
+      e.preventDefault();
+      if (play) pausePlayback();
+      else startPlayback();
     };
 
     window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [play]);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [keyboardEnabled, isReady, play, pausePlayback, startPlayback, inputRef]);
 
-  // don't call play video each time currentTime changes
-  const startPlayback = React.useCallback(() => {
-    if (!play) {
-      playerRef.current?.internalPlayer.playVideo();
-      setPlay(true);
-      event({
-        category: "Player",
-        action: "Played song",
-      });
-    }
-  }, []);
+  const handleReady = React.useCallback(
+    (event: YouTubeReadyEvent) => {
+      const player = event.target;
+      playerRef.current = player;
 
-  const pausePlayback = React.useCallback(() => {
-    if (play) {
-      playerRef.current?.internalPlayer.pauseVideo();
-      playerRef.current?.internalPlayer.seekTo(startTime);
-      setCurrentTime(startTime);
+      // Resume the clip window stored for this round, or roll a new one far
+      // enough from the end that the longest clip still fits.
+      let rolled = startTime;
+
+      try {
+        // The player iframe is visually hidden but still focusable, so take it
+        // out of the tab order.
+        player.getIframe()?.setAttribute("tabindex", "-1");
+
+        if (rolled === null) {
+          const duration = player.getDuration();
+          const latestStart = Number.isFinite(duration)
+            ? Math.max(duration - LONGEST_CLIP_SECONDS, 0)
+            : 0;
+
+          rolled = Math.floor(Math.random() * latestStart);
+          setStartTime(rolled);
+        }
+
+        player.seekTo(rolled, true);
+        player.pauseVideo();
+        player.setVolume(20);
+      } catch {
+        // Fall through: better to show the controls than to strand the player
+        // on "Loading..." forever.
+      }
+
+      setCurrentTime(rolled ?? 0);
+      setStatus("ready");
+    },
+    [startTime, setStartTime]
+  );
+
+  const handleError = React.useCallback(
+    (event: YouTubeErrorEvent) => {
+      // Unlike a timeout, this is YouTube saying the video itself is the
+      // problem, so remember it and keep it out of the rest of the session.
+      markUnplayable(id);
+      setStatus("blocked");
       setPlay(false);
-    }
-  }, [play, currentTime, startTime]);
 
-  // const setReady = React.useCallback((event) => {
-  //   const duration = event.target.getDuration(); // Get video duration in seconds
-  //   if (duration > 0) {
-  //     let randomTime = Math.floor(Math.random() * duration); // Generate a random time in seconds
-  //     if (randomTime + playTimes[5] / 1000 > duration) {
-  //       randomTime = duration - playTimes[5] / 1000;
-  //     }
-  //     playerRef.current?.internalPlayer.seekTo(randomTime);
-  //     setStartTime(randomTime);
-  //   }
-  //   playerRef.current?.internalPlayer.pauseVideo();
-  //   playerRef.current?.internalPlayer.setVolume(20);
-  //   setIsReady(true);
-  // }, []);
+      if (import.meta.env.DEV) {
+        // Names the offending video while developing, so a dead id in the song
+        // list can be tracked down without guessing.
+        // eslint-disable-next-line no-console
+        console.warn(`YouTube refused ${id} (error ${event.data})`);
+      }
+    },
+    [id]
+  );
+
+  const retry = React.useCallback(() => setAttempt((n) => n + 1), []);
 
   return (
     <>
-      <Styled.StyledYouTube>
+      <Styled.StyledYouTube aria-hidden="true">
         <YouTube
+          key={attempt}
           opts={{
             width: "1",
             height: "1",
             playerVars: {
-              controls: 0, // Hide the controls
-              modestbranding: 1, // Minimize branding
-              rel: 0, // Disable related videos
+              controls: 0,
+              modestbranding: 1,
+              rel: 0,
             },
           }}
           videoId={id}
-          onReady={(event) => {
-            const iframe = event.target.getIframe?.();
-            if (iframe) iframe.setAttribute("tabIndex", "-1");
-            const duration = event.target.getDuration(); // Get video duration in seconds
-            if (duration > 0) {
-              const randomTime = Math.floor(
-                Math.random() * (duration - playTimes[5] / 1000)
-              ); // Generate a random time in seconds
-              if (time == 0) {
-                playerRef.current?.internalPlayer.seekTo(randomTime);
-                setStartTime(randomTime);
-                getStartTime(randomTime);
-              } else {
-                playerRef.current?.internalPlayer.seekTo(time);
-                setStartTime(time);
-                getStartTime(time);
-              }
-            }
-            playerRef.current?.internalPlayer.pauseVideo();
-            event.target.setVolume(20);
-            setIsReady(true);
-          }}
-          ref={playerRef}
+          onReady={handleReady}
+          onError={handleError}
         />
       </Styled.StyledYouTube>
-      {isReady ? (
+
+      {isReady && (
         <>
           <Styled.ProgressBackground>
-            {currentTime !== 0 && (
-              <Styled.Progress value={currentTime - startTime} />
-            )}
+            <Styled.Progress
+              $value={Math.max(currentTime - clipStart, 0)}
+              $max={LONGEST_CLIP_SECONDS}
+            />
             {playTimes.map((playTime) => (
               <Styled.Separator
-                style={{ left: `${(playTime / 16000) * 100}%` }}
+                style={{
+                  left: `${(playTime / 1000 / LONGEST_CLIP_SECONDS) * 100}%`,
+                }}
                 key={playTime}
               />
             ))}
           </Styled.ProgressBackground>
           <Styled.TimeStamps>
-            <Styled.TimeStamp>0s</Styled.TimeStamp>
-            <Styled.TimeStamp />
-            <Styled.TimeStamp>2s</Styled.TimeStamp>
-            <Styled.TimeStamp />
-            <Styled.TimeStamp>4s</Styled.TimeStamp>
-            <Styled.TimeStamp />
-            <Styled.TimeStamp />
-            <Styled.TimeStamp />
-            <Styled.TimeStamp>7s</Styled.TimeStamp>
-            <Styled.TimeStamp />
-            <Styled.TimeStamp />
-            <Styled.TimeStamp />
-            <Styled.TimeStamp />
-            <Styled.TimeStamp>11s</Styled.TimeStamp>
-            <Styled.TimeStamp />
-            <Styled.TimeStamp />
-            <Styled.TimeStamp />
-            <Styled.TimeStamp />
-            <Styled.TimeStamp>16s</Styled.TimeStamp>
+            {playTimes.map((playTime) => (
+              <Styled.TimeStamp
+                key={playTime}
+                style={{
+                  left: `${(playTime / 1000 / LONGEST_CLIP_SECONDS) * 100}%`,
+                }}
+              >
+                {playTime / 1000}s
+              </Styled.TimeStamp>
+            ))}
           </Styled.TimeStamps>
-          {!play ? (
-            <Styled.PlayIcon color="#fff" onClick={startPlayback} />
-          ) : (
-            <Styled.PauseIcon
-              style={{ cursor: "pointer" }}
-              color="#fff"
-              onClick={pausePlayback}
-            />
-          )}
+          <Styled.TransportButton
+            type="button"
+            onClick={play ? pausePlayback : startPlayback}
+            aria-label={play ? "Pause clip" : "Play clip"}
+          >
+            {play ? (
+              <Styled.PauseIcon color="#fff" aria-hidden="true" />
+            ) : (
+              <Styled.PlayIcon color="#fff" aria-hidden="true" />
+            )}
+          </Styled.TransportButton>
+          <Styled.Hint>
+            Press <kbd>Space</kbd> to play or pause
+          </Styled.Hint>
         </>
-      ) : (
-        <p>Loading player...</p>
+      )}
+
+      {status === "loading" && (
+        <Styled.LoadingState>
+          <Styled.LoadingBar />
+          <Styled.LoadingLabel>Loading player…</Styled.LoadingLabel>
+        </Styled.LoadingState>
+      )}
+
+      {hasFailed && (
+        <Styled.ErrorState role="alert">
+          <Styled.ErrorTitle>
+            {status === "blocked"
+              ? "This track won’t play"
+              : "The player didn’t load"}
+          </Styled.ErrorTitle>
+          <Styled.ErrorText>
+            {status === "blocked"
+              ? "YouTube won’t play it here — it may have been removed, made private, or blocked in your region."
+              : "It’s taking longer than it should. A slow connection or a blocker may be getting in the way."}
+          </Styled.ErrorText>
+          <Styled.ErrorActions>
+            <Button variant="background100" onClick={retry}>
+              Try again
+            </Button>
+            {onSkipTrack && (
+              <Button variant="green" onClick={onSkipTrack}>
+                Skip this track
+              </Button>
+            )}
+          </Styled.ErrorActions>
+          {!onSkipTrack && (
+            <Styled.ErrorNote>
+              Today’s puzzle is the same for everyone, so it can’t be swapped —
+              but you can still guess or skip below.
+            </Styled.ErrorNote>
+          )}
+        </Styled.ErrorState>
       )}
     </>
   );
