@@ -1,0 +1,70 @@
+name: Check song links
+
+on:
+  schedule:
+    # Weekly, Monday 06:00 UTC.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - id: check
+        name: Verify every song still resolves on YouTube
+        run: node scripts/check-songs.mjs
+        continue-on-error: true
+
+      - name: Open an issue for unplayable songs
+        if: steps.check.outcome == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const summary = `${{ steps.check.outputs.summary }}`;
+            const count = `${{ steps.check.outputs.count }}`;
+            const title = `${count} song(s) no longer playable on YouTube`;
+
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open",
+              labels: "dead-links",
+            });
+
+            const body = [
+              "The weekly link check found songs that no longer resolve.",
+              "They need replacement IDs in `src/constants/songs.ts`.",
+              "",
+              summary,
+              "",
+              `_Run: ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}_`,
+            ].join("\n");
+
+            if (existing.data.length > 0) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existing.data[0].number,
+                title,
+                body,
+              });
+            } else {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ["dead-links"],
+              });
+            }
