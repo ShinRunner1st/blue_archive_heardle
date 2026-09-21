@@ -1,8 +1,8 @@
 import styled from "styled-components";
-import img from "./image/image.png";
+import img from "./image/image.webp";
 import "@fontsource-variable/nunito-sans";
 
-export const Container = styled.div`
+export const Container = styled.main`
   font-family: "Nunito Sans Variable";
 
   width: 40%;
@@ -23,18 +23,30 @@ export const Container = styled.div`
   }
 `;
 
+/**
+ * The artwork is painted by a fixed pseudo-element rather than by the wrapper
+ * itself. A `position: fixed` wrapper would take the whole page out of flow and
+ * make anything past the first viewport unreachable.
+ */
 export const BG = styled.div`
-  background-image: url(${img});
+  position: relative;
 
-  position: fixed; /* Stays full-screen */
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+  min-height: 100vh;
+  width: 100%;
 
-  z-index: -10;
+  display: flex;
+  flex-direction: column;
 
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
+  &::before {
+    content: "";
+
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+
+    background-image: url(${img});
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
 `;

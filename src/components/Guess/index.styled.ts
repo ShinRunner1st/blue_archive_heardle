@@ -2,9 +2,9 @@ import styled from "styled-components";
 import "@fontsource-variable/nunito-sans";
 
 export const Container = styled.div<{
-  active: boolean;
-  isCorrect: boolean | undefined;
-  closeHint: boolean;
+  $active: boolean;
+  $isCorrect: boolean | undefined;
+  $closeHint: boolean;
 }>`
   font-family: "Nunito Sans Variable";
   width: 100%;
@@ -19,16 +19,12 @@ export const Container = styled.div<{
   display: flex;
   align-items: center;
 
-  border-color: ${({ theme, active, isCorrect, closeHint }) => {
-    if (active) {
-      return theme.border;
-    } else if (closeHint === true) {
-      return theme.orange;
-    } else if (isCorrect === false) {
-      return theme.red;
-    } else {
-      return theme.border100;
-    }
+  border-color: ${({ theme, $active, $isCorrect, $closeHint }) => {
+    if ($isCorrect === true) return theme.green;
+    if ($active) return theme.border;
+    if ($isCorrect === false && $closeHint) return theme.orange;
+    if ($isCorrect === false) return theme.red;
+    return theme.border100;
   }};
   border-width: 1px;
   border-radius: 5px;

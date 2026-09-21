@@ -1,4 +1,5 @@
 export { Button } from "./Button";
+export { ErrorBoundary } from "./ErrorBoundary";
 export { Footer } from "./Footer";
 export { Game } from "./Game";
 export { Guess } from "./Guess";
@@ -10,3 +11,4 @@ export { Search } from "./Search";
 export { YouTube } from "./YouTube";
 export { StatsPopUp } from "./StatsPopUp";
 export { HowToPopUp } from "./HowToPopUp";
+export { PopUp } from "./PopUp";

@@ -1,136 +1,101 @@
 import styled from "styled-components";
 
-export const Container = styled.div`
-  animation: op 0.25s ease-out;
-
-  @keyframes op {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  position: absolute;
-  top: 0;
-  z-index: 2;
-
-  width: 100%;
-  height: 100%;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background-color: rgba(0, 0, 0, 0.75);
-`;
-
-export const PopUp = styled.div`
-  animation: popup 0.25s ease-out;
-
-  @keyframes popup {
-    from {
-      opacity: 0;
-      transform: scale(0.9);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  width: 90%;
-  max-width: 420px;
-  padding: 20px;
-
-  @media (max-width: 768px) {
-    width: 90%;
-    padding: 16px;
-  }
-
-  @media (max-width: 480px) {
-    width: 90%;
-    padding: 14px;
-  }
-
-  background-color: ${({ theme }) => theme.background100};
-
-  border-radius: 10px;
-
+export const Rows = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  gap: 7px;
 
-  h1 {
-    margin-bottom: 0;
-  }
+  width: 100%;
 `;
 
-export const Spacer = styled.div`
-  width: 80%;
-  height: 0.2px;
-
-  margin: 16px 0;
-
-  background-color: ${({ theme }) => theme.text};
-  opacity: 0.5;
-
-  @media (max-width: 480px) {
-    width: 90%;
-  }
-`;
-
-export const Section = styled.div`
-  display: flex;
+export const Row = styled.div`
+  display: grid;
+  grid-template-columns: 14px 1fr 26px;
   gap: 10px;
   align-items: center;
 
-  a {
-    color: ${({ theme }) => theme.text};
-  }
-  margin: 8px;
-  font-weight: bold;
-
-  @media (max-width: 480px) {
-    gap: 6px;
-    font-size: 0.9rem;
-    margin: 8px;
-  }
+  width: 100%;
 `;
 
-export const Contact = styled.p`
-  a {
-    color: ${({ theme }) => theme.text};
-  }
-  margin: 16px;
+export const RowLabel = styled.span`
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-align: center;
+  opacity: 0.75;
+`;
 
-  font-size: 0.9rem;
-  font-weight: bold;
-  opacity: 0.5;
+export const RowCount = styled.span`
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+`;
 
-  @media (max-width: 480px) {
-    font-size: 0.8rem;
-  }
+/** Track the bar grows along, so empty rows still read as a row. */
+export const Track = styled.div`
+  width: 100%;
+  height: 16px;
+
+  background-color: rgba(241, 247, 237, 0.08);
+  border-radius: 4px;
+  overflow: hidden;
 `;
 
 export const Progress = styled.div<{
-  value: number;
-  maxValue: number;
-  animate: boolean;
+  $value: number;
+  $maxValue: number;
+  $animate: boolean;
 }>`
-  width: ${({ animate, value, maxValue }) =>
-    animate ? Math.sqrt(value / maxValue) * 80 + "%" : "0%"};
+  /* maxValue is 0 until the first round finishes; without the guard the square
+     root of 0/0 renders as "NaN%". */
+  width: ${({ $animate, $value, $maxValue }) =>
+    $animate && $maxValue > 0
+      ? `${Math.max(Math.sqrt($value / $maxValue) * 100, $value > 0 ? 6 : 0)}%`
+      : "0%"};
 
-  height: 18px;
-  align-self: flex-start;
+  height: 100%;
+
   background-color: ${({ theme }) => theme.green};
-  border-radius: 2px;
+  border-radius: 4px;
 
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 `;
 
 export const BadProgress = styled(Progress)`
   background-color: ${({ theme }) => theme.red};
+`;
+
+export const Tiles = styled.div<{ $columns: number }>`
+  display: grid;
+  grid-template-columns: repeat(${({ $columns }) => $columns}, 1fr);
+  gap: 10px;
+
+  width: 100%;
+`;
+
+export const Tile = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+
+  padding: 12px 10px;
+
+  background-color: rgba(56, 34, 15, 0.5);
+  border: 1px solid rgba(241, 247, 237, 0.09);
+  border-radius: 11px;
+`;
+
+export const TileValue = styled.span`
+  font-size: 1.25rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+`;
+
+export const TileLabel = styled.span`
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  opacity: 0.55;
 `;

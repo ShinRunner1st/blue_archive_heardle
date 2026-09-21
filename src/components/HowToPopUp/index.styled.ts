@@ -1,156 +1,99 @@
 import styled from "styled-components";
 
-export const Container = styled.div`
-  animation: op 0.25s ease-out;
-
-  @keyframes op {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  position: absolute;
-  top: 0;
-  z-index: 2;
-
-  width: 100%;
-  height: 100%;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background-color: rgba(0, 0, 0, 0.75);
-`;
-
-export const PopUp = styled.div`
-  animation: popup 0.25s ease-out;
-
-  @keyframes popup {
-    from {
-      opacity: 0;
-      transform: scale(0.9);
-    }
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  width: 90%;
-  max-width: 420px;
-  padding: 20px;
-
-  @media (max-width: 768px) {
-    width: 90%;
-    padding: 16px;
-  }
-
-  @media (max-width: 480px) {
-    width: 90%;
-    padding: 14px;
-  }
-
-  background-color: ${({ theme }) => theme.background100};
-
-  border-radius: 10px;
-
+export const Steps = styled.ol`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  gap: 12px;
 
-  h1 {
-    margin-bottom: 0;
-  }
+  width: 100%;
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+  counter-reset: step;
 `;
 
-export const Spacer = styled.div`
-  width: 80%;
-  height: 0.2px;
-
-  margin: 16px 0;
-
-  background-color: ${({ theme }) => theme.text};
-  opacity: 0.5;
-
-  @media (max-width: 480px) {
-    width: 90%;
-  }
-`;
-
-export const Section = styled.div`
+export const Step = styled.li`
   display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
 
-  a {
-    color: ${({ theme }) => theme.text};
-  }
+  counter-increment: step;
 
-  /* 📱 Mobile behavior */
-  @media (max-width: 768px) {
-    font-size: 0.95rem;
-    gap: 6px;
+  /* The number badge is generated, so the markup stays a plain list. */
+  &::before {
+    content: counter(step);
 
-    svg {
-      width: 24px;
-      height: 24px;
-    }
-  }
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 
-  /* 📱 Small phones → stack vertically */
-  @media (max-width: 480px) {
-    svg {
-      width: 22px;
-      height: 22px;
-    }
+    width: 26px;
+    height: 26px;
+    margin-top: 1px;
 
-    p,
-    a {
-      font-size: 0.9rem;
-    }
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: ${({ theme }) => theme.background1};
+
+    background-color: ${({ theme }) => theme.green};
+    border-radius: 50%;
   }
 `;
 
-export const Contact = styled.p`
-  a {
-    color: ${({ theme }) => theme.text};
-  }
-  margin-top: 5%;
+export const StepBody = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+`;
 
+export const StepTitle = styled.span`
   font-size: 0.9rem;
-  font-weight: bold;
-  opacity: 0.5;
+  font-weight: 700;
+`;
 
-  @media (max-width: 480px) {
-    font-size: 0.8rem;
+export const StepText = styled.span`
+  font-size: 0.82rem;
+  line-height: 1.45;
+  opacity: 0.78;
+`;
+
+export const Shortcuts = styled.dl`
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 9px 14px;
+  align-items: center;
+
+  width: 100%;
+  margin: 0;
+
+  dt {
+    justify-self: start;
+  }
+
+  dd {
+    margin: 0;
+    font-size: 0.82rem;
+    opacity: 0.78;
   }
 `;
 
-export const Text = styled.p`
-  a {
-    color: ${({ theme }) => theme.text};
-  }
-  font-size: 1rem;
+export const Key = styled.kbd`
+  display: inline-block;
 
-  @media (max-width: 480px) {
-    font-size: 0.92rem;
-  }
-`;
+  min-width: 30px;
+  padding: 3px 9px;
 
-export const TextB = styled.p`
-  a {
-    color: ${({ theme }) => theme.text};
-  }
-  font-size: 0.95rem;
-  font-weight: bold;
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-align: center;
+  white-space: nowrap;
 
-  @media (max-width: 480px) {
-    font-size: 0.9rem;
-  }
+  background-color: rgba(241, 247, 237, 0.12);
+  border: 1px solid rgba(241, 247, 237, 0.22);
+  border-bottom-width: 2px;
+  border-radius: 5px;
 `;

@@ -1,60 +1,55 @@
 import React from "react";
 
 import { GuessType } from "../../types/guess";
+import { Song } from "../../types/song";
 
 import * as Styled from "./index.styled";
-import { Song } from "../../types/song";
 
 interface Props {
   guess: GuessType;
-  isCorrect: boolean | undefined;
   active: boolean;
-  todaysSolution: Song;
+  solution: Song;
 }
 
-export function Guess({ guess, isCorrect, active, todaysSolution }: Props) {
-  const { song, skipped } = guess;
-  const [text, setText] = React.useState<string>("");
-  const [themeNo, setthemeNo] = React.useState<string>("");
-  const [diff, setDiff] = React.useState<boolean>(false);
-  const [diffH, setDiffH] = React.useState<boolean>(false);
-  const [diffL, setDiffL] = React.useState<boolean>(false);
+/** A guess within this many theme numbers of the answer counts as "warm". */
+const HINT_RANGE = 10;
 
-  function checkHint(songThemeNo: number, todayThemeNo: number) {
-    const diff = songThemeNo - todayThemeNo;
+export function Guess({ guess, active, solution }: Props) {
+  const { song, skipped, isCorrect } = guess;
+
+  // Derived straight from props - holding this in state only risked the two
+  // drifting apart.
+  const hint = React.useMemo(() => {
+    if (!song) return null;
+
+    const difference = Number(song.themeNo) - Number(solution.themeNo);
+    if (!Number.isFinite(difference)) return null;
 
     return {
-      inRange: Math.abs(diff) <= 10, // within ±10
-      higher: diff > 0, // song is higher
-      lower: diff < 0, // song is lower
-      equal: diff === 0, // exact match
+      isClose: Math.abs(difference) <= HINT_RANGE,
+      // The answer is lower than the guess, so point the player downwards.
+      arrow: difference > 0 ? "↓" : difference < 0 ? "↑" : "",
     };
-  }
+  }, [song, solution.themeNo]);
 
-  React.useEffect(() => {
-    if (song) {
-      setText(`${song.artist} - ${song.name}`);
-      setthemeNo(`[Theme ${song.themeNo}]`);
-      const hint = checkHint(
-        Number(song.themeNo),
-        Number(todaysSolution.themeNo)
-      );
-      setDiff(hint.inRange);
-      setDiffH(hint.higher);
-      setDiffL(hint.lower);
-    } else if (skipped) {
-      setText("Skipped");
-    } else {
-      setText("");
-    }
-  }, [guess]);
+  const text = song
+    ? `${song.artist} - ${song.name}`
+    : skipped
+    ? "Skipped"
+    : "";
 
   return (
-    <Styled.Container active={active} isCorrect={isCorrect} closeHint={diff}>
+    <Styled.Container
+      $active={active}
+      $isCorrect={isCorrect}
+      $closeHint={hint?.isClose ?? false}
+    >
       <Styled.Text>{text}</Styled.Text>
-      <Styled.ThemeNo>
-        {themeNo} {diffH && "↓"} {diffL && "↑"}
-      </Styled.ThemeNo>
+      {song && (
+        <Styled.ThemeNo>
+          [Theme {song.themeNo}] {hint?.arrow}
+        </Styled.ThemeNo>
+      )}
     </Styled.Container>
   );
 }

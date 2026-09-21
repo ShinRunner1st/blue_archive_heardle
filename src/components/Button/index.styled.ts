@@ -30,4 +30,9 @@ export const Button = styled.button<ButtonProps>`
     transform: scale(${({ disabled }) => (disabled ? 1 : 1.08)});
     opacity: 0.8;
   }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 3px;
+  }
 `;

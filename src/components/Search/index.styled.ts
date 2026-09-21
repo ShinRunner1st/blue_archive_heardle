@@ -130,3 +130,35 @@ export const ThemeNo = styled.span`
   white-space: nowrap;
   margin-left: 8px;
 `;
+
+export const ClearButton = styled.button`
+  display: flex;
+  align-items: center;
+
+  margin-left: 8px;
+  padding: 0;
+
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+`;
+
+/** Visually hidden, but still read out by assistive technology. */
+export const LiveRegion = styled.span`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+`;

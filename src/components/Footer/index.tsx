@@ -1,4 +1,3 @@
-import React from "react";
 import { IoHeart, IoLogoGithub } from "react-icons/io5";
 
 import * as Styled from "./index.styled";
@@ -6,12 +5,13 @@ import * as Styled from "./index.styled";
 export function Footer() {
   return (
     <Styled.Text>
-      Made with <IoHeart /> by{" "}
+      Made with <IoHeart aria-hidden="true" /> by{" "}
       <Styled.Link
-        tabIndex={-1}
         href="https://github.com/ShinRunner1st/ba_ost_guess"
+        target="_blank"
+        rel="noopener noreferrer"
       >
-        <IoLogoGithub />
+        <IoLogoGithub aria-hidden="true" />
         ShinRunner1st
       </Styled.Link>
     </Styled.Text>
