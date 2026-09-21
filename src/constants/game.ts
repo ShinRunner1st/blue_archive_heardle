@@ -19,12 +19,6 @@ export const FIRST_RUN_KEY = "firstRun";
  */
 export const DAILY_EPOCH = "2026-09-21";
 
-/**
- * Seeds the deterministic daily shuffle. Any value works as long as it never
- * changes: it is what makes every player get the same song on the same day.
- */
-export const DAILY_SEED = 20260921;
-
 /** Public URL used in the shareable result. */
 export const SITE_URL = "https://bluearchive-heardle.xyz/";
 

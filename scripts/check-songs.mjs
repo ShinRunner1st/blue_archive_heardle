@@ -6,48 +6,11 @@
  * Uses the public oEmbed endpoint, which needs no API key: it answers 200 for
  * a playable video and 401/403/404 otherwise.
  */
-import { readFileSync } from "node:fs";
+import { loadSongs } from "./lib/songs.mjs";
 
 const CONCURRENCY = 8;
 const TIMEOUT_MS = 10_000;
 const RETRIES = 2;
-
-function loadSongs() {
-  const source = readFileSync("src/constants/songs.ts", "utf8");
-
-  // Slice out the array literal by its brackets rather than by stripping a
-  // prefix: the declaration is not always the first thing in the file (a
-  // leading comment already broke this once), and this survives reformatting.
-  const start = source.indexOf("[");
-  const end = source.lastIndexOf("]");
-
-  if (start === -1 || end <= start) {
-    throw new Error("Could not find the song array in src/constants/songs.ts");
-  }
-
-  // The array is a plain literal with no type syntax, so evaluating it is both
-  // accurate and immune to reformatting - unlike converting it to JSON with
-  // regexes. The input is a checked-in file in this repo.
-  const songs = new Function(`return ${source.slice(start, end + 1)}`)();
-
-  if (!Array.isArray(songs) || songs.length === 0) {
-    throw new Error("Parsed no songs - the song list format has changed");
-  }
-
-  // A silent partial parse would report every song as fine, so check the shape
-  // rather than trusting the count.
-  const malformed = songs.find(
-    (song) => typeof song?.youtubeId !== "string" || !song.youtubeId
-  );
-
-  if (malformed) {
-    throw new Error(
-      `Song entry has no youtubeId: ${JSON.stringify(malformed)}`
-    );
-  }
-
-  return songs;
-}
 
 async function check(song) {
   const url =

@@ -1,5 +1,6 @@
 import { songs } from "../constants";
-import { DAILY_EPOCH, DAILY_SEED } from "../constants/game";
+import { dailyOrder } from "../constants/dailyOrder";
+import { DAILY_EPOCH } from "../constants/game";
 import { Song } from "../types/song";
 
 const MS_PER_DAY = 86_400_000;
@@ -24,44 +25,29 @@ export function dayNumber(now: Date = new Date()): number {
   return Math.round(elapsed / MS_PER_DAY) + 1;
 }
 
-/** Small deterministic PRNG - same seed, same sequence, on every device. */
-function mulberry32(seed: number): () => number {
-  let state = seed >>> 0;
-
-  return () => {
-    state = (state + 0x6d2b79f5) >>> 0;
-    let t = state;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
+const byThemeNo = new Map(songs.map((song) => [song.themeNo, song]));
 
 /**
- * One fixed shuffle of the whole song list, walked a day at a time. Because the
- * order is a permutation rather than a hash, every track comes up exactly once
- * before any repeats - the daily equivalent of the endless bag.
+ * The track for a given puzzle number. Stable for all players, forever.
+ *
+ * The order is read from a checked-in schedule rather than shuffled here. A
+ * runtime shuffle is a function of the song list's length, so adding a single
+ * song reshuffled 340 of 341 days - today's track would change mid-deploy and
+ * two players on the same day would see different songs. The schedule is only
+ * ever appended to, so adding songs cannot disturb a day already played.
  */
-function dailyOrder(): Song[] {
-  const random = mulberry32(DAILY_SEED);
-  const order = [...songs];
-
-  for (let i = order.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(random() * (i + 1));
-    [order[i], order[j]] = [order[j], order[i]];
-  }
-
-  return order;
-}
-
-const ORDER = dailyOrder();
-
-/** The track for a given puzzle number. Stable for all players, forever. */
 export function dailySong(day: number): Song {
   // Handles a clock set before the epoch, which would otherwise index from the
-  // wrong end of the list.
-  const index = (((day - 1) % ORDER.length) + ORDER.length) % ORDER.length;
-  return ORDER[index];
+  // wrong end of the schedule.
+  const index =
+    (((day - 1) % dailyOrder.length) + dailyOrder.length) % dailyOrder.length;
+
+  const song = byThemeNo.get(dailyOrder[index]);
+  if (song) return song;
+
+  // The scheduled theme has left the song list. Its slot stays put so the rest
+  // of the schedule does not shift; only this one day falls back.
+  return songs[index % songs.length];
 }
 
 /** Milliseconds from `now` until the next local midnight. */

@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { songs } from "../constants";
 import { DAILY_EPOCH } from "../constants/game";
+import { dailyOrder } from "../constants/dailyOrder";
 import { dailySong, dayNumber, formatCountdown, msUntilNextDay } from "./daily";
 
 function at(iso: string) {
@@ -91,5 +92,43 @@ describe("formatCountdown", () => {
   it("stays readable in the last minute", () => {
     expect(formatCountdown(30_000)).toBe("less than a minute");
     expect(formatCountdown(0)).toBe("any moment now");
+  });
+});
+
+/**
+ * The schedule is checked in so that adding songs cannot change a day that has
+ * already been played. If the two drift apart, days either repeat a song or
+ * resolve to a fallback, so this guards the generated file rather than the
+ * algorithm.
+ */
+describe("the checked-in daily schedule", () => {
+  it("covers every song exactly once", () => {
+    expect(dailyOrder).toHaveLength(songs.length);
+    expect(new Set(dailyOrder).size).toBe(songs.length);
+  });
+
+  it("schedules only themes that exist in the song list", () => {
+    const known = new Set(songs.map((song) => song.themeNo));
+    const unknown = dailyOrder.filter((themeNo) => !known.has(themeNo));
+
+    expect(unknown).toEqual([]);
+  });
+
+  it("leaves no song unscheduled", () => {
+    const scheduled = new Set(dailyOrder);
+    const missing = songs
+      .map((song) => song.themeNo)
+      .filter((themeNo) => !scheduled.has(themeNo));
+
+    // Run `npm run build:daily-order` after adding songs.
+    expect(missing).toEqual([]);
+  });
+
+  it("deals the schedule in order", () => {
+    expect(dailySong(1).themeNo).toBe(dailyOrder[0]);
+    expect(dailySong(2).themeNo).toBe(dailyOrder[1]);
+    expect(dailySong(dailyOrder.length).themeNo).toBe(
+      dailyOrder[dailyOrder.length - 1]
+    );
   });
 });

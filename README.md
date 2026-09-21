@@ -58,13 +58,15 @@ src/
   components/   UI components, each with a co-located styled-components file
     PopUp/      Shared modal shell: overlay, Escape, focus trap, dialog roles
     ErrorBoundary/  Recovery screen so a crash never leaves a blank page
-  constants/    Song list, clip lengths, theme, game constants
+  constants/    Song list, daily schedule, clip lengths, theme, game constants
   helpers/      Pure logic: search, stats, song picking, daily puzzle, storage
   hooks/        useGame - all game state and persistence for both modes
   test/         Render harness shared by the component tests
   types/        Shared TypeScript types
 scripts/
-  check-songs.mjs   Weekly YouTube link check, run from CI
+  check-songs.mjs        Weekly YouTube link check, run from CI
+  build-daily-order.mjs  Regenerates the daily schedule after songs change
+  lib/songs.mjs          Shared reader for the song list
 ```
 
 Game state lives in `useGame`, which holds both modes at once and mirrors each
@@ -73,9 +75,20 @@ Everything read back out of storage is validated in `helpers/storage.ts`, so a
 corrupted or outdated save degrades to a fresh game rather than breaking the
 page.
 
-The daily puzzle is derived, not stored: `helpers/daily.ts` walks one fixed,
-seeded shuffle of the song list a day at a time, so every player gets the same
-track on the same local calendar day and no track repeats for a full cycle.
+The daily puzzle walks a checked-in schedule, `constants/dailyOrder.ts`, one
+day at a time, so every player gets the same track on the same local calendar
+day and no track repeats for a full cycle.
+
+That schedule is generated, not shuffled at runtime. A runtime shuffle is a
+function of the song list's length, so adding a single song reshuffled 340 of
+341 days: today's track would change mid-deploy, two players on the same day
+would see different songs, and every past puzzle number would stop meaning
+anything. The schedule is only ever appended to, so adding songs cannot
+disturb a day that has already been played.
+
+**After changing the song list, run `npm run build:daily-order`.** A test fails
+if the schedule and the song list drift apart, so CI will catch a forgotten
+regeneration rather than letting the sequence corrupt quietly.
 
 A video that will not play - removed, private, region-locked or with embedding
 disabled - is caught by the player's `onError`, plus a timeout for loads that

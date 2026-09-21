@@ -20,6 +20,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check:songs": "node scripts/check-songs.mjs",
+    "build:daily-order": "node scripts/build-daily-order.mjs && prettier --write src/constants/dailyOrder.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"src/**/*.{ts,tsx}\" --max-warnings 0",
     "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
