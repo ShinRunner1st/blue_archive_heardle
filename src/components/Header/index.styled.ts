@@ -15,93 +15,236 @@ export const Container = styled.header`
   margin-bottom: 15px;
 `;
 
+/**
+ * The wordmark holds the centre and the two control groups take a corner each:
+ * modes on the left, tools on the right. The side columns are equal fractions
+ * so the logo stays optically centred even as the streak chip comes and goes.
+ *
+ * A phone cannot fit all three across, so the logo takes its own row there and
+ * the two groups sit in the corners beneath it.
+ */
 export const Content = styled.div`
   font-family: "Nunito Sans Variable";
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-areas: "modes brand tools";
   align-items: center;
+  gap: 8px;
 
   width: 100%;
   max-width: 650px;
-  padding: 0 16px;
-
-  transition: transform 0.15s ease, opacity 0.15s ease;
-
-  svg:hover {
-    cursor: pointer;
-    opacity: 0.8;
-    transform: scale(1.08);
-  }
+  padding: 8px 16px;
 
   a {
     color: ${({ theme }) => theme.text};
   }
 
-  .left-icons {
-    display: flex;
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "brand brand"
+      "modes tools";
     gap: 6px;
-    justify-self: start;
-    align-items: center;
-    font-size: 40px;
-  }
-
-  .right-icon {
-    display: flex;
-    align-items: center;
-    justify-self: end;
-    font-size: 34px;
-  }
-
-  @media (max-width: 768px) {
-    .left-icons {
-      display: flex;
-      gap: 6px;
-      justify-self: start;
-      align-items: center;
-      font-size: 32px;
-    }
-
-    .right-icon {
-      display: flex;
-      align-items: center;
-      justify-self: end;
-      font-size: 26px;
-    }
+    padding: 8px 12px;
   }
 `;
 
-export const Logo = styled.img`
-  height: 70px;
-  width: auto;
-  user-select: none;
-  -webkit-touch-callout: none;
+export const Brand = styled.div`
+  grid-area: brand;
+  justify-self: center;
 
-  filter: drop-shadow(0 0 2px white) drop-shadow(0 0 2px white)
-    drop-shadow(0 0 2px white);
-
-  @media (max-width: 768px) {
-    height: 60px;
-  }
-`;
-
-export const Title = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-self: center;
   text-align: center;
 `;
 
-export const Tagline = styled.h1`
+export const Heading = styled.h1`
+  /* The image is the heading, so there is no text box to reserve. */
+  margin: 0;
+  line-height: 0;
+`;
+
+export const Tagline = styled.p`
   font-family: "Nunito Sans Variable";
   font-size: 14px;
   font-weight: 600;
   line-height: 1.2;
-  margin: -4px 0 6px;
+  margin: 4px 0 0;
   color: ${({ theme }) => theme.text};
   opacity: 0.8;
 
   @media (max-width: 768px) {
     font-size: 12px;
+  }
+`;
+
+export const Logo = styled.img`
+  height: 52px;
+  width: auto;
+  user-select: none;
+  -webkit-touch-callout: none;
+
+  /* Three stacked white shadows - one pass is too faint to read on the brown. */
+  filter: drop-shadow(0 0 2px white) drop-shadow(0 0 2px white)
+    drop-shadow(0 0 2px white);
+
+  @media (max-width: 768px) {
+    height: 44px;
+  }
+`;
+
+/**
+ * Segmented switch between the daily puzzle and endless play.
+ */
+export const Modes = styled.div`
+  grid-area: modes;
+  justify-self: start;
+
+  position: relative;
+  display: grid;
+  /* Equal columns so the sliding pill is the same width in both positions. */
+  grid-template-columns: 1fr 1fr;
+
+  padding: 3px;
+
+  background-color: rgba(0, 0, 0, 0.22);
+  border: 1px solid ${({ theme }) => theme.border100};
+  border-radius: 999px;
+`;
+
+/**
+ * The active marker. Animating one element between two places reads as a switch
+ * being thrown; recolouring two separate backgrounds just blinks.
+ */
+export const ModeThumb = styled.div<{ $index: number }>`
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+
+  width: calc(50% - 3px);
+
+  background-color: ${({ theme }) => theme.green};
+  border-radius: 999px;
+
+  transform: translateX(${({ $index }) => $index * 100}%);
+  transition: transform 0.32s cubic-bezier(0.34, 1.35, 0.5, 1);
+`;
+
+export const ModeButton = styled.button<{ $active: boolean }>`
+  /* Above the sliding pill, which shares this space. */
+  position: relative;
+  z-index: 1;
+
+  padding: 5px 14px;
+
+  font-family: "Nunito Sans Variable";
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: ${({ theme }) => theme.text};
+  opacity: ${({ $active }) => ($active ? 1 : 0.62)};
+
+  background: none;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+
+  transition: opacity 0.2s ease, transform 0.12s ease;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  /* Follows the finger, so the pill is not the only thing that responds. */
+  &:active {
+    transform: scale(0.94);
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 768px) {
+    padding: 5px 11px;
+    font-size: 0.72rem;
+  }
+`;
+
+export const Tools = styled.div`
+  grid-area: tools;
+  justify-self: end;
+
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  font-size: 30px;
+
+  @media (max-width: 768px) {
+    font-size: 25px;
+  }
+`;
+
+/** Daily streak, kept beside the stats button it belongs to. */
+export const Streak = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+
+  margin-right: 4px;
+  padding: 3px 9px;
+
+  font-family: "Nunito Sans Variable";
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: ${({ theme }) => theme.text};
+  white-space: nowrap;
+
+  background-color: rgba(0, 0, 0, 0.22);
+  border: 1px solid ${({ theme }) => theme.border100};
+  border-radius: 999px;
+
+  @media (max-width: 768px) {
+    font-size: 0.72rem;
+    padding: 3px 7px;
+  }
+`;
+
+/**
+ * The header controls were bare <svg onClick> elements, so they could not be
+ * focused or activated from the keyboard. They are real buttons now; the icon
+ * inherits the surrounding font-size so the existing sizing still applies.
+ */
+export const IconButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 4px;
+  margin: 0;
+
+  font-size: inherit;
+  color: ${({ theme }) => theme.text};
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+
+  transition: transform 0.15s ease, opacity 0.15s ease;
+
+  &:hover {
+    opacity: 0.8;
+    transform: scale(1.08);
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
   }
 `;

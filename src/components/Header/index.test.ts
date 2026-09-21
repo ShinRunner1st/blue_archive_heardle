@@ -1,0 +1,153 @@
+import React from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import { Header } from "./index";
+import { createHarness } from "../../test/harness";
+import { GameMode } from "../../types/mode";
+
+let harness: ReturnType<typeof createHarness>;
+const openInfoPopUp = vi.fn();
+const openStatsPopUp = vi.fn();
+const openHowToPopUp = vi.fn();
+const onModeChange = vi.fn();
+
+function buttonFor(label: string) {
+  return harness.container.querySelector<HTMLButtonElement>(
+    `button[aria-label="${label}"]`
+  );
+}
+
+function modeButton(label: string) {
+  return Array.from(
+    harness.container.querySelectorAll<HTMLButtonElement>("button")
+  ).find((button) => button.textContent === label);
+}
+
+function mount(mode: GameMode = "daily", streak = 0) {
+  harness.render(
+    React.createElement(Header, {
+      openInfoPopUp,
+      openStatsPopUp,
+      openHowToPopUp,
+      mode,
+      onModeChange,
+      streak,
+    })
+  );
+}
+
+beforeEach(() => {
+  harness = createHarness();
+  mount();
+});
+
+afterEach(() => {
+  harness.destroy();
+  vi.clearAllMocks();
+});
+
+describe("Header", () => {
+  // These were bare <svg onClick> elements, unreachable by keyboard and
+  // unnamed for screen readers.
+  it("exposes the controls as labelled buttons", () => {
+    // Three icon controls plus the two mode buttons.
+    expect(harness.container.querySelectorAll("button")).toHaveLength(5);
+    expect(buttonFor("About this game")).not.toBeNull();
+    expect(buttonFor("How to play")).not.toBeNull();
+    expect(buttonFor("Your stats")).not.toBeNull();
+  });
+
+  it("opens the matching pop-up when activated", () => {
+    buttonFor("About this game")!.click();
+    expect(openInfoPopUp).toHaveBeenCalled();
+
+    buttonFor("How to play")!.click();
+    expect(openHowToPopUp).toHaveBeenCalled();
+
+    buttonFor("Your stats")!.click();
+    expect(openStatsPopUp).toHaveBeenCalled();
+  });
+
+  it("keeps the icons out of the accessibility tree", () => {
+    harness.container.querySelectorAll("svg").forEach((icon) => {
+      expect(icon.getAttribute("aria-hidden")).toBe("true");
+    });
+  });
+
+  // The tagline used to carry the heading; the wordmark does now, so its alt
+  // text has to stand in for it.
+  it("gives the page a single level-one heading, named by the wordmark", () => {
+    const headings = harness.container.querySelectorAll("h1");
+
+    expect(headings).toHaveLength(1);
+    expect(headings[0].querySelector("img")?.getAttribute("alt")).toBe(
+      "Blue Archive Heardle"
+    );
+  });
+});
+
+describe("Header streak", () => {
+  it("shows a running daily streak", () => {
+    mount("daily", 4);
+
+    const streak = harness.container.querySelector('[role="img"]');
+    expect(streak?.textContent).toContain("4");
+    expect(streak?.getAttribute("aria-label")).toBe("4 day streak");
+  });
+
+  it("stays out of the way when there is no streak yet", () => {
+    mount("daily", 0);
+
+    expect(harness.container.querySelector('[role="img"]')).toBeNull();
+  });
+
+  it("is a daily idea, so endless never shows one", () => {
+    mount("endless", 4);
+
+    expect(harness.container.querySelector('[role="img"]')).toBeNull();
+  });
+});
+
+describe("Header mode switch", () => {
+  it("marks the active mode as pressed", () => {
+    expect(modeButton("Daily")?.getAttribute("aria-pressed")).toBe("true");
+    expect(modeButton("Endless")?.getAttribute("aria-pressed")).toBe("false");
+
+    mount("endless");
+
+    expect(modeButton("Daily")?.getAttribute("aria-pressed")).toBe("false");
+    expect(modeButton("Endless")?.getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("reports the mode the player picked", () => {
+    modeButton("Endless")!.click();
+    expect(onModeChange).toHaveBeenCalledWith("endless");
+
+    modeButton("Daily")!.click();
+    expect(onModeChange).toHaveBeenCalledWith("daily");
+  });
+
+  // The marker is one element that slides, so the two buttons must not each
+  // carry their own background - that would show two green pills mid-animation.
+  it("moves a single active marker rather than recolouring both buttons", () => {
+    const thumb = () =>
+      harness.container.querySelector<HTMLElement>('[aria-hidden="true"]')!;
+
+    const daily = getComputedStyle(thumb()).transform;
+
+    mount("endless");
+    const endless = getComputedStyle(thumb()).transform;
+
+    expect(daily).toBe("translateX(0%)");
+    expect(endless).toBe("translateX(100%)");
+    // Transparent: the pill behind them is the only green.
+    expect(getComputedStyle(modeButton("Daily")!).backgroundColor).toBe(
+      "rgba(0, 0, 0, 0)"
+    );
+  });
+
+  it("names the group for screen readers", () => {
+    const group = harness.container.querySelector('[role="group"]');
+    expect(group?.getAttribute("aria-label")).toBe("Game mode");
+  });
+});

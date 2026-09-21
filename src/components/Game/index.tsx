@@ -1,7 +1,10 @@
 import React, { useRef } from "react";
 
 import { GuessType } from "../../types/guess";
+import { GameMode } from "../../types/mode";
 import { Song } from "../../types/song";
+import { Round } from "../../types/stats";
+import { MAX_TRIES } from "../../constants/game";
 import { playTimes } from "../../constants";
 
 import { Button, Guess, Player, Search, Result } from "../";
@@ -10,67 +13,93 @@ import * as Styled from "./index.styled";
 
 interface Props {
   guesses: GuessType[];
-  todaysSolution: Song;
+  solution: Song;
   currentTry: number;
   didGuess: boolean;
+  selectedSong: Song | undefined;
   setSelectedSong: React.Dispatch<React.SetStateAction<Song | undefined>>;
   skip: () => void;
   guess: () => void;
-  correctRecent: string;
-  totalsGuesses: number;
-  getStartTime: (time: number) => void;
-  time: number;
-  Stats: number[];
-  selectedSong: Song | undefined;
+  score: string;
+  bagEmpty: boolean;
+  onNextSong: () => void;
+  onResetScore: () => void;
+  setStartTime: (time: number) => void;
+  startTime: number | null;
+  /** False while a dialog is open, so global shortcuts stay inert. */
+  keyboardEnabled: boolean;
+  mode: GameMode;
+  round: Round;
+  onNewDay: () => void;
+  /** Deals a different song when this one turns out to be unplayable. */
+  onSkipTrack?: () => void;
 }
 
 export function Game({
   guesses,
-  todaysSolution,
+  solution,
   currentTry,
   didGuess,
+  selectedSong,
   setSelectedSong,
   skip,
   guess,
-  correctRecent,
-  totalsGuesses,
-  getStartTime,
-  time,
-  Stats,
-  selectedSong,
+  score,
+  bagEmpty,
+  onNextSong,
+  onResetScore,
+  setStartTime,
+  startTime,
+  keyboardEnabled,
+  mode,
+  round,
+  onNewDay,
+  onSkipTrack,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  if (didGuess || currentTry === 6) {
+
+  if (didGuess || currentTry >= MAX_TRIES) {
     return (
       <Result
         didGuess={didGuess}
         currentTry={currentTry}
-        todaysSolution={todaysSolution}
-        guesses={guesses}
-        correctRecent={correctRecent}
-        totalsGuesses={totalsGuesses}
-        time={time}
-        Stats={Stats}
+        solution={solution}
+        score={score}
+        bagEmpty={bagEmpty}
+        onNextSong={onNextSong}
+        onResetScore={onResetScore}
+        startTime={startTime}
+        keyboardEnabled={keyboardEnabled}
+        mode={mode}
+        round={round}
+        onNewDay={onNewDay}
       />
     );
   }
+
+  const isLastTry = currentTry === MAX_TRIES - 1;
+  const nextClipBonus = isLastTry
+    ? 0
+    : (playTimes[currentTry + 1] - playTimes[currentTry]) / 1000;
+
   return (
     <>
-      {guesses.map((guess: GuessType, index) => (
+      {guesses.map((guessSlot: GuessType, index) => (
         <Guess
           key={index}
-          guess={guess}
-          isCorrect={guess.isCorrect}
+          guess={guessSlot}
           active={index === currentTry}
-          todaysSolution={todaysSolution}
+          solution={solution}
         />
       ))}
       <Player
-        id={todaysSolution.youtubeId}
+        id={solution.youtubeId}
         currentTry={currentTry}
-        getStartTime={getStartTime}
-        time={time}
+        setStartTime={setStartTime}
+        startTime={startTime}
         inputRef={inputRef}
+        keyboardEnabled={keyboardEnabled}
+        onSkipTrack={onSkipTrack}
       />
       <Search
         currentTry={currentTry}
@@ -81,11 +110,7 @@ export function Game({
 
       <Styled.Buttons>
         <Button onClick={skip}>
-          {currentTry === 5
-            ? "Give up?"
-            : `Skip +${
-                (playTimes[currentTry + 1] - playTimes[currentTry]) / 1000
-              }s`}
+          {isLastTry ? "Give up?" : `Skip +${nextClipBonus}s`}
         </Button>
         <Button variant="green" onClick={guess} disabled={!selectedSong}>
           Guess

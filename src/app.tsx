@@ -1,12 +1,15 @@
-import { event } from "react-ga";
-
 import React from "react";
-import _ from "lodash";
 
+import { GameMode } from "./types/mode";
 import { Song } from "./types/song";
-import { GuessType } from "./types/guess";
 
-import { todaysSolution, calRecentCorrect, calStats } from "./helpers";
+import { useGame } from "./hooks/useGame";
+import {
+  isFirstRun,
+  loadMode,
+  markFirstRunDone,
+  saveMode,
+} from "./helpers/storage";
 
 import {
   Header,
@@ -20,190 +23,89 @@ import {
 import * as Styled from "./app.styled";
 
 function App() {
-  const initialGuess = {
-    song: undefined,
-    skipped: false,
-    isCorrect: undefined,
-  } as GuessType;
+  const [mode, setMode] = React.useState<GameMode>(loadMode);
 
-  const [guesses, setGuesses] = React.useState<GuessType[]>(
-    Array.from({ length: 6 }).fill(initialGuess) as GuessType[]
-  );
-  const [currentTry, setCurrentTry] = React.useState<number>(0);
+  const {
+    solution,
+    guesses,
+    currentTry,
+    didGuess,
+    startTime,
+    round,
+    stats,
+    score,
+    streaks,
+    bagEmpty,
+    hasHistory,
+    guess,
+    skip,
+    setStartTime,
+    nextSong,
+    replaceCurrentSong,
+    resetScore,
+    refreshDay,
+  } = useGame(mode);
+
   const [selectedSong, setSelectedSong] = React.useState<Song>();
-  const [didGuess, setDidGuess] = React.useState<boolean>(false);
-  const [correctRecent, setCorrectRecent] = React.useState<string>("");
-  const [totalsGuesses, setTotalsGuesses] = React.useState<number>(0);
-  const [startTime, setStartTime] = React.useState<number>(0);
-  const [calStat, setCalStat] = React.useState([0, 0, 0, 0, 0, 0, 0, 0]);
 
-  const firstRun = localStorage.getItem("firstRun") === null;
-  let stats = JSON.parse(localStorage.getItem("stats") || "{}");
-
-  React.useEffect(() => {
-    if (Array.isArray(stats)) {
-      const visitedToday = _.isEqual(
-        todaysSolution,
-        stats[stats.length - 1].solution
-      );
-
-      if (!visitedToday) {
-        stats.push({
-          solution: todaysSolution,
-          currentTry: 0,
-          didGuess: 0,
-          startTime: 0,
-        });
-      } else {
-        const { currentTry, guesses, didGuess, startTime } =
-          stats[stats.length - 1];
-        setCurrentTry(currentTry);
-        setGuesses(guesses);
-        setDidGuess(didGuess);
-        setStartTime(startTime);
-      }
-    } else {
-      // initialize stats
-      // useEffect below does rest
-      stats = [];
-      stats.push({
-        solution: todaysSolution,
-      });
-    }
-  }, []);
-  //set stats to current
-  React.useEffect(() => {
-    if (Array.isArray(stats)) {
-      stats[stats.length - 1].currentTry = currentTry;
-      stats[stats.length - 1].didGuess = didGuess;
-      stats[stats.length - 1].guesses = guesses;
-      stats[stats.length - 1].startTime = startTime;
-    }
-  }),
-    [guesses, currentTry, didGuess, startTime];
-
-  React.useEffect(() => {
-    localStorage.setItem("stats", JSON.stringify(stats));
-    setCorrectRecent(calRecentCorrect(stats));
-    setTotalsGuesses(stats.length);
-  }, [stats]);
-
-  React.useEffect(() => {
-    setCalStat(calStats(stats));
-  }, [currentTry]);
-
-  const [isInfoPopUpOpen, setIsInfoPopUpOpen] =
-    React.useState<boolean>(firstRun);
-
-  const openInfoPopUp = React.useCallback(() => {
-    setIsInfoPopUpOpen(true);
-  }, []);
-  const closeInfoPopUp = React.useCallback(() => {
-    if (firstRun) {
-      localStorage.setItem("firstRun", "false");
-      setIsInfoPopUpOpen(false);
-    } else {
-      setIsInfoPopUpOpen(false);
-    }
-  }, [localStorage.getItem("firstRun")]);
-
-  //idk
-  const [isStatsPopUpOpen, setIsStatsPopUpOpen] =
-    React.useState<boolean>(false);
-
-  const openStatsPopUp = React.useCallback(() => {
-    setIsStatsPopUpOpen(true);
-  }, []);
-  const closeStatsPopUp = React.useCallback(() => {
-    setIsStatsPopUpOpen(false);
-  }, []);
-
-  const [isHowToPopUpOpen, setIsHowToPopUpOpen] =
-    React.useState<boolean>(false);
-
-  const openHowToPopUp = React.useCallback(() => {
-    setIsHowToPopUpOpen(true);
-  }, []);
-  const closeHowToPopUp = React.useCallback(() => {
-    setIsHowToPopUpOpen(false);
-  }, []);
-
-  const skip = React.useCallback(() => {
-    setGuesses((guesses: GuessType[]) => {
-      const newGuesses = [...guesses];
-      newGuesses[currentTry] = {
-        song: undefined,
-        skipped: true,
-        isCorrect: undefined,
-      };
-
-      return newGuesses;
-    });
-
-    setCurrentTry((currentTry) => currentTry + 1);
-
-    event({
-      category: "Game",
-      action: "Skip",
-    });
-  }, [currentTry]);
-
-  const guess = React.useCallback(() => {
-    setCalStat(calStats(stats));
-    const isCorrect = selectedSong === todaysSolution;
-
-    if (!selectedSong) {
-      alert("You must select a choice to make a guess.");
-      return;
-    }
-
-    setGuesses((guesses: GuessType[]) => {
-      const newGuesses = [...guesses];
-      newGuesses[currentTry] = {
-        song: selectedSong,
-        skipped: false,
-        isCorrect: isCorrect,
-      };
-
-      return newGuesses;
-    });
-
-    setCurrentTry((currentTry) => currentTry + 1);
+  const changeMode = React.useCallback((next: GameMode) => {
+    setMode(next);
+    // A song picked for the old mode's round must not carry over.
     setSelectedSong(undefined);
-
-    if (isCorrect) {
-      setDidGuess(true);
-    }
-
-    event({
-      category: "Game",
-      action: "Guess",
-      label: `${selectedSong.artist} - ${selectedSong.name}`,
-      value: isCorrect ? 1 : 0,
-    });
-  }, [guesses, selectedSong]);
-
-  const getStartTime = React.useCallback((time: number) => {
-    setStartTime(time);
   }, []);
 
-  // Listen for "Enter" key globally
+  // Also pins the first-visit choice on mount: loadMode works out whether this
+  // is a returning player from the endless history, which useGame overwrites
+  // as soon as it runs, so the answer has to be written down immediately.
   React.useEffect(() => {
+    saveMode(mode);
+  }, [mode]);
+
+  // Read once on mount: the welcome pop-up is only shown to new players.
+  const [isInfoPopUpOpen, setIsInfoPopUpOpen] =
+    React.useState<boolean>(isFirstRun);
+  const [isStatsPopUpOpen, setIsStatsPopUpOpen] = React.useState(false);
+  const [isHowToPopUpOpen, setIsHowToPopUpOpen] = React.useState(false);
+
+  const openInfoPopUp = React.useCallback(() => setIsInfoPopUpOpen(true), []);
+  const closeInfoPopUp = React.useCallback(() => {
+    markFirstRunDone();
+    setIsInfoPopUpOpen(false);
+  }, []);
+
+  const openStatsPopUp = React.useCallback(() => setIsStatsPopUpOpen(true), []);
+  const closeStatsPopUp = React.useCallback(
+    () => setIsStatsPopUpOpen(false),
+    []
+  );
+
+  const openHowToPopUp = React.useCallback(() => setIsHowToPopUpOpen(true), []);
+  const closeHowToPopUp = React.useCallback(
+    () => setIsHowToPopUpOpen(false),
+    []
+  );
+
+  const submitGuess = React.useCallback(() => {
+    if (!selectedSong) return;
+    guess(selectedSong);
+    setSelectedSong(undefined);
+  }, [guess, selectedSong]);
+
+  const isPopUpOpen = isInfoPopUpOpen || isStatsPopUpOpen || isHowToPopUpOpen;
+
+  // Enter submits the highlighted song from anywhere on the page.
+  React.useEffect(() => {
+    if (isPopUpOpen || !selectedSong) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Only trigger if Enter is pressed AND a song is currently selected
-      if (e.key === "Enter" && selectedSong) {
-        e.preventDefault(); // Prevents accidental form submissions
-        guess();
-      }
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      submitGuess();
     };
 
     window.addEventListener("keydown", handleKeyDown);
-
-    // Cleanup: Remove listener when component unmounts or dependencies change
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [guess, selectedSong]); // Re-run effect if these change
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isPopUpOpen, selectedSong, submitGuess]);
 
   return (
     <Styled.BG>
@@ -211,31 +113,54 @@ function App() {
         openInfoPopUp={openInfoPopUp}
         openStatsPopUp={openStatsPopUp}
         openHowToPopUp={openHowToPopUp}
+        mode={mode}
+        onModeChange={changeMode}
+        streak={streaks.current}
       />
       {isStatsPopUpOpen && (
         <StatsPopUp
           onClose={closeStatsPopUp}
-          correctRecent={correctRecent}
-          Stats={calStat}
+          score={score}
+          stats={stats}
+          mode={mode}
+          streaks={streaks}
         />
       )}
-      {isInfoPopUpOpen && <InfoPopUp onClose={closeInfoPopUp} />}
+      {isInfoPopUpOpen && (
+        <InfoPopUp
+          onClose={closeInfoPopUp}
+          canReset={hasHistory}
+          onReset={resetScore}
+          mode={mode}
+        />
+      )}
       {isHowToPopUpOpen && <HowToPopUp onClose={closeHowToPopUp} />}
       <Styled.Container>
         <Game
+          // Remounting on a mode change clears the search box and the player,
+          // which otherwise carry the old mode's round over.
+          key={mode}
           guesses={guesses}
           didGuess={didGuess}
-          todaysSolution={todaysSolution}
+          solution={solution}
           currentTry={currentTry}
+          selectedSong={selectedSong}
           setSelectedSong={setSelectedSong}
           skip={skip}
-          guess={guess}
-          correctRecent={correctRecent}
-          totalsGuesses={totalsGuesses}
-          getStartTime={getStartTime}
-          time={startTime}
-          Stats={calStat}
-          selectedSong={selectedSong}
+          guess={submitGuess}
+          score={score}
+          bagEmpty={bagEmpty}
+          onNextSong={nextSong}
+          onResetScore={resetScore}
+          setStartTime={setStartTime}
+          startTime={startTime}
+          keyboardEnabled={!isPopUpOpen}
+          mode={mode}
+          round={round}
+          onNewDay={refreshDay}
+          // Daily is the same puzzle for everyone, so a bad track there cannot
+          // be swapped out - only endless can deal a replacement.
+          onSkipTrack={mode === "endless" ? replaceCurrentSong : undefined}
         />
       </Styled.Container>
       <Footer />
