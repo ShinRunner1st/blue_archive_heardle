@@ -1,3 +1,8 @@
+/**
+ * The OST list, keyed by its in-game theme number. The numbering has gaps
+ * (90, 111, 112, 126, 146 ... 369): those themes are missing from Blue Archive
+ * itself, not from this list, so nothing needs filling in.
+ */
 export const songs = [
   {
     artist: "Mitsukiyo",
