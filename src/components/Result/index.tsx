@@ -1,149 +1,160 @@
 import React, { useState } from "react";
+
 import { Song } from "../../types/song";
-import { GuessType } from "../../types/guess";
-import { scoreToEmoji } from "../../helpers";
+import { GameMode } from "../../types/mode";
+import { Round } from "../../types/stats";
+import { buildShareText } from "../../helpers";
+import { formatCountdown, msUntilNextDay } from "../../helpers/daily";
 
 import { Button } from "../Button";
 import { YouTube } from "../YouTube";
 
 import * as Styled from "./index.styled";
-import { selectRandomElement } from "../../helpers/randomNewSong";
-import { songs } from "../../constants";
 
 interface Props {
   didGuess: boolean;
   currentTry: number;
-  todaysSolution: Song;
-  guesses: GuessType[];
-  correctRecent: string;
-  totalsGuesses: number;
-  time: number;
-  Stats: number[];
+  solution: Song;
+  score: string;
+  bagEmpty: boolean;
+  onNextSong: () => void;
+  onResetScore: () => void;
+  startTime: number | null;
+  keyboardEnabled: boolean;
+  mode: GameMode;
+  /** The finished round, used to build the shareable result. */
+  round: Round;
+  /** Called when the clock passes midnight with the result still on screen. */
+  onNewDay: () => void;
+}
+
+const TEXT_FOR_TRY = [
+  "EH?! FIRST TRY?! 😮",
+  "Sensei is strong today 💪",
+  "Not bad at all~ 👀",
+  "Okay, getting intense 😤",
+  "THAT WAS TOO CLOSE 😭",
+  "WE SURVIVED, SENSEI 😭💥",
+];
+
+const COUNTDOWN_TICK_MS = 30_000;
+
+/**
+ * Counts down to the next puzzle. Daily mode has nothing to advance to, so this
+ * replaces the Next Song button rather than sitting beside it.
+ */
+function DailyCountdown({ onNewDay }: { onNewDay: () => void }) {
+  const [remaining, setRemaining] = useState(() => msUntilNextDay());
+
+  React.useEffect(() => {
+    const tick = () => {
+      const left = msUntilNextDay();
+      setRemaining(left);
+
+      // Rolled past midnight with the tab still open: hand today's puzzle over.
+      if (left <= 0) onNewDay();
+    };
+
+    const timer = window.setInterval(tick, COUNTDOWN_TICK_MS);
+    return () => window.clearInterval(timer);
+  }, [onNewDay]);
+
+  return (
+    <Styled.NextIn>Next song in {formatCountdown(remaining)}</Styled.NextIn>
+  );
 }
 
 export function Result({
   didGuess,
-  todaysSolution,
-  guesses,
   currentTry,
-  correctRecent,
-  totalsGuesses,
-  time,
-  Stats,
+  solution,
+  score,
+  bagEmpty,
+  onNextSong,
+  onResetScore,
+  startTime,
+  keyboardEnabled,
+  mode,
+  round,
+  onNewDay,
 }: Props) {
-  // const hoursToNextDay = Math.floor(
-  //   (new Date(new Date().setHours(24, 0, 0, 0)).getTime() -
-  //     new Date().getTime()) /
-  //     1000 /
-  //     60 /
-  //     60
-  // );
-  const [buttonText, setButtonText] = useState("Copy Score");
-  const textForTry = [
-    "EH?! FIRST TRY?! 😮",
-    "Sensei is strong today 💪",
-    "Not bad at all~ 👀",
-    "Okay, getting intense 😤",
-    "THAT WAS TOO CLOSE 😭",
-    "WE SURVIVED, SENSEI 😭💥",
-  ];
+  const [buttonText, setButtonText] = useState("Share result");
+  const isDaily = mode === "daily";
 
   const copyResult = React.useCallback(() => {
-    navigator.clipboard.writeText(scoreToEmoji(guesses, correctRecent, Stats));
-    setButtonText("Copied to your clipboard");
-    setTimeout(() => {
-      setButtonText("Copy Score");
-    }, 2000);
-  }, [guesses, correctRecent]);
+    navigator.clipboard
+      .writeText(buildShareText({ mode, round, score }))
+      .then(() => setButtonText("Copied to your clipboard"))
+      .catch(() => setButtonText("Copy failed"));
+  }, [mode, round, score]);
 
+  // Reset the label after a copy, and cancel the timer if the round advances
+  // before it fires.
   React.useEffect(() => {
+    if (buttonText === "Share result") return;
+
+    const timer = window.setTimeout(() => setButtonText("Share result"), 2000);
+    return () => window.clearTimeout(timer);
+  }, [buttonText]);
+
+  const advance = React.useCallback(() => {
+    if (bagEmpty) onResetScore();
+    else onNextSong();
+  }, [bagEmpty, onNextSong, onResetScore]);
+
+  // Enter moves on to the next song from the result screen, unless a dialog is
+  // open in front of it - or the mode has no next song to move to.
+  React.useEffect(() => {
+    if (!keyboardEnabled || isDaily) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Enter" && didGuess) {
-        e.preventDefault(); // Prevents accidental form submissions
-        selectRandomElement();
-        window.location.reload();
-      }
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      advance();
     };
 
     window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [keyboardEnabled, isDaily, advance]);
 
-    // Cleanup: Remove listener when component unmounts or dependencies change
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [didGuess]);
+  const Title = didGuess ? Styled.CorrectResultTitle : Styled.FailResultTitle;
+  const title = didGuess
+    ? TEXT_FOR_TRY[
+        Math.min(Math.max(currentTry - 1, 0), TEXT_FOR_TRY.length - 1)
+      ]
+    : "Mission Failed… 💔";
 
-  if (didGuess) {
-    const triesConjugation = currentTry === 1 ? "guess" : "guesses";
-
-    return (
-      <>
-        <Styled.CorrectResultTitle>
-          {textForTry[Math.min(currentTry - 1, textForTry.length - 1)]}
-        </Styled.CorrectResultTitle>
-        <Styled.Tries>
-          {songs.length == totalsGuesses && "This is last song and"} You got it
-          right in {currentTry} {triesConjugation}.
-        </Styled.Tries>
-        <Styled.Score>Score : {correctRecent}</Styled.Score>
-        <Styled.SongTitle>
-          {todaysSolution.artist} - {todaysSolution.name}
-        </Styled.SongTitle>
-        <YouTube id={todaysSolution.youtubeId} time={time} />
-        <Styled.Buttons>
-          <Button onClick={copyResult} variant="background100">
-            {buttonText}
+  return (
+    <>
+      <Title>{title}</Title>
+      <Styled.Tries>
+        {!isDaily && bagEmpty && "That was the last song. "}
+        {didGuess
+          ? `You got it right in ${currentTry} ${
+              currentTry === 1 ? "guess" : "guesses"
+            }.`
+          : "Sensei needs more training 😭"}
+      </Styled.Tries>
+      <Styled.Score>
+        {isDaily && typeof round.day === "number"
+          ? `Puzzle #${round.day}`
+          : `Score : ${score}`}
+      </Styled.Score>
+      <Styled.SongTitle>
+        {solution.artist} - {solution.name}
+      </Styled.SongTitle>
+      <YouTube id={solution.youtubeId} startTime={startTime ?? 0} />
+      {isDaily && <DailyCountdown onNewDay={onNewDay} />}
+      <Styled.Buttons>
+        <Button onClick={copyResult} variant="background100">
+          {buttonText}
+        </Button>
+        {!isDaily && (
+          <Button onClick={advance} variant={bagEmpty ? "red" : "green"}>
+            {bagEmpty ? "Reset Score" : didGuess ? "Next Song" : "Continue?"}
           </Button>
-          <Button
-            onClick={() => {
-              selectRandomElement();
-              window.location.reload();
-            }}
-            variant={songs.length === totalsGuesses ? "red" : "green"}
-            style={{ marginLeft: "50px" }}
-          >
-            {songs.length == totalsGuesses && "Reset Score"}
-            {songs.length != totalsGuesses && "Next Song"}
-          </Button>
-        </Styled.Buttons>
-        {/* <Styled.TimeToNext>
-          Try again tomorrow - new song in {hoursToNextDay} hours!
-        </Styled.TimeToNext> */}
-      </>
-    );
-  } else {
-    return (
-      <>
-        <Styled.FailResultTitle>Mission Failed… 💔</Styled.FailResultTitle>
-        <Styled.Tries>
-          {songs.length == totalsGuesses && "This is last song and"} Sensei
-          needs more training 😭
-        </Styled.Tries>
-        <Styled.Score>Score : {correctRecent}</Styled.Score>
-        <Styled.SongTitle>
-          {todaysSolution.artist} - {todaysSolution.name}
-        </Styled.SongTitle>
-        <YouTube id={todaysSolution.youtubeId} time={time} />
-        <Styled.Buttons>
-          <Button onClick={copyResult} variant="background100">
-            {buttonText}
-          </Button>
-          <Button
-            onClick={() => {
-              selectRandomElement();
-              window.location.reload();
-            }}
-            variant={songs.length === totalsGuesses ? "red" : "green"}
-            style={{ marginLeft: "25px" }}
-          >
-            {songs.length == totalsGuesses && "Reset Score"}
-            {songs.length != totalsGuesses && "Continue?"}
-          </Button>
-        </Styled.Buttons>
-        {/* <Styled.TimeToNext>
-          Try again tomorrow - new song in {hoursToNextDay} hours!
-        </Styled.TimeToNext> */}
-      </>
-    );
-  }
+        )}
+      </Styled.Buttons>
+    </>
+  );
 }

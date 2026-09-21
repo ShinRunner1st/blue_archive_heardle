@@ -58,20 +58,29 @@ export const Score = styled.h2`
   margin-bottom: 0;
 `;
 
-export const TimeToNext = styled.h4`
-  font-family: "Nunito Sans Variable";
-  @media (max-width: 768px) {
-    text-align: center;
-    width: 100%;
-  }
-`;
-
 export const Buttons = styled.div`
   font-family: "Nunito Sans Variable";
 
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
+  gap: 16px;
+
   width: 100%;
+  padding-bottom: 24px;
   text-align: center;
   position: relative;
+`;
+
+/** Time until the next daily puzzle, standing in for the Next Song button. */
+export const NextIn = styled.p`
+  font-family: "Nunito Sans Variable";
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.text};
+  opacity: 0.85;
+  text-shadow: #000000 1px 0 10px;
+
+  margin: 0 0 18px;
+  text-align: center;
 `;
