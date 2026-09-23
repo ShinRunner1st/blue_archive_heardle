@@ -9,7 +9,7 @@ function randomOf(list: Song[]): Song {
 
 /** Every song except the ones that failed to play earlier in this session. */
 function playableSongs(): Song[] {
-  const playable = songs.filter((song) => !isUnplayable(song.youtubeId));
+  const playable = songs.filter((song) => !isUnplayable(song.themeNo));
 
   // If somehow everything is blocked, deal from the full list anyway: a silent
   // round is still better than no round at all.

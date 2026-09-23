@@ -1,84 +1,71 @@
 import React, { act } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, Mock, vi } from "vitest";
 
 import { createHarness } from "../../test/harness";
 
 import { playTimes } from "../../constants";
+import { Player } from "./index";
+import { clearUnplayable, isUnplayable } from "../../helpers/unplayable";
 
 const DURATION = 200;
 
 /**
- * Stands in for the raw YT.Player the IFrame API hands to onReady. Every method
- * is synchronous on purpose: typing these as promise-returning is exactly what
- * broke loading, the start time, the clip cap and the progress bar.
+ * jsdom has <audio> but no media engine: play() and pause() are unimplemented
+ * and time never moves. These stand in for the parts of HTMLMediaElement the
+ * player uses, and tests move the clock by hand.
  */
-const fake = vi.hoisted(() => {
-  const state = { now: 0, duration: 200, autoReady: true };
-  const handlers: {
-    onError?: (event: { data: number }) => void;
-  } = {};
+const media = { now: 0, duration: DURATION };
 
-  return {
-    state,
-    handlers,
-    player: {
-      playVideo: vi.fn(),
-      pauseVideo: vi.fn(),
-      seekTo: vi.fn((seconds: number) => {
-        state.now = seconds;
-      }),
-      setVolume: vi.fn(),
-      getCurrentTime: vi.fn(() => state.now),
-      getDuration: vi.fn(() => state.duration),
-      getIframe: vi.fn(() => document.createElement("iframe")),
-    },
-  };
-});
+let play: Mock<() => Promise<void>>;
+let pause: Mock<() => void>;
+let seeks: number[];
+let readTime: Mock<() => number>;
 
-vi.mock("react-youtube", async () => {
-  const react = await import("react");
+function stubMedia() {
+  const proto = window.HTMLMediaElement.prototype;
+  seeks = [];
 
-  return {
-    default: ({
-      onReady,
-      onError,
-    }: {
-      onReady: (event: unknown) => void;
-      onError: (event: { data: number }) => void;
-    }) => {
-      react.useEffect(() => {
-        fake.handlers.onError = onError;
-        // A blocked or never-loading video never fires onReady - that is the
-        // case the error handling exists for.
-        if (fake.state.autoReady) onReady({ target: fake.player });
-      }, [onReady, onError]);
+  play = vi.fn(() => Promise.resolve());
+  pause = vi.fn(() => undefined);
+  readTime = vi.fn(() => media.now);
 
-      return null;
-    },
-  };
-});
-
-// Imported after the mock so the component picks up the stub.
-const { Player } = await import("./index");
-const { clearUnplayable, isUnplayable } = await import(
-  "../../helpers/unplayable"
-);
+  vi.spyOn(proto, "play").mockImplementation(play);
+  vi.spyOn(proto, "pause").mockImplementation(pause);
+  vi.spyOn(proto, "load").mockImplementation(() => undefined);
+  vi.spyOn(proto, "duration", "get").mockImplementation(() => media.duration);
+  vi.spyOn(proto, "currentTime", "get").mockImplementation(readTime);
+  vi.spyOn(proto, "currentTime", "set").mockImplementation((seconds) => {
+    media.now = seconds;
+    seeks.push(seconds);
+  });
+}
 
 let harness: ReturnType<typeof createHarness>;
 let container: HTMLDivElement;
 const setStartTime = vi.fn();
 const skipTrack = vi.fn();
 
+function audio() {
+  return container.querySelector("audio")!;
+}
+
+function fire(type: string) {
+  act(() => {
+    audio().dispatchEvent(new Event(type));
+  });
+}
+
 function mount(
   startTime: number | null = null,
   currentTry = 0,
   keyboardEnabled = true,
   // Daily mode passes no skip handler, since its puzzle cannot be swapped.
-  canSkipTrack = true
+  canSkipTrack = true,
+  loads = true
 ) {
   harness.render(
     React.createElement(Player, {
-      id: "SHkF48SgiSA",
+      themeNo: "1",
       currentTry,
       setStartTime,
       startTime,
@@ -87,12 +74,10 @@ function mount(
       onSkipTrack: canSkipTrack ? skipTrack : undefined,
     })
   );
-}
 
-function fireError(code = 150) {
-  act(() => {
-    fake.handlers.onError?.({ data: code });
-  });
+  // A file that never arrives never fires loadedmetadata - that is the case
+  // the timeout exists for.
+  if (loads) fire("loadedmetadata");
 }
 
 function buttonWith(text: string) {
@@ -104,7 +89,7 @@ function buttonWith(text: string) {
 /** Moves playback forward and lets the 250ms poll observe it. */
 function advancePlayback(seconds: number) {
   act(() => {
-    fake.state.now += seconds;
+    media.now += seconds;
     vi.advanceTimersByTime(250);
   });
 }
@@ -126,10 +111,9 @@ function clickTransport() {
 
 beforeEach(() => {
   vi.useFakeTimers();
-  fake.state.now = 0;
-  fake.state.duration = DURATION;
-  fake.state.autoReady = true;
-  fake.handlers.onError = undefined;
+  media.now = 0;
+  media.duration = DURATION;
+  stubMedia();
   clearUnplayable();
   harness = createHarness();
   container = harness.container;
@@ -142,7 +126,15 @@ afterEach(() => {
 });
 
 describe("Player", () => {
-  it("leaves the loading state once the player is ready", () => {
+  it("requests only the current song, and only its metadata up front", () => {
+    mount();
+
+    expect(container.querySelectorAll("audio")).toHaveLength(1);
+    expect(audio().getAttribute("src")).toBe("/audio/Theme_01.ogg");
+    expect(audio().getAttribute("preload")).toBe("metadata");
+  });
+
+  it("leaves the loading state once the metadata arrives", () => {
     mount();
 
     expect(container.textContent).not.toContain("Loading player");
@@ -155,20 +147,27 @@ describe("Player", () => {
 
     // (200 - 16) * 0.5 = 92
     expect(setStartTime).toHaveBeenCalledWith(92);
-    expect(fake.player.seekTo).toHaveBeenCalledWith(92, true);
+    expect(seeks).toContain(92);
   });
 
   it("does not re-roll a start time already stored for the round", () => {
     mount(42);
 
     expect(setStartTime).not.toHaveBeenCalled();
-    expect(fake.player.seekTo).toHaveBeenCalledWith(42, true);
+    expect(seeks).toContain(42);
   });
 
-  it("survives a player that reports no duration", () => {
-    fake.state.duration = 0;
+  it("plays at the volume the YouTube player used", () => {
+    mount(10);
+
+    expect(audio().volume).toBe(0.2);
+  });
+
+  it("survives a file that reports no duration", () => {
+    media.duration = NaN;
 
     expect(() => mount(null)).not.toThrow();
+    expect(setStartTime).toHaveBeenCalledWith(0);
     expect(container.textContent).not.toContain("Loading player");
   });
 
@@ -188,72 +187,109 @@ describe("Player", () => {
 
   it("stops the clip once the current try's play time elapses", () => {
     mount(10, 0);
-    // handleReady pauses once to hold the clip at its start.
-    fake.player.pauseVideo.mockClear();
 
     clickTransport();
-    expect(fake.player.playVideo).toHaveBeenCalled();
+    expect(play).toHaveBeenCalled();
 
     // playTimes[0] is 1000ms, so 0.5s in it must still be running.
     advancePlayback(0.5);
-    expect(fake.player.pauseVideo).not.toHaveBeenCalled();
+    expect(pause).not.toHaveBeenCalled();
 
     advancePlayback(0.75);
-    expect(fake.player.pauseVideo).toHaveBeenCalled();
-    expect(fake.player.seekTo).toHaveBeenLastCalledWith(10, true);
+    expect(pause).toHaveBeenCalled();
+    expect(seeks[seeks.length - 1]).toBe(10);
   });
 
   it("gives a later try a longer clip", () => {
     mount(10, 3);
-    fake.player.pauseVideo.mockClear();
 
     clickTransport();
 
     // playTimes[3] is 7000ms, so 5s in the clip is still running.
     advancePlayback(5);
-    expect(fake.player.pauseVideo).not.toHaveBeenCalled();
+    expect(pause).not.toHaveBeenCalled();
 
     advancePlayback(2.5);
-    expect(fake.player.pauseVideo).toHaveBeenCalled();
+    expect(pause).toHaveBeenCalled();
   });
 
   it("polls only while playing", () => {
     mount(10);
-    fake.player.getCurrentTime.mockClear();
+    readTime.mockClear();
 
     act(() => {
       vi.advanceTimersByTime(1000);
     });
-    expect(fake.player.getCurrentTime).not.toHaveBeenCalled();
+    expect(readTime).not.toHaveBeenCalled();
 
     clickTransport();
     act(() => {
       vi.advanceTimersByTime(250);
     });
-    expect(fake.player.getCurrentTime).toHaveBeenCalled();
+    expect(readTime).toHaveBeenCalled();
   });
 
-  // YouTube refuses to load or play a player it considers invisible, which is
-  // how the clip player was broken once already.
-  it("keeps the player mounted visibly rather than hidden", () => {
-    mount(10);
+  // The browser's own media controls can start playback without the button.
+  it("still caps a clip started from outside the page", () => {
+    mount(10, 0);
 
-    const wrapper = container.children[0] as HTMLElement;
-    const style = getComputedStyle(wrapper);
+    fire("play");
+    advancePlayback(1.25);
 
-    expect(style.opacity).not.toBe("0");
-    expect(style.display).not.toBe("none");
-    expect(style.visibility).not.toBe("hidden");
+    expect(pause).toHaveBeenCalled();
   });
 
-  it("gives the player wrapper a real size", () => {
+  it("goes back to Play when the browser refuses to start playback", async () => {
+    play.mockImplementationOnce(() =>
+      Promise.reject(new DOMException("blocked", "NotAllowedError"))
+    );
     mount(10);
 
-    const style = getComputedStyle(container.children[0] as HTMLElement);
+    clickTransport();
+    await act(async () => undefined);
 
-    // A 1px or 0px box reads as hidden to YouTube.
-    expect(style.width).not.toMatch(/^[01]px$/);
-    expect(style.height).not.toMatch(/^[01]px$/);
+    expect(
+      container.querySelector('button[aria-label="Play clip"]')
+    ).not.toBeNull();
+  });
+
+  it("resets to the clip start if the track runs out first", () => {
+    mount(10);
+    clickTransport();
+    media.now = 25;
+
+    fire("ended");
+
+    expect(seeks[seeks.length - 1]).toBe(10);
+    expect(
+      container.querySelector('button[aria-label="Play clip"]')
+    ).not.toBeNull();
+  });
+
+  it("keeps the song title out of the browser's media controls", () => {
+    const session = { metadata: null as unknown };
+    vi.stubGlobal(
+      "MediaMetadata",
+      class {
+        constructor(init: object) {
+          Object.assign(this, init);
+        }
+      }
+    );
+    Object.defineProperty(navigator, "mediaSession", {
+      value: session,
+      configurable: true,
+    });
+
+    try {
+      mount(10);
+      clickTransport();
+
+      expect(session.metadata).toMatchObject({ title: "Guess the Song" });
+    } finally {
+      delete (navigator as { mediaSession?: unknown }).mediaSession;
+      vi.unstubAllGlobals();
+    }
   });
 
   it("responds to Space when the keyboard is live", () => {
@@ -263,7 +299,7 @@ describe("Player", () => {
       window.dispatchEvent(new KeyboardEvent("keydown", { code: "Space" }));
     });
 
-    expect(fake.player.playVideo).toHaveBeenCalled();
+    expect(play).toHaveBeenCalled();
   });
 
   it("ignores Space while a dialog is open", () => {
@@ -273,7 +309,7 @@ describe("Player", () => {
       window.dispatchEvent(new KeyboardEvent("keydown", { code: "Space" }));
     });
 
-    expect(fake.player.playVideo).not.toHaveBeenCalled();
+    expect(play).not.toHaveBeenCalled();
   });
 
   it("keeps the longest clip within the track", () => {
@@ -285,17 +321,39 @@ describe("Player", () => {
     const rolled = setStartTime.mock.calls[0][0] as number;
     expect(rolled + 16).toBeLessThanOrEqual(DURATION);
   });
+
+  it("loads under StrictMode's double mount", () => {
+    harness.render(
+      React.createElement(
+        React.StrictMode,
+        null,
+        React.createElement(Player, {
+          themeNo: "1",
+          currentTry: 0,
+          setStartTime,
+          startTime: 10,
+          inputRef: React.createRef<HTMLInputElement>(),
+          keyboardEnabled: true,
+        })
+      )
+    );
+    fire("loadedmetadata");
+
+    expect(
+      container.querySelector('button[aria-label="Play clip"]')
+    ).not.toBeNull();
+  });
 });
 
 /**
- * Every control used to be gated on onReady, so a video YouTube refuses to play
- * left the round on "Loading player..." forever with no explanation and no way
- * to move on. These cover the way out.
+ * Every control is gated on the metadata, so a file that will not play would
+ * leave the round on "Loading player..." forever with no explanation and no
+ * way to move on. These cover the way out.
  */
-describe("Player when the video cannot be played", () => {
+describe("Player when the file cannot be played", () => {
   it("explains the failure instead of loading forever", () => {
-    mount(10);
-    fireError();
+    mount(10, 0, true, true, false);
+    fire("error");
 
     const alert = container.querySelector('[role="alert"]');
     expect(alert).not.toBeNull();
@@ -303,18 +361,18 @@ describe("Player when the video cannot be played", () => {
     expect(container.textContent).not.toContain("Loading player");
   });
 
-  it("remembers the video so the bag stops dealing it", () => {
-    mount(10);
-    expect(isUnplayable("SHkF48SgiSA")).toBe(false);
+  it("remembers the song so the bag stops dealing it", () => {
+    mount(10, 0, true, true, false);
+    expect(isUnplayable("1")).toBe(false);
 
-    fireError();
+    fire("error");
 
-    expect(isUnplayable("SHkF48SgiSA")).toBe(true);
+    expect(isUnplayable("1")).toBe(true);
   });
 
   it("offers a replacement song in endless mode", () => {
-    mount(10);
-    fireError();
+    mount(10, 0, true, true, false);
+    fire("error");
 
     act(() => {
       buttonWith("Skip this track")?.click();
@@ -324,23 +382,26 @@ describe("Player when the video cannot be played", () => {
   });
 
   it("offers no replacement in daily mode, since the puzzle is shared", () => {
-    mount(10, 0, true, false);
-    fireError();
+    mount(10, 0, true, false, false);
+    fire("error");
 
     expect(buttonWith("Skip this track")).toBeUndefined();
     expect(container.textContent).toContain("still guess or skip");
   });
 
   it("recovers when a retry succeeds", () => {
-    mount(10);
-    fireError();
-    expect(container.querySelector('[role="alert"]')).not.toBeNull();
+    mount(10, 0, true, true, false);
+    fire("error");
+    const failed = audio();
 
     act(() => {
       buttonWith("Try again")?.click();
     });
 
-    // The remounted stub reports ready again, so the controls come back.
+    // The retry mounts a fresh element, which starts a new request.
+    expect(audio()).not.toBe(failed);
+    fire("loadedmetadata");
+
     expect(container.querySelector('[role="alert"]')).toBeNull();
     expect(
       container.querySelector('button[aria-label="Play clip"]')
@@ -348,10 +409,9 @@ describe("Player when the video cannot be played", () => {
   });
 });
 
-describe("Player when the API never answers", () => {
+describe("Player when the file never arrives", () => {
   it("gives up waiting and says so", () => {
-    fake.state.autoReady = false;
-    mount(10);
+    mount(10, 0, true, true, false);
 
     expect(container.textContent).toContain("Loading player");
 
@@ -363,21 +423,19 @@ describe("Player when the API never answers", () => {
     expect(container.querySelector('[role="alert"]')).not.toBeNull();
   });
 
-  it("does not blame the video for what may be the connection", () => {
-    fake.state.autoReady = false;
-    mount(10);
+  it("does not blame the song for what may be the connection", () => {
+    mount(10, 0, true, true, false);
 
     act(() => {
       vi.advanceTimersByTime(12_000);
     });
 
-    // A timeout is not evidence the video is gone, so it stays in the bag.
-    expect(isUnplayable("SHkF48SgiSA")).toBe(false);
+    // A timeout is not evidence the file is broken, so it stays in the bag.
+    expect(isUnplayable("1")).toBe(false);
   });
 
-  it("keeps waiting while the player is still within its grace period", () => {
-    fake.state.autoReady = false;
-    mount(10);
+  it("keeps waiting while the file is still within its grace period", () => {
+    mount(10, 0, true, true, false);
 
     act(() => {
       vi.advanceTimersByTime(11_000);

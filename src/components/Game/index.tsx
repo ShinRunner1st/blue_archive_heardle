@@ -93,7 +93,7 @@ export function Game({
         />
       ))}
       <Player
-        id={solution.youtubeId}
+        themeNo={solution.themeNo}
         currentTry={currentTry}
         setStartTime={setStartTime}
         startTime={startTime}

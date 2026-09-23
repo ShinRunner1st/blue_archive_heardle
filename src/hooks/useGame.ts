@@ -142,7 +142,7 @@ export function useGame(mode: GameMode) {
 
   /**
    * Throws away the round in progress and deals a different song. Used when the
-   * video turns out to be unplayable, which is not the player's fault, so the
+   * song turns out to be unplayable, which is not the player's fault, so the
    * round is replaced rather than counted as a loss.
    */
   const replaceCurrentSong = React.useCallback(() => {

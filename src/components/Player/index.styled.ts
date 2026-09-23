@@ -69,25 +69,6 @@ export const TimeStamp = styled.span`
   }
 `;
 
-/**
- * The clip player must stay audible but out of the way. It is pushed behind the
- * page rather than hidden: YouTube refuses to load or play a player it
- * considers invisible, so `opacity: 0`, `display: none`, `visibility: hidden`
- * and near-zero sizes all break playback. Keep it laid out and on-screen.
- */
-export const StyledYouTube = styled.div`
-  position: absolute;
-  top: 0;
-  left: 0;
-
-  width: 100%;
-  height: 100%;
-
-  z-index: -1;
-
-  pointer-events: none;
-`;
-
 export const PlayIcon = styled(IoPlayCircle)`
   cursor: pointer;
   transition: transform 0.15s ease, opacity 0.15s ease;
@@ -123,8 +104,8 @@ export const PauseIcon = styled(IoPauseCircle)`
 `;
 
 /**
- * Stands in for the progress bar and transport button while the YouTube API
- * boots, so the controls fade in rather than popping the layout down.
+ * Stands in for the progress bar and transport button while the audio file
+ * loads, so the controls fade in rather than popping the layout down.
  */
 export const LoadingState = styled.div`
   display: flex;

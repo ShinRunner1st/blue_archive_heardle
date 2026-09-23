@@ -1,21 +1,20 @@
 /**
- * Tracks videos the player has proven unplayable in this session - deleted,
- * private, region-blocked, or with embedding turned off.
+ * Tracks songs the player has proven unplayable in this session - a missing
+ * file, or one this browser cannot decode.
  *
- * The weekly link check in CI can only see what a GitHub runner sees: a video
- * that resolves there may still refuse to embed, or be blocked in the player's
- * country. So the running app records its own failures and stops dealing them
- * out again. Session-scoped on purpose: the next visit re-tests, since a block
- * can be temporary or specific to one network.
+ * CI checks that every file exists, but not that every browser can play it. So
+ * the running app records its own failures and stops dealing them out again.
+ * Session-scoped on purpose: the next visit re-tests, since a failure can be a
+ * one-off network problem.
  */
 const unplayable = new Set<string>();
 
-export function markUnplayable(youtubeId: string): void {
-  unplayable.add(youtubeId);
+export function markUnplayable(themeNo: string): void {
+  unplayable.add(themeNo);
 }
 
-export function isUnplayable(youtubeId: string): boolean {
-  return unplayable.has(youtubeId);
+export function isUnplayable(themeNo: string): boolean {
+  return unplayable.has(themeNo);
 }
 
 /** Test seam - the set is module state that would otherwise leak across tests. */
