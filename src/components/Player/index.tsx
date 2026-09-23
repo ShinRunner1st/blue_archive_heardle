@@ -1,6 +1,7 @@
 import React from "react";
 
 import { playTimes } from "../../constants";
+import { AUDIO_VOLUME } from "../../constants/game";
 import { getAudioUrl } from "../../helpers/audioUrl";
 import { hideTrackFromMediaSession } from "../../helpers/mediaSession";
 import { markUnplayable } from "../../helpers/unplayable";
@@ -33,9 +34,6 @@ const LONGEST_CLIP_SECONDS = playTimes[playTimes.length - 1] / 1000;
  * in front of a silent progress bar wondering whether to reload.
  */
 const READY_TIMEOUT_MS = 12_000;
-
-/** The clip used to play at YouTube's volume 20 of 100. */
-const VOLUME = 0.2;
 
 type Status = "loading" | "ready" | "blocked" | "timedout";
 
@@ -175,7 +173,7 @@ export function Player({
       }
 
       audio.currentTime = rolled;
-      audio.volume = VOLUME;
+      audio.volume = AUDIO_VOLUME;
 
       setCurrentTime(rolled);
       setStatus("ready");

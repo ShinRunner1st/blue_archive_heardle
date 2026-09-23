@@ -7,7 +7,7 @@ import { buildShareText } from "../../helpers";
 import { formatCountdown, msUntilNextDay } from "../../helpers/daily";
 
 import { Button } from "../Button";
-import { YouTube } from "../YouTube";
+import { AnswerAudio } from "../AnswerAudio";
 
 import * as Styled from "./index.styled";
 
@@ -143,7 +143,7 @@ export function Result({
       <Styled.SongTitle>
         {solution.artist} - {solution.name}
       </Styled.SongTitle>
-      <YouTube id={solution.youtubeId} startTime={startTime ?? 0} />
+      <AnswerAudio themeNo={solution.themeNo} startTime={startTime ?? 0} />
       {isDaily && <DailyCountdown onNewDay={onNewDay} />}
       <Styled.Buttons>
         <Button onClick={copyResult} variant="background100">

@@ -157,7 +157,7 @@ describe("Player", () => {
     expect(seeks).toContain(42);
   });
 
-  it("plays at the volume the YouTube player used", () => {
+  it("plays at the same volume the YouTube player used", () => {
     mount(10);
 
     expect(audio().volume).toBe(0.2);

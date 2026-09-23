@@ -1,6 +1,9 @@
 /** Number of guesses a player gets before the round is lost. */
 export const MAX_TRIES = 6;
 
+/** Playback volume, 0-1. Matches the YouTube player's old volume of 20. */
+export const AUDIO_VOLUME = 0.2;
+
 /** localStorage key holding the array of endless-mode rounds. */
 export const STORAGE_KEY = "stats";
 

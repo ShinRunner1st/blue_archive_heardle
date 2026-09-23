@@ -7,8 +7,8 @@ import { Song } from "../../types/song";
 import { Round } from "../../types/stats";
 import { emptyGuesses } from "../../helpers/storage";
 
-// The result screen embeds a real YouTube iframe; stub it out.
-vi.mock("../YouTube", () => ({ YouTube: () => null }));
+// jsdom cannot play audio, and the player has its own tests; stub it out.
+vi.mock("../AnswerAudio", () => ({ AnswerAudio: () => null }));
 
 const { Result } = await import("./index");
 
