@@ -7,3 +7,6 @@
 
 # Lockfile is generated - keep it out of diffs and merge noise
 package-lock.json -diff linguist-generated
+
+# Game audio - never normalize line endings or diff it
+*.ogg binary
