@@ -37,16 +37,16 @@ The dev server runs at http://localhost:3000.
 
 ## Scripts
 
-| Script                | What it does                                |
-| --------------------- | ------------------------------------------- |
-| `npm run dev`         | Start the Vite dev server                   |
-| `npm run build`       | Type-check, then build to `build/`          |
-| `npm run preview`     | Serve the production build locally          |
-| `npm test`            | Run the Vitest suite                        |
-| `npm run lint`        | ESLint, warnings included                   |
-| `npm run typecheck`   | `tsc --noEmit`                              |
-| `npm run format`      | Rewrite files with Prettier                 |
-| `npm run check:songs` | Verify every song still resolves on YouTube |
+| Script                | What it does                         |
+| --------------------- | ------------------------------------ |
+| `npm run dev`         | Start the Vite dev server            |
+| `npm run build`       | Type-check, then build to `build/`   |
+| `npm run preview`     | Serve the production build locally   |
+| `npm test`            | Run the Vitest suite                 |
+| `npm run lint`        | ESLint, warnings included            |
+| `npm run typecheck`   | `tsc --noEmit`                       |
+| `npm run format`      | Rewrite files with Prettier          |
+| `npm run check:audio` | Verify every song has its audio file |
 
 A Husky `pre-commit` hook runs the format check, lint and type-check, and
 `commit-msg` enforces [Conventional Commits](https://www.conventionalcommits.org/).
@@ -64,7 +64,7 @@ src/
   test/         Render harness shared by the component tests
   types/        Shared TypeScript types
 scripts/
-  check-songs.mjs        Weekly YouTube link check, run from CI
+  check-audio.mjs        Checks every song has a file in public/audio
   build-daily-order.mjs  Regenerates the daily schedule after songs change
   lib/songs.mjs          Shared reader for the song list
 ```
@@ -117,9 +117,26 @@ while arrowing through results and points at the highlighted one with
 region.
 
 Every push and pull request runs format, lint, type-check, test and build via
-`.github/workflows/ci.yml`. A second workflow checks every song's YouTube ID
-weekly and opens an issue when one stops resolving, since a removed video would
-otherwise become an unplayable round.
+`.github/workflows/ci.yml`, plus `check:audio`, since a song without its file
+would otherwise become an unplayable round.
+
+## Audio
+
+Each song plays from `public/audio/Theme_{themeNo}.ogg`, deployed with the app
+as a static file. Themes below 10 are zero-padded (`Theme_01.ogg`). The page
+only ever requests the current song's file, and only its metadata until the
+clip is played.
+
+To add a song, drop its file into `public/audio`, add its entry to
+`src/constants/songs.ts`, then run `npm run build:daily-order`.
+
+`getAudioUrl` in `src/helpers/audioUrl.ts` is the only code that knows where
+the files live. To serve them from a CDN instead, set `VITE_AUDIO_BASE_URL`
+(for example `https://audio.example.com`, no trailing slash) and upload the
+files under the same names.
+
+The audio URLs are visible in DevTools like any other request. The only thing
+hidden is the track name in the browser's media controls.
 
 ## Lists of OST
 

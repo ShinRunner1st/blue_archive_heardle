@@ -25,7 +25,6 @@ export default defineConfig({
           react: ["react", "react-dom", "react-dom/client"],
           styled: ["styled-components"],
           icons: ["react-icons/io5"],
-          youtube: ["react-youtube"],
         },
       },
     },
@@ -49,7 +48,6 @@ export default defineConfig({
       "react/jsx-dev-runtime",
       "styled-components",
       "react-icons/io5",
-      "react-youtube",
     ],
   },
   test: {

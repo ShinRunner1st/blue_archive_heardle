@@ -33,6 +33,9 @@ jobs:
       - name: Type-check
         run: npm run typecheck
 
+      - name: Check every song has its audio file
+        run: npm run check:audio
+
       - name: Test
         run: npm test
 

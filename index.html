@@ -8,24 +8,6 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/logo192.png" />
     <link rel="apple-touch-icon" href="/logo192.png" />
 
-    <!--
-      Playback pulls from three YouTube origins: the API script and the player
-      iframe from www.youtube.com, the widget JS from s.ytimg.com and the
-      poster image from i.ytimg.com. None is requested until React mounts a
-      player, so without these hints each one pays for a fresh DNS lookup and
-      TLS handshake at exactly the moment the player is needed.
-
-      The API script itself is not preloaded: it is under 1 KB and is served
-      `Cache-Control: private, max-age=0`, so a preload would risk fetching it
-      twice for almost no gain.
-    -->
-    <link rel="preconnect" href="https://www.youtube.com" />
-    <link rel="preconnect" href="https://s.ytimg.com" />
-    <link rel="preconnect" href="https://i.ytimg.com" />
-    <link rel="dns-prefetch" href="https://www.youtube.com" />
-    <link rel="dns-prefetch" href="https://s.ytimg.com" />
-    <link rel="dns-prefetch" href="https://i.ytimg.com" />
-
     <!-- Viewport -->
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 

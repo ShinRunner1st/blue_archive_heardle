@@ -9,7 +9,6 @@
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "react-icons": "^5.7.0",
-    "react-youtube": "^10.1.0",
     "styled-components": "^6.5.3"
   },
   "scripts": {
@@ -19,7 +18,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check:songs": "node scripts/check-songs.mjs",
+    "check:audio": "node scripts/check-audio.mjs",
     "build:daily-order": "node scripts/build-daily-order.mjs && prettier --write src/constants/dailyOrder.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"src/**/*.{ts,tsx}\" --max-warnings 0",
