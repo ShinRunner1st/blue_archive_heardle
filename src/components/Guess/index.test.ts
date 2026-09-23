@@ -11,12 +11,11 @@ import { Song } from "../../types/song";
 const solution: Song = {
   artist: "Mitsukiyo",
   name: "Constant Moderato",
-  youtubeId: "aaa",
   themeNo: "50",
 };
 
 function song(themeNo: string, name = "Some Track"): Song {
-  return { artist: "KARUT", name, youtubeId: `yt-${themeNo}`, themeNo };
+  return { artist: "KARUT", name, themeNo };
 }
 
 let harness: ReturnType<typeof createHarness>;

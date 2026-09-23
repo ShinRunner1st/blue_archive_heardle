@@ -50,7 +50,6 @@ function isSong(value: unknown): value is Song {
   return (
     typeof song.artist === "string" &&
     typeof song.name === "string" &&
-    typeof song.youtubeId === "string" &&
     typeof song.themeNo === "string"
   );
 }

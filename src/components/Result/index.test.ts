@@ -15,7 +15,6 @@ const { Result } = await import("./index");
 const solution: Song = {
   artist: "Mitsukiyo",
   name: "Constant Moderato",
-  youtubeId: "SHkF48SgiSA",
   themeNo: "1",
 };
 

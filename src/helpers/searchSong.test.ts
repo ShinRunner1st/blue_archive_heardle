@@ -47,15 +47,9 @@ describe("song data", () => {
     expect(new Set(themeNos).size).toBe(themeNos.length);
   });
 
-  it("has no duplicate YouTube ids", () => {
-    const ids = songs.map((song) => song.youtubeId);
-
-    expect(new Set(ids).size).toBe(ids.length);
-  });
-
   it("has every field populated", () => {
     const incomplete = songs.filter(
-      (song) => !song.artist || !song.name || !song.youtubeId || !song.themeNo
+      (song) => !song.artist || !song.name || !song.themeNo
     );
 
     expect(incomplete).toEqual([]);

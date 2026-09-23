@@ -13,7 +13,6 @@ import { Song } from "../types/song";
 const song: Song = {
   artist: "Mitsukiyo",
   name: "Constant Moderato",
-  youtubeId: "SHkF48SgiSA",
   themeNo: "1",
 };
 

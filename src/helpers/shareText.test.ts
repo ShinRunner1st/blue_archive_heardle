@@ -101,7 +101,7 @@ describe("buildShareText", () => {
     });
 
     expect(text).not.toContain(songs[0].name);
-    expect(text).not.toContain(songs[0].youtubeId);
+    expect(text).not.toContain(`Theme_${songs[0].themeNo}`);
   });
 
   it("links back to the site", () => {

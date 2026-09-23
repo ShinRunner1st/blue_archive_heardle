@@ -123,7 +123,7 @@ export function Search({
       >
         {results.map((song, index) => (
           <Styled.Result
-            key={song.youtubeId}
+            key={song.themeNo}
             id={optionId(index)}
             role="option"
             aria-selected={index === focusedIndex}

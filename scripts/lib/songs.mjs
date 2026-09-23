@@ -33,14 +33,12 @@ export function loadSongs() {
   const malformed = songs.find(
     (song) =>
       typeof song?.themeNo !== "string" ||
-      !song.themeNo ||
-      typeof song?.youtubeId !== "string" ||
-      !song.youtubeId
+      !song.themeNo
   );
 
   if (malformed) {
     throw new Error(
-      `Song entry is missing themeNo or youtubeId: ${JSON.stringify(malformed)}`
+      `Song entry is missing its themeNo: ${JSON.stringify(malformed)}`
     );
   }
 
