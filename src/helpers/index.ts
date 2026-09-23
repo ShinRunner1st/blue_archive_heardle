@@ -6,3 +6,5 @@ export { calStreaks } from "./streaks";
 export { dailySong, dayNumber, formatCountdown, msUntilNextDay } from "./daily";
 export { isBagEmpty, pickSong } from "./pickSong";
 export { isUnplayable, markUnplayable } from "./unplayable";
+export { getAudioUrl } from "./audioUrl";
+export { hideTrackFromMediaSession } from "./mediaSession";
