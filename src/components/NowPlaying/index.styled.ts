@@ -275,7 +275,7 @@ export const ReplayButton = styled.button`
   color: ${({ theme }) => theme.text};
 
   background-color: ${({ theme }) => theme.background100};
-  border: none;
+  border: 1px solid ${({ theme }) => theme.border};
   border-radius: 5px;
   cursor: pointer;
 

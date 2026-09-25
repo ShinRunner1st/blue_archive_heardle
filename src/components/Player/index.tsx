@@ -293,11 +293,11 @@ export function Player({
               : "It’s taking longer than it should. A slow connection or a blocker may be getting in the way."}
           </Styled.ErrorText>
           <Styled.ErrorActions>
-            <Button variant="background100" onClick={retry}>
+            <Button stroke variant="background100" onClick={retry}>
               Try again
             </Button>
             {onSkipTrack && (
-              <Button variant="green" onClick={onSkipTrack}>
+              <Button stroke variant="green" onClick={onSkipTrack}>
                 Skip this track
               </Button>
             )}

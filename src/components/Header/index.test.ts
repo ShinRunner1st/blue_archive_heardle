@@ -17,6 +17,17 @@ function buttonFor(label: string) {
   );
 }
 
+/** Items inside the menu are named by their text, like any menu entry. */
+function menuItem(text: string) {
+  return Array.from(
+    harness.container.querySelectorAll<HTMLButtonElement>("button")
+  ).find((button) => button.textContent?.trim() === text);
+}
+
+function openMenu() {
+  act(() => buttonFor("Menu")!.click());
+}
+
 function modeButton(label: string) {
   return Array.from(
     harness.container.querySelectorAll<HTMLButtonElement>("button")
@@ -49,22 +60,14 @@ afterEach(() => {
 describe("Header", () => {
   // These were bare <svg onClick> elements, unreachable by keyboard and
   // unnamed for screen readers.
-  it("exposes the controls as labelled buttons", () => {
-    // Four icon controls plus the two mode buttons.
-    expect(harness.container.querySelectorAll("button")).toHaveLength(6);
-    expect(buttonFor("Switch to dark mode")).not.toBeNull();
-    expect(buttonFor("About this game")).not.toBeNull();
-    expect(buttonFor("How to play")).not.toBeNull();
+  it("keeps only the everyday controls on the bar", () => {
+    // Stats and the menu, plus the two mode buttons.
+    expect(harness.container.querySelectorAll("button")).toHaveLength(4);
     expect(buttonFor("Your stats")).not.toBeNull();
+    expect(buttonFor("Menu")).not.toBeNull();
   });
 
-  it("opens the matching pop-up when activated", () => {
-    buttonFor("About this game")!.click();
-    expect(openInfoPopUp).toHaveBeenCalled();
-
-    buttonFor("How to play")!.click();
-    expect(openHowToPopUp).toHaveBeenCalled();
-
+  it("opens stats straight from the bar", () => {
     buttonFor("Your stats")!.click();
     expect(openStatsPopUp).toHaveBeenCalled();
   });
@@ -153,16 +156,70 @@ describe("Header mode switch", () => {
   });
 });
 
-describe("Header colour scheme toggle", () => {
-  it("switches to dark and back, and remembers the choice", () => {
-    act(() => buttonFor("Switch to dark mode")!.click());
+describe("Header menu", () => {
+  it("starts closed and says so", () => {
+    expect(buttonFor("Menu")?.getAttribute("aria-expanded")).toBe("false");
+    expect(menuItem("How to play")).toBeUndefined();
+  });
 
-    expect(buttonFor("Switch to light mode")).not.toBeNull();
+  it("lists the less-used controls when opened", () => {
+    openMenu();
+
+    expect(buttonFor("Menu")?.getAttribute("aria-expanded")).toBe("true");
+    expect(menuItem("How to play")).toBeDefined();
+    expect(menuItem("Dark mode")).toBeDefined();
+    expect(menuItem("About this game")).toBeDefined();
+  });
+
+  it("opens a pop-up from the menu and closes itself", () => {
+    openMenu();
+    act(() => menuItem("How to play")!.click());
+
+    expect(openHowToPopUp).toHaveBeenCalled();
+    expect(menuItem("About this game")).toBeUndefined();
+
+    openMenu();
+    act(() => menuItem("About this game")!.click());
+
+    expect(openInfoPopUp).toHaveBeenCalled();
+  });
+
+  it("closes on a tap outside it", () => {
+    openMenu();
+
+    act(() => {
+      document.body.dispatchEvent(new Event("pointerdown", { bubbles: true }));
+    });
+
+    expect(menuItem("How to play")).toBeUndefined();
+  });
+
+  it("closes on Escape and hands focus back to the toggle", () => {
+    openMenu();
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    });
+
+    expect(menuItem("How to play")).toBeUndefined();
+    expect(document.activeElement).toBe(buttonFor("Menu"));
+  });
+});
+
+describe("Header dark mode switch", () => {
+  it("switches to dark and back, and remembers the choice", () => {
+    openMenu();
+    const toggle = () => menuItem("Dark mode")!;
+    expect(toggle().getAttribute("aria-checked")).toBe("false");
+
+    act(() => toggle().click());
+
+    expect(toggle().getAttribute("aria-checked")).toBe("true");
     expect(localStorage.getItem("colorScheme")).toBe("dark");
 
-    act(() => buttonFor("Switch to light mode")!.click());
+    act(() => toggle().click());
 
-    expect(buttonFor("Switch to dark mode")).not.toBeNull();
+    expect(toggle().getAttribute("aria-checked")).toBe("false");
     expect(localStorage.getItem("colorScheme")).toBe("light");
   });
 });

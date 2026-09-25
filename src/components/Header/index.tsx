@@ -1,15 +1,8 @@
-import React from "react";
-import {
-  IoBarChart,
-  IoInformationCircle,
-  IoGameController,
-  IoMoon,
-  IoSunny,
-} from "react-icons/io5";
+import { IoBarChart } from "react-icons/io5";
 
-import { switchColorScheme } from "../../helpers/colorScheme";
-import { useColorScheme } from "../../hooks/useColorScheme";
 import { GameMode } from "../../types/mode";
+
+import { HeaderMenu } from "../HeaderMenu";
 
 import * as Styled from "./index.styled";
 import img from "../../image/BlueArchive-Heardle.png";
@@ -38,20 +31,6 @@ export function Header({
   streak,
 }: Props) {
   const showStreak = mode === "daily" && streak > 0;
-  const scheme = useColorScheme();
-  const next = scheme === "dark" ? "light" : "dark";
-
-  const toggleScheme = React.useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
-      // The new scheme spreads out from the button that was pressed.
-      const box = e.currentTarget.getBoundingClientRect();
-      switchColorScheme(next, {
-        x: box.left + box.width / 2,
-        y: box.top + box.height / 2,
-      });
-    },
-    [next]
-  );
 
   return (
     <Styled.Container>
@@ -99,40 +78,15 @@ export function Header({
           )}
           <Styled.IconButton
             type="button"
-            onClick={toggleScheme}
-            aria-label={`Switch to ${next} mode`}
-            title={`Switch to ${next} mode`}
-          >
-            {/* Keyed, so each switch remounts the icon and replays its spin. */}
-            <Styled.SchemeIcon key={scheme}>
-              {scheme === "dark" ? (
-                <IoSunny size="1em" aria-hidden="true" />
-              ) : (
-                <IoMoon size="1em" aria-hidden="true" />
-              )}
-            </Styled.SchemeIcon>
-          </Styled.IconButton>
-          <Styled.IconButton
-            type="button"
-            onClick={openInfoPopUp}
-            aria-label="About this game"
-          >
-            <IoInformationCircle size="1em" aria-hidden="true" />
-          </Styled.IconButton>
-          <Styled.IconButton
-            type="button"
-            onClick={openHowToPopUp}
-            aria-label="How to play"
-          >
-            <IoGameController size="1em" aria-hidden="true" />
-          </Styled.IconButton>
-          <Styled.IconButton
-            type="button"
             onClick={openStatsPopUp}
             aria-label="Your stats"
           >
             <IoBarChart size="1em" aria-hidden="true" />
           </Styled.IconButton>
+          <HeaderMenu
+            openInfoPopUp={openInfoPopUp}
+            openHowToPopUp={openHowToPopUp}
+          />
         </Styled.Tools>
       </Styled.Content>
     </Styled.Container>

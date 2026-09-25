@@ -152,11 +152,11 @@ export function Result({
       />
       {isDaily && <DailyCountdown onNewDay={onNewDay} />}
       <Styled.Buttons>
-        <Button onClick={copyResult} variant="background100">
+        <Button stroke onClick={copyResult} variant="background100">
           {buttonText}
         </Button>
         {!isDaily && (
-          <Button onClick={advance} variant={bagEmpty ? "red" : "green"}>
+          <Button stroke onClick={advance} variant={bagEmpty ? "red" : "green"}>
             {bagEmpty ? "Reset Score" : didGuess ? "Next Song" : "Continue?"}
           </Button>
         )}

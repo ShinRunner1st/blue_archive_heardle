@@ -5,6 +5,7 @@ import "@fontsource-variable/nunito-sans";
 interface ButtonProps {
   variant?: keyof typeof theme;
   disabled?: boolean;
+  $stroke?: boolean;
 }
 
 export const Button = styled.button<ButtonProps>`
@@ -13,7 +14,8 @@ export const Button = styled.button<ButtonProps>`
     variant ? theme[variant] : theme.background100};
 
   border-radius: 5px;
-  border: none;
+  border: ${({ theme, $stroke }) =>
+    $stroke ? `1px solid ${theme.border}` : "none"};
 
   color: ${({ theme }) => theme.text};
   font-size: 1rem;

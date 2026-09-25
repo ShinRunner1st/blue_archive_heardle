@@ -113,10 +113,10 @@ export function Game({
       />
 
       <Styled.Buttons>
-        <Button onClick={skip}>
+        <Button stroke onClick={skip}>
           {isLastTry ? "Give up?" : `Skip +${nextClipBonus}s`}
         </Button>
-        <Button variant="green" onClick={guess} disabled={!selectedSong}>
+        <Button stroke variant="green" onClick={guess} disabled={!selectedSong}>
           Guess
         </Button>
       </Styled.Buttons>

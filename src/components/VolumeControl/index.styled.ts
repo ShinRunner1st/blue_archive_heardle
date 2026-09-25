@@ -100,6 +100,43 @@ export const Slider = styled.input`
   }
 
   @media (max-width: 768px) {
-    width: 80px;
+    width: 72px;
+  }
+
+  /* Leaves room between the play button and the percentage on phones. */
+  @media (max-width: 480px) {
+    width: 60px;
+  }
+`;
+
+/**
+ * The level as a number, in a pill like the header's streak chip. Sized for
+ * "100%" so the slider doesn't shift as the number changes.
+ */
+export const Value = styled.span<{ $muted: boolean }>`
+  flex-shrink: 0;
+  box-sizing: border-box;
+  min-width: 46px;
+  padding: 3px 7px;
+
+  font-family: "Nunito Sans Variable";
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  text-align: center;
+  color: ${({ theme }) => theme.text};
+  opacity: ${({ $muted }) => ($muted ? 0.55 : 1)};
+
+  background-color: rgba(0, 0, 0, 0.22);
+  border: 1px solid ${({ theme }) => theme.border100};
+  border-radius: 999px;
+
+  transition: opacity 0.15s ease;
+
+  @media (max-width: 768px) {
+    min-width: 42px;
+    padding: 3px 5px;
+    font-size: 0.7rem;
   }
 `;

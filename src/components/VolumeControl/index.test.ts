@@ -61,6 +61,17 @@ describe("VolumeControl", () => {
     expect(localStorage.getItem(VOLUME_KEY)).toBe("0.6");
   });
 
+  it("shows the level as a percentage beside the slider", () => {
+    harness.render(React.createElement(VolumeControl));
+    expect(harness.container.textContent).toContain("20%");
+
+    drag(85);
+    expect(harness.container.textContent).toContain("85%");
+
+    act(() => muteButton()!.click());
+    expect(harness.container.textContent).toContain("0%");
+  });
+
   it("mutes and unmutes back to where it was", () => {
     harness.render(React.createElement(VolumeControl));
     drag(40);

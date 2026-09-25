@@ -43,6 +43,10 @@ export function VolumeControl() {
         aria-valuetext={`${percent}%`}
         style={{ "--fill": `${percent}%` } as React.CSSProperties}
       />
+      {/* The slider already announces its value, so this is for the eye. */}
+      <Styled.Value aria-hidden="true" $muted={muted}>
+        {percent}%
+      </Styled.Value>
     </Styled.Wrapper>
   );
 }
