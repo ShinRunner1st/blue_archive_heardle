@@ -50,10 +50,6 @@ export const ToggleIcon = styled.span`
       transform: rotate(0);
     }
   }
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
-  }
 `;
 
 export const Panel = styled.div`
@@ -91,10 +87,6 @@ export const Panel = styled.div`
       opacity: 1;
       transform: translateY(0) scale(1);
     }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    animation: none;
   }
 `;
 

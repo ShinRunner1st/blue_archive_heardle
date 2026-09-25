@@ -35,7 +35,6 @@ function stubMedia(queries: Record<string, boolean>) {
 }
 
 const DARK = "(prefers-color-scheme: dark)";
-const REDUCED = "(prefers-reduced-motion: reduce)";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -119,15 +118,6 @@ describe("switchColorScheme", () => {
     expect(document.documentElement.classList).toContain("scheme-fading");
 
     vi.advanceTimersByTime(450);
-    expect(document.documentElement.classList).not.toContain("scheme-fading");
-  });
-
-  it("switches instantly for anyone who asked for reduced motion", async () => {
-    stubMedia({ [REDUCED]: true });
-
-    await switchColorScheme("dark");
-
-    expect(getColorScheme()).toBe("dark");
     expect(document.documentElement.classList).not.toContain("scheme-fading");
   });
 });

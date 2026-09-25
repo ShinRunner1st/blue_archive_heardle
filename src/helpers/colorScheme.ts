@@ -4,7 +4,6 @@ import { ColorScheme, themes } from "../constants/theme";
 import { loadColorScheme, saveColorScheme } from "./storage";
 
 const DARK_QUERY = "(prefers-color-scheme: dark)";
-const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
 /** How long the colour fade runs where view transitions are unsupported. */
 const FADE_MS = 450;
@@ -90,8 +89,8 @@ function preload(src: string): Promise<void> {
 
 /**
  * Switches scheme with an animation: a circle of the new scheme spreading out
- * from `origin` where view transitions are supported, a short colour fade
- * elsewhere, and an instant switch for anyone who asked for reduced motion.
+ * from `origin` where view transitions are supported, and a short colour fade
+ * elsewhere.
  */
 export async function switchColorScheme(
   next: ColorScheme,
@@ -100,11 +99,6 @@ export async function switchColorScheme(
   // flushSync so the page has fully repainted in the new scheme by the time
   // the browser takes its "after" picture.
   const apply = () => flushSync(() => setColorScheme(next));
-
-  if (matches(REDUCED_MOTION_QUERY)) {
-    apply();
-    return;
-  }
 
   if (typeof document.startViewTransition !== "function") {
     const root = document.documentElement;
