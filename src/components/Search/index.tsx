@@ -4,6 +4,8 @@ import { IoSearch, IoCloseCircleOutline, IoList } from "react-icons/io5";
 import { searchSong } from "../../helpers";
 import { Song } from "../../types/song";
 
+import { ThemeTag } from "../ThemeTag";
+
 import * as Styled from "./index.styled";
 
 interface Props {
@@ -144,10 +146,9 @@ export function Search({
             onClick={() => selectSong(song)}
           >
             <Styled.ResultText>{label(song)}</Styled.ResultText>
-            <Styled.ThemeNo>
-              {song.name !== `Theme ${song.themeNo}` &&
-                ` [Theme ${song.themeNo}]`}
-            </Styled.ThemeNo>
+            {song.name !== `Theme ${song.themeNo}` && (
+              <ThemeTag themeNo={song.themeNo} />
+            )}
           </Styled.Result>
         ))}
       </Styled.ResultsContainer>

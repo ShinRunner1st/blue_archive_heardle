@@ -46,10 +46,8 @@ export const Text = styled.p`
   color: ${({ theme }) => theme.text};
 `;
 
-export const ThemeNo = styled.span`
-  font-size: 0.8rem;
-  opacity: 0.7;
-  white-space: nowrap;
-  margin-left: 8px;
-  padding: 0px 10px;
+/** Keeps the theme tag off the row's right edge. */
+export const TagSlot = styled.span`
+  display: flex;
+  padding-right: 10px;
 `;

@@ -3,6 +3,8 @@ import React from "react";
 import { GuessType } from "../../types/guess";
 import { Song } from "../../types/song";
 
+import { ThemeTag } from "../ThemeTag";
+
 import * as Styled from "./index.styled";
 
 interface Props {
@@ -28,7 +30,12 @@ export function Guess({ guess, active, solution }: Props) {
     return {
       isClose: Math.abs(difference) <= HINT_RANGE,
       // The answer is lower than the guess, so point the player downwards.
-      arrow: difference > 0 ? "↓" : difference < 0 ? "↑" : "",
+      direction:
+        difference > 0
+          ? ("down" as const)
+          : difference < 0
+          ? ("up" as const)
+          : undefined,
     };
   }, [song, solution.themeNo]);
 
@@ -46,9 +53,9 @@ export function Guess({ guess, active, solution }: Props) {
     >
       <Styled.Text>{text}</Styled.Text>
       {song && (
-        <Styled.ThemeNo>
-          [Theme {song.themeNo}] {hint?.arrow}
-        </Styled.ThemeNo>
+        <Styled.TagSlot>
+          <ThemeTag themeNo={song.themeNo} direction={hint?.direction} />
+        </Styled.TagSlot>
       )}
     </Styled.Container>
   );

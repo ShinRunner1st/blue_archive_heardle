@@ -165,13 +165,6 @@ export const ResultText = styled.p`
   text-overflow: ellipsis;
 `;
 
-export const ThemeNo = styled.span`
-  font-size: 0.8rem;
-  opacity: 0.7;
-  white-space: nowrap;
-  margin-left: 8px;
-`;
-
 export const ClearButton = styled.button`
   display: flex;
   align-items: center;

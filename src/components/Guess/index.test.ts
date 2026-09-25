@@ -71,7 +71,8 @@ describe("Guess", () => {
     mount({ song: song("40", "Funky Road"), skipped: false, isCorrect: false });
 
     expect(row().textContent).toContain("KARUT - Funky Road");
-    expect(row().textContent).toContain("[Theme 40]");
+    expect(row().textContent).toContain("Theme 40");
+    expect(row().textContent).not.toContain("[");
   });
 
   it("points down when the guess is above the answer", () => {
