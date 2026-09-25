@@ -248,3 +248,25 @@ export const IconButton = styled.button`
     outline-offset: 2px;
   }
 `;
+
+/** Spins the sun or moon in whenever the scheme changes. */
+export const SchemeIcon = styled.span`
+  display: flex;
+
+  animation: scheme-icon-in 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+
+  @keyframes scheme-icon-in {
+    from {
+      opacity: 0;
+      transform: rotate(-120deg) scale(0.4);
+    }
+    to {
+      opacity: 1;
+      transform: rotate(0) scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+`;

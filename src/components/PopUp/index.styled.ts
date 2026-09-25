@@ -26,7 +26,7 @@ export const Overlay = styled.div`
   overflow-y: auto;
   padding: 24px 16px;
 
-  background-color: rgba(18, 10, 4, 0.72);
+  background-color: ${({ theme }) => theme.overlay};
   backdrop-filter: blur(3px);
 `;
 
@@ -133,7 +133,7 @@ export const Card = styled.div`
   width: 100%;
   padding: 12px 14px;
 
-  background-color: rgba(56, 34, 15, 0.5);
+  background-color: ${({ theme }) => theme.surface};
   border: 1px solid rgba(241, 247, 237, 0.09);
   border-radius: 11px;
 

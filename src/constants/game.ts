@@ -19,6 +19,12 @@ export const MODE_KEY = "mode";
 /** localStorage key holding the player's chosen volume, 0-1. */
 export const VOLUME_KEY = "volume";
 
+/**
+ * localStorage key holding the colour scheme the player picked. Absent until
+ * they pick one, so until then the game follows their device.
+ */
+export const COLOR_SCHEME_KEY = "colorScheme";
+
 /** localStorage key recording that the welcome pop-up has been dismissed. */
 export const FIRST_RUN_KEY = "firstRun";
 

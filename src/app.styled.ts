@@ -1,5 +1,4 @@
 import styled from "styled-components";
-import img from "./image/image.webp";
 import "@fontsource-variable/nunito-sans";
 
 export const Container = styled.main`
@@ -44,7 +43,7 @@ export const BG = styled.div`
     inset: 0;
     z-index: -1;
 
-    background-image: url(${img});
+    background-image: url(${({ theme }) => theme.backgroundImage});
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;

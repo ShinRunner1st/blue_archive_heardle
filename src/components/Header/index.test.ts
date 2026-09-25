@@ -1,4 +1,4 @@
-import React from "react";
+import React, { act } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Header } from "./index";
@@ -50,8 +50,9 @@ describe("Header", () => {
   // These were bare <svg onClick> elements, unreachable by keyboard and
   // unnamed for screen readers.
   it("exposes the controls as labelled buttons", () => {
-    // Three icon controls plus the two mode buttons.
-    expect(harness.container.querySelectorAll("button")).toHaveLength(5);
+    // Four icon controls plus the two mode buttons.
+    expect(harness.container.querySelectorAll("button")).toHaveLength(6);
+    expect(buttonFor("Switch to dark mode")).not.toBeNull();
     expect(buttonFor("About this game")).not.toBeNull();
     expect(buttonFor("How to play")).not.toBeNull();
     expect(buttonFor("Your stats")).not.toBeNull();
@@ -149,5 +150,19 @@ describe("Header mode switch", () => {
   it("names the group for screen readers", () => {
     const group = harness.container.querySelector('[role="group"]');
     expect(group?.getAttribute("aria-label")).toBe("Game mode");
+  });
+});
+
+describe("Header colour scheme toggle", () => {
+  it("switches to dark and back, and remembers the choice", () => {
+    act(() => buttonFor("Switch to dark mode")!.click());
+
+    expect(buttonFor("Switch to light mode")).not.toBeNull();
+    expect(localStorage.getItem("colorScheme")).toBe("dark");
+
+    act(() => buttonFor("Switch to light mode")!.click());
+
+    expect(buttonFor("Switch to dark mode")).not.toBeNull();
+    expect(localStorage.getItem("colorScheme")).toBe("light");
   });
 });

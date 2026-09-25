@@ -16,3 +16,28 @@ body {
   background-color: #38220f;
   color: white;
 }
+
+/* Matches theme.background1, so overscroll and the first paint aren't brown. */
+:root[data-scheme="dark"] body {
+  background-color: #161328;
+}
+
+/*
+ * Scheme switch, where view transitions exist: the new scheme is revealed as
+ * a growing circle (see helpers/colorScheme.ts), so the default cross-fade
+ * between the two pictures is switched off.
+ */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Scheme switch elsewhere: a short fade of every colour instead. */
+.scheme-fading,
+.scheme-fading *,
+.scheme-fading *::before,
+.scheme-fading *::after {
+  transition: background-color 0.45s ease, border-color 0.45s ease,
+    color 0.45s ease, fill 0.45s ease !important;
+}

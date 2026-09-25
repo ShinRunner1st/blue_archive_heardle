@@ -6,7 +6,9 @@ import {
   MODE_KEY,
   STORAGE_KEY,
   VOLUME_KEY,
+  COLOR_SCHEME_KEY,
 } from "../constants/game";
+import { ColorScheme } from "../constants/theme";
 import { GuessType } from "../types/guess";
 import { GameMode, isGameMode } from "../types/mode";
 import { Round } from "../types/stats";
@@ -192,4 +194,14 @@ export function loadVolume(): number {
 
 export function saveVolume(volume: number): void {
   writeKey(VOLUME_KEY, String(volume));
+}
+
+/** The scheme the player picked, or null if they never have. */
+export function loadColorScheme(): ColorScheme | null {
+  const stored = readKey(COLOR_SCHEME_KEY);
+  return stored === "light" || stored === "dark" ? stored : null;
+}
+
+export function saveColorScheme(scheme: ColorScheme): void {
+  writeKey(COLOR_SCHEME_KEY, scheme);
 }

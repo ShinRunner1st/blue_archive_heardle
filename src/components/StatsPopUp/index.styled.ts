@@ -81,7 +81,7 @@ export const Tile = styled.div`
 
   padding: 12px 10px;
 
-  background-color: rgba(56, 34, 15, 0.5);
+  background-color: ${({ theme }) => theme.surface};
   border: 1px solid rgba(241, 247, 237, 0.09);
   border-radius: 11px;
 `;
