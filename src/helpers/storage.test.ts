@@ -67,6 +67,25 @@ describe("loadRounds", () => {
     expect(loadRounds()[0].solution).toEqual(removed);
   });
 
+  it("keeps saves from the YouTube version, which stored a youtubeId", () => {
+    const youtubeEra = { ...song, youtubeId: "dQw4w9WgXcQ" };
+    const guesses = emptyGuesses();
+    guesses[0] = { song: youtubeEra, skipped: false, isCorrect: true };
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify([
+        round({ solution: youtubeEra, guesses, didGuess: true, currentTry: 1 }),
+      ])
+    );
+
+    // Every player upgrading from the YouTube build has this shape saved, so
+    // the leftover field must not make their history look corrupt.
+    const [loaded] = loadRounds();
+    expect(loaded.solution.themeNo).toBe("1");
+    expect(loaded.didGuess).toBe(true);
+    expect(loaded.guesses[0].song?.name).toBe("Constant Moderato");
+  });
+
   it("backfills fields missing from older saves", () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify([{ solution: song }]));
 
