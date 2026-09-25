@@ -5,6 +5,7 @@ import { createHarness } from "../../test/harness";
 
 import { NowPlaying } from "./index";
 import { clearUnplayable, isUnplayable } from "../../helpers/unplayable";
+import { setVolume } from "../../helpers/volume";
 
 const song = { artist: "Mitsukiyo", name: "Constant Moderato", themeNo: "1" };
 
@@ -110,7 +111,19 @@ describe("NowPlaying", () => {
     expect(harness.container.textContent).toContain("-:--");
   });
 
-  it("starts where the round's clip started, at the game's volume", () => {
+  it("plays at the volume the player chose on the guessing screen", () => {
+    act(() => setVolume(0.45));
+    mount();
+
+    expect(audio()?.volume).toBe(0.45);
+    expect(
+      harness.container.querySelector<HTMLInputElement>(
+        'input[aria-label="Volume"]'
+      )?.value
+    ).toBe("45");
+  });
+
+  it("starts where the round's clip started, at the default volume", () => {
     mount(42);
     fire("loadedmetadata");
 
@@ -193,7 +206,7 @@ describe("NowPlaying", () => {
     fire("loadedmetadata");
 
     const seek = harness.container.querySelector<HTMLInputElement>(
-      'input[type="range"]'
+      'input[aria-label="Seek"]'
     )!;
     act(() => {
       Object.getOwnPropertyDescriptor(

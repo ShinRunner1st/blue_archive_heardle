@@ -6,6 +6,7 @@ import { createHarness } from "../../test/harness";
 import { playTimes } from "../../constants";
 import { Player } from "./index";
 import { clearUnplayable, isUnplayable } from "../../helpers/unplayable";
+import { setVolume } from "../../helpers/volume";
 
 const DURATION = 200;
 
@@ -157,10 +158,39 @@ describe("Player", () => {
     expect(seeks).toContain(42);
   });
 
-  it("plays at the same volume the YouTube player used", () => {
+  it("plays a new player's clip at 20%", () => {
     mount(10);
 
     expect(audio().volume).toBe(0.2);
+  });
+
+  it("plays at the volume the player chose, and follows changes live", () => {
+    localStorage.setItem("volume", "0.6");
+    mount(10);
+    expect(audio().volume).toBe(0.6);
+
+    act(() => setVolume(0.35));
+    expect(audio().volume).toBe(0.35);
+  });
+
+  it("gives a retried element the player's volume too", () => {
+    act(() => setVolume(0.7));
+    mount(10, 0, true, true, false);
+    fire("error");
+
+    act(() => {
+      buttonWith("Try again")?.click();
+    });
+
+    expect(audio().volume).toBe(0.7);
+  });
+
+  it("offers the volume control beside the play button", () => {
+    mount(10);
+
+    expect(
+      container.querySelector('input[type="range"][aria-label="Volume"]')
+    ).not.toBeNull();
   });
 
   it("survives a file that reports no duration", () => {

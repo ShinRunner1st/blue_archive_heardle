@@ -33,6 +33,12 @@ export const Heading = styled.div`
   gap: 14px;
 `;
 
+/** Takes the free space, so the volume control sits at the card's edge. */
+export const Meta = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
 export const Art = styled.div`
   flex-shrink: 0;
 

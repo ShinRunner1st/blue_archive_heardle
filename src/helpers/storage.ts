@@ -1,9 +1,11 @@
 import {
   DAILY_STORAGE_KEY,
+  DEFAULT_VOLUME,
   FIRST_RUN_KEY,
   MAX_TRIES,
   MODE_KEY,
   STORAGE_KEY,
+  VOLUME_KEY,
 } from "../constants/game";
 import { GuessType } from "../types/guess";
 import { GameMode, isGameMode } from "../types/mode";
@@ -173,4 +175,21 @@ export function isFirstRun(): boolean {
 
 export function markFirstRunDone(): void {
   writeKey(FIRST_RUN_KEY, "false");
+}
+
+/** The volume the player last chose, or the default for a new player. */
+export function loadVolume(): number {
+  const stored = readKey(VOLUME_KEY);
+  // Number(null) and Number("") are both 0, which would silently mute a new
+  // player, so an absent value has to be caught before converting.
+  if (stored === null || stored.trim() === "") return DEFAULT_VOLUME;
+
+  const volume = Number(stored);
+  return Number.isFinite(volume) && volume >= 0 && volume <= 1
+    ? volume
+    : DEFAULT_VOLUME;
+}
+
+export function saveVolume(volume: number): void {
+  writeKey(VOLUME_KEY, String(volume));
 }

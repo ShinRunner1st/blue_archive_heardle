@@ -1,9 +1,11 @@
 import React from "react";
 
-import { AUDIO_VOLUME } from "../../constants/game";
 import { getAudioUrl } from "../../helpers/audioUrl";
 import { markUnplayable } from "../../helpers/unplayable";
+import { useAudioVolume } from "../../hooks/useVolume";
 import { Song } from "../../types/song";
+
+import { VolumeControl } from "../VolumeControl";
 
 import * as Styled from "./index.styled";
 
@@ -41,6 +43,8 @@ export function NowPlaying({ song, startTime, clipLength }: Props) {
   const [currentTime, setCurrentTime] = React.useState(startTime);
   const [duration, setDuration] = React.useState(0);
 
+  useAudioVolume(audioRef, failed);
+
   const clipEnd =
     duration > 0
       ? Math.min(startTime + clipLength, duration)
@@ -55,7 +59,6 @@ export function NowPlaying({ song, startTime, clipLength }: Props) {
     (event: React.SyntheticEvent<HTMLAudioElement>) => {
       const audio = event.currentTarget;
       audio.currentTime = startTime;
-      audio.volume = AUDIO_VOLUME;
 
       setCurrentTime(startTime);
       setDuration(Number.isFinite(audio.duration) ? audio.duration : 0);
@@ -125,10 +128,11 @@ export function NowPlaying({ song, startTime, clipLength }: Props) {
         <Styled.Art aria-hidden="true">
           <Styled.NoteIcon />
         </Styled.Art>
-        <div>
+        <Styled.Meta>
           <Styled.Name>{song.name}</Styled.Name>
           <Styled.Artist>{song.artist}</Styled.Artist>
-        </div>
+        </Styled.Meta>
+        {!failed && <VolumeControl />}
       </Styled.Heading>
 
       {failed ? (

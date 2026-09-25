@@ -1,12 +1,13 @@
 import React from "react";
 
 import { playTimes } from "../../constants";
-import { AUDIO_VOLUME } from "../../constants/game";
 import { getAudioUrl } from "../../helpers/audioUrl";
 import { hideTrackFromMediaSession } from "../../helpers/mediaSession";
 import { markUnplayable } from "../../helpers/unplayable";
+import { useAudioVolume } from "../../hooks/useVolume";
 
 import { Button } from "../Button";
+import { VolumeControl } from "../VolumeControl";
 
 import * as Styled from "./index.styled";
 
@@ -173,7 +174,6 @@ export function Player({
       }
 
       audio.currentTime = rolled;
-      audio.volume = AUDIO_VOLUME;
 
       setCurrentTime(rolled);
       setStatus("ready");
@@ -202,6 +202,8 @@ export function Player({
   const handlePause = React.useCallback(() => setPlay(false), []);
 
   const retry = React.useCallback(() => setAttempt((n) => n + 1), []);
+
+  useAudioVolume(audioRef, attempt);
 
   return (
     <>
@@ -249,17 +251,22 @@ export function Player({
               </Styled.TimeStamp>
             ))}
           </Styled.TimeStamps>
-          <Styled.TransportButton
-            type="button"
-            onClick={play ? pausePlayback : startPlayback}
-            aria-label={play ? "Pause clip" : "Play clip"}
-          >
-            {play ? (
-              <Styled.PauseIcon color="#fff" aria-hidden="true" />
-            ) : (
-              <Styled.PlayIcon color="#fff" aria-hidden="true" />
-            )}
-          </Styled.TransportButton>
+          <Styled.TransportRow>
+            <Styled.TransportButton
+              type="button"
+              onClick={play ? pausePlayback : startPlayback}
+              aria-label={play ? "Pause clip" : "Play clip"}
+            >
+              {play ? (
+                <Styled.PauseIcon color="#fff" aria-hidden="true" />
+              ) : (
+                <Styled.PlayIcon color="#fff" aria-hidden="true" />
+              )}
+            </Styled.TransportButton>
+            <Styled.VolumeSlot>
+              <VolumeControl />
+            </Styled.VolumeSlot>
+          </Styled.TransportRow>
           <Styled.Hint>
             Press <kbd>Space</kbd> to play or pause
           </Styled.Hint>

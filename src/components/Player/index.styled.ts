@@ -177,6 +177,28 @@ export const Hint = styled.p`
   }
 `;
 
+/**
+ * Keeps the play button centred under the progress bar with the volume control
+ * off to the right, lined up with the bar's end.
+ */
+export const TransportRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+
+  width: 100%;
+
+  & > :first-child {
+    grid-column: 2;
+  }
+`;
+
+export const VolumeSlot = styled.div`
+  grid-column: 3;
+  justify-self: end;
+  margin-top: 8px;
+`;
+
 /** Real button wrapper so the transport control is focusable and labelled. */
 export const TransportButton = styled.button`
   display: flex;
