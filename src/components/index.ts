@@ -8,7 +8,7 @@ export { InfoPopUp } from "./InfoPopUp";
 export { Player } from "./Player";
 export { Result } from "./Result";
 export { Search } from "./Search";
-export { AnswerAudio } from "./AnswerAudio";
+export { NowPlaying } from "./NowPlaying";
 export { StatsPopUp } from "./StatsPopUp";
 export { HowToPopUp } from "./HowToPopUp";
 export { PopUp } from "./PopUp";

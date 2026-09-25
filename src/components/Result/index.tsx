@@ -5,9 +5,10 @@ import { GameMode } from "../../types/mode";
 import { Round } from "../../types/stats";
 import { buildShareText } from "../../helpers";
 import { formatCountdown, msUntilNextDay } from "../../helpers/daily";
+import { playTimes } from "../../constants";
 
 import { Button } from "../Button";
-import { AnswerAudio } from "../AnswerAudio";
+import { NowPlaying } from "../NowPlaying";
 
 import * as Styled from "./index.styled";
 
@@ -117,6 +118,10 @@ export function Result({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [keyboardEnabled, isDaily, advance]);
 
+  // The longest clip heard this round: the one for the final try taken.
+  const lastTry = Math.min(Math.max(currentTry, 1), playTimes.length);
+  const clipLength = playTimes[lastTry - 1] / 1000;
+
   const Title = didGuess ? Styled.CorrectResultTitle : Styled.FailResultTitle;
   const title = didGuess
     ? TEXT_FOR_TRY[
@@ -140,10 +145,11 @@ export function Result({
           ? `Puzzle #${round.day}`
           : `Score : ${score}`}
       </Styled.Score>
-      <Styled.SongTitle>
-        {solution.artist} - {solution.name}
-      </Styled.SongTitle>
-      <AnswerAudio themeNo={solution.themeNo} startTime={startTime ?? 0} />
+      <NowPlaying
+        song={solution}
+        startTime={startTime ?? 0}
+        clipLength={clipLength}
+      />
       {isDaily && <DailyCountdown onNewDay={onNewDay} />}
       <Styled.Buttons>
         <Button onClick={copyResult} variant="background100">

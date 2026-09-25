@@ -34,18 +34,6 @@ export const Tries = styled.h4`
   margin-top: 0;
 `;
 
-export const SongTitle = styled.h2`
-  font-family: "Nunito Sans Variable";
-  color: lightblue;
-  text-shadow: #000000 1px 0 10px;
-  @media (max-width: 768px) {
-    text-align: center;
-    width: 100%;
-  }
-
-  margin-bottom: 0;
-`;
-
 export const Score = styled.h2`
   font-family: "Nunito Sans Variable";
   text-shadow: #000000 1px 0 10px;

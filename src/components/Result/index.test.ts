@@ -7,10 +7,7 @@ import { Song } from "../../types/song";
 import { Round } from "../../types/stats";
 import { emptyGuesses } from "../../helpers/storage";
 
-// jsdom cannot play audio, and the player has its own tests; stub it out.
-vi.mock("../AnswerAudio", () => ({ AnswerAudio: () => null }));
-
-const { Result } = await import("./index");
+import { Result } from "./index";
 
 const solution: Song = {
   artist: "Mitsukiyo",
@@ -93,7 +90,8 @@ describe("Result on a win", () => {
   it("names the song and the score", () => {
     mount();
 
-    expect(container.textContent).toContain("Mitsukiyo - Constant Moderato");
+    expect(container.textContent).toContain("Constant Moderato");
+    expect(container.textContent).toContain("Mitsukiyo");
     expect(container.textContent).toContain("2/3");
   });
 
@@ -107,6 +105,13 @@ describe("Result on a win", () => {
     mount({ currentTry: 3 });
 
     expect(container.textContent).toContain("in 3 guesses.");
+  });
+
+  it("marks only as much of the clip as was heard", () => {
+    mount({ currentTry: 3 });
+
+    // playTimes[2] is 4s.
+    expect(container.textContent).toContain("Your clip: 0:12 – 0:16");
   });
 
   it("offers Next Song while songs remain", () => {
@@ -123,7 +128,14 @@ describe("Result on a loss", () => {
     mount({ didGuess: false, currentTry: 6 });
 
     expect(container.textContent).toContain("Mission Failed");
-    expect(container.textContent).toContain("Mitsukiyo - Constant Moderato");
+    expect(container.textContent).toContain("Constant Moderato");
+  });
+
+  it("marks the full clip, since every try was used", () => {
+    mount({ didGuess: false, currentTry: 6 });
+
+    // Clip started at 0:12 and the last try heard 16s of it.
+    expect(container.textContent).toContain("Your clip: 0:12 – 0:28");
   });
 
   it("offers Continue rather than Next Song", () => {
