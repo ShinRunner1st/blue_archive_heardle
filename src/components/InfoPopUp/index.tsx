@@ -21,7 +21,23 @@ import {
 } from "../PopUp";
 import { LAST_UPDATED } from "../../constants/game";
 import { songs } from "../../constants";
+import { artists } from "../../helpers/searchSong";
 import { GameMode } from "../../types/mode";
+
+const OFFICIAL_SITE = "https://bluearchive.nexon.com/";
+
+/**
+ * The composers behind most of the soundtrack, read from the song list so the
+ * credit keeps up as songs are added. Uncredited tracks are left out.
+ */
+const COMPOSERS = artists
+  .filter((entry) => entry.artist !== "Unknown")
+  .map((entry) => entry.artist);
+const TOP_COMPOSERS = COMPOSERS.slice(0, 4);
+const composerCredit =
+  COMPOSERS.length > TOP_COMPOSERS.length
+    ? `${TOP_COMPOSERS.join(", ")} and more`
+    : TOP_COMPOSERS.join(", ");
 
 interface Props {
   onClose: () => void;
@@ -95,15 +111,16 @@ export function InfoPopUp({ onClose, canReset, onReset, mode }: Props) {
           <PopUpCardBody>
             <PopUpCardTitle>Credit</PopUpCardTitle>
             <PopUpCardText>
-              Most tracks come from{" "}
-              <a
-                href="https://www.youtube.com/@mo2bluearchive"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                MO2 Channel
-              </a>
-              .
+              <a href={OFFICIAL_SITE} target="_blank" rel="noopener noreferrer">
+                Blue Archive
+              </a>{" "}
+              is developed by NEXON Games and published by NEXON and Yostar. Its
+              music, characters and artwork belong to their rights holders.
+              Soundtrack by {composerCredit}.
+            </PopUpCardText>
+            <PopUpCardText>
+              This is an unofficial fan game, not affiliated with or endorsed by
+              NEXON Games, NEXON or Yostar.
             </PopUpCardText>
           </PopUpCardBody>
         </PopUpCard>
