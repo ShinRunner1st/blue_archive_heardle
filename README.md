@@ -1,147 +1,150 @@
 # Blue Archive Heardle
 
-![chrome_FYJD6SVnl8](https://github.com/user-attachments/assets/dc7edcb9-7df5-4827-a5c8-6ee01d05a128)
+A Heardle-style game: guess the Blue Archive OST from a few seconds of music.
 
-[Blue Archive Heardle](https://bluearchive-heardle.xyz/) is a clone of Spotify
-Heardle.
+**Play it at [bluearchive-heardle.xyz](https://bluearchive-heardle.xyz/)**
 
-Guess a Blue Archive OST from a few seconds of audio. Each skip or wrong guess
-unlocks a little more of the clip, and you get six tries.
+<p>
+  <img src="docs/screenshot-game.webp" alt="A round in progress: one wrong guess, one skip, and the clip player" width="49%">
+  <img src="docs/screenshot-result.webp" alt="The result screen in dark mode, playing the answer" width="49%">
+</p>
 
-There are two modes, switched from the header:
+## How to play
 
-- **Daily** - one track a day, the same for every player, with a streak and a
-  shareable result.
-- **Endless** - play as many rounds as you like. Songs are dealt from a bag, so
-  none repeats until every one has been played.
+You hear a short clip from a random point in a track. Guess the song, or skip
+to hear more: each wrong guess or skip makes the clip longer (1s → 2s → 4s →
+7s → 11s → 16s). You get six tries.
 
-Each mode keeps its own history and score. Clips start from a random point in
-the track, and your progress is saved between visits.
+A wrong guess shows its theme number with an arrow pointing towards the
+answer's, and turns orange when it is within 10.
 
-## Search tips
+### Modes
 
-- Search by name
-- Search by OST number
-- Search by artist
+- **Daily** - one track a day, the same for everyone. Keeps a streak and
+  shares a spoiler-free result.
+- **Endless** - as many rounds as you like. No track repeats until every one
+  has been played.
 
-## Getting started
+Each mode keeps its own score and history, saved in your browser.
 
-Requires Node 22 or newer.
+### Finding a song
 
-```bash
-npm install
-npm run dev
-```
+- Type a **name**, an **artist** or a **theme number** in the search box.
+- Or open **All OST** (the list button beside it) to browse every song, filter
+  by one or more artists, and tap one to pick it.
 
-The dev server runs at http://localhost:3000.
+### Also
 
-## Scripts
+- **Result screen** - plays the answer from where your clip started, marks
+  which part was your clip, and can replay just that part.
+- **Volume** - set it once; it's remembered. New players start at 20%.
+- **Dark mode** - in the ☰ menu. Follows your device until you pick one.
 
-| Script                | What it does                         |
-| --------------------- | ------------------------------------ |
-| `npm run dev`         | Start the Vite dev server            |
-| `npm run build`       | Type-check, then build to `build/`   |
-| `npm run preview`     | Serve the production build locally   |
-| `npm test`            | Run the Vitest suite                 |
-| `npm run lint`        | ESLint, warnings included            |
-| `npm run typecheck`   | `tsc --noEmit`                       |
-| `npm run format`      | Rewrite files with Prettier          |
-| `npm run check:audio` | Verify every song has its audio file |
-
-A Husky `pre-commit` hook runs the format check, lint and type-check, and
-`commit-msg` enforces [Conventional Commits](https://www.conventionalcommits.org/).
-
-## Project layout
-
-```
-src/
-  components/   UI components, each with a co-located styled-components file
-    PopUp/      Shared modal shell: overlay, Escape, focus trap, dialog roles
-    ErrorBoundary/  Recovery screen so a crash never leaves a blank page
-  constants/    Song list, daily schedule, clip lengths, theme, game constants
-  helpers/      Pure logic: search, stats, song picking, daily puzzle, storage
-  hooks/        useGame - all game state and persistence for both modes
-  test/         Render harness shared by the component tests
-  types/        Shared TypeScript types
-scripts/
-  check-audio.mjs        Checks every song has a file in public/audio
-  build-daily-order.mjs  Regenerates the daily schedule after songs change
-  lib/songs.mjs          Shared reader for the song list
-```
-
-Game state lives in `useGame`, which holds both modes at once and mirrors each
-to its own `localStorage` key (`stats` for endless, `stats.daily` for daily).
-Everything read back out of storage is validated in `helpers/storage.ts`, so a
-corrupted or outdated save degrades to a fresh game rather than breaking the
-page.
-
-The daily puzzle walks a checked-in schedule, `constants/dailyOrder.ts`, one
-day at a time, so every player gets the same track on the same local calendar
-day and no track repeats for a full cycle.
-
-That schedule is generated, not shuffled at runtime. A runtime shuffle is a
-function of the song list's length, so adding a single song reshuffled 340 of
-341 days: today's track would change mid-deploy, two players on the same day
-would see different songs, and every past puzzle number would stop meaning
-anything. The schedule is only ever appended to, so adding songs cannot
-disturb a day that has already been played.
-
-**After changing the song list, run `npm run build:daily-order`.** A test fails
-if the schedule and the song list drift apart, so CI will catch a forgotten
-regeneration rather than letting the sequence corrupt quietly.
-
-A video that will not play - removed, private, region-locked or with embedding
-disabled - is caught by the player's `onError`, plus a timeout for loads that
-never finish. The clip player explains what happened and offers a retry; in
-endless mode it can deal a replacement song, and the failing video is kept out
-of the bag for the rest of the session.
-
-All three pop-ups are built on `components/PopUp`, which owns the overlay,
-Escape and backdrop dismissal, the focus trap and the `role="dialog"`
-semantics. While one is open, `keyboardEnabled` is threaded down to `Player`
-and `Result` so the global Space and Enter shortcuts stay inert.
-
-Every control is a real focusable element with a label, and the keyboard
-shortcuts are listed in the How To Play pop-up:
+### Keyboard
 
 | Key     | Action                                |
 | ------- | ------------------------------------- |
 | `Space` | Play or pause the clip                |
 | `↑ ↓`   | Move through search results           |
 | `Enter` | Pick a result, then submit your guess |
-| `Esc`   | Clear the search box                  |
+| `Esc`   | Clear the search box, close a pop-up  |
 
-The search box follows the WAI-ARIA combobox pattern: the input keeps focus
-while arrowing through results and points at the highlighted one with
-`aria-activedescendant`, and the result count is announced through a live
-region.
+## Development
 
-Every push and pull request runs format, lint, type-check, test and build via
-`.github/workflows/ci.yml`, plus `check:audio`, since a song without its file
-would otherwise become an unplayable round.
+React 19, TypeScript, Vite and styled-components, tested with Vitest. Needs
+Node 20 or newer (`.nvmrc` pins 22).
 
-## Audio
+```bash
+npm install
+npm run dev    # http://localhost:3000
+```
 
-Each song plays from `public/audio/Theme_{themeNo}.ogg`, deployed with the app
-as a static file. Themes below 10 are zero-padded (`Theme_01.ogg`). The page
-only ever requests the current song's file, and only its metadata until the
-clip is played.
+| Script                      | What it does                                 |
+| --------------------------- | -------------------------------------------- |
+| `npm run dev`               | Start the dev server                         |
+| `npm run build`             | Type-check, then build to `build/`           |
+| `npm run preview`           | Serve the production build locally           |
+| `npm test`                  | Run the test suite                           |
+| `npm run lint`              | ESLint, warnings included                    |
+| `npm run typecheck`         | `tsc --noEmit`                               |
+| `npm run format`            | Rewrite files with Prettier                  |
+| `npm run check:audio`       | Check every song has its audio file          |
+| `npm run build:daily-order` | Extend the daily schedule after adding songs |
 
-To add a song, drop its file into `public/audio`, add its entry to
-`src/constants/songs.ts`, then run `npm run build:daily-order`.
+A pre-commit hook runs the format check, lint and type-check, and commit
+messages follow [Conventional Commits](https://www.conventionalcommits.org/).
+CI runs all of that plus the tests, `check:audio` and a build on every push and
+pull request.
+
+### Adding a song
+
+1. Put its audio in `public/audio/Theme_{themeNo}.ogg`. Themes below 10 are
+   zero-padded: `Theme_01.ogg`.
+2. Add its entry to `src/constants/songs.ts`:
+   ```ts
+   { artist: "Mitsukiyo", name: "Constant Moderato", themeNo: "1" },
+   ```
+3. Run `npm run build:daily-order`.
+
+A new artist needs nothing else: the All OST filter and the About credits are
+built from the song list.
+
+Step 3 matters. The daily puzzle follows a checked-in schedule,
+`src/constants/dailyOrder.ts`, that is only ever appended to, so adding songs
+never changes a day that has already been played. A test fails if the schedule
+and the song list drift apart.
+
+### Audio
+
+The audio files are static assets, deployed with the site. The page only
+requests the current song's file, and only its metadata until the clip plays;
+seeking to the clip's start uses ordinary range requests.
 
 `getAudioUrl` in `src/helpers/audioUrl.ts` is the only code that knows where
-the files live. To serve them from a CDN instead, set `VITE_AUDIO_BASE_URL`
-(for example `https://audio.example.com`, no trailing slash) and upload the
-files under the same names.
+the files live. To serve them from a CDN, set `VITE_AUDIO_BASE_URL` (for
+example `https://audio.example.com`, no trailing slash) and upload the files
+under the same names.
 
-The audio URLs are visible in DevTools like any other request. The only thing
-hidden is the track name in the browser's media controls.
+A file that fails to load or decode shows an error with a retry. In endless
+mode it can deal a different song instead, and the failing one is left out for
+the rest of the session.
 
-## Lists of OST
+The audio URLs are visible in DevTools like any other request. Only the track
+name in the browser's media controls is hidden.
 
-[Docs](https://docs.google.com/spreadsheets/d/1w5jKHBZk4MOfm73Zt1FKTVcTMN1gcMnpd8ZcHHMCIT8/edit?usp=sharing)
+### Project layout
 
-## Credit
+```
+src/
+  components/   One folder per component, each with a styled-components file
+  constants/    Song list, daily schedule, clip lengths, themes, game settings
+  helpers/      Search, stats, song picking, daily puzzle, storage, volume,
+                colour scheme, audio URLs
+  hooks/        useGame (all game state), useVolume, useColorScheme
+  image/        Logo and the day and night backgrounds
+  test/         Render harness and shared setup for the tests
+  types/        Shared TypeScript types
+public/audio/   The OST, one Ogg file per theme number
+scripts/        check-audio, build-daily-order, and the song list reader they share
+docs/           README screenshots
+```
 
-https://github.com/msynowski/sluchajfun
+Game state lives in `useGame`, which keeps both modes and saves each to its
+own `localStorage` key. Everything read back from storage is validated, so a
+corrupted or outdated save starts a fresh game instead of breaking the page.
+
+## Song list
+
+[The full OST list](https://docs.google.com/spreadsheets/d/1w5jKHBZk4MOfm73Zt1FKTVcTMN1gcMnpd8ZcHHMCIT8/edit?usp=sharing)
+
+## Credits
+
+[Blue Archive](https://bluearchive.nexon.com/) is developed by NEXON Games and
+published by NEXON and Yostar. Its music, characters and artwork belong to
+their rights holders. The soundtrack is by KARUT, Mitsukiyo, Nor, EmoCosine and
+others.
+
+This is an unofficial fan game, not affiliated with or endorsed by NEXON Games,
+NEXON or Yostar.
+
+Code credit: [msynowski/sluchajfun](https://github.com/msynowski/sluchajfun).
