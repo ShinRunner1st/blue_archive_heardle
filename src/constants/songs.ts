@@ -1275,6 +1275,16 @@ export const songs = [
     themeNo: "268",
   },
   {
+    artist: "EmoCosine",
+    name: "Theme 269",
+    themeNo: "269",
+  },
+  {
+    artist: "Unknown",
+    name: "Theme 271",
+    themeNo: "271",
+  },
+  {
     artist: "Unknown",
     name: "Theme 274",
     themeNo: "274",
@@ -1491,7 +1501,7 @@ export const songs = [
   },
   {
     artist: "Unknown",
-    name: "Theme 322",
+    name: "Jimejime Sururu",
     themeNo: "322",
   },
   {
@@ -1708,5 +1718,15 @@ export const songs = [
     artist: "Unknown",
     name: "Theme 374",
     themeNo: "374",
+  },
+  {
+    artist: "KARUT",
+    name: "Theme 375",
+    themeNo: "375",
+  },
+  {
+    artist: "Unknown",
+    name: "Theme 377",
+    themeNo: "377",
   },
 ];
