@@ -58,13 +58,10 @@ export function Header({
           ))}
         </Styled.Modes>
 
-        <Styled.Brand>
-          {/* The wordmark carries the page heading, so its alt text is the h1. */}
-          <Styled.Heading>
-            <Styled.Logo src={img} alt="Blue Archive Heardle" />
-          </Styled.Heading>
-          <Styled.Tagline>Guess the Blue Archive OST</Styled.Tagline>
-        </Styled.Brand>
+        {/* The wordmark carries the page heading, so its alt text is the h1. */}
+        <Styled.Heading>
+          <Styled.Logo src={img} alt="Blue Archive Heardle" />
+        </Styled.Heading>
 
         <Styled.Tools>
           {showStreak && (
@@ -88,6 +85,7 @@ export function Header({
             openHowToPopUp={openHowToPopUp}
           />
         </Styled.Tools>
+        <Styled.Tagline>Guess the Blue Archive OST</Styled.Tagline>
       </Styled.Content>
     </Styled.Container>
   );

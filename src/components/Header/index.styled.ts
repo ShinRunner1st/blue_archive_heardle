@@ -17,19 +17,22 @@ export const Container = styled.header`
 
 /**
  * The wordmark holds the centre and the two control groups take a corner each:
- * modes on the left, tools on the right. The side columns are equal fractions
- * so the logo stays optically centred even as the streak chip comes and goes.
+ * modes on the left, tools on the right, all on one line so the logo sits
+ * level with the buttons - on phones too. The side columns are equal
+ * fractions so the logo stays centred as the streak chip comes and goes.
  *
- * A phone cannot fit all three across, so the logo takes its own row there and
- * the two groups sit in the corners beneath it.
+ * The tagline gets its own row underneath: inside the logo's column it would
+ * make that column taller and push the logo above the buttons' line.
  */
 export const Content = styled.div`
   font-family: "Nunito Sans Variable";
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  grid-template-areas: "modes brand tools";
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  grid-template-areas:
+    "modes brand tools"
+    "tagline tagline tagline";
   align-items: center;
-  gap: 8px;
+  gap: 2px 8px;
 
   width: 100%;
   max-width: 650px;
@@ -40,37 +43,30 @@ export const Content = styled.div`
   }
 
   @media (max-width: 768px) {
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      "brand brand"
-      "modes tools";
-    gap: 6px;
-    padding: 8px 12px;
+    gap: 2px 6px;
+    padding: 8px 10px 6px;
   }
 `;
 
-export const Brand = styled.div`
+export const Heading = styled.h1`
   grid-area: brand;
   justify-self: center;
 
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-`;
-
-export const Heading = styled.h1`
   /* The image is the heading, so there is no text box to reserve. */
   margin: 0;
   line-height: 0;
 `;
 
 export const Tagline = styled.p`
+  grid-area: tagline;
+  justify-self: center;
+
   font-family: "Nunito Sans Variable";
   font-size: 14px;
   font-weight: 600;
   line-height: 1.2;
-  margin: 4px 0 0;
+  text-align: center;
+  margin: 0;
   color: ${({ theme }) => theme.text};
   opacity: 0.8;
 
@@ -90,7 +86,11 @@ export const Logo = styled.img`
     drop-shadow(0 0 2px white);
 
   @media (max-width: 768px) {
-    height: 44px;
+    height: 36px;
+  }
+
+  @media (max-width: 360px) {
+    height: 30px;
   }
 `;
 
@@ -172,6 +172,11 @@ export const ModeButton = styled.button<{ $active: boolean }>`
     padding: 5px 11px;
     font-size: 0.72rem;
   }
+
+  /* Small phones: the logo shares this line, so the switch gives a little. */
+  @media (max-width: 360px) {
+    padding: 5px 8px;
+  }
 `;
 
 export const Tools = styled.div`
@@ -186,6 +191,10 @@ export const Tools = styled.div`
 
   @media (max-width: 768px) {
     font-size: 25px;
+  }
+
+  @media (max-width: 360px) {
+    font-size: 22px;
   }
 `;
 
