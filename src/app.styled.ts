@@ -4,8 +4,11 @@ import "@fontsource-variable/nunito-sans";
 export const Container = styled.main`
   font-family: "Nunito Sans Variable";
 
-  width: 40%;
-  max-width: 600px;
+  /*
+   * One rule for every screen: a share of the window would leave a
+   * half-width or split-screen desktop window narrower than a phone.
+   */
+  width: min(600px, 90%);
 
   display: flex;
   flex-direction: column;
@@ -22,7 +25,6 @@ export const Container = styled.main`
   padding: 24px 0;
 
   @media (max-width: 768px) {
-    width: 90%;
     padding: 16px 0;
   }
 `;
