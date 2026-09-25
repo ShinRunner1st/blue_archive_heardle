@@ -114,6 +114,19 @@ describe("Result on a win", () => {
     expect(container.textContent).toContain("Your clip: 0:12 – 0:16");
   });
 
+  it.each([
+    [1, "3★ clear on the first try!"],
+    [2, "Sensei's EX Skill landed!"],
+    [3, "Mission complete, Sensei~"],
+    [4, "Schale pulls through!"],
+    [5, "A narrow escape in Kivotos…"],
+    [6, "Cleared at the last second!"],
+  ])("cheers a win on try %i in Blue Archive terms", (currentTry, message) => {
+    mount({ currentTry });
+
+    expect(container.textContent).toContain(message);
+  });
+
   it("offers Next Song while songs remain", () => {
     mount();
 
@@ -127,7 +140,8 @@ describe("Result on a loss", () => {
   it("shows the failure message and still reveals the song", () => {
     mount({ didGuess: false, currentTry: 6 });
 
-    expect(container.textContent).toContain("Mission Failed");
+    expect(container.textContent).toContain("Tactical retreat, Sensei");
+    expect(container.textContent).toContain("Arona says");
     expect(container.textContent).toContain("Constant Moderato");
   });
 

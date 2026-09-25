@@ -29,14 +29,21 @@ interface Props {
   onNewDay: () => void;
 }
 
+/**
+ * The win message for each try, told as a Blue Archive mission: a first-try
+ * win is a three-star clear, and it gets hairier from there.
+ */
 const TEXT_FOR_TRY = [
-  "EH?! FIRST TRY?! 😮",
-  "Sensei is strong today 💪",
-  "Not bad at all~ 👀",
-  "Okay, getting intense 😤",
-  "THAT WAS TOO CLOSE 😭",
-  "WE SURVIVED, SENSEI 😭💥",
+  "3★ clear on the first try! ✨",
+  "Sensei's EX Skill landed! 💥",
+  "Mission complete, Sensei~ 📋",
+  "Schale pulls through! 💪",
+  "A narrow escape in Kivotos… 😅",
+  "Cleared at the last second! 😭💥",
 ];
+
+const LOSS_TITLE = "Tactical retreat, Sensei… 💔";
+const LOSS_TEXT = "Arona says there's always next time! 📱";
 
 const COUNTDOWN_TICK_MS = 30_000;
 
@@ -127,7 +134,7 @@ export function Result({
     ? TEXT_FOR_TRY[
         Math.min(Math.max(currentTry - 1, 0), TEXT_FOR_TRY.length - 1)
       ]
-    : "Mission Failed… 💔";
+    : LOSS_TITLE;
 
   return (
     <>
@@ -138,7 +145,7 @@ export function Result({
           ? `You got it right in ${currentTry} ${
               currentTry === 1 ? "guess" : "guesses"
             }.`
-          : "Sensei needs more training 😭"}
+          : LOSS_TEXT}
       </Styled.Tries>
       <Styled.Score>
         {isDaily && typeof round.day === "number"
