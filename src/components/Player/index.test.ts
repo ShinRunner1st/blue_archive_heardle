@@ -315,7 +315,7 @@ describe("Player", () => {
       mount(10);
       clickTransport();
 
-      expect(session.metadata).toMatchObject({ title: "Guess the Song" });
+      expect(session.metadata).toMatchObject({ title: "Guess the OST" });
     } finally {
       delete (navigator as { mediaSession?: unknown }).mediaSession;
       vi.unstubAllGlobals();

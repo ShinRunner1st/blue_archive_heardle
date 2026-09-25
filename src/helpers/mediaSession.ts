@@ -8,7 +8,7 @@ export function hideTrackFromMediaSession(): void {
   if (typeof MediaMetadata === "undefined") return;
 
   navigator.mediaSession.metadata = new MediaMetadata({
-    title: "Guess the Song",
+    title: "Guess the OST",
     artist: "Blue Archive OST",
     album: "BA OST Guess",
   });
