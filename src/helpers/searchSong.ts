@@ -10,15 +10,20 @@ function byThemeNo(a: Song, b: Song): number {
 /**
  * Every song matching the term, in theme order. Matches against
  * "artist - name" and the theme number, so a player can look a song up by
- * name, artist or OST number. A blank term matches everything. `artist`, when
- * given, narrows the result to that artist's songs.
+ * name, artist or OST number. A blank term matches everything. `byArtists`,
+ * when non-empty, keeps only songs by one of those artists.
  */
-export function filterSongs(searchTerm: string, artist?: string): Song[] {
+export function filterSongs(
+  searchTerm: string,
+  byArtists: readonly string[] = []
+): Song[] {
   const term = searchTerm.trim().toLowerCase();
 
   return songs
     .filter((song: Song) => {
-      if (artist && song.artist !== artist) return false;
+      if (byArtists.length > 0 && !byArtists.includes(song.artist)) {
+        return false;
+      }
       if (!term) return true;
       const fullName = `${song.artist} - ${song.name}`.toLowerCase();
       return fullName.includes(term) || song.themeNo.includes(term);
@@ -47,7 +52,8 @@ const UNKNOWN_ARTIST = "Unknown";
 /**
  * Every artist with how many songs they have, for the song list's artist
  * filter: the biggest catalogues first, since that is where most answers are,
- * and "Unknown" last.
+ * and "Unknown" last. Built from the song list itself, so a new artist shows
+ * up here as soon as their first song is added.
  */
 export const artists: ArtistCount[] = [
   ...songs.reduce<Map<string, number>>(

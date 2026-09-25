@@ -227,10 +227,78 @@ describe("SongListPopUp artist filter", () => {
     expect(songButtons().length).toBeGreaterThan(0);
     expect(new Set(rowArtists())).toEqual(new Set(["Mitsukiyo"]));
 
+    // Swap Mitsukiyo for KARUT, who has no "constant".
+    pickChip("Mitsukiyo");
     pickChip("KARUT");
     expect(songButtons()).toHaveLength(0);
     expect(document.body.textContent).toContain(
       "No songs match “constant” by KARUT."
     );
+  });
+
+  it("lets several artists be picked at once", () => {
+    mount();
+    const emoCount = songs.filter((song) => song.artist === "EmoCosine").length;
+
+    pickChip("Nor");
+    pickChip("EmoCosine");
+
+    expect(songButtons()).toHaveLength(norCount + emoCount);
+    expect(new Set(rowArtists())).toEqual(new Set(["Nor", "EmoCosine"]));
+    expect(chip("Nor")?.getAttribute("aria-pressed")).toBe("true");
+    expect(chip("EmoCosine")?.getAttribute("aria-pressed")).toBe("true");
+    expect(document.body.textContent).toContain("· 2 artists");
+  });
+
+  it("drops one artist from several without touching the others", () => {
+    mount();
+    pickChip("Nor");
+    pickChip("EmoCosine");
+
+    pickChip("Nor");
+
+    expect(new Set(rowArtists())).toEqual(new Set(["EmoCosine"]));
+    expect(document.body.textContent).toContain("· EmoCosine");
+  });
+
+  it("names every picked artist when nothing matches", () => {
+    mount();
+    pickChip("Nor");
+    pickChip("KARUT");
+
+    filter("zzzz");
+
+    expect(document.body.textContent).toContain(
+      "No songs match “zzzz” by KARUT or Nor."
+    );
+  });
+});
+
+describe("SongListPopUp artist chips fold", () => {
+  function moreButton() {
+    return document.querySelector<HTMLButtonElement>(
+      'button[aria-controls="song-list-artists"]'
+    );
+  }
+
+  it("offers no toggle when every chip already fits", () => {
+    mount();
+
+    // jsdom lays nothing out, so the chips never overflow here.
+    expect(moreButton()).toBeNull();
+  });
+
+  it("folds to two rows and unfolds on request when the chips overflow", () => {
+    vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockReturnValue(150);
+    vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(72);
+    mount();
+
+    expect(moreButton()?.getAttribute("aria-expanded")).toBe("false");
+    expect(moreButton()?.textContent).toContain("All");
+
+    act(() => moreButton()!.click());
+
+    expect(moreButton()?.getAttribute("aria-expanded")).toBe("true");
+    expect(moreButton()?.textContent).toContain("Fewer artists");
   });
 });

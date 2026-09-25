@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { IoCheckmarkCircle, IoSearch } from "react-icons/io5";
+import { IoCheckmarkCircle, IoChevronDown, IoSearch } from "react-icons/io5";
 
 export const Filter = styled.label`
   display: flex;
@@ -45,25 +45,28 @@ export const FilterInput = styled.input`
   }
 `;
 
+/** Height of one chip, so "two rows" below is an exact measurement. */
+const CHIP_HEIGHT = 30;
+const CHIP_GAP = 6;
+/** Room for a focused chip's outline, which the fold would otherwise clip. */
+const CHIP_PAD = 3;
+
 /**
- * One row of artist chips. It scrolls sideways rather than wrapping, so on a
- * phone it stays a single line; the fade on the right hints there is more.
+ * The artist chips wrap onto as many rows as they need, folded to two until
+ * the player asks for the rest - so any number of artists fits.
  */
-export const Artists = styled.div`
+export const Artists = styled.div<{ $expanded: boolean }>`
   display: flex;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: ${CHIP_GAP}px;
 
   width: 100%;
-  margin-top: 10px;
-  padding: 2px 24px 4px 2px;
-  overflow-x: auto;
-  scrollbar-width: none;
+  margin-top: ${10 - CHIP_PAD}px;
+  padding: ${CHIP_PAD}px;
 
-  mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
+  max-height: ${({ $expanded }) =>
+    $expanded ? "none" : `${CHIP_HEIGHT * 2 + CHIP_GAP + CHIP_PAD * 2}px`};
+  overflow: hidden;
 `;
 
 export const Chip = styled.button<{ $active: boolean }>`
@@ -73,7 +76,8 @@ export const Chip = styled.button<{ $active: boolean }>`
   align-items: center;
   gap: 5px;
 
-  padding: 5px 11px;
+  height: ${CHIP_HEIGHT}px;
+  padding: 0 11px;
 
   font-family: inherit;
   font-size: 0.8rem;
@@ -106,12 +110,54 @@ export const ChipCount = styled.span`
   opacity: 0.7;
 `;
 
+/** The result count, with the artists toggle beside it. */
+export const Summary = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+
+  width: 100%;
+  margin: 6px 0;
+`;
+
 export const Count = styled.p`
-  align-self: flex-start;
-  margin: 8px 0 6px;
+  margin: 0;
 
   font-size: 0.8rem;
   opacity: 0.7;
+`;
+
+export const MoreButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  padding: 2px 4px;
+
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: lightblue;
+
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
+`;
+
+export const MoreIcon = styled(IoChevronDown)<{ $expanded: boolean }>`
+  transform: rotate(${({ $expanded }) => ($expanded ? "180deg" : "0")});
+  transition: transform 0.2s ease;
 `;
 
 /** Scrolls on its own, so the filter stays in view above it. */
@@ -126,19 +172,34 @@ export const List = styled.div`
   border-radius: 8px;
 `;
 
+/**
+ * A grid shared by every row (each row is a subgrid), so the number and artist
+ * columns size themselves to their widest entry and line up down the list.
+ */
 export const Songs = styled.ul`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+
   margin: 0;
   padding: 4px;
   list-style: none;
+
+  li {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: subgrid;
+  }
 `;
 
 export const SongButton = styled.button<{
   $selected: boolean;
   $guessed: boolean;
 }>`
-  display: flex;
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
   align-items: center;
-  gap: 8px;
+  column-gap: 8px;
 
   width: 100%;
   padding: 9px 10px;
@@ -164,6 +225,13 @@ export const SongButton = styled.button<{
     outline: 2px solid ${({ theme }) => theme.border};
     outline-offset: -2px;
   }
+`;
+
+export const NameCell = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
 `;
 
 export const SongName = styled.span`
@@ -199,14 +267,15 @@ export const ThemeNo = styled.span`
 `;
 
 /**
- * The song's artist, small, at the end of the row. Fixed width so the tags
- * line up down the list whatever the artist's name.
+ * The song's artist, small, at the end of the row. Its column is as wide as
+ * the longest name in view, capped so a very long one can't squeeze out the
+ * song name - that one is shortened, with the full name on hover.
  */
 export const ArtistTag = styled.span`
-  flex-shrink: 0;
+  justify-self: stretch;
   box-sizing: border-box;
-  width: 76px;
-  padding: 2px 6px;
+  max-width: 9rem;
+  padding: 2px 8px;
 
   font-size: 0.68rem;
   font-weight: 700;
@@ -221,7 +290,7 @@ export const ArtistTag = styled.span`
   border-radius: 999px;
 
   @media (max-width: 480px) {
-    width: 66px;
+    max-width: 6.5rem;
   }
 `;
 

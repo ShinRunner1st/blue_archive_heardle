@@ -75,17 +75,33 @@ describe("filterSongs", () => {
 
 describe("filterSongs by artist", () => {
   it("keeps only that artist's songs", () => {
-    const nor = filterSongs("", "Nor");
+    const nor = filterSongs("", ["Nor"]);
 
     expect(nor.length).toBeGreaterThan(0);
     expect(nor.every((song) => song.artist === "Nor")).toBe(true);
   });
 
   it("combines with the search term", () => {
-    const both = filterSongs("constant", "Mitsukiyo");
+    const both = filterSongs("constant", ["Mitsukiyo"]);
 
     expect(both.length).toBeGreaterThan(0);
-    expect(filterSongs("constant", "KARUT")).toEqual([]);
+    expect(filterSongs("constant", ["KARUT"])).toEqual([]);
+  });
+
+  it("keeps songs by any of several artists", () => {
+    const picked = filterSongs("", ["Nor", "EmoCosine"]);
+    const expected = songs.filter(
+      (song) => song.artist === "Nor" || song.artist === "EmoCosine"
+    ).length;
+
+    expect(picked).toHaveLength(expected);
+    expect(new Set(picked.map((song) => song.artist))).toEqual(
+      new Set(["Nor", "EmoCosine"])
+    );
+  });
+
+  it("treats no artists as every artist", () => {
+    expect(filterSongs("", [])).toHaveLength(songs.length);
   });
 });
 
