@@ -17,6 +17,56 @@ export const Container = styled.div`
   }
 `;
 
+/** The search box with the browse button beside it. */
+export const Row = styled.div`
+  display: flex;
+  gap: 8px;
+`;
+
+export const BrowseButton = styled.button`
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  height: 45px;
+  padding: 0 14px;
+
+  font-family: "Nunito Sans Variable";
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.text};
+
+  background-color: ${({ theme }) => theme.background1};
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 5px;
+  cursor: pointer;
+
+  transition: opacity 0.15s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 768px) {
+    height: 36px;
+    padding: 0 10px;
+  }
+`;
+
+/** Icon-only on narrow screens, where the search box needs the width. */
+export const BrowseLabel = styled.span`
+  @media (max-width: 480px) {
+    display: none;
+  }
+`;
+
 export const SearchContainer = styled.div`
   font-family: "Nunito Sans Variable";
   display: flex;

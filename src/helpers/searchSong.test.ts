@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { songs } from "../constants";
-import { searchSong } from "./searchSong";
+import { filterSongs, groupByArtist, searchSong } from "./searchSong";
 
 describe("searchSong", () => {
   it("returns nothing for a blank term", () => {
@@ -53,5 +53,53 @@ describe("song data", () => {
     );
 
     expect(incomplete).toEqual([]);
+  });
+});
+
+describe("filterSongs", () => {
+  it("returns every song for a blank term, in theme order", () => {
+    const all = filterSongs("  ");
+
+    expect(all).toHaveLength(songs.length);
+    expect(all[0].themeNo).toBe("1");
+    expect(Number(all[1].themeNo)).toBeGreaterThan(Number(all[0].themeNo));
+  });
+
+  it("is not capped like the search suggestions", () => {
+    const karut = filterSongs("karut");
+
+    expect(karut.length).toBeGreaterThan(6);
+    expect(karut.every((song) => song.artist === "KARUT")).toBe(true);
+  });
+});
+
+describe("groupByArtist", () => {
+  it("puts the biggest catalogues first and Unknown last", () => {
+    const artists = groupByArtist(songs).map((group) => group.artist);
+
+    expect(artists[0]).toBe("KARUT");
+    expect(artists[1]).toBe("Mitsukiyo");
+    expect(artists[artists.length - 1]).toBe("Unknown");
+  });
+
+  it("keeps the same order however far a filter narrows the list", () => {
+    // One Mitsukiyo song against three KARUT ones would flip an ordering
+    // based on the filtered results.
+    const narrowed = [
+      ...songs.filter((song) => song.artist === "Mitsukiyo").slice(0, 3),
+      ...songs.filter((song) => song.artist === "KARUT").slice(0, 1),
+    ];
+
+    expect(groupByArtist(narrowed).map((group) => group.artist)).toEqual([
+      "KARUT",
+      "Mitsukiyo",
+    ]);
+  });
+
+  it("keeps every song exactly once", () => {
+    const grouped = groupByArtist(songs).flatMap((group) => group.songs);
+
+    expect(grouped).toHaveLength(songs.length);
+    expect(new Set(grouped).size).toBe(songs.length);
   });
 });

@@ -18,6 +18,7 @@ import {
   Footer,
   StatsPopUp,
   HowToPopUp,
+  SongListPopUp,
 } from "./components";
 
 import * as Styled from "./app.styled";
@@ -66,6 +67,7 @@ function App() {
     React.useState<boolean>(isFirstRun);
   const [isStatsPopUpOpen, setIsStatsPopUpOpen] = React.useState(false);
   const [isHowToPopUpOpen, setIsHowToPopUpOpen] = React.useState(false);
+  const [isSongListOpen, setIsSongListOpen] = React.useState(false);
 
   const openInfoPopUp = React.useCallback(() => setIsInfoPopUpOpen(true), []);
   const closeInfoPopUp = React.useCallback(() => {
@@ -85,13 +87,30 @@ function App() {
     []
   );
 
+  const openSongList = React.useCallback(() => setIsSongListOpen(true), []);
+  const closeSongList = React.useCallback(() => setIsSongListOpen(false), []);
+  const pickFromSongList = React.useCallback((song: Song) => {
+    setSelectedSong(song);
+    setIsSongListOpen(false);
+  }, []);
+
   const submitGuess = React.useCallback(() => {
     if (!selectedSong) return;
     guess(selectedSong);
     setSelectedSong(undefined);
   }, [guess, selectedSong]);
 
-  const isPopUpOpen = isInfoPopUpOpen || isStatsPopUpOpen || isHowToPopUpOpen;
+  const isPopUpOpen =
+    isInfoPopUpOpen || isStatsPopUpOpen || isHowToPopUpOpen || isSongListOpen;
+
+  // Marked in the song list, so a wrong answer isn't picked twice by accident.
+  const guessedThemeNos = React.useMemo(
+    () =>
+      guesses.flatMap((slot) =>
+        slot.song && !slot.isCorrect ? [slot.song.themeNo] : []
+      ),
+    [guesses]
+  );
 
   // Enter submits the highlighted song from anywhere on the page.
   React.useEffect(() => {
@@ -135,6 +154,14 @@ function App() {
         />
       )}
       {isHowToPopUpOpen && <HowToPopUp onClose={closeHowToPopUp} />}
+      {isSongListOpen && (
+        <SongListPopUp
+          onClose={closeSongList}
+          onSelect={pickFromSongList}
+          selectedSong={selectedSong}
+          guessed={guessedThemeNos}
+        />
+      )}
       <Styled.Container>
         <Game
           // Remounting on a mode change clears the search box and the player,
@@ -161,6 +188,7 @@ function App() {
           // Daily is the same puzzle for everyone, so a bad track there cannot
           // be swapped out - only endless can deal a replacement.
           onSkipTrack={mode === "endless" ? replaceCurrentSong : undefined}
+          onBrowseSongs={openSongList}
         />
       </Styled.Container>
       <Footer />

@@ -33,6 +33,8 @@ interface Props {
   onNewDay: () => void;
   /** Deals a different song when this one turns out to be unplayable. */
   onSkipTrack?: () => void;
+  /** Opens the full song list to pick a guess from. */
+  onBrowseSongs?: () => void;
 }
 
 export function Game({
@@ -55,6 +57,7 @@ export function Game({
   round,
   onNewDay,
   onSkipTrack,
+  onBrowseSongs,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -106,6 +109,7 @@ export function Game({
         setSelectedSong={setSelectedSong}
         selectedSong={selectedSong}
         inputRef={inputRef}
+        onBrowseSongs={onBrowseSongs}
       />
 
       <Styled.Buttons>

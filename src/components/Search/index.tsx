@@ -1,5 +1,5 @@
 import React from "react";
-import { IoSearch, IoCloseCircleOutline } from "react-icons/io5";
+import { IoSearch, IoCloseCircleOutline, IoList } from "react-icons/io5";
 
 import { searchSong } from "../../helpers";
 import { Song } from "../../types/song";
@@ -11,6 +11,8 @@ interface Props {
   setSelectedSong: React.Dispatch<React.SetStateAction<Song | undefined>>;
   selectedSong: Song | undefined;
   inputRef: React.RefObject<HTMLInputElement | null>;
+  /** Opens the full song list, for browsing instead of typing. */
+  onBrowseSongs?: () => void;
 }
 
 const LISTBOX_ID = "song-search-results";
@@ -25,6 +27,7 @@ export function Search({
   setSelectedSong,
   selectedSong,
   inputRef,
+  onBrowseSongs,
 }: Props) {
   const [value, setValue] = React.useState<string>("");
   const [results, setResults] = React.useState<Song[]>([]);
@@ -37,6 +40,16 @@ export function Search({
     setFocusedIndex(-1);
     setSelectedSong(undefined);
   }, [currentTry, setSelectedSong]);
+
+  // A song picked from the full list arrives from outside; show it in the box
+  // just as if it had been chosen from the search results.
+  React.useEffect(() => {
+    if (!selectedSong) return;
+
+    setValue(label(selectedSong));
+    setResults([]);
+    setFocusedIndex(-1);
+  }, [selectedSong]);
 
   const selectSong = React.useCallback(
     (song: Song) => {
@@ -138,44 +151,56 @@ export function Search({
           </Styled.Result>
         ))}
       </Styled.ResultsContainer>
-      <Styled.SearchContainer>
-        <Styled.SearchPadding>
-          <IoSearch size={20} aria-hidden="true" />
-          <Styled.Input
-            ref={inputRef}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-            placeholder="Search"
-            value={value}
-            aria-label="Search for a song"
-            role="combobox"
-            aria-expanded={isOpen}
-            aria-controls={LISTBOX_ID}
-            aria-autocomplete="list"
-            aria-activedescendant={
-              focusedIndex >= 0 ? optionId(focusedIndex) : undefined
-            }
-            autoComplete="off"
-          />
-          {value && (
-            <Styled.ClearButton
-              type="button"
-              onClick={clear}
-              aria-label="Clear search"
-            >
-              <IoCloseCircleOutline size={20} aria-hidden="true" />
-            </Styled.ClearButton>
-          )}
-        </Styled.SearchPadding>
-        {/* Announces the result count to screen readers as the player types. */}
-        <Styled.LiveRegion role="status" aria-live="polite">
-          {isOpen
-            ? `${results.length} ${
-                results.length === 1 ? "result" : "results"
-              } available`
-            : ""}
-        </Styled.LiveRegion>
-      </Styled.SearchContainer>
+      <Styled.Row>
+        <Styled.SearchContainer>
+          <Styled.SearchPadding>
+            <IoSearch size={20} aria-hidden="true" />
+            <Styled.Input
+              ref={inputRef}
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Search"
+              value={value}
+              aria-label="Search for a song"
+              role="combobox"
+              aria-expanded={isOpen}
+              aria-controls={LISTBOX_ID}
+              aria-autocomplete="list"
+              aria-activedescendant={
+                focusedIndex >= 0 ? optionId(focusedIndex) : undefined
+              }
+              autoComplete="off"
+            />
+            {value && (
+              <Styled.ClearButton
+                type="button"
+                onClick={clear}
+                aria-label="Clear search"
+              >
+                <IoCloseCircleOutline size={20} aria-hidden="true" />
+              </Styled.ClearButton>
+            )}
+          </Styled.SearchPadding>
+          {/* Announces the result count to screen readers as the player types. */}
+          <Styled.LiveRegion role="status" aria-live="polite">
+            {isOpen
+              ? `${results.length} ${
+                  results.length === 1 ? "result" : "results"
+                } available`
+              : ""}
+          </Styled.LiveRegion>
+        </Styled.SearchContainer>
+        {onBrowseSongs && (
+          <Styled.BrowseButton
+            type="button"
+            onClick={onBrowseSongs}
+            aria-label="Browse all songs"
+          >
+            <IoList size={20} aria-hidden="true" />
+            <Styled.BrowseLabel>All songs</Styled.BrowseLabel>
+          </Styled.BrowseButton>
+        )}
+      </Styled.Row>
     </Styled.Container>
   );
 }

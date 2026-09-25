@@ -12,3 +12,4 @@ export { NowPlaying } from "./NowPlaying";
 export { StatsPopUp } from "./StatsPopUp";
 export { HowToPopUp } from "./HowToPopUp";
 export { PopUp } from "./PopUp";
+export { SongListPopUp } from "./SongListPopUp";

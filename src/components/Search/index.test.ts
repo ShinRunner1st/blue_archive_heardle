@@ -13,7 +13,10 @@ const setSelectedSong = vi.fn((next) => {
   selected = typeof next === "function" ? next(selected) : next;
 });
 
-function mount(currentTry = 0) {
+function mount(
+  currentTry = 0,
+  extra: Partial<React.ComponentProps<typeof Search>> = {}
+) {
   const inputRef = React.createRef<HTMLInputElement>();
   harness.render(
     React.createElement(Search, {
@@ -21,6 +24,7 @@ function mount(currentTry = 0) {
       setSelectedSong,
       selectedSong: undefined,
       inputRef,
+      ...extra,
     })
   );
   return inputRef;
@@ -244,5 +248,41 @@ describe("Search behaviour", () => {
       clear!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     });
     expect(input().value).toBe("");
+  });
+});
+
+describe("Search with the full song list", () => {
+  it("opens the list from the browse button", () => {
+    const onBrowseSongs = vi.fn();
+    mount(0, { onBrowseSongs });
+
+    act(() => {
+      container
+        .querySelector<HTMLButtonElement>(
+          'button[aria-label="Browse all songs"]'
+        )!
+        .click();
+    });
+
+    expect(onBrowseSongs).toHaveBeenCalledOnce();
+  });
+
+  it("has no browse button when nothing handles it", () => {
+    mount();
+
+    expect(
+      container.querySelector('button[aria-label="Browse all songs"]')
+    ).toBeNull();
+  });
+
+  it("shows a song picked from the list in the box", () => {
+    mount(0, { onBrowseSongs: vi.fn() });
+    type("kar");
+    expect(options().length).toBeGreaterThan(0);
+
+    mount(0, { onBrowseSongs: vi.fn(), selectedSong: songs[0] });
+
+    expect(input().value).toBe(`${songs[0].artist} - ${songs[0].name}`);
+    expect(options()).toHaveLength(0);
   });
 });
