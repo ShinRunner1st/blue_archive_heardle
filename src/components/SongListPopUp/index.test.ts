@@ -57,10 +57,21 @@ function songButton(name: string) {
   return songButtons().find((button) => button.textContent?.includes(name));
 }
 
-function artistHeadings() {
-  return Array.from(document.querySelectorAll("h3")).map(
-    (heading) => heading.firstChild?.textContent
-  );
+function chip(artist: string) {
+  return Array.from(
+    document.querySelectorAll<HTMLButtonElement>(
+      '[aria-label="Filter by artist"] button'
+    )
+  ).find((button) => button.firstChild?.textContent === artist);
+}
+
+function pickChip(artist: string) {
+  act(() => chip(artist)!.click());
+}
+
+/** The artist tag at the end of each row, in list order. */
+function rowArtists() {
+  return songButtons().map((button) => button.lastElementChild?.textContent);
 }
 
 beforeEach(() => {
@@ -73,13 +84,15 @@ afterEach(() => {
 });
 
 describe("SongListPopUp", () => {
-  it("lists every song, grouped by artist", () => {
+  it("lists every song in theme order, each tagged with its artist", () => {
     mount();
 
     expect(songButtons()).toHaveLength(songs.length);
     expect(document.body.textContent).toContain(`${songs.length} songs`);
-    expect(artistHeadings()[0]).toBe("KARUT");
-    expect(artistHeadings().at(-1)).toBe("Unknown");
+    expect(songButtons()[0].textContent).toContain(songs[0].name);
+    expect(rowArtists()[0]).toBe(songs[0].artist);
+    // One flat list: no artist headings any more.
+    expect(document.querySelectorAll("h3")).toHaveLength(0);
   });
 
   it("picks a song as the guess when tapped", () => {
@@ -98,17 +111,15 @@ describe("SongListPopUp", () => {
     filter("moderato piano");
 
     expect(songButtons()).toHaveLength(1);
-    expect(artistHeadings()).toEqual(["Mitsukiyo"]);
+    expect(rowArtists()).toEqual(["Mitsukiyo"]);
     expect(document.body.textContent).toContain("1 song");
   });
 
-  it("filters by artist and by theme number too", () => {
+  it("filters by theme number too", () => {
     mount();
 
-    filter("nor");
-    expect(artistHeadings()).toContain("Nor");
-
     filter("374");
+
     expect(songButtons().length).toBeGreaterThan(0);
   });
 
@@ -159,5 +170,67 @@ describe("SongListPopUp", () => {
     });
 
     expect(onClose).toHaveBeenCalled();
+  });
+});
+
+describe("SongListPopUp artist filter", () => {
+  const norCount = songs.filter((song) => song.artist === "Nor").length;
+
+  it("offers All, then every artist with their song count, biggest first", () => {
+    mount();
+
+    const labels = Array.from(
+      document.querySelectorAll('[aria-label="Filter by artist"] button')
+    ).map((button) => button.textContent);
+
+    expect(labels[0]).toBe("All");
+    expect(labels[1]).toMatch(/^KARUT\d+$/);
+    expect(labels.at(-1)).toMatch(/^Unknown\d+$/);
+    expect(chip("All")?.getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("shows only the picked artist's songs", () => {
+    mount();
+
+    pickChip("Nor");
+
+    expect(songButtons()).toHaveLength(norCount);
+    expect(new Set(rowArtists())).toEqual(new Set(["Nor"]));
+    expect(chip("Nor")?.getAttribute("aria-pressed")).toBe("true");
+    expect(chip("All")?.getAttribute("aria-pressed")).toBe("false");
+  });
+
+  it("goes back to everyone when the picked artist is tapped again", () => {
+    mount();
+    pickChip("Nor");
+
+    pickChip("Nor");
+
+    expect(songButtons()).toHaveLength(songs.length);
+    expect(chip("All")?.getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("goes back to everyone from All", () => {
+    mount();
+    pickChip("Nor");
+
+    pickChip("All");
+
+    expect(songButtons()).toHaveLength(songs.length);
+  });
+
+  it("works together with the text filter", () => {
+    mount();
+    pickChip("Mitsukiyo");
+
+    filter("constant");
+    expect(songButtons().length).toBeGreaterThan(0);
+    expect(new Set(rowArtists())).toEqual(new Set(["Mitsukiyo"]));
+
+    pickChip("KARUT");
+    expect(songButtons()).toHaveLength(0);
+    expect(document.body.textContent).toContain(
+      "No songs match “constant” by KARUT."
+    );
   });
 });

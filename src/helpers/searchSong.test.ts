@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { songs } from "../constants";
-import { filterSongs, groupByArtist, searchSong } from "./searchSong";
+import { artists, filterSongs, searchSong } from "./searchSong";
 
 describe("searchSong", () => {
   it("returns nothing for a blank term", () => {
@@ -73,33 +73,37 @@ describe("filterSongs", () => {
   });
 });
 
-describe("groupByArtist", () => {
+describe("filterSongs by artist", () => {
+  it("keeps only that artist's songs", () => {
+    const nor = filterSongs("", "Nor");
+
+    expect(nor.length).toBeGreaterThan(0);
+    expect(nor.every((song) => song.artist === "Nor")).toBe(true);
+  });
+
+  it("combines with the search term", () => {
+    const both = filterSongs("constant", "Mitsukiyo");
+
+    expect(both.length).toBeGreaterThan(0);
+    expect(filterSongs("constant", "KARUT")).toEqual([]);
+  });
+});
+
+describe("artists", () => {
   it("puts the biggest catalogues first and Unknown last", () => {
-    const artists = groupByArtist(songs).map((group) => group.artist);
+    const names = artists.map((entry) => entry.artist);
 
-    expect(artists[0]).toBe("KARUT");
-    expect(artists[1]).toBe("Mitsukiyo");
-    expect(artists[artists.length - 1]).toBe("Unknown");
+    expect(names[0]).toBe("KARUT");
+    expect(names[1]).toBe("Mitsukiyo");
+    expect(names[names.length - 1]).toBe("Unknown");
   });
 
-  it("keeps the same order however far a filter narrows the list", () => {
-    // One Mitsukiyo song against three KARUT ones would flip an ordering
-    // based on the filtered results.
-    const narrowed = [
-      ...songs.filter((song) => song.artist === "Mitsukiyo").slice(0, 3),
-      ...songs.filter((song) => song.artist === "KARUT").slice(0, 1),
-    ];
+  it("counts every song exactly once", () => {
+    const total = artists.reduce((sum, entry) => sum + entry.count, 0);
 
-    expect(groupByArtist(narrowed).map((group) => group.artist)).toEqual([
-      "KARUT",
-      "Mitsukiyo",
-    ]);
-  });
-
-  it("keeps every song exactly once", () => {
-    const grouped = groupByArtist(songs).flatMap((group) => group.songs);
-
-    expect(grouped).toHaveLength(songs.length);
-    expect(new Set(grouped).size).toBe(songs.length);
+    expect(total).toBe(songs.length);
+    expect(new Set(artists.map((entry) => entry.artist)).size).toBe(
+      artists.length
+    );
   });
 });

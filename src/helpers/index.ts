@@ -1,5 +1,5 @@
 export { buildShareText } from "./shareText";
-export { filterSongs, groupByArtist, searchSong } from "./searchSong";
+export { artists, filterSongs, searchSong } from "./searchSong";
 export { calRecentCorrect } from "./calRecentCorrect";
 export { calStats, isFinished } from "./calStats";
 export { calStreaks } from "./streaks";

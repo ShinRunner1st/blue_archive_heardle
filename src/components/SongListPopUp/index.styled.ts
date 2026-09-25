@@ -45,6 +45,67 @@ export const FilterInput = styled.input`
   }
 `;
 
+/**
+ * One row of artist chips. It scrolls sideways rather than wrapping, so on a
+ * phone it stays a single line; the fade on the right hints there is more.
+ */
+export const Artists = styled.div`
+  display: flex;
+  gap: 6px;
+
+  width: 100%;
+  margin-top: 10px;
+  padding: 2px 24px 4px 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent);
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+export const Chip = styled.button<{ $active: boolean }>`
+  flex-shrink: 0;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  padding: 5px 11px;
+
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+  color: ${({ theme }) => theme.text};
+
+  background-color: ${({ theme, $active }) =>
+    $active ? theme.green : theme.background1};
+  border: 1px solid
+    ${({ theme, $active }) =>
+      $active ? theme.green : "rgba(255, 255, 255, 0.2)"};
+  border-radius: 999px;
+  cursor: pointer;
+
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    border-color: ${({ theme }) => theme.border};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
+`;
+
+export const ChipCount = styled.span`
+  font-weight: 600;
+  opacity: 0.7;
+`;
+
 export const Count = styled.p`
   align-self: flex-start;
   margin: 8px 0 6px;
@@ -63,41 +124,6 @@ export const List = styled.div`
 
   background-color: ${({ theme }) => theme.background1};
   border-radius: 8px;
-`;
-
-export const Group = styled.section`
-  & + & {
-    margin-top: 4px;
-  }
-`;
-
-/** Stays pinned while its songs scroll past, so the artist is always known. */
-export const Artist = styled.h3`
-  position: sticky;
-  top: 0;
-  z-index: 1;
-
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-
-  margin: 0;
-  padding: 8px 12px 6px;
-
-  font-size: 0.8rem;
-  font-weight: 800;
-  letter-spacing: 0.6px;
-  text-transform: uppercase;
-  color: lightblue;
-
-  background-color: ${({ theme }) => theme.background1};
-  border-bottom: 1px solid ${({ theme }) => theme.background100};
-`;
-
-export const ArtistCount = styled.span`
-  font-weight: 600;
-  color: ${({ theme }) => theme.text};
-  opacity: 0.6;
 `;
 
 export const Songs = styled.ul`
@@ -170,6 +196,33 @@ export const ThemeNo = styled.span`
   font-variant-numeric: tabular-nums;
   text-align: right;
   opacity: 0.55;
+`;
+
+/**
+ * The song's artist, small, at the end of the row. Fixed width so the tags
+ * line up down the list whatever the artist's name.
+ */
+export const ArtistTag = styled.span`
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 76px;
+  padding: 2px 6px;
+
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: lightblue;
+
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+
+  @media (max-width: 480px) {
+    width: 66px;
+  }
 `;
 
 export const Empty = styled.p`
