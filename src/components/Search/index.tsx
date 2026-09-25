@@ -194,10 +194,10 @@ export function Search({
           <Styled.BrowseButton
             type="button"
             onClick={onBrowseSongs}
-            aria-label="Browse all songs"
+            aria-label="Browse all OST"
+            title="All OST"
           >
-            <IoList size={20} aria-hidden="true" />
-            <Styled.BrowseLabel>All songs</Styled.BrowseLabel>
+            <IoList size={22} aria-hidden="true" />
           </Styled.BrowseButton>
         )}
       </Styled.Row>

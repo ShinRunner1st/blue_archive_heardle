@@ -43,7 +43,7 @@ export function SongListPopUp({
 
   return (
     <PopUp
-      title="All songs"
+      title="All OST"
       subtitle="Tap a song to pick it as your guess."
       onClose={onClose}
     >

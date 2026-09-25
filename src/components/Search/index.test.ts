@@ -259,7 +259,7 @@ describe("Search with the full song list", () => {
     act(() => {
       container
         .querySelector<HTMLButtonElement>(
-          'button[aria-label="Browse all songs"]'
+          'button[aria-label="Browse all OST"]'
         )!
         .click();
     });
@@ -271,7 +271,7 @@ describe("Search with the full song list", () => {
     mount();
 
     expect(
-      container.querySelector('button[aria-label="Browse all songs"]')
+      container.querySelector('button[aria-label="Browse all OST"]')
     ).toBeNull();
   });
 

@@ -28,14 +28,12 @@ export const BrowseButton = styled.button`
 
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
 
+  width: 45px;
   height: 45px;
-  padding: 0 14px;
+  padding: 0;
 
-  font-family: "Nunito Sans Variable";
-  font-size: 0.95rem;
-  font-weight: 700;
   color: ${({ theme }) => theme.text};
 
   background-color: ${({ theme }) => theme.background1};
@@ -55,15 +53,8 @@ export const BrowseButton = styled.button`
   }
 
   @media (max-width: 768px) {
+    width: 36px;
     height: 36px;
-    padding: 0 10px;
-  }
-`;
-
-/** Icon-only on narrow screens, where the search box needs the width. */
-export const BrowseLabel = styled.span`
-  @media (max-width: 480px) {
-    display: none;
   }
 `;
 
