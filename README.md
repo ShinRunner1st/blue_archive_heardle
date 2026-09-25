@@ -85,6 +85,8 @@ pull request.
    { artist: "Mitsukiyo", name: "Constant Moderato", themeNo: "1" },
    ```
 3. Run `npm run build:daily-order`.
+4. Run `npm run check:audio`. It fails if a song has no file, and lists any
+   file that has no song yet.
 
 A new artist needs nothing else: the All OST filter and the About credits are
 built from the song list.
@@ -96,9 +98,10 @@ and the song list drift apart.
 
 ### Audio
 
-The audio files are static assets, deployed with the site. The page only
-requests the current song's file, and only its metadata until the clip plays;
-seeking to the clip's start uses ordinary range requests.
+The audio files are static assets, deployed with the site. A round downloads
+one file, the current song's: about 1 MB on average, 3 MB at most. The result
+screen reuses it rather than fetching it again. Nothing is preloaded for the
+next round.
 
 `getAudioUrl` in `src/helpers/audioUrl.ts` is the only code that knows where
 the files live. To serve them from a CDN, set `VITE_AUDIO_BASE_URL` (for
@@ -133,6 +136,20 @@ Game state lives in `useGame`, which keeps both modes and saves each to its
 own `localStorage` key. Everything read back from storage is validated, so a
 corrupted or outdated save starts a fresh game instead of breaking the page.
 
+## Deploying
+
+The site is hosted on [Vercel](https://vercel.com/) and deploys from GitHub:
+every push to `main` goes to production, and other branches get preview
+deployments. The build settings are in `vercel.json`.
+
+The audio (about 400 MB) is part of the build, so:
+
+- **Deploy through the Git integration**, not `vercel deploy` from your
+  machine. The CLI refuses uploads over 100 MB on the Hobby plan.
+- **Watch the bandwidth.** Hobby includes 100 GB a month, which at roughly
+  1 MB a round is tens of thousands of rounds. If that stops being enough, move
+  the audio to a CDN with `VITE_AUDIO_BASE_URL` (see [Audio](#audio)).
+
 ## Song list
 
 [The full OST list](https://docs.google.com/spreadsheets/d/1w5jKHBZk4MOfm73Zt1FKTVcTMN1gcMnpd8ZcHHMCIT8/edit?usp=sharing)
@@ -148,3 +165,9 @@ This is an unofficial fan game, not affiliated with or endorsed by NEXON Games,
 NEXON or Yostar.
 
 Code credit: [msynowski/sluchajfun](https://github.com/msynowski/sluchajfun).
+
+## License
+
+The code is under the [MIT License](LICENSE). The music in `public/audio`, and
+the Blue Archive artwork and logo, are not: they belong to their rights
+holders, and the MIT License does not cover them.
