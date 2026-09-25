@@ -13,12 +13,17 @@ export const Container = styled.main`
   justify-content: center;
 
   height: fit-content;
+  /*
+   * Auto margins centre the play area between the header and the footer;
+   * equal padding keeps it off both, so it sits in the middle rather than
+   * low.
+   */
   margin: auto;
-  padding: 20px 0;
+  padding: 24px 0;
 
   @media (max-width: 768px) {
     width: 90%;
-    padding: 0 0;
+    padding: 16px 0;
   }
 `;
 

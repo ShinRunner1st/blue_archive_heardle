@@ -9,7 +9,7 @@ export const CorrectResultTitle = styled.h1`
     text-align: center;
     width: 100%;
   }
-  margin-top: 10%;
+  margin-top: 0;
 `;
 
 export const FailResultTitle = styled.h1`
@@ -20,7 +20,7 @@ export const FailResultTitle = styled.h1`
     text-align: center;
     width: 100%;
   }
-  margin-top: 10%;
+  margin-top: 0;
 `;
 
 export const Tries = styled.h4`
@@ -55,7 +55,6 @@ export const Buttons = styled.div`
   gap: 16px;
 
   width: 100%;
-  padding-bottom: 24px;
   text-align: center;
   position: relative;
 `;

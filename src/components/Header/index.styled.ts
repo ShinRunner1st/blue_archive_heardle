@@ -11,8 +11,6 @@ export const Container = styled.header`
 
   border-bottom: 0.5px solid ${({ theme }) => theme.border};
   background-color: ${({ theme }) => theme.background100};
-
-  margin-bottom: 15px;
 `;
 
 /**
