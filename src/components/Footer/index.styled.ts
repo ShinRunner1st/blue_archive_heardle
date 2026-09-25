@@ -10,9 +10,11 @@ import "@fontsource-variable/nunito-sans";
 export const Text = styled.footer`
   width: 100%;
   margin: 0;
-  padding: 12px 0;
+  padding: 6px 0;
 
   font-family: "Nunito Sans Variable";
+  font-size: 0.85rem;
+  line-height: 1.3;
   text-align: center;
 
   color: ${({ theme }) => theme.text};
