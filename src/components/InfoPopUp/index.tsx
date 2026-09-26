@@ -115,8 +115,8 @@ export function InfoPopUp({ onClose, canReset, onReset, mode }: Props) {
                 Blue Archive
               </a>{" "}
               is developed by NEXON Games and published by NEXON and Yostar. Its
-              music, characters and artwork belong to their rights holders.
-              Soundtrack by {composerCredit}.
+              music, characters, artwork and cursor belong to their rights
+              holders. Soundtrack by {composerCredit}.
             </PopUpCardText>
             <PopUpCardText>
               This is an unofficial fan game, not affiliated with or endorsed by

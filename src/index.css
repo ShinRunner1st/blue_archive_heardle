@@ -8,6 +8,34 @@ html {
   box-sizing: inherit;
 }
 
+/*
+ * Blue Archive's PC cursor on everything, links, buttons and text boxes
+ * included, so it also overrides the cursors components set. It shows at
+ * 32px, its size in the game; the 64px original keeps it sharp on
+ * high-density screens. The hotspot is the arrow's tip.
+ */
+*,
+*::before,
+*::after {
+  cursor: url("/cursor/PCIcon_MousePoint_32.png") 1 0, auto !important;
+}
+
+@supports (
+  cursor: image-set(url("/cursor/PCIcon_MousePoint_32.png") 1x) 1 0,
+  auto
+) {
+  *,
+  *::before,
+  *::after {
+    cursor: image-set(
+          url("/cursor/PCIcon_MousePoint_32.png") 1x,
+          url("/cursor/PCIcon_MousePoint.png") 2x
+        )
+        1 0,
+      auto !important;
+  }
+}
+
 body {
   margin: 0;
   font-family: "Nunito Sans Variable";
