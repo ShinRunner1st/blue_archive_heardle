@@ -128,7 +128,7 @@ export const CONFIG = {
     },
     /** One shard for every `every` px dragged. */
     drag: {
-      every: 90,
+      every: 150,
       size: [18, 26],
       radius: [0, 28],
       speed: [20, 30],
