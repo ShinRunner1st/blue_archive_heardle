@@ -1,10 +1,6 @@
 import React from "react";
 
-import {
-  FRAME,
-  spineCharacters,
-  SpineCharacter,
-} from "../../constants/characters";
+import { spineCharacters, SpineCharacter } from "../../constants/characters";
 import { pickExpression } from "../../helpers/characterMood";
 import type { Stage as SpineStage } from "../../helpers/spineStage";
 import { useCharacterChoice } from "../../hooks/useCharacterChoice";
@@ -139,11 +135,7 @@ function Stage({
   }, [ready, partner]);
 
   return (
-    <Styled.Stage
-      $ready={ready}
-      $hidden={hidden}
-      style={{ "--ratio": FRAME.width / FRAME.height } as React.CSSProperties}
-    >
+    <Styled.Stage $ready={ready} $hidden={hidden}>
       <canvas ref={canvasRef} aria-hidden="true" />
     </Styled.Stage>
   );

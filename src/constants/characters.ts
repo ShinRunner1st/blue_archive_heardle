@@ -32,11 +32,12 @@ export interface SpineCharacter {
   skel: string;
   atlas: string;
   /**
-   * Where she stands in skeleton units: the middle of her body and the soles
-   * of her feet. Every character is framed alike from there (see FRAME).
+   * Where she stands in skeleton units: the middle of her body and the
+   * height of her eyes. Every character is framed alike from there (see
+   * FRAME), so all their faces sit at the same place on screen.
    */
   centerX: number;
-  floor: number;
+  eyes: number;
   idle: string;
   blink: string | null;
   /**
@@ -51,21 +52,22 @@ export interface SpineCharacter {
 }
 
 /**
- * The part of every character shown, in skeleton units: her whole figure,
- * from just under her feet up. One size for all, tall enough for Mari's hat,
- * so they stand on one floor at the same scale.
+ * How every character is framed, in skeleton units: at least this much of
+ * her fits across and down the space beside the game, whichever is tighter,
+ * with the top of the view this far above her eyes. One scale for all, and
+ * every face at the same height; below, she runs on behind the footer.
+ *
+ * Where the width is what limits her, the view is taller than that, and
+ * would leave her feet short of the footer. The view then never reaches
+ * further than `belowEyes` under the eyes - just past Arona's feet, the
+ * shortest - and the extra goes above her instead, the same for everyone.
  */
-export const FRAME = { width: 1200, height: 2600, below: 20 };
-
-/** Her frame in skeleton units: x and y of the bottom-left corner. */
-export function frameOf(character: SpineCharacter) {
-  return {
-    x: character.centerX - FRAME.width / 2,
-    y: character.floor - FRAME.below,
-    width: FRAME.width,
-    height: FRAME.height,
-  };
-}
+export const FRAME = {
+  width: 1400,
+  height: 1990,
+  aboveEyes: 560,
+  belowEyes: 1609,
+};
 
 /**
  * From the game's own character data (see the README). Expression numbers
@@ -78,7 +80,7 @@ export const spineCharacters: Record<SpineCharacter["id"], SpineCharacter> = {
     skel: "arona/arona_spr.skel",
     atlas: "arona/arona_spr.atlas",
     centerX: 0,
-    floor: -795,
+    eyes: 874,
     idle: "Idle_01",
     blink: "Eye_Close_01",
     blinkable: [
@@ -142,7 +144,7 @@ export const spineCharacters: Record<SpineCharacter["id"], SpineCharacter> = {
     skel: "plana/NP0035_spr.skel",
     atlas: "plana/NP0035_spr.atlas",
     centerX: -20,
-    floor: -848,
+    eyes: 910,
     idle: "Idle_01",
     blink: "Eye_Close_01",
     blinkable: [
@@ -192,7 +194,7 @@ export const spineCharacters: Record<SpineCharacter["id"], SpineCharacter> = {
     skel: "mari/CH0273_spr.skel",
     atlas: "mari/CH0273_spr.atlas",
     centerX: 0,
-    floor: -1081,
+    eyes: 965,
     idle: "Idle_01",
     blink: "Eye_Close_01",
     // Her sprite has one closed-eye face, and a blink swaps her whole face

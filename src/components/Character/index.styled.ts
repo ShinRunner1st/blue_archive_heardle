@@ -1,27 +1,20 @@
 import styled from "styled-components";
 
-/** The header above her, and the footer she stands on. */
-const HEADER = "88px";
-const FOOTER = "30px";
-
 /**
- * Stands on the footer in the middle of the space left of the play area, her
- * whole figure as tall as the room there allows. `--ratio` is her width over
- * her height.
+ * The whole column left of the play area, from under the header to the
+ * bottom of the window: she is framed inside it (see FRAME), her face high
+ * and her legs running on behind the footer.
  */
 export const Stage = styled.div<{ $ready: boolean; $hidden: boolean }>`
   position: fixed;
-  bottom: ${FOOTER};
-  left: calc(25vw - 150px);
+  top: 88px;
+  bottom: 0;
+  left: 0;
   z-index: 1;
-  transform: translateX(-50%);
 
   display: ${({ $hidden }) => ($hidden ? "none" : "block")};
-  height: min(
-    calc(100vh - ${HEADER} - ${FOOTER} - 12px),
-    calc((50vw - 332px) / var(--ratio))
-  );
-  aspect-ratio: var(--ratio);
+  /* Up to the play area (600px wide, centred), less a small gap. */
+  width: calc(50vw - 316px);
 
   /* Fades in once her files are in, rather than popping. */
   opacity: ${({ $ready }) => ($ready ? 1 : 0)};

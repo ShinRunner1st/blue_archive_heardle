@@ -1,6 +1,6 @@
 import * as spine from "@esotericsoftware/spine-webgl";
 
-import { frameOf, SpineCharacter } from "../constants/characters";
+import { FRAME, SpineCharacter } from "../constants/characters";
 
 /**
  * A Blue Archive character drawn with the Spine runtime, reacting to the
@@ -459,17 +459,19 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
       skeleton.updateWorldTransform(spine.Physics.update);
     }
 
-    // Frame the character: her box, centred and as large as it fits.
+    // Frame her: at one scale, centred across, her eyes a set way below the
+    // top (see FRAME).
     const renderer = c.renderer;
     renderer.resize(spine.ResizeMode.Expand);
-    const frame = frameOf(character);
     const camera = renderer.camera;
-    camera.position.x = frame.x + frame.width / 2;
-    camera.position.y = frame.y + frame.height / 2;
     camera.zoom = Math.max(
-      frame.width / camera.viewportWidth,
-      frame.height / camera.viewportHeight
+      FRAME.width / camera.viewportWidth,
+      FRAME.height / camera.viewportHeight
     );
+    const viewHeight = camera.viewportHeight * camera.zoom;
+    const above = Math.max(FRAME.aboveEyes, viewHeight - FRAME.belowEyes);
+    camera.position.x = character.centerX;
+    camera.position.y = character.eyes + above - viewHeight / 2;
     camera.update();
 
     c.clear(0, 0, 0, 0);
