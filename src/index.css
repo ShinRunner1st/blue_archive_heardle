@@ -39,6 +39,22 @@ html {
   }
 }
 
+/*
+ * Clicking and dragging is part of the game's feel, so it must not paint
+ * selection highlights across the page. Only the text boxes - the search and
+ * the song list's filter - keep normal selection.
+ */
+body {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 body {
   margin: 0;
   font-family: "Nunito Sans Variable";
