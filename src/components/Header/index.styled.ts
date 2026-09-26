@@ -9,8 +9,15 @@ export const Container = styled.header`
 
   width: 100%;
 
-  border-bottom: 0.5px solid ${({ theme }) => theme.border};
   background-color: ${({ theme }) => theme.background100};
+  /* Half see-through, like the footer, so the place behind shows. */
+  background-color: color-mix(
+    in srgb,
+    ${({ theme }) => theme.background100} 50%,
+    transparent
+  );
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
 `;
 
 /**

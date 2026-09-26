@@ -26,9 +26,10 @@ export const Text = styled.footer`
   /* See-through, so she shows behind it, blurred enough to keep it legible. */
   background-color: color-mix(
     in srgb,
-    ${({ theme }) => theme.background100} 60%,
+    ${({ theme }) => theme.background100} 50%,
     transparent
   );
+  -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
 
   svg {
