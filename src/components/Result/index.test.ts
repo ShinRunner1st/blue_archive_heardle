@@ -53,6 +53,7 @@ function mount(overrides: Partial<React.ComponentProps<typeof Result>> = {}) {
       mode: "endless",
       round: wonRound(),
       onNewDay,
+      winStreak: { current: 0, before: 0 },
       ...overrides,
     })
   );
@@ -125,6 +126,24 @@ describe("Result on a win", () => {
     mount({ currentTry });
 
     expect(container.textContent).toContain(message);
+  });
+
+  it("announces a place the win streak unlocks, in endless", () => {
+    mount({ winStreak: { current: 10, before: 9 } });
+
+    expect(container.textContent).toContain(
+      "New place unlocked: Abydos Station!"
+    );
+  });
+
+  it("leaves the win streak out of the daily result", () => {
+    mount({
+      mode: "daily",
+      round: wonRound(3),
+      winStreak: { current: 10, before: 9 },
+    });
+
+    expect(container.textContent).not.toContain("Abydos Station");
   });
 
   it("offers Next Song while songs remain", () => {

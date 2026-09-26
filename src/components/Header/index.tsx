@@ -14,7 +14,10 @@ interface Props {
   openSettingsPopUp: () => void;
   mode: GameMode;
   onModeChange: (mode: GameMode) => void;
-  /** Consecutive daily wins. Shown in daily mode once there is a run going. */
+  /**
+   * The current mode's run: consecutive daily wins, or endless wins in a row.
+   * Shown once there is one going.
+   */
   streak: number;
 }
 
@@ -32,7 +35,9 @@ export function Header({
   onModeChange,
   streak,
 }: Props) {
-  const showStreak = mode === "daily" && streak > 0;
+  const showStreak = streak > 0;
+  const streakLabel =
+    mode === "daily" ? `${streak} day streak` : `${streak} wins in a row`;
 
   return (
     <Styled.Container>
@@ -69,8 +74,8 @@ export function Header({
           {showStreak && (
             <Styled.Streak
               role="img"
-              aria-label={`${streak} day streak`}
-              title={`${streak} day streak`}
+              aria-label={streakLabel}
+              title={streakLabel}
             >
               🔥 {streak}
             </Styled.Streak>

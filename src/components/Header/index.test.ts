@@ -107,10 +107,11 @@ describe("Header streak", () => {
     expect(harness.container.querySelector('[role="img"]')).toBeNull();
   });
 
-  it("is a daily idea, so endless never shows one", () => {
+  it("shows the endless win streak in endless mode", () => {
     mount("endless", 4);
 
-    expect(harness.container.querySelector('[role="img"]')).toBeNull();
+    const streak = harness.container.querySelector('[role="img"]');
+    expect(streak?.getAttribute("aria-label")).toBe("4 wins in a row");
   });
 });
 

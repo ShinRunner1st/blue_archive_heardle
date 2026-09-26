@@ -1,3 +1,4 @@
+export { Backdrop } from "./Backdrop";
 export { Button } from "./Button";
 export { Character } from "./Character";
 export { ErrorBoundary } from "./ErrorBoundary";

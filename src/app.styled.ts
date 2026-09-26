@@ -30,9 +30,10 @@ export const Container = styled.main`
 `;
 
 /**
- * The artwork is painted by a fixed pseudo-element rather than by the wrapper
- * itself. A `position: fixed` wrapper would take the whole page out of flow and
- * make anything past the first viewport unreachable.
+ * The page's wrapper. The artwork behind it is painted by Backdrop's fixed
+ * layers rather than by the wrapper: a `position: fixed` wrapper would take
+ * the whole page out of flow and make anything past the first viewport
+ * unreachable.
  */
 export const BG = styled.div`
   position: relative;
@@ -42,17 +43,4 @@ export const BG = styled.div`
 
   display: flex;
   flex-direction: column;
-
-  &::before {
-    content: "";
-
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-
-    background-image: url(${({ theme }) => theme.backgroundImage});
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-  }
 `;

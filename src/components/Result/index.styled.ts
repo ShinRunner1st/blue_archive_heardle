@@ -42,6 +42,19 @@ export const Score = styled.h2`
   margin-bottom: 0;
 `;
 
+/** The endless win streak: a place unlocked, or the way to the next. */
+export const Streak = styled.p`
+  font-family: "Nunito Sans Variable";
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-shadow: #000000 1px 0 10px;
+  text-align: center;
+  text-wrap: balance;
+  width: 100%;
+
+  margin: 6px 0 0;
+`;
+
 export const Buttons = styled.div`
   font-family: "Nunito Sans Variable";
 

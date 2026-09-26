@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { streakNews, WinStreak } from "../../helpers/winStreak";
 
 import { Song } from "../../types/song";
 import { GameMode } from "../../types/mode";
@@ -27,6 +28,8 @@ interface Props {
   round: Round;
   /** Called when the clock passes midnight with the result still on screen. */
   onNewDay: () => void;
+  /** Endless wins in a row, which move the background. */
+  winStreak: WinStreak;
 }
 
 /**
@@ -85,6 +88,7 @@ export function Result({
   mode,
   round,
   onNewDay,
+  winStreak,
 }: Props) {
   const [buttonText, setButtonText] = useState("Share result");
   const isDaily = mode === "daily";
@@ -129,6 +133,8 @@ export function Result({
   const lastTry = Math.min(Math.max(currentTry, 1), playTimes.length);
   const clipLength = playTimes[lastTry - 1] / 1000;
 
+  const news = streakNews(winStreak, didGuess);
+
   const Title = didGuess ? Styled.CorrectResultTitle : Styled.FailResultTitle;
   const title = didGuess
     ? TEXT_FOR_TRY[
@@ -152,6 +158,7 @@ export function Result({
           ? `Puzzle #${round.day}`
           : `Score : ${score}`}
       </Styled.Score>
+      {!isDaily && news && <Styled.Streak>{news}</Styled.Streak>}
       <NowPlaying
         song={solution}
         startTime={startTime ?? 0}

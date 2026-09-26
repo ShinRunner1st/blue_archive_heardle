@@ -4,6 +4,7 @@ import { GameMode } from "./types/mode";
 import { Song } from "./types/song";
 
 import { useGame } from "./hooks/useGame";
+import { placeFor } from "./helpers/winStreak";
 import {
   isFirstRun,
   loadMode,
@@ -12,6 +13,7 @@ import {
 } from "./helpers/storage";
 
 import {
+  Backdrop,
   Character,
   Header,
   InfoPopUp,
@@ -38,6 +40,7 @@ function App() {
     stats,
     score,
     streaks,
+    winStreak,
     bagEmpty,
     hasHistory,
     guess,
@@ -144,6 +147,7 @@ function App() {
 
   return (
     <Styled.BG>
+      <Backdrop place={placeFor(winStreak.current)} />
       <Header
         openInfoPopUp={openInfoPopUp}
         openStatsPopUp={openStatsPopUp}
@@ -151,7 +155,7 @@ function App() {
         openSettingsPopUp={openSettingsPopUp}
         mode={mode}
         onModeChange={changeMode}
-        streak={streaks.current}
+        streak={mode === "daily" ? streaks.current : winStreak.current}
       />
       {isStatsPopUpOpen && (
         <StatsPopUp
@@ -207,6 +211,7 @@ function App() {
           // be swapped out - only endless can deal a replacement.
           onSkipTrack={mode === "endless" ? replaceCurrentSong : undefined}
           onBrowseSongs={openSongList}
+          winStreak={winStreak}
         />
       </Styled.Container>
       <Character

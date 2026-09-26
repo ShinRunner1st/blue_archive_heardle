@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import { WinStreak } from "../../helpers/winStreak";
 
 import { GuessType } from "../../types/guess";
 import { GameMode } from "../../types/mode";
@@ -35,9 +36,11 @@ interface Props {
   onSkipTrack?: () => void;
   /** Opens the full song list to pick a guess from. */
   onBrowseSongs?: () => void;
+  winStreak: WinStreak;
 }
 
 export function Game({
+  winStreak,
   guesses,
   solution,
   currentTry,
@@ -76,6 +79,7 @@ export function Game({
         mode={mode}
         round={round}
         onNewDay={onNewDay}
+        winStreak={winStreak}
       />
     );
   }
