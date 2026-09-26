@@ -8,6 +8,10 @@ import "@fontsource-variable/nunito-sans";
  * link.
  */
 export const Text = styled.footer`
+  /* Over the character, who stands at the bottom of the window. */
+  position: relative;
+  z-index: 2;
+
   width: 100%;
   margin: 0;
   padding: 6px 0;
@@ -19,6 +23,13 @@ export const Text = styled.footer`
 
   color: ${({ theme }) => theme.text};
   background-color: ${({ theme }) => theme.background100};
+  /* See-through, so she shows behind it, blurred enough to keep it legible. */
+  background-color: color-mix(
+    in srgb,
+    ${({ theme }) => theme.background100} 75%,
+    transparent
+  );
+  backdrop-filter: blur(6px);
 
   svg {
     vertical-align: -2px;

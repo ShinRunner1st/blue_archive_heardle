@@ -1,6 +1,10 @@
 import React from "react";
 
-import { spineCharacters, SpineCharacter } from "../../constants/characters";
+import {
+  FRAME,
+  spineCharacters,
+  SpineCharacter,
+} from "../../constants/characters";
 import { pickExpression } from "../../helpers/characterMood";
 import type { Stage as SpineStage } from "../../helpers/spineStage";
 import { useCharacterChoice } from "../../hooks/useCharacterChoice";
@@ -55,7 +59,7 @@ function Stage({
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const stageRef = React.useRef<SpineStage | null>(null);
   const [ready, setReady] = React.useState(false);
-  const playing = useAudioPlaying();
+  const playing = useAudioPlaying(roundKey);
   const reacting = useWrongGuessReaction(
     roundKey,
     currentTry,
@@ -101,12 +105,10 @@ function Stage({
     stageRef.current?.setExpression(expression);
   }, [expression]);
 
-  const { frame } = character;
-
   return (
     <Styled.Stage
       $ready={ready}
-      style={{ "--ratio": frame.width / frame.height } as React.CSSProperties}
+      style={{ "--ratio": FRAME.width / FRAME.height } as React.CSSProperties}
     >
       <canvas ref={canvasRef} aria-hidden="true" />
     </Styled.Stage>
@@ -145,23 +147,28 @@ function useWrongGuessReaction(
   return reacting;
 }
 
-/** Whether any audio on the page is playing: the clip or the answer. */
-function useAudioPlaying(): boolean {
+/**
+ * Whether any audio on the page is playing: the clip or the answer. Checked
+ * again whenever `roundKey` changes: the result screen's player is removed
+ * while it plays, and a removed element's pause never reaches the page.
+ */
+function useAudioPlaying(roundKey: string): boolean {
   const [playing, setPlaying] = React.useState(false);
 
   React.useEffect(() => {
-    // Media events don't bubble, but they can be caught on the way down.
     const update = () =>
       setPlaying(
         [...document.querySelectorAll("audio")].some((audio) => !audio.paused)
       );
+    update();
+    // Media events don't bubble, but they can be caught on the way down.
     const events = ["play", "pause", "ended", "emptied"];
     events.forEach((name) => document.addEventListener(name, update, true));
     return () =>
       events.forEach((name) =>
         document.removeEventListener(name, update, true)
       );
-  }, []);
+  }, [roundKey]);
 
   return playing;
 }

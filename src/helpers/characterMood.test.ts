@@ -89,4 +89,10 @@ describe("spineCharacters", () => {
       expect(faces.tapped.length).toBeGreaterThan(1);
     }
   });
+
+  it("lets every character blink while at ease", () => {
+    for (const character of Object.values(spineCharacters)) {
+      expect(character.blinkable).toContain(character.moods.idle);
+    }
+  });
 });

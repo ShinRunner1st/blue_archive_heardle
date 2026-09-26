@@ -1,6 +1,6 @@
 import * as spine from "@esotericsoftware/spine-webgl";
 
-import { SpineCharacter } from "../constants/characters";
+import { frameOf, SpineCharacter } from "../constants/characters";
 
 /**
  * A Blue Archive character drawn with the Spine runtime, reacting to the
@@ -121,6 +121,8 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
 
   const setFace = (name: string) => {
     if (!current || !has(name)) return;
+    // A blink still running would cover the new face's eyes.
+    current.state.setEmptyAnimation(BLINK, 0);
     const entry = current.state.setAnimation(FACE, name, true);
     entry.mixDuration = 0.15;
   };
@@ -160,7 +162,8 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   const onHead = (x: number, y: number) => {
     const touch = current?.character.touch;
     if (!touch) return false;
-    return Math.hypot(x - touch.head[0], y - touch.head[1]) <= touch.headRadius;
+    const [cx, cy, radius] = touch.pat;
+    return Math.hypot(x - cx, y - cy) <= radius;
   };
 
   const startHold = (kind: "look" | "pat", id: number, startX: number) => {
@@ -168,7 +171,7 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     if (!touch) return;
     // The pat's _A half is her happy face, so the expression steps aside.
     if (kind === "pat") current!.state.setEmptyAnimation(FACE, 0.15);
-    play(touch[kind].loop, MAIN, true);
+    play(touch[kind === "pat" ? "stroke" : "look"].loop, MAIN, true);
     gesture = kind === "look" ? { kind, id } : { kind, id, startX };
     canvas.style.cursor = kind === "pat" ? "grabbing" : "";
   };
@@ -177,7 +180,7 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     if (gesture.kind !== "look" && gesture.kind !== "pat") return;
     const touch = current?.character.touch;
     if (touch) {
-      play(touch[gesture.kind].end, MAIN, false);
+      play(touch[gesture.kind === "pat" ? "stroke" : "look"].end, MAIN, false);
       current!.state.addEmptyAnimation(MAIN, 0.2, 0);
       current!.state.addEmptyAnimation(ADD, 0.2, 0);
       if (gesture.kind === "pat") setFace(faceNow());
@@ -314,7 +317,13 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
       if (gesture.kind !== "pat") setFace(expression);
     }
     if (character.blink && clock >= nextBlink) {
-      if (nextBlink > 0 && has(character.blink)) {
+      if (
+        nextBlink > 0 &&
+        has(character.blink) &&
+        gesture.kind !== "look" &&
+        gesture.kind !== "pat" &&
+        character.blinkable.includes(faceNow())
+      ) {
         state.setAnimation(BLINK, character.blink, false);
         state.addEmptyAnimation(BLINK, 0.05, 0);
       }
@@ -345,7 +354,7 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     // Frame the character: her box, centred and as large as it fits.
     const renderer = c.renderer;
     renderer.resize(spine.ResizeMode.Expand);
-    const { frame } = character;
+    const frame = frameOf(character);
     const camera = renderer.camera;
     camera.position.x = frame.x + frame.width / 2;
     camera.position.y = frame.y + frame.height / 2;

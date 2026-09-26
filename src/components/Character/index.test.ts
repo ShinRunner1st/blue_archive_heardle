@@ -94,6 +94,22 @@ describe("Character", () => {
     );
   });
 
+  it("stops listening once a new round starts, even if the answer was still playing", async () => {
+    // The result screen's player, mid-answer.
+    const answer = document.createElement("audio");
+    Object.defineProperty(answer, "paused", { value: false });
+    document.body.appendChild(answer);
+    await mount({ currentTry: 6 });
+
+    // Continue: the result screen, and its player, are gone.
+    answer.remove();
+    await mount({ currentTry: 0, roundKey: "endless::2" });
+
+    expect(stage.setExpression).toHaveBeenLastCalledWith(
+      spineCharacters.arona.moods.idle
+    );
+  });
+
   it("lets go of the stage when she is removed", async () => {
     await mount();
     harness.unmount();
