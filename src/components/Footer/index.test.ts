@@ -22,7 +22,7 @@ afterEach(() => {
 describe("Footer", () => {
   it("links to the project repository", () => {
     expect(link().getAttribute("href")).toBe(
-      "https://github.com/ShinRunner1st/ba_ost_guess"
+      "https://github.com/ShinRunner1st/blue_archive_heardle"
     );
   });
 
