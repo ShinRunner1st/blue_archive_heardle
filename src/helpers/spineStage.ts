@@ -260,7 +260,7 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
       play(touch.look.loop, MAIN, true);
     }
     gesture = kind === "look" ? { kind, id } : { kind, id, startX };
-    eyeShareTarget = kind === "look" ? 1 : 0;
+    eyeShareTarget = kind === "look" ? touch.lookEyes : 0;
     canvas.style.cursor = kind === "pat" ? "grabbing" : "";
   };
 

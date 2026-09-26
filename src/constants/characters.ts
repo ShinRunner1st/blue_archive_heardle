@@ -15,6 +15,11 @@ export interface Touch {
   /** Furthest the look and the pat may move Touch_Point. */
   lookMax: number;
   patMax: number;
+  /**
+   * How much of a look's offset Touch_Eye takes. All of it sent her eyes
+   * much further than her head turned.
+   */
+  lookEyes: number;
   look: { loop: string[]; end: string[] };
   /** The pat's animations. */
   stroke: { loop: string[]; end: string[] };
@@ -27,11 +32,11 @@ export interface SpineCharacter {
   skel: string;
   atlas: string;
   /**
-   * Where she stands in skeleton units: the middle of her body and the top
-   * of her halo. Every character is framed alike from there (see FRAME).
+   * Where she stands in skeleton units: the middle of her body and the soles
+   * of her feet. Every character is framed alike from there (see FRAME).
    */
   centerX: number;
-  top: number;
+  floor: number;
   idle: string;
   blink: string | null;
   /**
@@ -46,16 +51,17 @@ export interface SpineCharacter {
 }
 
 /**
- * The part of every character shown, in skeleton units, from just above her
- * halo down: one size for all, so they stand at the same scale.
+ * The part of every character shown, in skeleton units: her whole figure,
+ * from just under her feet up. One size for all, tall enough for Mari's hat,
+ * so they stand on one floor at the same scale.
  */
-export const FRAME = { width: 1200, height: 1750, headroom: 40 };
+export const FRAME = { width: 1200, height: 2600, below: 20 };
 
 /** Her frame in skeleton units: x and y of the bottom-left corner. */
 export function frameOf(character: SpineCharacter) {
   return {
     x: character.centerX - FRAME.width / 2,
-    y: character.top + FRAME.headroom - FRAME.height,
+    y: character.floor - FRAME.below,
     width: FRAME.width,
     height: FRAME.height,
   };
@@ -72,7 +78,7 @@ export const spineCharacters: Record<SpineCharacter["id"], SpineCharacter> = {
     skel: "arona/arona_spr.skel",
     atlas: "arona/arona_spr.atlas",
     centerX: 0,
-    top: 1333,
+    floor: -795,
     idle: "Idle_01",
     blink: "Eye_Close_01",
     blinkable: [
@@ -97,6 +103,7 @@ export const spineCharacters: Record<SpineCharacter["id"], SpineCharacter> = {
       pat: [0, 1040, 210],
       lookMax: 100,
       patMax: 60,
+      lookEyes: 0.4,
       look: {
         loop: ["Look_01_M", "Look_01_A"],
         end: ["LookEnd_01_M", "LookEnd_01_A"],
@@ -135,7 +142,7 @@ export const spineCharacters: Record<SpineCharacter["id"], SpineCharacter> = {
     skel: "plana/NP0035_spr.skel",
     atlas: "plana/NP0035_spr.atlas",
     centerX: -20,
-    top: 1368,
+    floor: -848,
     idle: "Idle_01",
     blink: "Eye_Close_01",
     blinkable: [
@@ -162,6 +169,7 @@ export const spineCharacters: Record<SpineCharacter["id"], SpineCharacter> = {
       pat: [-15, 1060, 215],
       lookMax: 100,
       patMax: 60,
+      lookEyes: 0.4,
       look: { loop: ["Look_01_M"], end: ["LookEnd_01_M", "LookEnd_01_A"] },
       stroke: {
         loop: ["Pat_01_M", "Pat_01_A"],
@@ -184,7 +192,7 @@ export const spineCharacters: Record<SpineCharacter["id"], SpineCharacter> = {
     skel: "mari/CH0273_spr.skel",
     atlas: "mari/CH0273_spr.atlas",
     centerX: 0,
-    top: 1464,
+    floor: -1081,
     idle: "Idle_01",
     blink: "Eye_Close_01",
     // Her sprite has one closed-eye face, and a blink swaps her whole face
