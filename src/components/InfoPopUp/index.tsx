@@ -5,6 +5,7 @@ import {
   IoShuffle,
   IoStatsChart,
   IoCafe,
+  IoShieldCheckmark,
 } from "react-icons/io5";
 
 import { Button } from "../Button";
@@ -111,6 +112,25 @@ export function InfoPopUp({ onClose, canReset, onReset, mode }: Props) {
             <PopUpCardTitle>Your run is saved</PopUpCardTitle>
             <PopUpCardText>
               Close the tab whenever — your score and progress are kept.
+            </PopUpCardText>
+          </PopUpCardBody>
+        </PopUpCard>
+
+        <PopUpCard>
+          <PopUpCardIcon>
+            <IoShieldCheckmark aria-hidden="true" />
+          </PopUpCardIcon>
+          <PopUpCardBody>
+            <PopUpCardTitle>Your privacy</PopUpCardTitle>
+            <PopUpCardText>
+              No accounts, cookies, ads or analytics, and nothing is tracked.
+              Your score, streaks and settings are saved only in this browser
+              and never sent anywhere.
+            </PopUpCardText>
+            <PopUpCardText>
+              Like any website, the services that deliver it — Vercel for the
+              game, Cloudflare for the music — see basic connection details,
+              such as your IP address, to send you the pages.
             </PopUpCardText>
           </PopUpCardBody>
         </PopUpCard>

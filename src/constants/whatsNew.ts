@@ -1,5 +1,5 @@
 import type { IconType } from "react-icons";
-import { IoDisc, IoMap, IoNavigate, IoSparkles } from "react-icons/io5";
+import { IoKeypad, IoShieldCheckmark } from "react-icons/io5";
 
 export interface NewsItem {
   icon: IconType;
@@ -12,27 +12,17 @@ export interface NewsItem {
  * with each batch, and everyone who saw the last one gets the pop-up again.
  */
 export const WHATS_NEW: { id: string; items: NewsItem[] } = {
-  id: "2026-09",
+  id: "2026-09-keyboard",
   items: [
     {
-      icon: IoMap,
-      title: "Streak places",
-      text: "Win in a row and the background travels across Kivotos, somewhere new every 10. Daily and Endless each keep their own journey.",
+      icon: IoKeypad,
+      title: "Play without the mouse",
+      text: "Just start typing to search. Space plays the clip, Enter guesses and moves on, and Shift+Enter skips.",
     },
     {
-      icon: IoDisc,
-      title: "OST badges",
-      text: "Guess every song on one of the eight soundtrack albums to earn its badge. The disc in the header shows how close you are.",
-    },
-    {
-      icon: IoSparkles,
-      title: "Characters",
-      text: "Arona and Plana, or Mari, keep you company on wide screens and react to your guesses. Pick one in Settings.",
-    },
-    {
-      icon: IoNavigate,
-      title: "Blue Archive cursor",
-      text: "The game's own cursor, with a flash on every click. You can turn it off in Settings.",
+      icon: IoShieldCheckmark,
+      title: "Your privacy",
+      text: "No accounts, cookies, ads or analytics. Your progress stays in this browser. More in About this game.",
     },
   ],
 };

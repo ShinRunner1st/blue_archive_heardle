@@ -262,6 +262,16 @@ The audio is on Cloudflare (see [Audio](#audio)), so a deployment is about
   check in the background. A replaced file under the same name can take up to
   a week to reach everyone; give it a new name to reach them at once.
 
+## Privacy
+
+The game collects nothing about its players: no accounts, cookies, ads,
+analytics or tracking scripts. Progress and settings are kept in the
+browser's `localStorage` (the keys are in `src/constants/game.ts`) and never
+sent anywhere; the clipboard is only written when a player presses Share.
+Like any website, the hosts - Vercel for the site, Cloudflare for the audio -
+see standard connection details such as IP addresses to serve the files.
+Players see the same in About this game.
+
 ## Song list
 
 [The full OST list](https://docs.google.com/spreadsheets/d/1w5jKHBZk4MOfm73Zt1FKTVcTMN1gcMnpd8ZcHHMCIT8/edit?usp=sharing)

@@ -53,6 +53,12 @@ describe("InfoPopUp credit", () => {
     expect(text()).not.toMatch(/Soundtrack by[^.]*Unknown/);
   });
 
+  it("says what is and isn't collected", () => {
+    expect(text()).toContain("No accounts, cookies, ads or analytics");
+    expect(text()).toContain("saved only in this browser");
+    expect(text()).toContain("IP address");
+  });
+
   it("says it is an unofficial fan game", () => {
     expect(text()).toContain("unofficial fan game");
   });
