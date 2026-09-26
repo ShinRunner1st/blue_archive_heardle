@@ -4,6 +4,7 @@ import { playTimes } from "../../constants";
 import { getClipUrl } from "../../helpers/audioUrl";
 import { hideTrackFromMediaSession } from "../../helpers/mediaSession";
 import { markUnplayable } from "../../helpers/unplayable";
+import { useAudioSource } from "../../hooks/useAudioSource";
 import { useAudioVolume } from "../../hooks/useVolume";
 
 import { Button } from "../Button";
@@ -187,6 +188,13 @@ export function Player({
     }
   }, [themeNo]);
 
+  // The clip is downloaded whole before the element gets it (see
+  // helpers/audioSource); a download that fails is the file failing.
+  const source = useAudioSource(getClipUrl(themeNo), attempt);
+  React.useEffect(() => {
+    if (source.failed) handleError();
+  }, [source.failed, handleError]);
+
   // Playback can also be started or stopped from outside the page, such as
   // the browser's media controls. Following it keeps the clip limit enforced.
   const handlePlay = React.useCallback(() => setPlay(true), []);
@@ -205,8 +213,8 @@ export function Player({
       <audio
         key={attempt}
         ref={audioRef}
-        src={getClipUrl(themeNo)}
-        preload="metadata"
+        src={source.src}
+        preload="auto"
         onLoadedMetadata={handleReady}
         onError={handleError}
         onPlay={handlePlay}

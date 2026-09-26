@@ -46,10 +46,13 @@ import { loadSongs } from "./lib/songs.mjs";
 
 /**
  * The file names never change for the same bytes, so browsers and Cloudflare
- * can keep them for a year without asking again.
+ * can keep them for a year without asking again. The game downloads the files
+ * itself (see src/helpers/audioSource.ts), from another address than its own,
+ * so it needs Access-Control-Allow-Origin to read them.
  */
 const HEADERS = `/*
   Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
 `;
 
 const run = promisify(execFile);

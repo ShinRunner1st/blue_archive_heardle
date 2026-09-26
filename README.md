@@ -145,8 +145,14 @@ is not committed:
 
 - **its clip**, 16 seconds cut from a fixed point in the song. It is all a
   round downloads, about 0.2 MB;
-- **the whole song**, which the result screen fetches only when the player
-  presses play.
+- **the whole song**, which the result screen fetches once the round is over
+  and plays from where the clip started.
+
+The game downloads each file whole and plays it from memory
+(`src/helpers/audioSource.ts`): Cloudflare's static files don't answer
+requests for part of a file, which Safari needs to play from a server and
+other browsers need to seek. `_headers` also allows the game, on another
+address, to read the files.
 
 Both are named with a salted hash of the theme number and a fingerprint of
 the original, so a request in DevTools says nothing about the song, and a

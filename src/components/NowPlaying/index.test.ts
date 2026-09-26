@@ -7,6 +7,17 @@ import { NowPlaying } from "./index";
 import { getSongUrl } from "../../helpers/audioUrl";
 import { clearUnplayable, isUnplayable } from "../../helpers/unplayable";
 import { setVolume } from "../../helpers/volume";
+import { loadAudio } from "../../helpers/audioSource";
+
+// jsdom can't download, so the whole-file loader hands back a stand-in URL.
+vi.mock("../../helpers/audioSource", () => ({
+  loadAudio: vi.fn((url: string) => Promise.resolve(`blob:${url}`)),
+}));
+
+/** Lets the stand-in download finish. */
+async function settle() {
+  await act(async () => undefined);
+}
 
 const song = { artist: "Mitsukiyo", name: "Constant Moderato", themeNo: "1" };
 
@@ -101,28 +112,32 @@ describe("NowPlaying", () => {
     expect(harness.container.textContent).not.toMatch(/Theme\s*0?1\b/);
   });
 
-  it("offers the whole song, with its own controls", () => {
+  it("plays the whole song from a local copy, with its own controls", async () => {
     mount();
+    await settle();
 
-    expect(audio()?.getAttribute("src")).toBe(getSongUrl("1"));
+    expect(loadAudio).toHaveBeenCalledWith(getSongUrl("1"));
+    expect(audio()?.getAttribute("src")).toBe(`blob:${getSongUrl("1")}`);
     expect(audio()?.hasAttribute("controls")).toBe(false);
   });
 
-  it("downloads nothing and plays nothing until asked", () => {
-    mount();
-
-    expect(audio()?.getAttribute("preload")).toBe("none");
-    expect(play).not.toHaveBeenCalled();
-  });
-
-  it("draws the timeline before the song is downloaded", () => {
+  it("draws the timeline while the song downloads", () => {
     mount(42, 7);
 
-    expect(button("Play")?.disabled).toBe(false);
-    expect(button("Replay my clip")?.disabled).toBe(false);
+    expect(button("Play")?.disabled).toBe(true);
+    expect(button("Replay my clip")?.disabled).toBe(true);
     // Theme 1's length, from the clip list rather than the file.
     expect(harness.container.textContent).toContain("2:17");
     expect(harness.container.textContent).toContain("Your clip: 0:42 – 0:49");
+  });
+
+  it("says so when the song can't be downloaded", async () => {
+    vi.mocked(loadAudio).mockRejectedValueOnce(new Error("404"));
+    mount();
+    await settle();
+
+    expect(harness.container.textContent).toContain("won’t play here");
+    expect(isUnplayable("1")).toBe(true);
   });
 
   it("plays at the volume the player chose on the guessing screen", () => {
@@ -137,24 +152,14 @@ describe("NowPlaying", () => {
     ).toBe("45");
   });
 
-  it("starts where the round's clip started, at the default volume", () => {
+  it("plays from where the round's clip started, at the default volume", () => {
     mount(42);
-    click("Play");
     fire("loadedmetadata");
 
     expect(play).toHaveBeenCalled();
     expect(seeks).toEqual([42]);
     expect(audio()?.volume).toBe(0.2);
     expect(harness.container.textContent).toContain("0:42");
-  });
-
-  it("remembers a seek made before the song has loaded", () => {
-    mount(42);
-    click("Replay my clip");
-    expect(seeks).toEqual([]);
-
-    fire("loadedmetadata");
-    expect(seeks).toEqual([42]);
   });
 
   it("shows which part of the song was the clip", () => {
@@ -248,8 +253,8 @@ describe("NowPlaying", () => {
       Promise.reject(new DOMException("blocked", "NotAllowedError"))
     );
     mount();
-    click("Play");
-    await act(async () => undefined);
+    fire("loadedmetadata");
+    await settle();
 
     expect(button("Play")?.disabled).toBe(false);
   });

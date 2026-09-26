@@ -2,6 +2,7 @@ import React from "react";
 
 import { clipInfo, getSongUrl } from "../../helpers/audioUrl";
 import { markUnplayable } from "../../helpers/unplayable";
+import { useAudioSource } from "../../hooks/useAudioSource";
 import { useAudioVolume } from "../../hooks/useVolume";
 import { Song } from "../../types/song";
 
@@ -32,8 +33,8 @@ function percent(part: number, whole: number): string {
  * The answer on the result screen: what the song was, a player that picks up
  * where the round's clip started, and a marker showing which part was the clip.
  *
- * The whole song is only downloaded once the player presses play: most rounds
- * go straight on to the next one, and the round already fetched its clip.
+ * The whole song is only downloaded once the round is over, so it can't give
+ * the answer away early.
  */
 export function NowPlaying({ song, startTime, clipLength }: Props) {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
@@ -43,6 +44,7 @@ export function NowPlaying({ song, startTime, clipLength }: Props) {
   // Where to go once the file has loaded: moving before then is lost.
   const pendingSeekRef = React.useRef<number | null>(startTime);
 
+  const [loaded, setLoaded] = React.useState(false);
   const [failed, setFailed] = React.useState(false);
   const [playing, setPlaying] = React.useState(false);
   const [currentTime, setCurrentTime] = React.useState(startTime);
@@ -82,8 +84,13 @@ export function NowPlaying({ song, startTime, clipLength }: Props) {
       const pending = pendingSeekRef.current;
       pendingSeekRef.current = null;
       if (pending !== null) audio.currentTime = pending;
+      setLoaded(true);
+
+      // Allowed straight after the guess that revealed the answer. On a
+      // reload the browser may block it, and the play button is there instead.
+      play(audio);
     },
-    []
+    [play]
   );
 
   const handleTimeUpdate = React.useCallback(
@@ -104,6 +111,12 @@ export function NowPlaying({ song, startTime, clipLength }: Props) {
     markUnplayable(song.themeNo);
     setFailed(true);
   }, [song.themeNo]);
+
+  // Downloaded whole before the element gets it (see helpers/audioSource).
+  const source = useAudioSource(getSongUrl(song.themeNo));
+  React.useEffect(() => {
+    if (source.failed) handleError();
+  }, [source.failed, handleError]);
 
   const togglePlay = React.useCallback(() => {
     const audio = audioRef.current;
@@ -155,8 +168,8 @@ export function NowPlaying({ song, startTime, clipLength }: Props) {
           {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
           <audio
             ref={audioRef}
-            src={getSongUrl(song.themeNo)}
-            preload="none"
+            src={source.src}
+            preload="auto"
             onLoadedMetadata={handleReady}
             onTimeUpdate={handleTimeUpdate}
             onPlay={() => setPlaying(true)}
@@ -169,6 +182,7 @@ export function NowPlaying({ song, startTime, clipLength }: Props) {
             <Styled.Transport
               type="button"
               onClick={togglePlay}
+              disabled={!loaded}
               aria-label={playing ? "Pause" : "Play"}
             >
               {playing ? (
@@ -223,7 +237,11 @@ export function NowPlaying({ song, startTime, clipLength }: Props) {
               <Styled.ClipSwatch aria-hidden="true" />
               Your clip: {formatTime(startTime)} – {formatTime(clipEnd)}
             </Styled.ClipLabel>
-            <Styled.ReplayButton type="button" onClick={replayClip}>
+            <Styled.ReplayButton
+              type="button"
+              onClick={replayClip}
+              disabled={!loaded}
+            >
               <Styled.ReplayIcon aria-hidden="true" />
               Replay my clip
             </Styled.ReplayButton>

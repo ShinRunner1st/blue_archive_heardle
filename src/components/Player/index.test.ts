@@ -7,6 +7,17 @@ import { Player } from "./index";
 import { getClipUrl } from "../../helpers/audioUrl";
 import { clearUnplayable, isUnplayable } from "../../helpers/unplayable";
 import { setVolume } from "../../helpers/volume";
+import { loadAudio } from "../../helpers/audioSource";
+
+// jsdom can't download, so the whole-file loader hands back a stand-in URL.
+vi.mock("../../helpers/audioSource", () => ({
+  loadAudio: vi.fn((url: string) => Promise.resolve(`blob:${url}`)),
+}));
+
+/** Lets the stand-in download finish. */
+async function settle() {
+  await act(async () => undefined);
+}
 
 const DURATION = 200;
 
@@ -127,12 +138,22 @@ afterEach(() => {
 });
 
 describe("Player", () => {
-  it("requests only the current song's clip, and only its metadata up front", () => {
+  it("loads only the current song's clip, and plays it from a local copy", async () => {
     mount();
+    await settle();
 
+    expect(loadAudio).toHaveBeenCalledTimes(1);
+    expect(loadAudio).toHaveBeenCalledWith(getClipUrl("1"));
     expect(container.querySelectorAll("audio")).toHaveLength(1);
-    expect(audio().getAttribute("src")).toBe(getClipUrl("1"));
-    expect(audio().getAttribute("preload")).toBe("metadata");
+    expect(audio().getAttribute("src")).toBe(`blob:${getClipUrl("1")}`);
+  });
+
+  it("says the track won't play when the clip can't be downloaded", async () => {
+    vi.mocked(loadAudio).mockRejectedValueOnce(new Error("404"));
+    mount(null, 0, true, true, false);
+    await settle();
+
+    expect(container.textContent).toContain("This track won’t play");
   });
 
   it("leaves the loading state once the metadata arrives", () => {
