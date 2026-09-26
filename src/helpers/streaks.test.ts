@@ -33,6 +33,12 @@ describe("calStreaks", () => {
     expect(calStreaks(rounds, 10).current).toBe(2);
   });
 
+  it("breaks the moment today's puzzle is lost", () => {
+    const rounds = [round(8, true), round(9, true), round(10, false)];
+
+    expect(calStreaks(rounds, 10)).toEqual({ current: 0, max: 2 });
+  });
+
   it("breaks once a day is skipped entirely", () => {
     const rounds = [round(6, true), round(7, true)];
 

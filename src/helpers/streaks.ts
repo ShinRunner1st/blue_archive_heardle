@@ -1,4 +1,5 @@
 import { Round } from "../types/stats";
+import { isFinished } from "./calStats";
 
 export interface Streaks {
   current: number;
@@ -8,7 +9,8 @@ export interface Streaks {
 /**
  * Counts consecutive daily wins. `today` anchors the current streak: a run that
  * ends yesterday is still alive because today's puzzle has not been played yet,
- * but one that ends the day before that is broken.
+ * but one that ends the day before that is broken - and so is one whose
+ * today's puzzle was lost.
  */
 export function calStreaks(rounds: Round[], today: number): Streaks {
   const wins = new Set(
@@ -29,10 +31,13 @@ export function calStreaks(rounds: Round[], today: number): Streaks {
       if (run > max) max = run;
     });
 
+  const lostToday = rounds.some(
+    (round) => round.day === today && isFinished(round) && !round.didGuess
+  );
   let day = wins.has(today) ? today : today - 1;
   let current = 0;
 
-  while (wins.has(day)) {
+  while (!lostToday && wins.has(day)) {
     current += 1;
     day -= 1;
   }
