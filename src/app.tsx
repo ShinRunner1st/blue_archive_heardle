@@ -4,7 +4,7 @@ import { GameMode } from "./types/mode";
 import { Song } from "./types/song";
 
 import { useGame } from "./hooks/useGame";
-import { WHATS_NEW } from "./constants/whatsNew";
+import { LATEST_UPDATE_ID } from "./constants/whatsNew";
 import { placeFor } from "./helpers/winStreak";
 import {
   hasSeenWhatsNew,
@@ -89,13 +89,13 @@ function App() {
   // Returning players see the latest news once; new players get the welcome,
   // which counts as having seen it.
   const [isWhatsNewOpen, setIsWhatsNewOpen] = React.useState(
-    () => !isFirstRun() && !hasSeenWhatsNew(WHATS_NEW.id)
+    () => !isFirstRun() && !hasSeenWhatsNew(LATEST_UPDATE_ID)
   );
 
   const openInfoPopUp = React.useCallback(() => setIsInfoPopUpOpen(true), []);
   const closeInfoPopUp = React.useCallback(() => {
     markFirstRunDone();
-    markWhatsNewSeen(WHATS_NEW.id);
+    markWhatsNewSeen(LATEST_UPDATE_ID);
     setIsInfoPopUpOpen(false);
   }, []);
 
@@ -125,7 +125,7 @@ function App() {
 
   const openWhatsNew = React.useCallback(() => setIsWhatsNewOpen(true), []);
   const closeWhatsNew = React.useCallback(() => {
-    markWhatsNewSeen(WHATS_NEW.id);
+    markWhatsNewSeen(LATEST_UPDATE_ID);
     setIsWhatsNewOpen(false);
   }, []);
 

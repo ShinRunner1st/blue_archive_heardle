@@ -5,7 +5,7 @@ import { createHarness } from "./test/harness";
 
 import App from "./app";
 import { DAILY_STORAGE_KEY, MODE_KEY, STORAGE_KEY } from "./constants/game";
-import { WHATS_NEW } from "./constants/whatsNew";
+import { LATEST_UPDATE_ID } from "./constants/whatsNew";
 
 let harness: ReturnType<typeof createHarness>;
 let container: HTMLDivElement;
@@ -52,7 +52,7 @@ describe("App", () => {
 
   it("skips with Shift+Enter, once per press", () => {
     localStorage.setItem("firstRun", "false");
-    localStorage.setItem("whatsNew", WHATS_NEW.id);
+    localStorage.setItem("whatsNew", LATEST_UPDATE_ID);
     mount();
     const skipLabel = () =>
       Array.from(container.querySelectorAll("button"))

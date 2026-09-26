@@ -59,8 +59,10 @@ Each mode keeps its own score and history, saved in your browser.
   at you, stroke her head, or tap her. ☰ → Settings swaps in Mari or turns
   her off.
 - **What's new** - after an update, returning players see what was added,
-  once. It stays in the ☰ menu. The list is `src/constants/whatsNew.ts`; give
-  it a new `id` to show it again.
+  once, with the two updates before it for anyone who missed them. It stays
+  in the ☰ menu. The updates are listed newest first in
+  `src/constants/whatsNew.ts`; add a new one at the top, with its own `id`, to
+  show the pop-up again.
 - **Pop-ups** - never taller than the screen: the title and buttons stay put
   and only the middle scrolls. On a phone they rise from the bottom as a
   sheet, and every one has a ✕ in its corner.
