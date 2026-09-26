@@ -12,7 +12,10 @@ export const Stage = styled.div<{ $ready: boolean }>`
   z-index: 1;
   transform: translateX(-50%);
 
-  height: min(calc(100vh - 88px), calc((50vw - 332px) / var(--ratio)));
+  /* 88% of the room there is: she reads as company, not a centrepiece. */
+  height: calc(
+    0.88 * min(calc(100vh - 88px), calc((50vw - 332px) / var(--ratio)))
+  );
   aspect-ratio: var(--ratio);
 
   /* Fades in once her files are in, rather than popping. */

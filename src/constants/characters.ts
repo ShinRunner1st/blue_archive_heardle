@@ -187,16 +187,18 @@ export const spineCharacters: Record<SpineCharacter["id"], SpineCharacter> = {
     top: 1464,
     idle: "Idle_01",
     blink: "Eye_Close_01",
-    blinkable: ["00", "01", "02", "04", "05", "08", "10", "12", "13", "16"],
+    // Her sprite has one closed-eye face, her default's: a blink swaps her
+    // whole face for it, so only on that face does it look right.
+    blinkable: ["00"],
     touch: null,
     moods: {
-      idle: "01",
-      listening: "07",
+      idle: "00",
+      listening: "99",
       wrong: "06",
       nervous: ["16", "02", "04", "05", "08"],
-      won: ["10", "00", "00", "03", "03", "13"],
+      won: ["10", "03", "03", "13", "13", "01"],
       lost: "09",
-      tapped: ["00", "03", "10", "11", "12", "13"],
+      tapped: ["01", "03", "10", "11", "12", "13"],
     },
   },
 };

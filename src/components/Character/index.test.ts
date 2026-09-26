@@ -11,6 +11,7 @@ import { Character } from "./index";
 // jsdom has no WebGL: a stand-in stage records what it is asked to show.
 const stage = {
   show: vi.fn(),
+  preload: vi.fn(),
   setExpression: vi.fn(),
   onReady: vi.fn(),
   dispose: vi.fn(),

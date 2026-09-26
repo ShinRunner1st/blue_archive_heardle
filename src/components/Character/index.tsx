@@ -18,6 +18,11 @@ import * as Styled from "./index.styled";
 const WIDE = "(min-width: 1100px)";
 /** How long she winces at a wrong guess. */
 const REACTION_MS = 1200;
+/**
+ * How long after she appears the other of Arona and Plana is fetched, so a
+ * switch of colour scheme finds her ready.
+ */
+const PRELOAD_PAIR_MS = 4000;
 
 interface Props {
   guesses: GuessType[];
@@ -46,16 +51,24 @@ export function Character(props: Props) {
       ? spineCharacters.plana
       : spineCharacters.arona;
 
-  return <Stage {...props} character={character} />;
+  const partner =
+    choice === "auto"
+      ? scheme === "dark"
+        ? spineCharacters.arona
+        : spineCharacters.plana
+      : null;
+
+  return <Stage {...props} character={character} partner={partner} />;
 }
 
 function Stage({
   character,
+  partner,
   guesses,
   currentTry,
   didGuess,
   roundKey,
-}: Props & { character: SpineCharacter }) {
+}: Props & { character: SpineCharacter; partner: SpineCharacter | null }) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const stageRef = React.useRef<SpineStage | null>(null);
   const [ready, setReady] = React.useState(false);
@@ -104,6 +117,15 @@ function Stage({
   React.useEffect(() => {
     stageRef.current?.setExpression(expression);
   }, [expression]);
+
+  React.useEffect(() => {
+    if (!ready || !partner) return;
+    const timer = window.setTimeout(
+      () => stageRef.current?.preload(partner),
+      PRELOAD_PAIR_MS
+    );
+    return () => window.clearTimeout(timer);
+  }, [ready, partner]);
 
   return (
     <Styled.Stage

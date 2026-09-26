@@ -13,6 +13,8 @@ import { frameOf, SpineCharacter } from "../constants/characters";
 export interface Stage {
   /** Shows this character, loading her first if need be. */
   show(character: SpineCharacter): void;
+  /** Fetches a character's files ahead of time, without showing her. */
+  preload(character: SpineCharacter): void;
   /** Her expression when nobody is touching her. */
   setExpression(name: string): void;
   /** Called once a character is on screen. */
@@ -38,6 +40,33 @@ const FOLLOW = 11;
 const LOOK_GAIN = 0.35;
 const PAT_GAIN = 0.5;
 const BLINK_EVERY: [number, number] = [3, 6];
+
+/** A region's corners as two triangles. */
+const QUAD = [0, 1, 2, 2, 3, 0];
+/** Reused for every piece's corners in a hit test. */
+const corners: number[] = [];
+
+/** Whether (x, y) is inside the triangle at `i` in `triangles`. */
+function inTriangle(
+  x: number,
+  y: number,
+  vertices: number[],
+  triangles: number[],
+  i: number
+): boolean {
+  const ax = vertices[triangles[i] * 2];
+  const ay = vertices[triangles[i] * 2 + 1];
+  const bx = vertices[triangles[i + 1] * 2];
+  const by = vertices[triangles[i + 1] * 2 + 1];
+  const cx = vertices[triangles[i + 2] * 2];
+  const cy = vertices[triangles[i + 2] * 2 + 1];
+  const d1 = (x - bx) * (ay - by) - (ax - bx) * (y - by);
+  const d2 = (x - cx) * (by - cy) - (bx - cx) * (y - cy);
+  const d3 = (x - ax) * (cy - ay) - (cx - ax) * (y - ay);
+  const negative = d1 < 0 || d2 < 0 || d3 < 0;
+  const positive = d1 > 0 || d2 > 0 || d3 > 0;
+  return !(negative && positive);
+}
 
 interface Loaded {
   character: SpineCharacter;
@@ -74,6 +103,13 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   let clock = 0;
   let sinceDrawn = 0;
   let nextBlink = 0;
+  /**
+   * After a pat, her own face waits until then: the pat-end animation closes
+   * her eyes its own way, and cutting in on it left one eye half shut.
+   */
+  let faceHeldUntil = 0;
+  /** A character just switched in, still to be drawn once. */
+  let unseen = false;
   /** Where Touch_Point is pushed, and where it is heading. */
   const offset = { x: 0, y: 0 };
   const target = { x: 0, y: 0 };
@@ -95,9 +131,12 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   const assets = spineCanvas.assetManager;
 
   const loaded = (character: SpineCharacter) =>
-    assets.isLoadingComplete() &&
-    assets.get(character.skel) &&
-    assets.get(character.atlas);
+    !!assets.get(character.skel) && !!assets.get(character.atlas);
+
+  const load = (character: SpineCharacter) => {
+    if (!assets.get(character.skel)) assets.loadBinary(character.skel);
+    if (!assets.get(character.atlas)) assets.loadTextureAtlas(character.atlas);
+  };
 
   const skeletonData = (character: SpineCharacter) => {
     let data = skeletons.get(character.id);
@@ -130,6 +169,9 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   const faceNow = () =>
     tapped && tapped.until > clock ? tapped.name : expression;
 
+  /** Whether her own face may show: not mid-pat, nor straight after one. */
+  const faceFree = () => gesture.kind !== "pat" && clock >= faceHeldUntil;
+
   const build = (character: SpineCharacter) => {
     const data = skeletonData(character);
     const skeleton = new spine.Skeleton(data);
@@ -144,8 +186,10 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
       eye: character.touch ? skeleton.findBone(character.touch.eye) : null,
     };
     gesture = { kind: "none" };
+    faceHeldUntil = 0;
     offset.x = offset.y = target.x = target.y = 0;
     setFace(faceNow());
+    unseen = true;
     readyListeners.forEach((listener) => listener());
   };
 
@@ -159,6 +203,34 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     return v;
   };
 
+  /** Whether (x, y) falls on a piece of her that is drawn. */
+  const onSprite = (x: number, y: number) => {
+    if (!current) return false;
+    for (const slot of current.skeleton.drawOrder) {
+      const attachment = slot.getAttachment();
+      if (!slot.bone.active || slot.color.a === 0 || !attachment) continue;
+      let triangles: number[];
+      if (attachment instanceof spine.RegionAttachment) {
+        attachment.computeWorldVertices(slot, corners, 0, 2);
+        triangles = QUAD;
+      } else if (attachment instanceof spine.MeshAttachment) {
+        attachment.computeWorldVertices(
+          slot,
+          0,
+          attachment.worldVerticesLength,
+          corners,
+          0,
+          2
+        );
+        triangles = attachment.triangles;
+      } else continue;
+      for (let i = 0; i < triangles.length; i += 3) {
+        if (inTriangle(x, y, corners, triangles, i)) return true;
+      }
+    }
+    return false;
+  };
+
   const onHead = (x: number, y: number) => {
     const touch = current?.character.touch;
     if (!touch) return false;
@@ -170,7 +242,10 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     const touch = current?.character.touch;
     if (!touch) return;
     // The pat's _A half is her happy face, so the expression steps aside.
-    if (kind === "pat") current!.state.setEmptyAnimation(FACE, 0.15);
+    if (kind === "pat") {
+      current!.state.setEmptyAnimation(BLINK, 0);
+      current!.state.setEmptyAnimation(FACE, 0.15);
+    }
     play(touch[kind === "pat" ? "stroke" : "look"].loop, MAIN, true);
     gesture = kind === "look" ? { kind, id } : { kind, id, startX };
     canvas.style.cursor = kind === "pat" ? "grabbing" : "";
@@ -180,10 +255,19 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     if (gesture.kind !== "look" && gesture.kind !== "pat") return;
     const touch = current?.character.touch;
     if (touch) {
-      play(touch[gesture.kind === "pat" ? "stroke" : "look"].end, MAIN, false);
+      const end = touch[gesture.kind === "pat" ? "stroke" : "look"].end;
+      play(end, MAIN, false);
       current!.state.addEmptyAnimation(MAIN, 0.2, 0);
       current!.state.addEmptyAnimation(ADD, 0.2, 0);
-      if (gesture.kind === "pat") setFace(faceNow());
+      if (gesture.kind === "pat") {
+        const longest = Math.max(
+          0,
+          ...end.map(
+            (name) => current!.skeleton.data.findAnimation(name)?.duration ?? 0
+          )
+        );
+        faceHeldUntil = clock + longest + 0.2;
+      }
     }
     target.x = target.y = 0;
     gesture = { kind: "none" };
@@ -196,12 +280,15 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     if (!choices.length) return;
     lastTapped = choices[Math.floor(Math.random() * choices.length)];
     tapped = { name: lastTapped, until: clock + TAPPED_SECONDS };
+    faceHeldUntil = 0;
     setFace(lastTapped);
   };
 
   const onDown = (e: PointerEvent) => {
     if (!current || gesture.kind !== "none") return;
     const p = toSkeleton(e);
+    // The canvas is a rectangle; only she herself answers a press.
+    if (!onSprite(p.x, p.y)) return;
     canvas.setPointerCapture(e.pointerId);
     gesture = {
       kind: "pending",
@@ -219,7 +306,8 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     const p = toSkeleton(e);
 
     if (gesture.kind === "none") {
-      canvas.style.cursor = onHead(p.x, p.y) ? "grab" : "";
+      canvas.style.cursor =
+        onHead(p.x, p.y) && onSprite(p.x, p.y) ? "grab" : "";
       return;
     }
     if ("id" in gesture && gesture.id !== e.pointerId) return;
@@ -305,7 +393,12 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     // Held off while the colour scheme switches, so its reveal runs smooth,
     // and drawn at most 60 times a second whatever the screen's rate.
     if (!current || sinceDrawn < FRAME_SECONDS) return;
-    if (document.documentElement.dataset.schemeSwitching !== undefined) return;
+    // A character switched in by the scheme change itself still gets drawn
+    // once, so the reveal uncovers her rather than the one she replaced.
+    const paused =
+      document.documentElement.dataset.schemeSwitching !== undefined;
+    if (paused && !unseen) return;
+    unseen = false;
     const dt = Math.min(sinceDrawn, 0.1);
     sinceDrawn = 0;
     clock += dt;
@@ -314,14 +407,18 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
 
     if (tapped && tapped.until <= clock) {
       tapped = null;
-      if (gesture.kind !== "pat") setFace(expression);
+      if (faceFree()) setFace(expression);
+    }
+    if (faceHeldUntil && clock >= faceHeldUntil) {
+      faceHeldUntil = 0;
+      setFace(faceNow());
     }
     if (character.blink && clock >= nextBlink) {
       if (
         nextBlink > 0 &&
         has(character.blink) &&
         gesture.kind !== "look" &&
-        gesture.kind !== "pat" &&
+        faceFree() &&
         character.blinkable.includes(faceNow())
       ) {
         state.setAnimation(BLINK, character.blink, false);
@@ -374,17 +471,15 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   return {
     show(character) {
       wanted = character;
-      if (!assets.get(character.skel)) assets.loadBinary(character.skel);
-      if (!assets.get(character.atlas)) {
-        assets.loadTextureAtlas(character.atlas);
-      }
+      load(character);
+    },
+    preload(character) {
+      load(character);
     },
     setExpression(name) {
       if (name === expression) return;
       expression = name;
-      if (gesture.kind !== "pat" && !(tapped && tapped.until > clock)) {
-        setFace(name);
-      }
+      if (faceFree() && !(tapped && tapped.until > clock)) setFace(name);
     },
     onReady(listener) {
       readyListeners.push(listener);
