@@ -668,7 +668,34 @@ export function startCursorEffects(): () => void {
 
   const onBlur = () => [...active.keys()].forEach(release);
 
+  /**
+   * A browser's first frames of gradients and arcs are slow while it prepares
+   * them. One tap and a short trail are drawn unseen while the page is idle,
+   * then thrown away, so the player's first click doesn't pay for that.
+   */
+  const warmUp = () => {
+    if (frame) return;
+    canvas.style.opacity = "0";
+    const x = width / 2;
+    const y = height / 2;
+    tap(x, y);
+    const trail: Trail = { points: [{ x, y, born: now() }], sinceShard: 0 };
+    for (let i = 1; i <= 8; i++) drag(trail, x + i * 12, y + (i % 3) * 6);
+    fading.push(trail);
+    wake();
+    // Two frames are enough; then clear it all away.
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        pool.forEach((p) => (p.alive = false));
+        fading.length = 0;
+        canvas.style.opacity = "";
+      })
+    );
+  };
+
   resize();
+  const idle = window.requestIdleCallback ?? ((run) => setTimeout(run, 300));
+  idle(warmUp);
   const options = { capture: true, passive: true };
   window.addEventListener("resize", resize);
   window.addEventListener("pointerdown", onDown, options);
