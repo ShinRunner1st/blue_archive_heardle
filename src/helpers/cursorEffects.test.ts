@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { CONFIG, interpolate, mix, shardAlpha } from "./cursorEffects";
+import {
+  CONFIG,
+  interpolate,
+  mix,
+  shardAlpha,
+  trailColor,
+} from "./cursorEffects";
 
 describe("interpolate", () => {
   const stops = [
@@ -53,5 +59,13 @@ describe("mix", () => {
     expect(mix("#FFFFFF", "#000000", 0.5)).toBe("128,128,128");
     expect(mix("#FFFFFF", "#3D63FF", -1)).toBe("255,255,255");
     expect(mix("#FFFFFF", "#3D63FF", 5)).toBe("61,99,255");
+  });
+});
+
+describe("trailColor", () => {
+  it("runs bright blue at the head, navy at 42%, black at the tail", () => {
+    expect(trailColor(0)).toBe("0,99,255");
+    expect(trailColor(0.42)).toBe("0,23,71");
+    expect(trailColor(1)).toBe("0,0,0");
   });
 });

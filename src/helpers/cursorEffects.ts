@@ -195,6 +195,19 @@ export function mix(from: string, to: string, t: number): string {
   return a.map((c, i) => Math.round(c + (b[i] - c) * k)).join(",");
 }
 
+/** The trail's glow at `p` along it, from the head (0) to the tail (1). */
+export function trailColor(p: number): string {
+  const { colors } = CONFIG.trail;
+  for (let i = 1; i < colors.length; i++) {
+    const [at, color] = colors[i];
+    if (p <= at) {
+      const [prevAt, prevColor] = colors[i - 1];
+      return mix(prevColor, color, (p - prevAt) / (at - prevAt));
+    }
+  }
+  return channels(colors[colors.length - 1][1]).join(",");
+}
+
 type Kind = "flash" | "ring" | "shard";
 
 interface Particle {
@@ -231,6 +244,9 @@ interface Trail {
 const TAU = Math.PI * 2;
 /** Pieces each tapering end of a ring is drawn in. */
 const TAPER_PIECES = 8;
+/** Bands a trail is drawn in, head to tail, each with its own width and
+ * colour. */
+const TRAIL_BANDS = 12;
 
 const within = ([min, max]: readonly number[]) =>
   min + Math.random() * (max - min);
@@ -471,29 +487,30 @@ export function startCursorEffects(): () => void {
   };
 
   /**
-   * Fills a ribbon along `line` (head first), `width` wide at the head and
-   * tapering to nothing at the tail. One shape rather than a stroke per
-   * segment, so no seams show where segments meet.
+   * The stretch of `line` (head first) between `from` and `to` along it, as
+   * shares of its length, with its ends cut exactly at those points.
    */
-  const ribbon = (line: Point[], along: number[], width: number) => {
-    const left: [number, number][] = [];
-    const right: [number, number][] = [];
-    line.forEach((pt, i) => {
-      const prev = line[Math.max(i - 1, 0)];
-      const next = line[Math.min(i + 1, line.length - 1)];
-      const dx = next.x - prev.x;
-      const dy = next.y - prev.y;
-      const length = Math.hypot(dx, dy) || 1;
-      const half = (width / 2) * (1 - along[i]);
-      const nx = (-dy / length) * half;
-      const ny = (dx / length) * half;
-      left.push([pt.x + nx, pt.y + ny]);
-      right.push([pt.x - nx, pt.y - ny]);
+  const stretch = (
+    line: Point[],
+    along: number[],
+    from: number,
+    to: number
+  ): [number, number][] => {
+    const at = (share: number): [number, number] => {
+      let i = 1;
+      while (i < along.length - 1 && along[i] < share) i++;
+      const span = along[i] - along[i - 1] || 1;
+      const k = (share - along[i - 1]) / span;
+      const a = line[i - 1];
+      const b = line[i];
+      return [a.x + (b.x - a.x) * k, a.y + (b.y - a.y) * k];
+    };
+    const points = [at(from)];
+    along.forEach((share, i) => {
+      if (share > from && share < to) points.push([line[i].x, line[i].y]);
     });
-    ctx.beginPath();
-    [...left, ...right.reverse()].forEach(([x, y]) => ctx.lineTo(x, y));
-    ctx.closePath();
-    ctx.fill();
+    points.push(at(to));
+    return points;
   };
 
   /** Draws a trail and drops its expired points; false once it is empty. */
@@ -514,7 +531,6 @@ export function startCursorEffects(): () => void {
     if (total < 1) return true;
     const along = lengths.map((l) => l / total);
     const head = line[0];
-    const tail = line[line.length - 1];
     // The head's glow fades as its point ages, so a still pointer dims.
     const fresh = 1 - (time - head.born) / style.life;
 
@@ -535,26 +551,52 @@ export function startCursorEffects(): () => void {
     ctx.arc(head.x, head.y, halo.radius, 0, TAU);
     ctx.fill();
 
-    // Colour by distance along the line, laid out from the head to the tail.
-    const glow = ctx.createLinearGradient(head.x, head.y, tail.x, tail.y);
-    style.colors.forEach(([at, color]) =>
-      glow.addColorStop(at, `rgb(${channels(color).join(",")})`)
-    );
-    ctx.fillStyle = glow;
-    for (const [extra, glowAlpha] of style.glow) {
-      ctx.globalAlpha = glowAlpha;
-      ribbon(line, along, style.width + extra);
-    }
-    ctx.globalAlpha = 1;
-    ribbon(line, along, style.width);
-
-    // A brighter core over it, fading out before the glow does.
+    // In bands along its length, each stroked in one go: where the trail
+    // crosses itself inside a band the stroke simply merges, and each band
+    // is coloured by where it sits along the line, however the line loops.
+    // One filled outline instead would cancel out where it overlapped, and
+    // a head-to-tail gradient would jump about as the ends came together.
     const coreColor = channels(style.core).join(",");
-    const core = ctx.createLinearGradient(head.x, head.y, tail.x, tail.y);
-    core.addColorStop(0, `rgba(${coreColor},1)`);
-    core.addColorStop(style.coreLength, `rgba(${coreColor},0)`);
-    ctx.fillStyle = core;
-    ribbon(line, along, style.width * 0.75);
+    const coreAlpha = (share: number) =>
+      Math.max(1 - share / style.coreLength, 0);
+
+    ctx.lineCap = "butt";
+    ctx.lineJoin = "round";
+    for (let b = 0; b < TRAIL_BANDS; b++) {
+      const from = b / TRAIL_BANDS;
+      const to = (b + 1) / TRAIL_BANDS;
+      const points = stretch(line, along, from, to);
+      const [x0, y0] = points[0];
+      const [x1, y1] = points[points.length - 1];
+      const width = style.width * (1 - (from + to) / 2);
+
+      const shade = ctx.createLinearGradient(x0, y0, x1, y1);
+      shade.addColorStop(0, `rgb(${trailColor(from)})`);
+      shade.addColorStop(1, `rgb(${trailColor(to)})`);
+
+      ctx.beginPath();
+      points.forEach(([x, y]) => ctx.lineTo(x, y));
+
+      ctx.strokeStyle = shade;
+      for (const [extra, glowAlpha] of style.glow) {
+        ctx.globalAlpha = glowAlpha;
+        ctx.lineWidth = width + extra;
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+      ctx.lineWidth = width;
+      ctx.stroke();
+
+      // A brighter core over it, fading out before the glow does.
+      if (coreAlpha(from) > 0) {
+        const core = ctx.createLinearGradient(x0, y0, x1, y1);
+        core.addColorStop(0, `rgba(${coreColor},${coreAlpha(from)})`);
+        core.addColorStop(1, `rgba(${coreColor},${coreAlpha(to)})`);
+        ctx.strokeStyle = core;
+        ctx.lineWidth = width * 0.75;
+        ctx.stroke();
+      }
+    }
     return true;
   };
 
