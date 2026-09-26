@@ -1,0 +1,12 @@
+// The game's audio, served from Cloudflare as static files - no Worker code
+// runs, and requests for static files are free and unlimited. `npm run
+// upload:audio` publishes ../audio-dist, made by `npm run build:audio`;
+// Wrangler only uploads files it doesn't have yet.
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  "name": "ba-heardle-audio",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "../audio-dist"
+  }
+}

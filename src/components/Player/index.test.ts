@@ -3,8 +3,8 @@ import { afterEach, beforeEach, describe, expect, it, Mock, vi } from "vitest";
 
 import { createHarness } from "../../test/harness";
 
-import { playTimes } from "../../constants";
 import { Player } from "./index";
+import { getClipUrl } from "../../helpers/audioUrl";
 import { clearUnplayable, isUnplayable } from "../../helpers/unplayable";
 import { setVolume } from "../../helpers/volume";
 
@@ -127,11 +127,11 @@ afterEach(() => {
 });
 
 describe("Player", () => {
-  it("requests only the current song, and only its metadata up front", () => {
+  it("requests only the current song's clip, and only its metadata up front", () => {
     mount();
 
     expect(container.querySelectorAll("audio")).toHaveLength(1);
-    expect(audio().getAttribute("src")).toBe("/audio/Theme_01.ogg");
+    expect(audio().getAttribute("src")).toBe(getClipUrl("1"));
     expect(audio().getAttribute("preload")).toBe("metadata");
   });
 
@@ -141,32 +141,36 @@ describe("Player", () => {
     expect(container.textContent).not.toContain("Loading player");
   });
 
-  it("rolls a non-zero start time and reports it upwards", () => {
-    vi.spyOn(Math, "random").mockReturnValue(0.5);
-
+  it("plays the clip from the top, and saves that for the round", () => {
     mount(null);
 
-    // (200 - 16) * 0.5 = 92
-    expect(setStartTime).toHaveBeenCalledWith(92);
-    expect(seeks).toContain(92);
+    expect(setStartTime).toHaveBeenCalledWith(0);
+    expect(seeks).toContain(0);
   });
 
-  it("does not re-roll a start time already stored for the round", () => {
-    mount(42);
+  it("leaves a round already started at the top alone", () => {
+    mount(0);
 
     expect(setStartTime).not.toHaveBeenCalled();
-    expect(seeks).toContain(42);
+  });
+
+  it("starts a round saved before clips existed at the top of the clip", () => {
+    mount(42);
+
+    expect(setStartTime).toHaveBeenCalledWith(0);
+    expect(seeks).toContain(0);
+    expect(seeks).not.toContain(42);
   });
 
   it("plays a new player's clip at 20%", () => {
-    mount(10);
+    mount(0);
 
     expect(audio().volume).toBe(0.2);
   });
 
   it("plays at the volume the player chose, and follows changes live", () => {
     localStorage.setItem("volume", "0.6");
-    mount(10);
+    mount(0);
     expect(audio().volume).toBe(0.6);
 
     act(() => setVolume(0.35));
@@ -175,7 +179,7 @@ describe("Player", () => {
 
   it("gives a retried element the player's volume too", () => {
     act(() => setVolume(0.7));
-    mount(10, 0, true, true, false);
+    mount(0, 0, true, true, false);
     fire("error");
 
     act(() => {
@@ -186,7 +190,7 @@ describe("Player", () => {
   });
 
   it("offers the volume control beside the play button", () => {
-    mount(10);
+    mount(0);
 
     expect(
       container.querySelector('input[type="range"][aria-label="Volume"]')
@@ -202,7 +206,7 @@ describe("Player", () => {
   });
 
   it("advances the progress bar while playing", () => {
-    mount(10);
+    mount(0);
     expect(progressWidth()).toBe("0%");
 
     clickTransport();
@@ -216,7 +220,7 @@ describe("Player", () => {
   });
 
   it("stops the clip once the current try's play time elapses", () => {
-    mount(10, 0);
+    mount(0, 0);
 
     clickTransport();
     expect(play).toHaveBeenCalled();
@@ -227,11 +231,11 @@ describe("Player", () => {
 
     advancePlayback(0.75);
     expect(pause).toHaveBeenCalled();
-    expect(seeks[seeks.length - 1]).toBe(10);
+    expect(seeks[seeks.length - 1]).toBe(0);
   });
 
   it("gives a later try a longer clip", () => {
-    mount(10, 3);
+    mount(0, 3);
 
     clickTransport();
 
@@ -244,7 +248,7 @@ describe("Player", () => {
   });
 
   it("polls only while playing", () => {
-    mount(10);
+    mount(0);
     readTime.mockClear();
 
     act(() => {
@@ -261,7 +265,7 @@ describe("Player", () => {
 
   // The browser's own media controls can start playback without the button.
   it("still caps a clip started from outside the page", () => {
-    mount(10, 0);
+    mount(0, 0);
 
     fire("play");
     advancePlayback(1.25);
@@ -273,7 +277,7 @@ describe("Player", () => {
     play.mockImplementationOnce(() =>
       Promise.reject(new DOMException("blocked", "NotAllowedError"))
     );
-    mount(10);
+    mount(0);
 
     clickTransport();
     await act(async () => undefined);
@@ -284,13 +288,13 @@ describe("Player", () => {
   });
 
   it("resets to the clip start if the track runs out first", () => {
-    mount(10);
+    mount(0);
     clickTransport();
     media.now = 25;
 
     fire("ended");
 
-    expect(seeks[seeks.length - 1]).toBe(10);
+    expect(seeks[seeks.length - 1]).toBe(0);
     expect(
       container.querySelector('button[aria-label="Play clip"]')
     ).not.toBeNull();
@@ -312,7 +316,7 @@ describe("Player", () => {
     });
 
     try {
-      mount(10);
+      mount(0);
       clickTransport();
 
       expect(session.metadata).toMatchObject({ title: "Guess the OST" });
@@ -323,7 +327,7 @@ describe("Player", () => {
   });
 
   it("responds to Space when the keyboard is live", () => {
-    mount(10);
+    mount(0);
 
     act(() => {
       window.dispatchEvent(new KeyboardEvent("keydown", { code: "Space" }));
@@ -333,23 +337,13 @@ describe("Player", () => {
   });
 
   it("ignores Space while a dialog is open", () => {
-    mount(10, 0, false);
+    mount(0, 0, false);
 
     act(() => {
       window.dispatchEvent(new KeyboardEvent("keydown", { code: "Space" }));
     });
 
     expect(play).not.toHaveBeenCalled();
-  });
-
-  it("keeps the longest clip within the track", () => {
-    expect(playTimes[playTimes.length - 1] / 1000).toBe(16);
-
-    vi.spyOn(Math, "random").mockReturnValue(0.999999);
-    mount(null);
-
-    const rolled = setStartTime.mock.calls[0][0] as number;
-    expect(rolled + 16).toBeLessThanOrEqual(DURATION);
   });
 
   it("loads under StrictMode's double mount", () => {
@@ -361,7 +355,7 @@ describe("Player", () => {
           themeNo: "1",
           currentTry: 0,
           setStartTime,
-          startTime: 10,
+          startTime: 0,
           inputRef: React.createRef<HTMLInputElement>(),
           keyboardEnabled: true,
         })
@@ -382,7 +376,7 @@ describe("Player", () => {
  */
 describe("Player when the file cannot be played", () => {
   it("explains the failure instead of loading forever", () => {
-    mount(10, 0, true, true, false);
+    mount(0, 0, true, true, false);
     fire("error");
 
     const alert = container.querySelector('[role="alert"]');
@@ -392,7 +386,7 @@ describe("Player when the file cannot be played", () => {
   });
 
   it("remembers the song so the bag stops dealing it", () => {
-    mount(10, 0, true, true, false);
+    mount(0, 0, true, true, false);
     expect(isUnplayable("1")).toBe(false);
 
     fire("error");
@@ -401,7 +395,7 @@ describe("Player when the file cannot be played", () => {
   });
 
   it("offers a replacement song in endless mode", () => {
-    mount(10, 0, true, true, false);
+    mount(0, 0, true, true, false);
     fire("error");
 
     act(() => {
@@ -412,7 +406,7 @@ describe("Player when the file cannot be played", () => {
   });
 
   it("offers no replacement in daily mode, since the puzzle is shared", () => {
-    mount(10, 0, true, false, false);
+    mount(0, 0, true, false, false);
     fire("error");
 
     expect(buttonWith("Skip this track")).toBeUndefined();
@@ -420,7 +414,7 @@ describe("Player when the file cannot be played", () => {
   });
 
   it("recovers when a retry succeeds", () => {
-    mount(10, 0, true, true, false);
+    mount(0, 0, true, true, false);
     fire("error");
     const failed = audio();
 
@@ -441,7 +435,7 @@ describe("Player when the file cannot be played", () => {
 
 describe("Player when the file never arrives", () => {
   it("gives up waiting and says so", () => {
-    mount(10, 0, true, true, false);
+    mount(0, 0, true, true, false);
 
     expect(container.textContent).toContain("Loading player");
 
@@ -454,7 +448,7 @@ describe("Player when the file never arrives", () => {
   });
 
   it("does not blame the song for what may be the connection", () => {
-    mount(10, 0, true, true, false);
+    mount(0, 0, true, true, false);
 
     act(() => {
       vi.advanceTimersByTime(12_000);
@@ -465,7 +459,7 @@ describe("Player when the file never arrives", () => {
   });
 
   it("keeps waiting while the file is still within its grace period", () => {
-    mount(10, 0, true, true, false);
+    mount(0, 0, true, true, false);
 
     act(() => {
       vi.advanceTimersByTime(11_000);

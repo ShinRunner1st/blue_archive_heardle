@@ -1,7 +1,7 @@
 import React from "react";
 
 import { playTimes } from "../../constants";
-import { getAudioUrl } from "../../helpers/audioUrl";
+import { getClipUrl } from "../../helpers/audioUrl";
 import { hideTrackFromMediaSession } from "../../helpers/mediaSession";
 import { markUnplayable } from "../../helpers/unplayable";
 import { useAudioVolume } from "../../hooks/useVolume";
@@ -159,23 +159,14 @@ export function Player({
     (event: React.SyntheticEvent<HTMLAudioElement>) => {
       const audio = event.currentTarget;
 
-      // Resume the clip window stored for this round, or roll a new one far
-      // enough from the end that the longest clip still fits.
-      let rolled = startTime;
+      // The file is only the round's clip, cut at a fixed point in the song
+      // (see scripts/build-audio.mjs), so it always plays from the top. A
+      // round saved before clips existed holds a point in the whole song
+      // instead, and starts over at the top of the clip.
+      if (startTime !== 0) setStartTime(0);
+      audio.currentTime = 0;
 
-      if (rolled === null) {
-        const duration = audio.duration;
-        const latestStart = Number.isFinite(duration)
-          ? Math.max(duration - LONGEST_CLIP_SECONDS, 0)
-          : 0;
-
-        rolled = Math.floor(Math.random() * latestStart);
-        setStartTime(rolled);
-      }
-
-      audio.currentTime = rolled;
-
-      setCurrentTime(rolled);
+      setCurrentTime(0);
       setStatus("ready");
     },
     [startTime, setStartTime]
@@ -192,7 +183,7 @@ export function Player({
       // Names the offending file while developing, so a missing one can be
       // tracked down without guessing.
       // eslint-disable-next-line no-console
-      console.warn(`Could not play ${getAudioUrl(themeNo)}`);
+      console.warn(`Could not play ${getClipUrl(themeNo)}`);
     }
   }, [themeNo]);
 
@@ -214,7 +205,7 @@ export function Player({
       <audio
         key={attempt}
         ref={audioRef}
-        src={getAudioUrl(themeNo)}
+        src={getClipUrl(themeNo)}
         preload="metadata"
         onLoadedMetadata={handleReady}
         onError={handleError}

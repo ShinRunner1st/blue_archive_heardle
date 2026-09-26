@@ -4,13 +4,14 @@ import { afterEach, beforeEach, describe, expect, it, Mock, vi } from "vitest";
 import { createHarness } from "../../test/harness";
 
 import { NowPlaying } from "./index";
+import { getSongUrl } from "../../helpers/audioUrl";
 import { clearUnplayable, isUnplayable } from "../../helpers/unplayable";
 import { setVolume } from "../../helpers/volume";
 
 const song = { artist: "Mitsukiyo", name: "Constant Moderato", themeNo: "1" };
 
 /** jsdom has no media engine, so stand in for the parts this uses. */
-const media = { now: 0, duration: 137, paused: true };
+const media = { now: 0, duration: 137, paused: true, readyState: 0 };
 
 let harness: ReturnType<typeof createHarness>;
 let play: Mock<() => Promise<void>>;
@@ -28,6 +29,7 @@ function audio() {
 }
 
 function fire(type: string) {
+  if (type === "loadedmetadata") media.readyState = 1;
   act(() => {
     audio()!.dispatchEvent(new Event(type));
   });
@@ -57,6 +59,7 @@ beforeEach(() => {
   media.now = 0;
   media.duration = 137;
   media.paused = true;
+  media.readyState = 0;
   seeks = [];
 
   play = vi.fn(() => {
@@ -72,6 +75,9 @@ beforeEach(() => {
   vi.spyOn(proto, "load").mockImplementation(() => undefined);
   vi.spyOn(proto, "paused", "get").mockImplementation(() => media.paused);
   vi.spyOn(proto, "duration", "get").mockImplementation(() => media.duration);
+  vi.spyOn(proto, "readyState", "get").mockImplementation(
+    () => media.readyState
+  );
   vi.spyOn(proto, "currentTime", "get").mockImplementation(() => media.now);
   vi.spyOn(proto, "currentTime", "set").mockImplementation((seconds) => {
     media.now = seconds;
@@ -95,20 +101,28 @@ describe("NowPlaying", () => {
     expect(harness.container.textContent).not.toMatch(/Theme\s*0?1\b/);
   });
 
-  it("loads the answer's own file, with its own controls", () => {
+  it("offers the whole song, with its own controls", () => {
     mount();
 
-    expect(audio()?.getAttribute("src")).toBe("/audio/Theme_01.ogg");
-    expect(audio()?.getAttribute("preload")).toBe("metadata");
+    expect(audio()?.getAttribute("src")).toBe(getSongUrl("1"));
     expect(audio()?.hasAttribute("controls")).toBe(false);
   });
 
-  it("waits for the file before enabling the controls", () => {
+  it("downloads nothing and plays nothing until asked", () => {
     mount();
 
-    expect(button("Play")?.disabled).toBe(true);
-    expect(button("Replay my clip")?.disabled).toBe(true);
-    expect(harness.container.textContent).toContain("-:--");
+    expect(audio()?.getAttribute("preload")).toBe("none");
+    expect(play).not.toHaveBeenCalled();
+  });
+
+  it("draws the timeline before the song is downloaded", () => {
+    mount(42, 7);
+
+    expect(button("Play")?.disabled).toBe(false);
+    expect(button("Replay my clip")?.disabled).toBe(false);
+    // Theme 1's length, from the clip list rather than the file.
+    expect(harness.container.textContent).toContain("2:17");
+    expect(harness.container.textContent).toContain("Your clip: 0:42 – 0:49");
   });
 
   it("plays at the volume the player chose on the guessing screen", () => {
@@ -125,13 +139,22 @@ describe("NowPlaying", () => {
 
   it("starts where the round's clip started, at the default volume", () => {
     mount(42);
+    click("Play");
     fire("loadedmetadata");
 
+    expect(play).toHaveBeenCalled();
     expect(seeks).toEqual([42]);
     expect(audio()?.volume).toBe(0.2);
-    expect(play).toHaveBeenCalled();
     expect(harness.container.textContent).toContain("0:42");
-    expect(harness.container.textContent).toContain("2:17");
+  });
+
+  it("remembers a seek made before the song has loaded", () => {
+    mount(42);
+    click("Replay my clip");
+    expect(seeks).toEqual([]);
+
+    fire("loadedmetadata");
+    expect(seeks).toEqual([42]);
   });
 
   it("shows which part of the song was the clip", () => {
@@ -220,12 +243,12 @@ describe("NowPlaying", () => {
     expect(harness.container.textContent).toContain("1:40");
   });
 
-  it("stays usable when the browser blocks autoplay", async () => {
+  it("stays usable when the browser blocks playback", async () => {
     play.mockImplementationOnce(() =>
       Promise.reject(new DOMException("blocked", "NotAllowedError"))
     );
     mount();
-    fire("loadedmetadata");
+    click("Play");
     await act(async () => undefined);
 
     expect(button("Play")?.disabled).toBe(false);

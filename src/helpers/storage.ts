@@ -17,6 +17,7 @@ import { GuessType } from "../types/guess";
 import { GameMode, isGameMode } from "../types/mode";
 import { Round } from "../types/stats";
 import { Song } from "../types/song";
+import { obscure, reveal } from "./obscure";
 
 /** Each mode keeps its own history, so stats and bags never mix. */
 function keyFor(mode: GameMode): string {
@@ -127,14 +128,21 @@ function toRound(value: unknown): Round | null {
  * Reads the played rounds. Returns an empty array for missing, malformed or
  * partially corrupted storage - never throws, so a bad value can't white-screen
  * the app the way an unguarded JSON.parse would.
+ *
+ * Rounds are saved scrambled, so the answer to the round in progress isn't
+ * sitting in DevTools as plain text. Saves from before that are plain JSON,
+ * and still load.
  */
 export function loadRounds(mode: GameMode = "endless"): Round[] {
   const raw = readKey(keyFor(mode));
   if (!raw) return [];
 
+  const text = raw.startsWith("[") ? raw : reveal(raw);
+  if (text === null) return [];
+
   let parsed: unknown;
   try {
-    parsed = JSON.parse(raw);
+    parsed = JSON.parse(text);
   } catch {
     return [];
   }
@@ -145,7 +153,7 @@ export function loadRounds(mode: GameMode = "endless"): Round[] {
 }
 
 export function saveRounds(rounds: Round[], mode: GameMode = "endless"): void {
-  writeKey(keyFor(mode), JSON.stringify(rounds));
+  writeKey(keyFor(mode), obscure(JSON.stringify(rounds)));
 }
 
 export function clearRounds(mode: GameMode = "endless"): void {

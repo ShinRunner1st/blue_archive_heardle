@@ -16,6 +16,7 @@
  */
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 
+import { obscure, reveal } from "../src/helpers/obscure.ts";
 import { loadSongs } from "./lib/songs.mjs";
 
 const OUTPUT_PATH = "src/constants/dailyOrder.ts";
@@ -52,31 +53,27 @@ function shuffled(items, seed) {
   return out;
 }
 
-/** Reads the schedule already checked in, or an empty one on first run. */
+/**
+ * Reads the schedule already checked in, or an empty one on first run. It is
+ * stored scrambled (see src/helpers/obscure.ts), so reading the code doesn't
+ * give away the days ahead.
+ */
 function loadExistingOrder() {
   if (!existsSync(OUTPUT_PATH)) return [];
 
   const source = readFileSync(OUTPUT_PATH, "utf8");
-  const start = source.indexOf("[");
-  const end = source.lastIndexOf("]");
+  const stored = source.match(/const ORDER =\s*"([^"]*)"/);
+  const text = stored && reveal(stored[1]);
 
-  if (start === -1 || end <= start) {
-    throw new Error(`Could not find the order array in ${OUTPUT_PATH}`);
-  }
+  if (!text) throw new Error(`Could not read the order in ${OUTPUT_PATH}`);
 
-  const order = new Function(`return ${source.slice(start, end + 1)}`)();
-
-  if (!Array.isArray(order)) {
-    throw new Error(`${OUTPUT_PATH} does not hold an array`);
-  }
-
-  return order;
+  return text.split(",");
 }
 
 function render(order) {
-  const entries = order.map((themeNo) => `  "${themeNo}",`).join("\n");
+  return `import { reveal } from "../helpers/obscure";
 
-  return `/**
+/**
  * The order daily puzzles are dealt in, by theme number.
  *
  * GENERATED FILE - do not edit by hand. Run \`npm run build:daily-order\` after
@@ -85,10 +82,12 @@ function render(order) {
  * Entries are never reordered, only appended. A day that has already been
  * played therefore always resolves to the same song, however much the song
  * list grows afterwards.
+ *
+ * Stored scrambled, so the days ahead can't be read off the code.
  */
-export const dailyOrder: string[] = [
-${entries}
-];
+const ORDER = "${obscure(order.join(","))}";
+
+export const dailyOrder: string[] = (reveal(ORDER) ?? "").split(",");
 `;
 }
 
@@ -124,8 +123,11 @@ console.log(`Appended:           ${added.length}`);
 
 if (orphaned.length > 0) {
   console.warn(
-    `\nWARNING: ${orphaned.length} scheduled theme(s) are no longer in the song list:\n  ${orphaned.join(", ")}\n` +
-      "Their slots are kept so the rest of the schedule does not shift."
+    `\nWARNING: ${
+      orphaned.length
+    } scheduled theme(s) are no longer in the song list:\n  ${orphaned.join(
+      ", "
+    )}\n` + "Their slots are kept so the rest of the schedule does not shift."
   );
 }
 

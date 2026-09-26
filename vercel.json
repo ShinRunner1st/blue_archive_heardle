@@ -21,7 +21,7 @@
       ]
     },
     {
-      "source": "/(spine|cursor|audio)/(.*)",
+      "source": "/(spine|cursor)/(.*)",
       "headers": [
         {
           "key": "Cache-Control",

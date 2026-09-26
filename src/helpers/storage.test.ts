@@ -117,6 +117,23 @@ describe("loadRounds", () => {
   });
 });
 
+describe("saved rounds", () => {
+  beforeEach(() => localStorage.clear());
+
+  it("keep the answer out of plain sight, and load back", () => {
+    saveRounds([round()]);
+
+    expect(localStorage.getItem(STORAGE_KEY)).not.toContain("Constant");
+    expect(loadRounds()[0].solution).toEqual(song);
+  });
+
+  it("still load from a plain save made before they were scrambled", () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify([round()]));
+
+    expect(loadRounds()[0].solution).toEqual(song);
+  });
+});
+
 describe("saveRounds", () => {
   it("does not throw when storage is unavailable", () => {
     vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {

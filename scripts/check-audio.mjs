@@ -1,46 +1,99 @@
 /**
- * Verifies every song in the list has an audio file in public/audio.
+ * Verifies the audio is complete and up to date.
  *
- * A missing file means an unplayable round, so CI runs this on every push.
- * Files with no song entry only get a warning: they are harmless, and may be
- * waiting for their entry to be added.
+ * Fails when a song has no original in audio/, or when audioClips.ts doesn't
+ * match the originals - a song added or replaced without `npm run songs`. CI
+ * runs this on every push. Originals with no song entry only get a warning:
+ * they may be waiting for their entry to be added.
  *
- * The name mapping must match getAudioUrl in src/helpers/audioUrl.ts.
+ * With --remote it also asks the server in .env.production for every file,
+ * so nothing goes live pointing at audio that was never uploaded.
  */
 import { readdirSync } from "node:fs";
+import { join } from "node:path";
 
+import { clipFile, songFile, sourceFile } from "../src/helpers/audioFiles.ts";
+import {
+  SOURCE_DIR,
+  loadAudioBaseUrl,
+  loadManifest,
+  versionOf,
+} from "./lib/audio.mjs";
 import { loadSongs } from "./lib/songs.mjs";
 
-const AUDIO_DIR = "public/audio";
+const songs = loadSongs();
+const sources = new Set(readdirSync(SOURCE_DIR));
+const manifest = loadManifest();
 
-function fileFor(themeNo) {
-  return `Theme_${themeNo.padStart(2, "0")}.ogg`;
+const problems = [];
+
+for (const song of songs) {
+  const file = sourceFile(song.themeNo);
+  const label = `${file}  (${song.artist} - ${song.name})`;
+  const entry = manifest.get(song.themeNo);
+
+  if (!sources.has(file)) {
+    problems.push(`no original in ${SOURCE_DIR}/: ${label}`);
+  } else if (!entry || entry.v !== versionOf(join(SOURCE_DIR, file))) {
+    problems.push(`not built from its current original: ${label}`);
+  }
 }
 
-const songs = loadSongs();
-const files = new Set(readdirSync(AUDIO_DIR));
-const expected = new Set(songs.map((song) => fileFor(song.themeNo)));
+const known = new Set(songs.map((song) => song.themeNo));
+for (const themeNo of manifest.keys()) {
+  if (!known.has(themeNo)) {
+    problems.push(`built, but not in the song list: theme ${themeNo}`);
+  }
+}
 
-const missing = songs.filter((song) => !files.has(fileFor(song.themeNo)));
-const unused = [...files].filter(
-  (file) => file.endsWith(".ogg") && !expected.has(file)
+async function checkRemote() {
+  const base = loadAudioBaseUrl();
+  if (!base) {
+    problems.push("no VITE_AUDIO_BASE_URL in .env.production");
+    return;
+  }
+
+  const urls = [...manifest.values()].flatMap(({ themeNo, v }) => [
+    `${base}/${clipFile(themeNo, v)}`,
+    `${base}/${songFile(themeNo, v)}`,
+  ]);
+  let next = 0;
+  const worker = async () => {
+    while (next < urls.length) {
+      const url = urls[next++];
+      const response = await fetch(url, { method: "HEAD" }).catch(() => null);
+      if (!response?.ok) {
+        const status = response?.status ?? "no answer";
+        problems.push(`not on the server (${status}): ${url}`);
+      }
+    }
+  };
+  await Promise.all(Array.from({ length: 8 }, worker));
+  console.log(`Asked ${base} for ${urls.length} files.`);
+}
+
+if (process.argv.includes("--remote")) await checkRemote();
+
+const expectedSources = new Set(songs.map((song) => sourceFile(song.themeNo)));
+const unused = [...sources].filter(
+  (file) => file.endsWith(".ogg") && !expectedSources.has(file)
 );
 
-console.log(`Checked ${songs.length} songs against ${files.size} files.`);
+console.log(`Checked ${songs.length} songs.`);
 
 if (unused.length > 0) {
-  console.warn(`\n${unused.length} file(s) with no song entry:`);
+  console.warn(`\n${unused.length} original(s) with no song entry:`);
   for (const file of unused) console.warn(`  ${file}`);
 }
 
-if (missing.length === 0) {
-  console.log("Every song has its audio file.");
+if (problems.length === 0) {
+  console.log("Every song is built from its current original.");
   process.exit(0);
 }
 
-console.error(`\n${missing.length} song(s) with no audio file:`);
-for (const song of missing) {
-  console.error(`  ${fileFor(song.themeNo)}  (${song.artist} - ${song.name})`);
+console.error(`\n${problems.length} problem(s) - run \`npm run songs\`:`);
+for (const problem of problems.slice(0, 20)) console.error(`  ${problem}`);
+if (problems.length > 20) {
+  console.error(`  ...and ${problems.length - 20} more`);
 }
-
 process.exit(1);

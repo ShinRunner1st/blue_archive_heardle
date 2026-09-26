@@ -1,3 +1,6 @@
+import { audioClips } from "../constants/audioClips";
+import { clipFile, songFile } from "./audioFiles";
+
 /**
  * Where the audio lives. Defaults to the files deployed from `public/audio`;
  * set VITE_AUDIO_BASE_URL (no trailing slash) to serve them from a CDN instead.
@@ -9,9 +12,24 @@ function audioBaseUrl(): string {
 }
 
 /**
- * The one place that knows how a song maps to its file. Themes below 10 are
- * zero-padded on disk (Theme_01.ogg) while their themeNo is "1".
+ * Where a song's clip was cut from and how long the song is, in seconds, and
+ * the version its file names carry. Known without downloading the song, so
+ * the result screen can draw its timeline before the player chooses to listen.
  */
-export function getAudioUrl(themeNo: string): string {
-  return `${audioBaseUrl()}/Theme_${themeNo.padStart(2, "0")}.ogg`;
+export function clipInfo(themeNo: string): {
+  start: number;
+  duration: number;
+  v: string;
+} {
+  return audioClips[themeNo] ?? { start: 0, duration: 0, v: "" };
+}
+
+/** The round's clip: all a round downloads before it is over. */
+export function getClipUrl(themeNo: string): string {
+  return `${audioBaseUrl()}/${clipFile(themeNo, clipInfo(themeNo).v)}`;
+}
+
+/** The whole song, for the result screen. */
+export function getSongUrl(themeNo: string): string {
+  return `${audioBaseUrl()}/${songFile(themeNo, clipInfo(themeNo).v)}`;
 }

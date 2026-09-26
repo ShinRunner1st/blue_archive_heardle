@@ -10,6 +10,7 @@ import { playTimes } from "../../constants";
 
 import { Button } from "../Button";
 import { NowPlaying } from "../NowPlaying";
+import { clipInfo } from "../../helpers/audioUrl";
 
 import * as Styled from "./index.styled";
 
@@ -167,7 +168,9 @@ export function Result({
       ))}
       <NowPlaying
         song={solution}
-        startTime={startTime ?? 0}
+        // The round's start is within the clip; the song player needs it
+        // within the whole song.
+        startTime={clipInfo(solution.themeNo).start + (startTime ?? 0)}
         clipLength={clipLength}
       />
       {isDaily && <DailyCountdown onNewDay={onNewDay} />}

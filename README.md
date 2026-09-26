@@ -84,17 +84,20 @@ npm install
 npm run dev    # http://localhost:3000
 ```
 
-| Script                      | What it does                                 |
-| --------------------------- | -------------------------------------------- |
-| `npm run dev`               | Start the dev server                         |
-| `npm run build`             | Type-check, then build to `build/`           |
-| `npm run preview`           | Serve the production build locally           |
-| `npm test`                  | Run the test suite                           |
-| `npm run lint`              | ESLint, warnings included                    |
-| `npm run typecheck`         | `tsc --noEmit`                               |
-| `npm run format`            | Rewrite files with Prettier                  |
-| `npm run check:audio`       | Check every song has its audio file          |
-| `npm run build:daily-order` | Extend the daily schedule after adding songs |
+| Script                      | What it does                                   |
+| --------------------------- | ---------------------------------------------- |
+| `npm run dev`               | Start the dev server                           |
+| `npm run build`             | Type-check, then build to `build/`             |
+| `npm run preview`           | Serve the production build locally             |
+| `npm test`                  | Run the test suite                             |
+| `npm run lint`              | ESLint, warnings included                      |
+| `npm run typecheck`         | `tsc --noEmit`                                 |
+| `npm run format`            | Rewrite files with Prettier                    |
+| `npm run songs`             | After adding songs: everything below, in order |
+| `npm run build:daily-order` | Extend the daily schedule                      |
+| `npm run build:audio`       | Build the served audio from `audio/`           |
+| `npm run upload:audio`      | Upload the built audio to Cloudflare           |
+| `npm run check:audio`       | Check the served audio is complete             |
 
 A pre-commit hook runs the format check, lint and type-check, and commit
 messages follow [Conventional Commits](https://www.conventionalcommits.org/).
@@ -103,42 +106,71 @@ pull request.
 
 ### Adding a song
 
-1. Put its audio in `public/audio/Theme_{themeNo}.ogg`. Themes below 10 are
+1. Put its audio in `audio/Theme_{themeNo}.ogg`. Themes below 10 are
    zero-padded: `Theme_01.ogg`.
 2. Add its entry to `src/constants/songs.ts`:
    ```ts
    { artist: "Mitsukiyo", name: "Constant Moderato", themeNo: "1" },
    ```
-3. Run `npm run build:daily-order`.
-4. Run `npm run check:audio`. It fails if a song has no file, and lists any
-   file that has no song yet.
+3. Run `npm run songs`, and commit what it changed.
 
-A new artist needs nothing else: the All OST filter and the About credits are
-built from the song list.
+`npm run songs` needs Node 22.18 or later,
+[ffmpeg](https://ffmpeg.org/download.html) (with ffprobe) on the PATH, and a
+Cloudflare login (`npx wrangler login`, once per computer). It:
 
-Step 3 matters. The daily puzzle follows a checked-in schedule,
-`src/constants/dailyOrder.ts`, that is only ever appended to, so adding songs
-never changes a day that has already been played. A test fails if the schedule
-and the song list drift apart.
+- extends the daily schedule, `src/constants/dailyOrder.ts`. It is only ever
+  appended to, so adding songs never changes a day that has already been
+  played;
+- builds the new or changed audio into `audio-dist/` (see [Audio](#audio));
+- uploads it to Cloudflare, and checks that every file is there.
+
+Commit before merging: the game only asks for files that are already
+uploaded, so the upload has to happen first, and `npm run songs` does it.
+
+Replacing a song's audio is the same: swap the file in `audio/` and run
+`npm run songs`. A new artist needs nothing else: the All OST filter and the
+About credits are built from the song list. If a step is forgotten, CI fails,
+and so does a test.
 
 ### Audio
 
-The audio files are static assets, deployed with the site. A round downloads
-one file, the current song's: about 1 MB on average, 3 MB at most. The result
-screen reuses it rather than fetching it again. Nothing is preloaded for the
-next round.
+The audio is served by Cloudflare, not Vercel: a Cloudflare Worker that only
+serves files (`audio-worker/`). Requests for its files are free and
+unlimited, and keeping 450 MB of audio out of every Vercel deployment keeps
+Vercel's deployment storage small.
 
-`getAudioUrl` in `src/helpers/audioUrl.ts` is the only code that knows where
-the files live. To serve them from a CDN, set `VITE_AUDIO_BASE_URL` (for
-example `https://audio.example.com`, no trailing slash) and upload the files
-under the same names.
+The originals live in `audio/`, named by theme number, and are never served.
+`npm run build:audio` turns each one into two files in `audio-dist/`, which
+is not committed:
+
+- **its clip**, 16 seconds cut from a fixed point in the song. It is all a
+  round downloads, about 0.2 MB;
+- **the whole song**, which the result screen fetches only when the player
+  presses play.
+
+Both are named with a salted hash of the theme number and a fingerprint of
+the original, so a request in DevTools says nothing about the song, and a
+replaced song gets new names. That lets browsers and Cloudflare keep every
+file for a year (set in `audio-dist/_headers`), and a replaced song still
+reaches everyone at once. Every player hears the same clip of a song. Where
+each clip was cut, each song's length and its fingerprint go into
+`src/constants/audioClips.ts`, which is committed; `check:audio` fails in CI
+if it doesn't match the originals.
+
+The saved rounds in `localStorage` and the daily schedule in the code are
+scrambled too (`src/helpers/obscure.ts`), and the track name in the browser's
+media controls is hidden. None of this is encryption: the game has to know the
+answer to check a guess, so someone who reads its code closely can still find
+it. It keeps the answer from being a glance away.
+
+`src/helpers/audioFiles.ts` is the one place that decides the names, and the
+game and the scripts both use it. Changing its `SALT` renames every file.
+`.env.production` holds `VITE_AUDIO_BASE_URL`, the Worker's address, which
+production builds read from; `npm run dev` serves `audio-dist/` itself.
 
 A file that fails to load or decode shows an error with a retry. In endless
 mode it can deal a different song instead, and the failing one is left out for
 the rest of the session.
-
-The audio URLs are visible in DevTools like any other request. Only the track
-name in the browser's media controls is hidden.
 
 ### Characters
 
@@ -179,9 +211,10 @@ src/
 public/spine/   The characters, made by build-spine
   test/         Render harness and shared setup for the tests
   types/        Shared TypeScript types
-public/audio/   The OST, one Ogg file per theme number
-scripts/        check-audio, build-daily-order, build-spine, and the song list
-                reader they share
+audio/          The OST originals, one Ogg file per theme number
+audio-worker/   The Cloudflare Worker that serves the built audio
+scripts/        build-audio, check-audio, build-daily-order, build-spine, and
+                the song list reader they share
 docs/           README screenshots
 ```
 
@@ -195,19 +228,20 @@ The site is hosted on [Vercel](https://vercel.com/) and deploys from GitHub:
 every push to `main` goes to production, and other branches get preview
 deployments. The build settings are in `vercel.json`.
 
-The audio (about 400 MB) is part of the build, so:
+The audio is on Cloudflare (see [Audio](#audio)), so a deployment is about
+5 MB. To keep Vercel's deployment storage low on the Hobby plan:
 
-- **Deploy through the Git integration**, not `vercel deploy` from your
-  machine. The CLI refuses uploads over 100 MB on the Hobby plan.
-- **Watch the bandwidth.** Hobby includes 100 GB a month, which at roughly
-  1 MB a round is tens of thousands of rounds. If that stops being enough, move
-  the audio to a CDN with `VITE_AUDIO_BASE_URL` (see [Audio](#audio)).
+- **Only `main` deploys** (`git.deploymentEnabled` in `vercel.json`); other
+  branches get no preview deployments. Test with `npm run build` and
+  `npm run preview` instead.
+- **Delete merged branches.** Vercel keeps the latest deployment of every
+  branch that still exists.
 - **Caching** is set in `vercel.json`, to spare requests as well as bandwidth.
   Built files under `/assets/` carry a hash in their name, so browsers keep
-  them for a year without asking again. The audio, characters and cursor keep
-  their names, so browsers keep them for a week, then go on using them while
-  they check in the background. A replaced file under the same name can take
-  up to a week to reach everyone; give it a new name to reach them at once.
+  them for a year without asking again. The characters and cursor keep their
+  names, so browsers keep them for a week, then go on using them while they
+  check in the background. A replaced file under the same name can take up to
+  a week to reach everyone; give it a new name to reach them at once.
 
 ## Song list
 
@@ -227,6 +261,7 @@ Code credit: [msynowski/sluchajfun](https://github.com/msynowski/sluchajfun).
 
 ## License
 
-The code is under the [MIT License](LICENSE). The music in `public/audio`, and
+The code is under the [MIT License](LICENSE). The music in `audio/` and
+`audio-dist/`, and
 the Blue Archive artwork and logo, are not: they belong to their rights
 holders, and the MIT License does not cover them.

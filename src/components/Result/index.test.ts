@@ -6,6 +6,7 @@ import { createHarness } from "../../test/harness";
 import { Song } from "../../types/song";
 import { Round } from "../../types/stats";
 import { emptyGuesses } from "../../helpers/storage";
+import { clipInfo } from "../../helpers/audioUrl";
 
 import { Result } from "./index";
 
@@ -26,10 +27,19 @@ function wonRound(day?: number): Round {
     currentTry: 2,
     didGuess: true,
     guesses,
-    startTime: 12,
+    startTime: 0,
     ...(day === undefined ? {} : { day }),
   };
 }
+
+/** A time in the song, as the clip label writes it. */
+function clock(seconds: number): string {
+  const whole = Math.floor(seconds);
+  return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, "0")}`;
+}
+
+/** Where theme 1's clip was cut from the song. */
+const cut = clipInfo("1").start;
 
 let harness: ReturnType<typeof createHarness>;
 let container: HTMLDivElement;
@@ -48,7 +58,7 @@ function mount(overrides: Partial<React.ComponentProps<typeof Result>> = {}) {
       bagEmpty: false,
       onNextSong,
       onResetScore,
-      startTime: 12,
+      startTime: 0,
       keyboardEnabled: true,
       mode: "endless",
       round: wonRound(),
@@ -112,8 +122,10 @@ describe("Result on a win", () => {
   it("marks only as much of the clip as was heard", () => {
     mount({ currentTry: 3 });
 
-    // playTimes[2] is 4s.
-    expect(container.textContent).toContain("Your clip: 0:12 – 0:16");
+    // playTimes[2] is 4s, from where the clip was cut.
+    expect(container.textContent).toContain(
+      `Your clip: ${clock(cut)} – ${clock(cut + 4)}`
+    );
   });
 
   it.each([
@@ -182,8 +194,10 @@ describe("Result on a loss", () => {
   it("marks the full clip, since every try was used", () => {
     mount({ didGuess: false, currentTry: 6 });
 
-    // Clip started at 0:12 and the last try heard 16s of it.
-    expect(container.textContent).toContain("Your clip: 0:12 – 0:28");
+    // The last try heard all 16s of the clip.
+    expect(container.textContent).toContain(
+      `Your clip: ${clock(cut)} – ${clock(cut + 16)}`
+    );
   });
 
   it("offers Continue rather than Next Song", () => {

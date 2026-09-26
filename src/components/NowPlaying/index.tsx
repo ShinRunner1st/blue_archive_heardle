@@ -1,6 +1,6 @@
 import React from "react";
 
-import { getAudioUrl } from "../../helpers/audioUrl";
+import { clipInfo, getSongUrl } from "../../helpers/audioUrl";
 import { markUnplayable } from "../../helpers/unplayable";
 import { useAudioVolume } from "../../hooks/useVolume";
 import { Song } from "../../types/song";
@@ -11,7 +11,7 @@ import * as Styled from "./index.styled";
 
 interface Props {
   song: Song;
-  /** Where the round's clip started, in seconds. */
+  /** Where the round's clip started in the whole song, in seconds. */
   startTime: number;
   /** How much of the clip the player heard on their last try, in seconds. */
   clipLength: number;
@@ -31,17 +31,24 @@ function percent(part: number, whole: number): string {
 /**
  * The answer on the result screen: what the song was, a player that picks up
  * where the round's clip started, and a marker showing which part was the clip.
+ *
+ * The whole song is only downloaded once the player presses play: most rounds
+ * go straight on to the next one, and the round already fetched its clip.
  */
 export function NowPlaying({ song, startTime, clipLength }: Props) {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   // Set while "Replay my clip" runs, so playback stops where the clip did.
   const stopAtRef = React.useRef<number | null>(null);
 
-  const [loaded, setLoaded] = React.useState(false);
+  // Where to go once the file has loaded: moving before then is lost.
+  const pendingSeekRef = React.useRef<number | null>(startTime);
+
   const [failed, setFailed] = React.useState(false);
   const [playing, setPlaying] = React.useState(false);
   const [currentTime, setCurrentTime] = React.useState(startTime);
-  const [duration, setDuration] = React.useState(0);
+  const [duration, setDuration] = React.useState(
+    () => clipInfo(song.themeNo).duration
+  );
 
   useAudioVolume(audioRef, failed);
 
@@ -55,20 +62,28 @@ export function NowPlaying({ song, startTime, clipLength }: Props) {
     Promise.resolve(audio.play()).catch(() => undefined);
   }, []);
 
+  const moveTo = React.useCallback(
+    (audio: HTMLAudioElement, seconds: number) => {
+      if (audio.readyState >= HTMLMediaElement.HAVE_METADATA) {
+        audio.currentTime = seconds;
+      } else {
+        pendingSeekRef.current = seconds;
+      }
+      setCurrentTime(seconds);
+    },
+    []
+  );
+
   const handleReady = React.useCallback(
     (event: React.SyntheticEvent<HTMLAudioElement>) => {
       const audio = event.currentTarget;
-      audio.currentTime = startTime;
+      if (Number.isFinite(audio.duration)) setDuration(audio.duration);
 
-      setCurrentTime(startTime);
-      setDuration(Number.isFinite(audio.duration) ? audio.duration : 0);
-      setLoaded(true);
-
-      // Allowed straight after the guess that revealed the answer. On a
-      // reload the browser may block it, and the play button is there instead.
-      play(audio);
+      const pending = pendingSeekRef.current;
+      pendingSeekRef.current = null;
+      if (pending !== null) audio.currentTime = pending;
     },
-    [startTime, play]
+    []
   );
 
   const handleTimeUpdate = React.useCallback(
@@ -104,22 +119,19 @@ export function NowPlaying({ song, startTime, clipLength }: Props) {
     if (!audio) return;
 
     stopAtRef.current = clipEnd;
-    audio.currentTime = startTime;
-    setCurrentTime(startTime);
+    moveTo(audio, startTime);
     play(audio);
-  }, [clipEnd, startTime, play]);
+  }, [clipEnd, startTime, play, moveTo]);
 
   const seek = React.useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       const audio = audioRef.current;
       if (!audio) return;
 
-      const seconds = Number(event.target.value);
       stopAtRef.current = null;
-      audio.currentTime = seconds;
-      setCurrentTime(seconds);
+      moveTo(audio, Number(event.target.value));
     },
-    []
+    [moveTo]
   );
 
   return (
@@ -143,8 +155,8 @@ export function NowPlaying({ song, startTime, clipLength }: Props) {
           {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
           <audio
             ref={audioRef}
-            src={getAudioUrl(song.themeNo)}
-            preload="metadata"
+            src={getSongUrl(song.themeNo)}
+            preload="none"
             onLoadedMetadata={handleReady}
             onTimeUpdate={handleTimeUpdate}
             onPlay={() => setPlaying(true)}
@@ -157,7 +169,6 @@ export function NowPlaying({ song, startTime, clipLength }: Props) {
             <Styled.Transport
               type="button"
               onClick={togglePlay}
-              disabled={!loaded}
               aria-label={playing ? "Pause" : "Play"}
             >
               {playing ? (
@@ -212,11 +223,7 @@ export function NowPlaying({ song, startTime, clipLength }: Props) {
               <Styled.ClipSwatch aria-hidden="true" />
               Your clip: {formatTime(startTime)} – {formatTime(clipEnd)}
             </Styled.ClipLabel>
-            <Styled.ReplayButton
-              type="button"
-              onClick={replayClip}
-              disabled={!loaded}
-            >
+            <Styled.ReplayButton type="button" onClick={replayClip}>
               <Styled.ReplayIcon aria-hidden="true" />
               Replay my clip
             </Styled.ReplayButton>

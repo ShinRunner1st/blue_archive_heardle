@@ -30,3 +30,6 @@ yarn-error.log*
 yarn.lock
 pnpm-lock.yaml
 bun.lockb
+
+# built audio: made by `npm run build:audio`, served from Cloudflare
+/audio-dist
