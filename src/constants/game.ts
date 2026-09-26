@@ -25,6 +25,12 @@ export const VOLUME_KEY = "volume";
  */
 export const COLOR_SCHEME_KEY = "colorScheme";
 
+/**
+ * localStorage key holding "false" once the player turns Blue Archive's
+ * cursor off. Absent means on.
+ */
+export const CUSTOM_CURSOR_KEY = "customCursor";
+
 /** localStorage key recording that the welcome pop-up has been dismissed. */
 export const FIRST_RUN_KEY = "firstRun";
 

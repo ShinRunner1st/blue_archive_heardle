@@ -13,3 +13,4 @@ export { StatsPopUp } from "./StatsPopUp";
 export { HowToPopUp } from "./HowToPopUp";
 export { PopUp } from "./PopUp";
 export { SongListPopUp } from "./SongListPopUp";
+export { SettingsPopUp } from "./SettingsPopUp";

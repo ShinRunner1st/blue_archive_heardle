@@ -5,9 +5,11 @@ import {
   IoInformationCircle,
   IoMenu,
   IoMoon,
+  IoSettings,
 } from "react-icons/io5";
 
 import { switchColorScheme } from "../../helpers/colorScheme";
+import { Switch } from "../Switch";
 import { useColorScheme } from "../../hooks/useColorScheme";
 
 import * as Styled from "./index.styled";
@@ -15,6 +17,7 @@ import * as Styled from "./index.styled";
 interface Props {
   openInfoPopUp: () => void;
   openHowToPopUp: () => void;
+  openSettingsPopUp: () => void;
 }
 
 /**
@@ -22,7 +25,11 @@ interface Props {
  * what players reach for every round. A disclosure rather than an ARIA menu:
  * the items are ordinary buttons, reachable with Tab straight after the toggle.
  */
-export function HeaderMenu({ openInfoPopUp, openHowToPopUp }: Props) {
+export function HeaderMenu({
+  openInfoPopUp,
+  openHowToPopUp,
+  openSettingsPopUp,
+}: Props) {
   const [open, setOpen] = React.useState(false);
   const wrapperRef = React.useRef<HTMLDivElement>(null);
   const toggleRef = React.useRef<HTMLButtonElement>(null);
@@ -103,7 +110,11 @@ export function HeaderMenu({ openInfoPopUp, openHowToPopUp }: Props) {
           >
             <IoMoon aria-hidden="true" />
             Dark mode
-            <Styled.Switch $on={isDark} aria-hidden="true" />
+            <Switch $on={isDark} aria-hidden="true" />
+          </Styled.Item>
+          <Styled.Item type="button" onClick={openPopUp(openSettingsPopUp)}>
+            <IoSettings aria-hidden="true" />
+            Settings
           </Styled.Item>
           <Styled.Divider />
           <Styled.Item type="button" onClick={openPopUp(openInfoPopUp)}>

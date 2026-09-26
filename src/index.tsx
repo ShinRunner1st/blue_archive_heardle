@@ -5,7 +5,10 @@ import { ThemeProvider } from "styled-components";
 import { ErrorBoundary } from "./components";
 import { themes } from "./constants";
 import { applyColorSchemeToDocument } from "./helpers/colorScheme";
-import { startCursorEffects } from "./helpers/cursorEffects";
+import {
+  applyCustomCursorToDocument,
+  getCustomCursor,
+} from "./helpers/customCursor";
 import { useColorScheme } from "./hooks/useColorScheme";
 import App from "./app";
 import "./index.css";
@@ -29,8 +32,9 @@ function Root() {
   );
 }
 
-// Outside React: it draws on its own canvas and never needs a re-render.
-startCursorEffects();
+// Before the first paint, so the right cursor shows from the start. The
+// effects run outside React, on their own canvas.
+applyCustomCursorToDocument(getCustomCursor());
 
 createRoot(rootElement).render(
   <React.StrictMode>

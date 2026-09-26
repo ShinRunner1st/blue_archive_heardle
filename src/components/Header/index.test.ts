@@ -9,6 +9,7 @@ let harness: ReturnType<typeof createHarness>;
 const openInfoPopUp = vi.fn();
 const openStatsPopUp = vi.fn();
 const openHowToPopUp = vi.fn();
+const openSettingsPopUp = vi.fn();
 const onModeChange = vi.fn();
 
 function buttonFor(label: string) {
@@ -40,6 +41,7 @@ function mount(mode: GameMode = "daily", streak = 0) {
       openInfoPopUp,
       openStatsPopUp,
       openHowToPopUp,
+      openSettingsPopUp,
       mode,
       onModeChange,
       streak,
@@ -168,6 +170,7 @@ describe("Header menu", () => {
     expect(buttonFor("Menu")?.getAttribute("aria-expanded")).toBe("true");
     expect(menuItem("How to play")).toBeDefined();
     expect(menuItem("Dark mode")).toBeDefined();
+    expect(menuItem("Settings")).toBeDefined();
     expect(menuItem("About this game")).toBeDefined();
   });
 
@@ -182,6 +185,11 @@ describe("Header menu", () => {
     act(() => menuItem("About this game")!.click());
 
     expect(openInfoPopUp).toHaveBeenCalled();
+
+    openMenu();
+    act(() => menuItem("Settings")!.click());
+
+    expect(openSettingsPopUp).toHaveBeenCalled();
   });
 
   it("closes on a tap outside it", () => {

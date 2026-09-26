@@ -253,6 +253,9 @@ export function startCursorEffects(): () => void {
     height: "100%",
     pointerEvents: "none",
     zIndex: "9999",
+    // Hidden while asleep, so an idle, empty layer isn't blended over the
+    // page every time something else on it animates.
+    visibility: "hidden",
   });
   // "lighter" only adds up what is on the canvas; this adds the canvas to the
   // page too, so the glow brightens what is under it and black shows nothing.
@@ -586,10 +589,13 @@ export function startCursorEffects(): () => void {
 
     // Nothing left: sleep until the next pointer event.
     if (alive) frame = requestAnimationFrame(render);
+    else canvas.style.visibility = "hidden";
   };
 
   const wake = () => {
-    if (!frame) frame = requestAnimationFrame(render);
+    if (frame) return;
+    canvas.style.visibility = "visible";
+    frame = requestAnimationFrame(render);
   };
 
   const release = (id: number) => {

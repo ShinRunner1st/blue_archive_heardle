@@ -7,6 +7,7 @@ import {
   STORAGE_KEY,
   VOLUME_KEY,
   COLOR_SCHEME_KEY,
+  CUSTOM_CURSOR_KEY,
 } from "../constants/game";
 import { ColorScheme } from "../constants/theme";
 import { GuessType } from "../types/guess";
@@ -204,4 +205,13 @@ export function loadColorScheme(): ColorScheme | null {
 
 export function saveColorScheme(scheme: ColorScheme): void {
   writeKey(COLOR_SCHEME_KEY, scheme);
+}
+
+/** On unless the player turned it off. */
+export function loadCustomCursor(): boolean {
+  return readKey(CUSTOM_CURSOR_KEY) !== "false";
+}
+
+export function saveCustomCursor(on: boolean): void {
+  writeKey(CUSTOM_CURSOR_KEY, String(on));
 }

@@ -11,6 +11,7 @@ interface Props {
   openInfoPopUp: () => void;
   openStatsPopUp: () => void;
   openHowToPopUp: () => void;
+  openSettingsPopUp: () => void;
   mode: GameMode;
   onModeChange: (mode: GameMode) => void;
   /** Consecutive daily wins. Shown in daily mode once there is a run going. */
@@ -26,6 +27,7 @@ export function Header({
   openInfoPopUp,
   openStatsPopUp,
   openHowToPopUp,
+  openSettingsPopUp,
   mode,
   onModeChange,
   streak,
@@ -83,6 +85,7 @@ export function Header({
           <HeaderMenu
             openInfoPopUp={openInfoPopUp}
             openHowToPopUp={openHowToPopUp}
+            openSettingsPopUp={openSettingsPopUp}
           />
         </Styled.Tools>
         <Styled.Tagline>Guess the Blue Archive OST</Styled.Tagline>

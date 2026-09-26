@@ -19,6 +19,7 @@ import {
   StatsPopUp,
   HowToPopUp,
   SongListPopUp,
+  SettingsPopUp,
 } from "./components";
 
 import * as Styled from "./app.styled";
@@ -68,6 +69,7 @@ function App() {
   const [isStatsPopUpOpen, setIsStatsPopUpOpen] = React.useState(false);
   const [isHowToPopUpOpen, setIsHowToPopUpOpen] = React.useState(false);
   const [isSongListOpen, setIsSongListOpen] = React.useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
 
   const openInfoPopUp = React.useCallback(() => setIsInfoPopUpOpen(true), []);
   const closeInfoPopUp = React.useCallback(() => {
@@ -87,6 +89,15 @@ function App() {
     []
   );
 
+  const openSettingsPopUp = React.useCallback(
+    () => setIsSettingsOpen(true),
+    []
+  );
+  const closeSettingsPopUp = React.useCallback(
+    () => setIsSettingsOpen(false),
+    []
+  );
+
   const openSongList = React.useCallback(() => setIsSongListOpen(true), []);
   const closeSongList = React.useCallback(() => setIsSongListOpen(false), []);
   const pickFromSongList = React.useCallback((song: Song) => {
@@ -101,7 +112,11 @@ function App() {
   }, [guess, selectedSong]);
 
   const isPopUpOpen =
-    isInfoPopUpOpen || isStatsPopUpOpen || isHowToPopUpOpen || isSongListOpen;
+    isInfoPopUpOpen ||
+    isStatsPopUpOpen ||
+    isHowToPopUpOpen ||
+    isSongListOpen ||
+    isSettingsOpen;
 
   // Marked in the song list, so a wrong answer isn't picked twice by accident.
   const guessedThemeNos = React.useMemo(
@@ -132,6 +147,7 @@ function App() {
         openInfoPopUp={openInfoPopUp}
         openStatsPopUp={openStatsPopUp}
         openHowToPopUp={openHowToPopUp}
+        openSettingsPopUp={openSettingsPopUp}
         mode={mode}
         onModeChange={changeMode}
         streak={streaks.current}
@@ -154,6 +170,7 @@ function App() {
         />
       )}
       {isHowToPopUpOpen && <HowToPopUp onClose={closeHowToPopUp} />}
+      {isSettingsOpen && <SettingsPopUp onClose={closeSettingsPopUp} />}
       {isSongListOpen && (
         <SongListPopUp
           onClose={closeSongList}

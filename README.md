@@ -39,6 +39,8 @@ Each mode keeps its own score and history, saved in your browser.
   which part was your clip, and can replay just that part.
 - **Volume** - set it once; it's remembered. New players start at 20%.
 - **Dark mode** - in the ☰ menu. Follows your device until you pick one.
+- **Blue Archive cursor** - the game's cursor, with its flash on every click
+  and trail when you drag. Turn it off in ☰ → Settings to use your own.
 
 ### Keyboard
 
