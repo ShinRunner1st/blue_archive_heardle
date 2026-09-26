@@ -242,8 +242,6 @@ interface Trail {
 }
 
 const TAU = Math.PI * 2;
-/** Pieces each tapering end of a ring is drawn in. */
-const TAPER_PIECES = 8;
 /** Bands a trail is drawn in, head to tail, each with its own width and
  * colour. */
 const TRAIL_BANDS = 12;
@@ -292,6 +290,21 @@ export function startCursorEffects(): () => void {
   let height = 0;
   let frame = 0;
 
+  /**
+   * The area drawn this frame, and the area the last frame drew. Each frame
+   * clears only the last one's area: wiping the whole screen-sized canvas
+   * every frame costs the browser far more than a tap's small patch does.
+   */
+  let dirty = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
+  let drawn = dirty;
+  /** Grows this frame's area to take in a circle round (x, y). */
+  const mark = (x: number, y: number, reach: number) => {
+    dirty.x0 = Math.min(dirty.x0, x - reach);
+    dirty.y0 = Math.min(dirty.y0, y - reach);
+    dirty.x1 = Math.max(dirty.x1, x + reach);
+    dirty.y1 = Math.max(dirty.y1, y + reach);
+  };
+
   const now = () => performance.now() / 1000;
 
   const resize = () => {
@@ -301,6 +314,7 @@ export function startCursorEffects(): () => void {
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    drawn = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
   };
 
   /** Reuses a dead particle, or adds one while under the cap. */
@@ -408,6 +422,7 @@ export function startCursorEffects(): () => void {
     // disc underneath, and added together the blue would wash out to cyan.
     const outer = radius + flash.glow;
     const edge = radius / outer;
+    mark(p.x, p.y, outer);
 
     const fill = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, outer);
     fill.addColorStop(0, `rgba(${color},${alpha})`);
@@ -423,6 +438,8 @@ export function startCursorEffects(): () => void {
   const drawRing = (p: Particle, t: number) => {
     const { ring } = CONFIG;
     const radius = ring.size * p.size * interpolate(ring.scale, t);
+    const widest = Math.max(...ring.glow.map(([extra]) => extra));
+    mark(p.x, p.y, radius + (ring.stroke + widest) / 2 + 1);
     // Ease-out: the speed falls steadily from `spin` to 0 over its life.
     const spun = ((ring.spin * Math.PI) / 180) * p.life * (t - (t * t) / 2);
     const shift = (t - ring.colorFrom) / (ring.colorBy - ring.colorFrom);
@@ -434,33 +451,33 @@ export function startCursorEffects(): () => void {
     // The arc is centred on its angle, which turns anticlockwise.
     const start = p.angle - spun - sweep / 2;
 
-    /** One stretch of the arc, from `a` to `b` (shares of the sweep). */
-    const piece = (a: number, b: number, opacity: number) => {
-      const from = start + a * sweep;
-      const to = start + b * sweep;
-      for (const [extra, glowAlpha] of ring.glow) {
-        ctx.lineWidth = ring.stroke + extra;
-        ctx.strokeStyle = `rgba(${tint},${opacity * glowAlpha})`;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, radius, from, to);
-        ctx.stroke();
+    // Each layer is one stroke. A gradient running round the circle fades
+    // the arc in at one end and out at the other; drawing the fades in
+    // pieces instead meant dozens of strokes a ring.
+    const share = sweep / TAU;
+    const layer = (rgb: string, opacity: number, lineWidth: number) => {
+      if (typeof ctx.createConicGradient === "function") {
+        const fade = ctx.createConicGradient(start, p.x, p.y);
+        fade.addColorStop(0, `rgba(${rgb},0)`);
+        fade.addColorStop(share * ring.taper, `rgba(${rgb},${opacity})`);
+        fade.addColorStop(share * (1 - ring.taper), `rgba(${rgb},${opacity})`);
+        fade.addColorStop(share, `rgba(${rgb},0)`);
+        ctx.strokeStyle = fade;
+      } else {
+        // Older browsers: the same arc, without the fading ends.
+        ctx.strokeStyle = `rgba(${rgb},${opacity})`;
       }
-      ctx.lineWidth = ring.stroke;
-      ctx.strokeStyle = `rgba(${core},${opacity})`;
+      ctx.lineWidth = lineWidth;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, radius, from, to);
+      ctx.arc(p.x, p.y, radius, start, start + sweep);
       ctx.stroke();
     };
 
     ctx.lineCap = "butt";
-    // The middle in one go; only the ends, fading in and out, in pieces.
-    piece(ring.taper, 1 - ring.taper, alpha);
-    const step = ring.taper / TAPER_PIECES;
-    for (let i = 0; i < TAPER_PIECES; i++) {
-      const fade = alpha * ((i + 0.5) / TAPER_PIECES);
-      piece(i * step, (i + 1) * step, fade);
-      piece(1 - (i + 1) * step, 1 - i * step, fade);
+    for (const [extra, glowAlpha] of ring.glow) {
+      layer(tint, alpha * glowAlpha, ring.stroke + extra);
     }
+    layer(core, alpha, ring.stroke);
   };
 
   const drawShard = (p: Particle, t: number, age: number) => {
@@ -476,6 +493,7 @@ export function startCursorEffects(): () => void {
     // Equilateral, centred on its middle, pointing straight up or down.
     const h = (size * Math.sqrt(3)) / 2;
     const tip = p.flip ? h / 2 : -h / 2;
+    mark(x, y, size);
 
     ctx.fillStyle = `rgba(${channels(color).join(",")},${alpha})`;
     ctx.beginPath();
@@ -513,11 +531,19 @@ export function startCursorEffects(): () => void {
     return points;
   };
 
+  /** Drops a trail's expired points; false once none are left. */
+  const expire = (trail: Trail, time: number) => {
+    trail.points = trail.points.filter(
+      (pt) => time - pt.born < CONFIG.trail.life
+    );
+    return trail.points.length > 0;
+  };
+
   /** Draws a trail and drops its expired points; false once it is empty. */
   const drawTrail = (trail: Trail, time: number) => {
     const style = CONFIG.trail;
-    trail.points = trail.points.filter((pt) => time - pt.born < style.life);
-    if (trail.points.length < 2) return trail.points.length > 0;
+    if (!expire(trail, time)) return false;
+    if (trail.points.length < 2) return true;
 
     // Everything runs along the line, so measure it from the head back.
     const line = [...trail.points].reverse();
@@ -531,6 +557,9 @@ export function startCursorEffects(): () => void {
     if (total < 1) return true;
     const along = lengths.map((l) => l / total);
     const head = line[0];
+    const widest = Math.max(...style.glow.map(([extra]) => extra));
+    line.forEach((pt) => mark(pt.x, pt.y, (style.width + widest) / 2 + 1));
+    mark(head.x, head.y, style.halo.radius);
     // The head's glow fades as its point ages, so a still pointer dims.
     const fresh = 1 - (time - head.born) / style.life;
 
@@ -603,15 +632,25 @@ export function startCursorEffects(): () => void {
   const render = () => {
     frame = 0;
     const time = now();
-    ctx.clearRect(0, 0, width, height);
+    if (drawn.x0 < drawn.x1) {
+      const x = Math.max(Math.floor(drawn.x0), 0);
+      const y = Math.max(Math.floor(drawn.y0), 0);
+      ctx.clearRect(x, y, Math.ceil(drawn.x1) - x, Math.ceil(drawn.y1) - y);
+    }
+    dirty = { x0: Infinity, y0: Infinity, x1: -Infinity, y1: -Infinity };
     ctx.globalCompositeOperation = "lighter";
     let alive = false;
+    // The colour scheme is switching: everything keeps ageing, but nothing
+    // is drawn, so the reveal animation has the frame to itself.
+    const paused =
+      document.documentElement.dataset.schemeSwitching !== undefined;
+    const trailStep = paused ? expire : drawTrail;
 
     active.forEach((trail) => {
-      if (drawTrail(trail, time)) alive = true;
+      if (trailStep(trail, time)) alive = true;
     });
     for (let i = fading.length - 1; i >= 0; i--) {
-      if (drawTrail(fading[i], time)) alive = true;
+      if (trailStep(fading[i], time)) alive = true;
       else fading.splice(i, 1);
     }
 
@@ -624,10 +663,13 @@ export function startCursorEffects(): () => void {
         continue;
       }
       alive = true;
+      if (paused) continue;
       if (p.kind === "flash") drawFlash(p, t);
       else if (p.kind === "ring") drawRing(p, t);
       else drawShard(p, t, age);
     }
+
+    drawn = dirty;
 
     // Nothing left: sleep until the next pointer event.
     if (alive) frame = requestAnimationFrame(render);
@@ -682,12 +724,16 @@ export function startCursorEffects(): () => void {
     const trail: Trail = { points: [{ x, y, born: now() }], sinceShard: 0 };
     for (let i = 1; i <= 8; i++) drag(trail, x + i * 12, y + (i % 3) * 6);
     fading.push(trail);
+    // Nothing else was running, so everything alive now is the warm-up's.
+    const own = pool.filter((p) => p.alive);
     wake();
-    // Two frames are enough; then clear it all away.
+    // Two frames are enough; then clear it away, leaving anything a click
+    // made in the meantime.
     requestAnimationFrame(() =>
       requestAnimationFrame(() => {
-        pool.forEach((p) => (p.alive = false));
-        fading.length = 0;
+        own.forEach((p) => (p.alive = false));
+        const index = fading.indexOf(trail);
+        if (index >= 0) fading.splice(index, 1);
         canvas.style.opacity = "";
       })
     );

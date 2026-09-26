@@ -120,6 +120,16 @@ describe("switchColorScheme", () => {
     vi.advanceTimersByTime(450);
     expect(document.documentElement.classList).not.toContain("scheme-fading");
   });
+
+  it("marks the page while it switches, so the cursor effects hold off", async () => {
+    vi.useFakeTimers();
+
+    await switchColorScheme("dark");
+    expect(document.documentElement.dataset.schemeSwitching).toBe("");
+
+    vi.advanceTimersByTime(450);
+    expect(document.documentElement.dataset.schemeSwitching).toBeUndefined();
+  });
 });
 
 describe("themes", () => {

@@ -91,20 +91,29 @@ function preload(src: string): Promise<void> {
  * Switches scheme with an animation: a circle of the new scheme spreading out
  * from `origin` where view transitions are supported, and a short colour fade
  * elsewhere.
+ *
+ * While it runs, the page carries `data-scheme-switching`: the cursor
+ * effects hold off then, since drawing them over the reveal made it stutter.
  */
 export async function switchColorScheme(
   next: ColorScheme,
   origin?: { x: number; y: number }
 ): Promise<void> {
+  const root = document.documentElement;
   // flushSync so the page has fully repainted in the new scheme by the time
   // the browser takes its "after" picture.
   const apply = () => flushSync(() => setColorScheme(next));
 
+  root.dataset.schemeSwitching = "";
+  const done = () => delete root.dataset.schemeSwitching;
+
   if (typeof document.startViewTransition !== "function") {
-    const root = document.documentElement;
     root.classList.add("scheme-fading");
     apply();
-    window.setTimeout(() => root.classList.remove("scheme-fading"), FADE_MS);
+    window.setTimeout(() => {
+      root.classList.remove("scheme-fading");
+      done();
+    }, FADE_MS);
     return;
   }
 
@@ -112,6 +121,7 @@ export async function switchColorScheme(
   await preload(themes[next].backgroundImage);
 
   const transition = document.startViewTransition(apply);
+  transition.finished.then(done, done);
   if (!origin) return;
 
   try {
