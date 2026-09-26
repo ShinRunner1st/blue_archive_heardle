@@ -37,15 +37,19 @@ export const Text = styled.footer`
   }
 `;
 
+/**
+ * Inline like the words around it, so it sits on the same line of text; a
+ * flex box would centre it on its own box instead and ride a little high.
+ */
 export const Link = styled.a`
   font-family: "Nunito Sans Variable";
   color: ${({ theme }) => theme.text};
 
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-
   text-underline-offset: 2px;
+
+  svg {
+    margin-right: 4px;
+  }
 
   &:hover {
     text-decoration: underline;
