@@ -10,10 +10,10 @@ export const Container = styled.header`
   width: 100%;
 
   background-color: ${({ theme }) => theme.background100};
-  /* Half see-through, like the footer, so the place behind shows. */
+  /* Partly see-through, like the footer, so the place behind shows. */
   background-color: color-mix(
     in srgb,
-    ${({ theme }) => theme.background100} 50%,
+    ${({ theme }) => theme.background100} 60%,
     transparent
   );
   -webkit-backdrop-filter: blur(6px);
