@@ -606,7 +606,7 @@ export const songs = [
   },
   {
     artist: "Mitsukiyo",
-    name: "TOMODACHI Summmer",
+    name: "TOMODACHI Summer",
     themeNo: "124",
   },
   {
