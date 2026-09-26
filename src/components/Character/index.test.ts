@@ -63,6 +63,17 @@ describe("Character", () => {
     expect(stage.show).not.toHaveBeenCalled();
   });
 
+  it("stays, hidden, when the window narrows, so nothing loads again", async () => {
+    await mount();
+    wide = false;
+    await mount();
+
+    const canvas = harness.container.querySelector("canvas");
+    expect(canvas).not.toBeNull();
+    expect(getComputedStyle(canvas!.parentElement!).display).toBe("none");
+    expect(stage.dispose).not.toHaveBeenCalled();
+  });
+
   it("is left out when the player turned her off", async () => {
     setCharacterChoice("off");
     await mount();

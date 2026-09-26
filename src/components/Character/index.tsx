@@ -42,7 +42,11 @@ export function Character(props: Props) {
   const wide = useMediaQuery(WIDE);
   const choice = useCharacterChoice();
   const scheme = useColorScheme();
-  if (!wide || choice === "off") return null;
+  // Once she has been shown she stays, hidden, when the window narrows: made
+  // again she would fetch everything again. Turning her off lets her go.
+  const [shown, setShown] = React.useState(wide);
+  if (wide && !shown) setShown(true);
+  if (!shown || choice === "off") return null;
 
   const character =
     choice === "mari"
@@ -58,17 +62,24 @@ export function Character(props: Props) {
         : spineCharacters.plana
       : null;
 
-  return <Stage {...props} character={character} partner={partner} />;
+  return (
+    <Stage {...props} character={character} partner={partner} hidden={!wide} />
+  );
 }
 
 function Stage({
   character,
   partner,
+  hidden,
   guesses,
   currentTry,
   didGuess,
   roundKey,
-}: Props & { character: SpineCharacter; partner: SpineCharacter | null }) {
+}: Props & {
+  character: SpineCharacter;
+  partner: SpineCharacter | null;
+  hidden: boolean;
+}) {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
   const stageRef = React.useRef<SpineStage | null>(null);
   const [ready, setReady] = React.useState(false);
@@ -130,6 +141,7 @@ function Stage({
   return (
     <Styled.Stage
       $ready={ready}
+      $hidden={hidden}
       style={{ "--ratio": FRAME.width / FRAME.height } as React.CSSProperties}
     >
       <canvas ref={canvasRef} aria-hidden="true" />

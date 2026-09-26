@@ -113,6 +113,13 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   /** Where Touch_Point is pushed, and where it is heading. */
   const offset = { x: 0, y: 0 };
   const target = { x: 0, y: 0 };
+  /**
+   * How much of that the eyes take, gliding like the offset: all of it for a
+   * look, none for a pat. Moved with the head during a pat, her eyes slid
+   * out from under her hair.
+   */
+  let eyeShare = 1;
+  let eyeShareTarget = 1;
   const readyListeners: Array<() => void> = [];
   const skeletons = new Map<string, spine.SkeletonData>();
 
@@ -153,9 +160,11 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   const has = (name: string) => !!current?.skeleton.data.findAnimation(name);
 
   /** Plays the names that exist, in order, one per track from `first`. */
-  const play = (names: string[], first: number, loop: boolean) =>
+  const play = (names: string[], first: number, loop: boolean, mix?: number) =>
     names.forEach((name, i) => {
-      if (has(name)) current!.state.setAnimation(first + i, name, loop);
+      if (!has(name)) return;
+      const entry = current!.state.setAnimation(first + i, name, loop);
+      if (mix !== undefined) entry.mixDuration = mix;
     });
 
   const setFace = (name: string) => {
@@ -241,13 +250,17 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   const startHold = (kind: "look" | "pat", id: number, startX: number) => {
     const touch = current?.character.touch;
     if (!touch) return;
-    // The pat's _A half is her happy face, so the expression steps aside.
     if (kind === "pat") {
+      // The pat's _A half is her happy face. It swaps in at once: faded in
+      // over her own face, an eye of each showed through for a moment.
       current!.state.setEmptyAnimation(BLINK, 0);
-      current!.state.setEmptyAnimation(FACE, 0.15);
+      current!.state.setEmptyAnimation(FACE, 0);
+      play(touch.stroke.loop, MAIN, true, 0);
+    } else {
+      play(touch.look.loop, MAIN, true);
     }
-    play(touch[kind === "pat" ? "stroke" : "look"].loop, MAIN, true);
     gesture = kind === "look" ? { kind, id } : { kind, id, startX };
+    eyeShareTarget = kind === "look" ? 1 : 0;
     canvas.style.cursor = kind === "pat" ? "grabbing" : "";
   };
 
@@ -305,11 +318,7 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     const touch = current?.character.touch;
     const p = toSkeleton(e);
 
-    if (gesture.kind === "none") {
-      canvas.style.cursor =
-        onHead(p.x, p.y) && onSprite(p.x, p.y) ? "grab" : "";
-      return;
-    }
+    if (gesture.kind === "none") return;
     if ("id" in gesture && gesture.id !== e.pointerId) return;
 
     if (gesture.kind === "pending") {
@@ -356,12 +365,12 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
 
   // --- Frame ----------------------------------------------------------------
 
-  const applyOffset = (bone: spine.Bone | null) => {
-    if (!bone?.parent) return;
+  const applyOffset = (bone: spine.Bone | null, share = 1) => {
+    if (!bone?.parent || share <= 0) return;
     // The offset is in skeleton space; the bone moves in its parent's.
     const origin = bone.parent.worldToLocal(new spine.Vector2(0, 0));
     const moved = bone.parent.worldToLocal(
-      new spine.Vector2(offset.x, offset.y)
+      new spine.Vector2(offset.x * share, offset.y * share)
     );
     bone.x += moved.x - origin.x;
     bone.y += moved.y - origin.y;
@@ -392,7 +401,8 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   function render(c: spine.SpineCanvas) {
     // Held off while the colour scheme switches, so its reveal runs smooth,
     // and drawn at most 60 times a second whatever the screen's rate.
-    if (!current || sinceDrawn < FRAME_SECONDS) return;
+    // Hidden on a narrow window: kept, with her files, but not drawn.
+    if (!current || sinceDrawn < FRAME_SECONDS || !canvas.clientWidth) return;
     // A character switched in by the scheme change itself still gets drawn
     // once, so the reveal uncovers her rather than the one she replaced.
     const paused =
@@ -434,6 +444,7 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     const k = 1 - Math.exp(-FOLLOW * dt);
     offset.x += (target.x - offset.x) * k;
     offset.y += (target.y - offset.y) * k;
+    eyeShare += (eyeShareTarget - eyeShare) * k;
 
     // In this order, so offsets never build up from frame to frame.
     point?.setToSetupPose();
@@ -444,7 +455,7 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     skeleton.updateWorldTransform(spine.Physics.update);
     if (Math.abs(offset.x) + Math.abs(offset.y) > 0.01) {
       applyOffset(point);
-      applyOffset(eye);
+      applyOffset(eye, eyeShare);
       skeleton.updateWorldTransform(spine.Physics.update);
     }
 

@@ -126,7 +126,10 @@ name in the browser's media controls is hidden.
 The character is a Spine skeleton, drawn with the official Spine 4.2 runtime
 (`@esotericsoftware/spine-webgl`) in `src/helpers/spineStage.ts`. Screens
 narrower than 1100px, and players who turn her off, never download the runtime
-or her files; the others download only the character they see (0.7-1.4 MB).
+or her files; the others download only the character they see (0.7-1.4 MB),
+and the other of Arona and Plana a few seconds later, ready for a switch of
+colour scheme. Once shown, she stays loaded if the window narrows, hidden and
+not drawn, so widening it again fetches nothing.
 
 She moves the way she does in the game's memorial lobby. Holding her moves her
 `Touch_Point` and `Touch_Eye` bones, which her head, hair and eyes follow;
@@ -180,6 +183,12 @@ The audio (about 400 MB) is part of the build, so:
 - **Watch the bandwidth.** Hobby includes 100 GB a month, which at roughly
   1 MB a round is tens of thousands of rounds. If that stops being enough, move
   the audio to a CDN with `VITE_AUDIO_BASE_URL` (see [Audio](#audio)).
+- **Caching** is set in `vercel.json`, to spare requests as well as bandwidth.
+  Built files under `/assets/` carry a hash in their name, so browsers keep
+  them for a year without asking again. The audio, characters and cursor keep
+  their names, so browsers keep them for a week, then go on using them while
+  they check in the background. A replaced file under the same name can take
+  up to a week to reach everyone; give it a new name to reach them at once.
 
 ## Song list
 
