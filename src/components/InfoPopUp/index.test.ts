@@ -59,6 +59,16 @@ describe("InfoPopUp credit", () => {
     expect(text()).toContain("IP address");
   });
 
+  it("offers a Ko-fi link, in a new tab", () => {
+    const kofi = Array.from(document.querySelectorAll("a")).find(
+      (a) => a.getAttribute("href") === "https://ko-fi.com/shinrunner1st"
+    );
+
+    expect(kofi?.textContent).toContain("Ko-fi");
+    expect(kofi?.getAttribute("target")).toBe("_blank");
+    expect(kofi?.getAttribute("rel")).toContain("noopener");
+  });
+
   it("says it is an unofficial fan game", () => {
     expect(text()).toContain("unofficial fan game");
   });

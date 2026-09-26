@@ -40,6 +40,9 @@ export const CHARACTER_KEY = "character";
 /** localStorage key recording that the welcome pop-up has been dismissed. */
 export const FIRST_RUN_KEY = "firstRun";
 
+/** Where players can tip the game's maker. One link, shown quietly. */
+export const KOFI_URL = "https://ko-fi.com/shinrunner1st";
+
 /** localStorage key holding the id of the last "What's new" the player saw. */
 export const WHATS_NEW_KEY = "whatsNew";
 

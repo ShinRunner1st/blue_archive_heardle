@@ -6,6 +6,7 @@ import {
   IoStatsChart,
   IoCafe,
   IoShieldCheckmark,
+  IoHeart,
 } from "react-icons/io5";
 
 import { Button } from "../Button";
@@ -19,7 +20,7 @@ import {
   PopUpCardTitle,
   PopUpMeta,
 } from "../PopUp";
-import { LAST_UPDATED } from "../../constants/game";
+import { KOFI_URL, LAST_UPDATED } from "../../constants/game";
 import { songs } from "../../constants";
 import { artists } from "../../helpers/searchSong";
 import { GameMode } from "../../types/mode";
@@ -131,6 +132,23 @@ export function InfoPopUp({ onClose, canReset, onReset, mode }: Props) {
               Like any website, the services that deliver it — Vercel for the
               game, Cloudflare for the music — see basic connection details,
               such as your IP address, to send you the pages.
+            </PopUpCardText>
+          </PopUpCardBody>
+        </PopUpCard>
+
+        <PopUpCard>
+          <PopUpCardIcon>
+            <IoHeart aria-hidden="true" />
+          </PopUpCardIcon>
+          <PopUpCardBody>
+            <PopUpCardTitle>Support the game</PopUpCardTitle>
+            <PopUpCardText>
+              Blue Archive Heardle is free, with no ads or tracking. If you
+              enjoy it, you can{" "}
+              <a href={KOFI_URL} target="_blank" rel="noopener noreferrer">
+                buy me a coffee on Ko-fi
+              </a>{" "}
+              ☕
             </PopUpCardText>
           </PopUpCardBody>
         </PopUpCard>

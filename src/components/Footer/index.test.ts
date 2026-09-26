@@ -20,10 +20,10 @@ afterEach(() => {
 });
 
 describe("Footer", () => {
-  it("links to the project repository", () => {
-    expect(link().getAttribute("href")).toBe(
-      "https://github.com/ShinRunner1st/blue_archive_heardle"
-    );
+  it("links to Ko-fi, and nowhere else", () => {
+    expect(link().getAttribute("href")).toBe("https://ko-fi.com/shinrunner1st");
+    expect(harness.container.querySelectorAll("a")).toHaveLength(1);
+    expect(harness.container.innerHTML).not.toContain("github");
   });
 
   it("opens in a new tab without leaking the opener", () => {

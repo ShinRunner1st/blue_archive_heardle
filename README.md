@@ -274,6 +274,13 @@ Like any website, the hosts - Vercel for the site, Cloudflare for the audio -
 see standard connection details such as IP addresses to serve the files.
 Players see the same in About this game.
 
+## Support
+
+The game is free, with no ads. If you enjoy it, you can tip its maker on
+[Ko-fi](https://ko-fi.com/shinrunner1st). The link is in the footer and in
+About this game (`KOFI_URL` in `src/constants/game.ts`), and nowhere that
+interrupts play.
+
 ## Song list
 
 [The full OST list](https://docs.google.com/spreadsheets/d/1w5jKHBZk4MOfm73Zt1FKTVcTMN1gcMnpd8ZcHHMCIT8/edit?usp=sharing)
