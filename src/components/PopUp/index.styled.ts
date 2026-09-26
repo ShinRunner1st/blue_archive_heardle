@@ -1,6 +1,8 @@
 import styled from "styled-components";
 import "@fontsource-variable/nunito-sans";
 
+import { slimScrollbar } from "./scrollbar";
+
 export const Overlay = styled.div`
   animation: op 0.2s ease-out;
 
@@ -164,12 +166,17 @@ export const Scroll = styled.div`
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  ${slimScrollbar}
 
   display: flex;
   flex-direction: column;
   align-items: center;
 
-  padding: 18px 24px 20px;
+  /* Room for the scrollbar on both sides, so the content stays centred and
+     doesn't shift when a bar appears. Where bars overlay the content instead,
+     the gutter is empty and the padding alone applies. */
+  padding: 18px 12px 20px;
+  scrollbar-gutter: stable both-edges;
 
   /* The body scrolls rather than squashing what is in it. */
   & > * {
@@ -178,6 +185,7 @@ export const Scroll = styled.div`
 
   @media (max-width: 480px) {
     padding: 18px 18px 18px;
+    scrollbar-gutter: auto;
 
     /* A sheet without actions ends here, so this keeps clear of the home
        indicator. */
