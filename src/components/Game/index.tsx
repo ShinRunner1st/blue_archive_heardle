@@ -36,11 +36,12 @@ interface Props {
   onSkipTrack?: () => void;
   /** Opens the full song list to pick a guess from. */
   onBrowseSongs?: () => void;
-  winStreak: WinStreak;
+  /** The mode's run of wins, which moves the background. */
+  streak: WinStreak;
 }
 
 export function Game({
-  winStreak,
+  streak,
   guesses,
   solution,
   currentTry,
@@ -79,7 +80,7 @@ export function Game({
         mode={mode}
         round={round}
         onNewDay={onNewDay}
-        winStreak={winStreak}
+        streak={streak}
       />
     );
   }

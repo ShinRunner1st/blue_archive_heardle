@@ -5,9 +5,14 @@ import {
 } from "../constants/streakPlaces";
 import { Round } from "../types/stats";
 import { isFinished } from "./calStats";
+import { calStreaks } from "./streaks";
 
+/**
+ * A run of wins that moves the background: endless wins in a row, or the
+ * daily puzzle's day streak. Each mode keeps its own.
+ */
 export interface WinStreak {
-  /** Endless wins in a row, up to the latest finished round. */
+  /** Wins in a row, up to the latest finished round. */
   current: number;
   /** The same, before the latest round: what a loss just ended. */
   before: number;
@@ -37,6 +42,23 @@ export function calWinStreak(rounds: Round[]): WinStreak {
   };
 }
 
+/**
+ * The daily day streak, as a WinStreak: the same count as the header's and the
+ * stats', and what today's round did to it.
+ */
+export function calDayStreak(rounds: Round[], today: number): WinStreak {
+  const { current } = calStreaks(rounds, today);
+  const played = rounds.find((round) => round.day === today);
+  if (!played || !isFinished(played)) return { current, before: current };
+  if (played.didGuess) return { current, before: current - 1 };
+  // Lost today: the run it ended is the one up to yesterday.
+  const lost = calStreaks(
+    rounds.filter((round) => round.day !== today),
+    today
+  ).current;
+  return { current: 0, before: lost };
+}
+
 /** The place a streak has reached, or null for the default background. */
 export function placeFor(wins: number): StreakPlace | null {
   let reached: StreakPlace | null = null;
@@ -46,38 +68,25 @@ export function placeFor(wins: number): StreakPlace | null {
   return reached;
 }
 
-/** The next place to reach, or null past the last. */
-export function nextPlace(wins: number): StreakPlace | null {
-  return STREAK_PLACES.find((place) => place.wins > wins) ?? null;
-}
-
 /**
- * The line the result screen shows about the streak: a place just
- * unlocked, how far the next one is, or where a lost streak leaves you.
- * Null when there is nothing worth saying.
+ * The line the result screen shows about the streak: a place the moment it
+ * is reached, or where a lost streak leaves you. Nothing otherwise - what
+ * comes next, and when, stays a surprise.
  */
 export function streakNews(
   streak: WinStreak,
-  didGuess: boolean
+  didGuess: boolean,
+  unit: "win" | "day"
 ): string | null {
   if (!didGuess) {
-    const lost = placeFor(streak.before);
-    return lost
-      ? `Your ${streak.before}-win streak is over. Back to ${HOME_PLACE}.`
+    return placeFor(streak.before)
+      ? `Your ${streak.before}-${unit} streak is over. Back to ${HOME_PLACE}.`
       : null;
   }
-
   const reached = placeFor(streak.current);
-  if (
+  const justNow =
     reached &&
     reached.wins === streak.current &&
-    streak.before < streak.current
-  ) {
-    return `📍 New place unlocked: ${reached.name}!`;
-  }
-
-  const next = nextPlace(streak.current);
-  if (!next) return `🔥 ${streak.current} in a row`;
-  const left = next.wins - streak.current;
-  return `🔥 ${streak.current} in a row · ${left} more to ${next.name}`;
+    streak.before < streak.current;
+  return justNow ? `📍 New place unlocked: ${reached.name}!` : null;
 }

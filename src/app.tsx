@@ -41,6 +41,7 @@ function App() {
     score,
     streaks,
     winStreak,
+    dayStreak,
     bagEmpty,
     hasHistory,
     guess,
@@ -53,6 +54,9 @@ function App() {
   } = useGame(mode);
 
   const [selectedSong, setSelectedSong] = React.useState<Song>();
+
+  // The mode's own run: it sets the background and the header's count.
+  const streak = mode === "daily" ? dayStreak : winStreak;
 
   const changeMode = React.useCallback((next: GameMode) => {
     setMode(next);
@@ -147,7 +151,7 @@ function App() {
 
   return (
     <Styled.BG>
-      <Backdrop place={placeFor(winStreak.current)} />
+      <Backdrop place={placeFor(streak.current)} />
       <Header
         openInfoPopUp={openInfoPopUp}
         openStatsPopUp={openStatsPopUp}
@@ -155,7 +159,7 @@ function App() {
         openSettingsPopUp={openSettingsPopUp}
         mode={mode}
         onModeChange={changeMode}
-        streak={mode === "daily" ? streaks.current : winStreak.current}
+        streak={streak.current}
       />
       {isStatsPopUpOpen && (
         <StatsPopUp
@@ -211,7 +215,7 @@ function App() {
           // be swapped out - only endless can deal a replacement.
           onSkipTrack={mode === "endless" ? replaceCurrentSong : undefined}
           onBrowseSongs={openSongList}
-          winStreak={winStreak}
+          streak={streak}
         />
       </Styled.Container>
       <Character

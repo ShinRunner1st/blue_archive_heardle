@@ -2,7 +2,7 @@ import React from "react";
 
 import { calRecentCorrect, calStats, isFinished } from "../helpers";
 import { calStreaks } from "../helpers/streaks";
-import { calWinStreak } from "../helpers/winStreak";
+import { calDayStreak, calWinStreak } from "../helpers/winStreak";
 import { dailySong, dayNumber } from "../helpers/daily";
 import { isBagEmpty, pickSong } from "../helpers/pickSong";
 import {
@@ -204,10 +204,15 @@ export function useGame(mode: GameMode) {
     [histories.daily]
   );
 
-  // Endless only: it moves the background (see constants/streakPlaces).
+  // Each mode's own run, which moves its background (see
+  // constants/streakPlaces): endless wins in a row, and the daily day streak.
   const winStreak = React.useMemo(
     () => calWinStreak(histories.endless),
     [histories.endless]
+  );
+  const dayStreak = React.useMemo(
+    () => calDayStreak(histories.daily, dayNumber()),
+    [histories.daily]
   );
 
   const current = rounds[rounds.length - 1];
@@ -224,6 +229,7 @@ export function useGame(mode: GameMode) {
     score,
     streaks,
     winStreak,
+    dayStreak,
     bagEmpty,
     hasHistory: stats[7] > 0,
     guess,

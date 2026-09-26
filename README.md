@@ -41,12 +41,14 @@ Each mode keeps its own score and history, saved in your browser.
 - **Dark mode** - in the ☰ menu. Follows your device until you pick one.
 - **Blue Archive cursor** - the game's cursor, with its flash on every click
   and trail when you drag. Turn it off in ☰ → Settings to use your own.
-- **Win streak places** - every 10 endless wins in a row moves the background
-  somewhere new in Kivotos, by day or by night to match the colour scheme:
-  Abydos Station at 10, on through each school to the sky above Kivotos at 100.
-  A loss sends it back to the Trinity library. The places are listed in
-  `src/constants/streakPlaces.ts`; their pictures are the game's scenario
-  backgrounds, blurred and dimmed so the game reads over them.
+- **Streak places** - every 10 wins in a row moves the background somewhere
+  new in Kivotos, by day or by night to match the colour scheme, up to the sky
+  above Kivotos at 100. Each mode keeps its own: endless counts wins in a row,
+  daily counts its day streak. Where the next place is, and when, stays a
+  surprise until you reach it; a loss sends the background back to the Trinity
+  library. The places are listed in `src/constants/streakPlaces.ts`; their
+  pictures are the game's scenario backgrounds, blurred and dimmed so the game
+  reads over them.
 - **Character** - on wide screens, Arona (light mode) or Plana (dark mode)
   stands beside the game and reacts to your guesses. Hold her to make her look
   at you, stroke her head, or tap her. ☰ → Settings swaps in Mari or turns
