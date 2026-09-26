@@ -12,6 +12,7 @@ import {
 } from "./helpers/storage";
 
 import {
+  Character,
   Header,
   InfoPopUp,
   Game,
@@ -208,6 +209,12 @@ function App() {
           onBrowseSongs={openSongList}
         />
       </Styled.Container>
+      <Character
+        guesses={guesses}
+        currentTry={currentTry}
+        didGuess={didGuess}
+        roundKey={`${mode}:${round.day ?? ""}:${solution.themeNo}`}
+      />
       <Footer />
     </Styled.BG>
   );

@@ -8,8 +8,10 @@ import {
   VOLUME_KEY,
   COLOR_SCHEME_KEY,
   CUSTOM_CURSOR_KEY,
+  CHARACTER_KEY,
 } from "../constants/game";
 import { ColorScheme } from "../constants/theme";
+import { CharacterChoice, isCharacterChoice } from "../types/character";
 import { GuessType } from "../types/guess";
 import { GameMode, isGameMode } from "../types/mode";
 import { Round } from "../types/stats";
@@ -214,4 +216,13 @@ export function loadCustomCursor(): boolean {
 
 export function saveCustomCursor(on: boolean): void {
   writeKey(CUSTOM_CURSOR_KEY, String(on));
+}
+
+export function loadCharacterChoice(): CharacterChoice {
+  const stored = readKey(CHARACTER_KEY);
+  return isCharacterChoice(stored) ? stored : "auto";
+}
+
+export function saveCharacterChoice(choice: CharacterChoice): void {
+  writeKey(CHARACTER_KEY, choice);
 }

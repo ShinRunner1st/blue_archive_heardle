@@ -31,6 +31,12 @@ export const COLOR_SCHEME_KEY = "colorScheme";
  */
 export const CUSTOM_CURSOR_KEY = "customCursor";
 
+/**
+ * localStorage key holding which character stands beside the game: "auto"
+ * (Arona in light mode, Plana in dark), "mari" or "off". Absent means auto.
+ */
+export const CHARACTER_KEY = "character";
+
 /** localStorage key recording that the welcome pop-up has been dismissed. */
 export const FIRST_RUN_KEY = "firstRun";
 

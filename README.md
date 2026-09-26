@@ -41,6 +41,10 @@ Each mode keeps its own score and history, saved in your browser.
 - **Dark mode** - in the ☰ menu. Follows your device until you pick one.
 - **Blue Archive cursor** - the game's cursor, with its flash on every click
   and trail when you drag. Turn it off in ☰ → Settings to use your own.
+- **Character** - on wide screens, Arona (light mode) or Plana (dark mode)
+  stands beside the game and reacts to your guesses. Hold her to make her look
+  at you, stroke her head, or tap her. ☰ → Settings swaps in Mari or turns
+  her off.
 
 ### Keyboard
 
@@ -117,6 +121,29 @@ the rest of the session.
 The audio URLs are visible in DevTools like any other request. Only the track
 name in the browser's media controls is hidden.
 
+### Characters
+
+The character is a Spine skeleton, drawn with the official Spine 4.2 runtime
+(`@esotericsoftware/spine-webgl`) in `src/helpers/spineStage.ts`. Screens
+narrower than 1100px, and players who turn her off, never download the runtime
+or her files; the others download only the character they see (0.7-1.4 MB).
+
+She moves the way she does in the game's memorial lobby. Holding her moves her
+`Touch_Point` and `Touch_Eye` bones, which her head, hair and eyes follow;
+stroking her head plays the pat animation; a tap picks a random expression.
+Her expressions for each moment of a round are chosen in
+`src/constants/characters.ts`. She pauses while the colour scheme switches and
+draws at most 60 frames a second.
+
+To add a character, export her from the game (Spine 4.2 `.skel`, `.atlas` and
+`.png`), then:
+
+1. Run `python scripts/build-spine.py <path to .skel> <id>` (needs Python 3
+   and Pillow). It copies her into `public/spine/<id>/` with the texture as
+   WebP.
+2. Add her to `src/constants/characters.ts`: the part of her to frame, her
+   touch bones if she has them, and which expression fits each moment.
+
 ### Project layout
 
 ```
@@ -127,10 +154,12 @@ src/
                 colour scheme, audio URLs
   hooks/        useGame (all game state), useVolume, useColorScheme
   image/        Logo and the day and night backgrounds
+public/spine/   The characters, made by build-spine
   test/         Render harness and shared setup for the tests
   types/        Shared TypeScript types
 public/audio/   The OST, one Ogg file per theme number
-scripts/        check-audio, build-daily-order, and the song list reader they share
+scripts/        check-audio, build-daily-order, build-spine, and the song list
+                reader they share
 docs/           README screenshots
 ```
 

@@ -1,4 +1,5 @@
 export { Button } from "./Button";
+export { Character } from "./Character";
 export { ErrorBoundary } from "./ErrorBoundary";
 export { Footer } from "./Footer";
 export { Game } from "./Game";
