@@ -77,12 +77,17 @@ Each mode keeps its own score and history, saved in your browser.
 ## Development
 
 React 19, TypeScript, Vite and styled-components, tested with Vitest. Needs
-Node 20 or newer (`.nvmrc` pins 22).
+Node 22.18 or newer (`.nvmrc` pins 24).
 
 ```bash
 npm install
-npm run dev    # http://localhost:3000
+npm run build:audio   # once: builds the audio into audio-dist/ (needs ffmpeg)
+npm run dev           # http://localhost:3000
 ```
+
+`npm run dev` plays the audio from `audio-dist/`. Without ffmpeg, put
+`VITE_AUDIO_BASE_URL=https://ba-heardle-audio.shinrunner1st.workers.dev` in a
+`.env.local` file to play the deployed audio instead.
 
 | Script                      | What it does                                   |
 | --------------------------- | ---------------------------------------------- |
@@ -231,8 +236,9 @@ corrupted or outdated save starts a fresh game instead of breaking the page.
 ## Deploying
 
 The site is hosted on [Vercel](https://vercel.com/) and deploys from GitHub:
-every push to `main` goes to production, and other branches get preview
-deployments. The build settings are in `vercel.json`.
+every push to `main` goes to production. The build settings are in
+`vercel.json`. The audio is deployed separately, to Cloudflare, by
+`npm run songs`.
 
 The audio is on Cloudflare (see [Audio](#audio)), so a deployment is about
 5 MB. To keep Vercel's deployment storage low on the Hobby plan:
