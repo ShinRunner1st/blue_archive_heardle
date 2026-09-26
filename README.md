@@ -49,6 +49,11 @@ Each mode keeps its own score and history, saved in your browser.
   library. The places are listed in `src/constants/streakPlaces.ts`; their
   pictures are the game's scenario backgrounds, blurred and dimmed so the game
   reads over them.
+- **OST badges** - one for each official soundtrack album, Vol.1 to Vol.8,
+  earned by guessing every song on it at least once, in either mode. The stats
+  pop-up shows each album's progress; the result screen says when a round adds
+  to one. The albums' songs are in `src/constants/volumes.ts`, from their
+  published tracklists.
 - **Character** - on wide screens, Arona (light mode) or Plana (dark mode)
   stands beside the game and reacts to your guesses. Hold her to make her look
   at you, stroke her head, or tap her. ☰ → Settings swaps in Mari or turns

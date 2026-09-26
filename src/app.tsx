@@ -42,6 +42,8 @@ function App() {
     streaks,
     winStreak,
     dayStreak,
+    badges,
+    badgeLines,
     bagEmpty,
     hasHistory,
     guess,
@@ -168,6 +170,7 @@ function App() {
           stats={stats}
           mode={mode}
           streaks={streaks}
+          badges={badges}
         />
       )}
       {isInfoPopUpOpen && (
@@ -216,6 +219,7 @@ function App() {
           onSkipTrack={mode === "endless" ? replaceCurrentSong : undefined}
           onBrowseSongs={openSongList}
           streak={streak}
+          badgeLines={badgeLines}
         />
       </Styled.Container>
       <Character

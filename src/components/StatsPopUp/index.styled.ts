@@ -99,3 +99,76 @@ export const TileLabel = styled.span`
   text-transform: uppercase;
   opacity: 0.55;
 `;
+
+/** The eight albums, four to a row. */
+export const Badges = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+`;
+
+export const Badge = styled.div<{ $done: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  padding: 6px;
+
+  background-color: ${({ theme }) => theme.surface};
+  border: 1px solid
+    ${({ $done }) => ($done ? "#f5c542" : "rgba(241, 247, 237, 0.09)")};
+  border-radius: 10px;
+  box-shadow: ${({ $done }) =>
+    $done ? "0 0 12px rgba(245, 197, 66, 0.45)" : "none"};
+`;
+
+/** Grey and dim until earned, in full colour after. */
+export const Cover = styled.img<{ $done: boolean }>`
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+
+  border-radius: 6px;
+  filter: ${({ $done }) => ($done ? "none" : "grayscale(1) brightness(0.55)")};
+`;
+
+export const BadgeLabel = styled.span`
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+
+  font-size: 0.78rem;
+  font-weight: 700;
+`;
+
+export const BadgeCount = styled.span`
+  font-size: 0.72rem;
+  font-weight: 600;
+  opacity: 0.8;
+  font-variant-numeric: tabular-nums;
+`;
+
+export const BadgeTrack = styled.div`
+  height: 4px;
+  overflow: hidden;
+
+  background-color: rgba(241, 247, 237, 0.12);
+  border-radius: 999px;
+`;
+
+export const BadgeFill = styled.div`
+  height: 100%;
+
+  background-color: ${({ theme }) => theme.green};
+  border-radius: 999px;
+
+  transition: width 0.4s ease;
+`;
+
+export const BadgeHint = styled.p`
+  margin: 8px 0 0;
+
+  font-size: 0.78rem;
+  text-align: center;
+  opacity: 0.7;
+`;

@@ -54,6 +54,7 @@ function mount(overrides: Partial<React.ComponentProps<typeof Result>> = {}) {
       round: wonRound(),
       onNewDay,
       streak: { current: 0, before: 0 },
+      badgeLines: [],
       ...overrides,
     })
   );
@@ -141,6 +142,12 @@ describe("Result on a win", () => {
 
     expect(container.textContent).not.toContain("Millennium");
     expect(container.textContent).not.toContain("more to");
+  });
+
+  it("shows what the round did for the OST badges", () => {
+    mount({ badgeLines: ["💿 New for OST Vol.1: 12 / 39"] });
+
+    expect(container.textContent).toContain("New for OST Vol.1: 12 / 39");
   });
 
   it("speaks of days for the daily streak", () => {

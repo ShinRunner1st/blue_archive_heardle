@@ -42,8 +42,8 @@ export const Score = styled.h2`
   margin-bottom: 0;
 `;
 
-/** The endless win streak: a place unlocked, or the way to the next. */
-export const Streak = styled.p`
+/** A line of news under the score: a place unlocked, a badge's progress. */
+export const Note = styled.p`
   font-family: "Nunito Sans Variable";
   font-size: 0.95rem;
   font-weight: 700;

@@ -30,6 +30,8 @@ interface Props {
   onNewDay: () => void;
   /** The mode's run of wins, which moves the background. */
   streak: WinStreak;
+  /** What this round did for the OST badges. */
+  badgeLines: string[];
 }
 
 /**
@@ -89,6 +91,7 @@ export function Result({
   round,
   onNewDay,
   streak,
+  badgeLines,
 }: Props) {
   const [buttonText, setButtonText] = useState("Share result");
   const isDaily = mode === "daily";
@@ -158,7 +161,10 @@ export function Result({
           ? `Puzzle #${round.day}`
           : `Score : ${score}`}
       </Styled.Score>
-      {news && <Styled.Streak>{news}</Styled.Streak>}
+      {news && <Styled.Note>{news}</Styled.Note>}
+      {badgeLines.map((line) => (
+        <Styled.Note key={line}>{line}</Styled.Note>
+      ))}
       <NowPlaying
         song={solution}
         startTime={startTime ?? 0}

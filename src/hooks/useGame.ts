@@ -1,6 +1,7 @@
 import React from "react";
 
 import { calRecentCorrect, calStats, isFinished } from "../helpers";
+import { badgeNews, badgeProgress, guessedThemes } from "../helpers/badges";
 import { calStreaks } from "../helpers/streaks";
 import { calDayStreak, calWinStreak } from "../helpers/winStreak";
 import { dailySong, dayNumber } from "../helpers/daily";
@@ -217,6 +218,22 @@ export function useGame(mode: GameMode) {
 
   const current = rounds[rounds.length - 1];
 
+  // The OST badges count songs guessed right in either mode.
+  const badges = React.useMemo(
+    () =>
+      badgeProgress(guessedThemes([...histories.endless, ...histories.daily])),
+    [histories]
+  );
+
+  // What the round just won did for them: judged against every other round.
+  const badgeLines = React.useMemo(() => {
+    if (!current.didGuess) return [];
+    const others = [...histories.endless, ...histories.daily].filter(
+      (round) => round !== current
+    );
+    return badgeNews(current.solution.themeNo, guessedThemes(others));
+  }, [histories, current]);
+
   return {
     solution: current.solution,
     guesses: current.guesses,
@@ -230,6 +247,8 @@ export function useGame(mode: GameMode) {
     streaks,
     winStreak,
     dayStreak,
+    badges,
+    badgeLines,
     bagEmpty,
     hasHistory: stats[7] > 0,
     guess,

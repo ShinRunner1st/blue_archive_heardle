@@ -38,10 +38,13 @@ interface Props {
   onBrowseSongs?: () => void;
   /** The mode's run of wins, which moves the background. */
   streak: WinStreak;
+  /** What this round did for the OST badges. */
+  badgeLines: string[];
 }
 
 export function Game({
   streak,
+  badgeLines,
   guesses,
   solution,
   currentTry,
@@ -81,6 +84,7 @@ export function Game({
         round={round}
         onNewDay={onNewDay}
         streak={streak}
+        badgeLines={badgeLines}
       />
     );
   }
