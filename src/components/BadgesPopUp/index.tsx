@@ -39,12 +39,7 @@ export function BadgesPopUp({ onClose, badges }: Props) {
               done ? "complete" : `${found} of ${total} songs guessed`
             }`}
           >
-            <Styled.Cover
-              src={volume.cover}
-              alt=""
-              $done={done}
-              loading="lazy"
-            />
+            <Styled.Cover src={volume.cover} alt="" $done={done} />
             <Styled.Info>
               <Styled.Name>
                 Vol.{volume.number}
