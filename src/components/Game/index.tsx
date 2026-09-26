@@ -67,8 +67,25 @@ export function Game({
   onBrowseSongs,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const isOver = didGuess || currentTry >= MAX_TRIES;
 
-  if (didGuess || currentTry >= MAX_TRIES) {
+  // Shift+Enter skips (or gives up, on the last try) from anywhere, so a round
+  // can be played start to finish without the mouse. A held key doesn't
+  // repeat it, or one press could skip every try.
+  React.useEffect(() => {
+    if (!keyboardEnabled || isOver) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== "Enter" || !e.shiftKey || e.repeat) return;
+      e.preventDefault();
+      skip();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [keyboardEnabled, isOver, skip]);
+
+  if (isOver) {
     return (
       <Result
         didGuess={didGuess}
@@ -119,6 +136,7 @@ export function Game({
         selectedSong={selectedSong}
         inputRef={inputRef}
         onBrowseSongs={onBrowseSongs}
+        keyboardEnabled={keyboardEnabled}
       />
 
       <Styled.Buttons>

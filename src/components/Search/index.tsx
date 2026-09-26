@@ -15,6 +15,8 @@ interface Props {
   inputRef: React.RefObject<HTMLInputElement | null>;
   /** Opens the full song list, for browsing instead of typing. */
   onBrowseSongs?: () => void;
+  /** False while a dialog is open, which gets the keys instead. */
+  keyboardEnabled: boolean;
 }
 
 const LISTBOX_ID = "song-search-results";
@@ -24,12 +26,24 @@ function label(song: Song): string {
   return `${song.artist} - ${song.name}`;
 }
 
+/** Somewhere typing already goes, so a key there is left alone. */
+function isTextField(target: EventTarget | null): boolean {
+  return (
+    target instanceof HTMLElement &&
+    (target.isContentEditable ||
+      target.tagName === "INPUT" ||
+      target.tagName === "TEXTAREA" ||
+      target.tagName === "SELECT")
+  );
+}
+
 export function Search({
   currentTry,
   setSelectedSong,
   selectedSong,
   inputRef,
   onBrowseSongs,
+  keyboardEnabled,
 }: Props) {
   const [value, setValue] = React.useState<string>("");
   const [results, setResults] = React.useState<Song[]>([]);
@@ -71,6 +85,26 @@ export function Search({
     setSelectedSong(undefined);
     inputRef.current?.focus();
   }, [setSelectedSong, inputRef]);
+
+  // Start typing anywhere on the page and it goes into the search box - no
+  // need to click it first. Focusing the box while the key is still going
+  // down lets the browser type the character there itself, which also keeps
+  // input methods for other scripts working. Space is left out: it plays the
+  // clip.
+  React.useEffect(() => {
+    if (!keyboardEnabled) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key.length !== 1 || e.key === " ") return;
+      if (e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return;
+      if (isTextField(e.target)) return;
+
+      inputRef.current?.focus();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [keyboardEnabled, inputRef]);
 
   // Typing anything invalidates a previous selection, so search and selection
   // are driven from one place rather than from an effect watching both.
@@ -114,7 +148,7 @@ export function Search({
     } else if (e.key === "End") {
       e.preventDefault();
       setFocusedIndex(results.length - 1);
-    } else if (e.key === "Enter" && focusedIndex !== -1) {
+    } else if (e.key === "Enter" && !e.shiftKey && focusedIndex !== -1) {
       // Stop the page-level Enter handler from also submitting this guess.
       e.preventDefault();
       e.stopPropagation();
@@ -171,6 +205,9 @@ export function Search({
                 focusedIndex >= 0 ? optionId(focusedIndex) : undefined
               }
               autoComplete="off"
+              // Read by the player: Space types a space only while a name is
+              // being typed, and plays the clip otherwise.
+              data-typing={value !== "" && !selectedSong ? "true" : undefined}
             />
             {value && (
               <Styled.ClearButton

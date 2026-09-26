@@ -160,12 +160,13 @@ function App() {
     [guesses]
   );
 
-  // Enter submits the highlighted song from anywhere on the page.
+  // Enter submits the highlighted song from anywhere on the page. Shift+Enter
+  // is the skip key instead (see Game).
   React.useEffect(() => {
     if (isPopUpOpen || !selectedSong) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== "Enter") return;
+      if (e.key !== "Enter" || e.shiftKey || e.repeat) return;
       e.preventDefault();
       submitGuess();
     };

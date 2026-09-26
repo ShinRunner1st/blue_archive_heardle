@@ -30,9 +30,11 @@ const STEPS: Array<[string, string]> = [
 const SEARCH_BY = ["Name", "OST number", "Artist"];
 
 const SHORTCUTS: Array<[string, string]> = [
-  ["Space", "Play or pause the clip"],
+  ["A–Z", "Start typing anywhere to search"],
+  ["Space", "Play or pause the clip, or the answer"],
   ["↑ ↓", "Move through search results"],
-  ["Enter", "Pick a result, then submit your guess"],
+  ["Enter", "Pick a result, submit it, then go to the next song"],
+  ["Shift+Enter", "Skip, or give up on the last try"],
   ["Esc", "Clear the search box"],
 ];
 

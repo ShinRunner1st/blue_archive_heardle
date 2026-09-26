@@ -357,6 +357,37 @@ describe("Player", () => {
     expect(play).toHaveBeenCalled();
   });
 
+  it("plays on Space in the search box, unless a name is being typed", () => {
+    const search = document.createElement("input");
+    document.body.appendChild(search);
+    const inputRef = { current: search };
+    harness.render(
+      React.createElement(Player, {
+        themeNo: "1",
+        currentTry: 0,
+        setStartTime,
+        startTime: 0,
+        inputRef,
+        keyboardEnabled: true,
+      })
+    );
+    fire("loadedmetadata");
+    search.focus();
+    const space = () =>
+      act(() => {
+        window.dispatchEvent(new KeyboardEvent("keydown", { code: "Space" }));
+      });
+
+    search.dataset.typing = "true";
+    space();
+    expect(play).not.toHaveBeenCalled();
+
+    delete search.dataset.typing;
+    space();
+    expect(play).toHaveBeenCalled();
+    search.remove();
+  });
+
   it("ignores Space while a dialog is open", () => {
     mount(0, 0, false);
 

@@ -5,6 +5,7 @@ import { createHarness } from "./test/harness";
 
 import App from "./app";
 import { DAILY_STORAGE_KEY, MODE_KEY, STORAGE_KEY } from "./constants/game";
+import { WHATS_NEW } from "./constants/whatsNew";
 
 let harness: ReturnType<typeof createHarness>;
 let container: HTMLDivElement;
@@ -47,6 +48,28 @@ describe("App", () => {
 
     expect(() => mount()).not.toThrow();
     expect(container.textContent).toContain("Guess");
+  });
+
+  it("skips with Shift+Enter, once per press", () => {
+    localStorage.setItem("firstRun", "false");
+    localStorage.setItem("whatsNew", WHATS_NEW.id);
+    mount();
+    const skipLabel = () =>
+      Array.from(container.querySelectorAll("button"))
+        .map((button) => button.textContent)
+        .find((text) => text?.startsWith("Skip"));
+    const shiftEnter = (repeat = false) =>
+      act(() => {
+        window.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Enter", shiftKey: true, repeat })
+        );
+      });
+
+    expect(skipLabel()).toBe("Skip +1s");
+    shiftEnter();
+    expect(skipLabel()).toBe("Skip +2s");
+    shiftEnter(true);
+    expect(skipLabel()).toBe("Skip +2s");
   });
 
   it("unmounts without leaving timers or listeners behind", () => {

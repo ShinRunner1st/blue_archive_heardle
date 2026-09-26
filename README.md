@@ -67,12 +67,19 @@ Each mode keeps its own score and history, saved in your browser.
 
 ### Keyboard
 
-| Key     | Action                                |
-| ------- | ------------------------------------- |
-| `Space` | Play or pause the clip                |
-| `↑ ↓`   | Move through search results           |
-| `Enter` | Pick a result, then submit your guess |
-| `Esc`   | Clear the search box, close a pop-up  |
+A round can be played start to finish without the mouse.
+
+| Key           | Action                                                     |
+| ------------- | ---------------------------------------------------------- |
+| `A–Z`, `0–9`  | Start typing anywhere and it goes into the search box      |
+| `Space`       | Play or pause the clip, or the answer on the result screen |
+| `↑ ↓`         | Move through search results                                |
+| `Enter`       | Pick a result, submit your guess, then go to the next song |
+| `Shift+Enter` | Skip, or give up on the last try                           |
+| `Esc`         | Clear the search box, close a pop-up                       |
+
+`Space` types a space only while you are typing a name; in an empty search box,
+or one showing the song you picked, it plays the clip.
 
 ## Development
 

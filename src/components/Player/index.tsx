@@ -138,14 +138,16 @@ export function Player({
     pausePlayback();
   }, [play, currentTime, clipStart, currentPlayTime, pausePlayback]);
 
-  // Space toggles playback, unless a dialog is open or the player is typing in
-  // the search box.
+  // Space toggles playback, unless a dialog is open or a name is being typed
+  // in the search box. An empty box, or one showing a picked song, still
+  // plays - so the clip can be heard again without leaving the keyboard.
   React.useEffect(() => {
     if (!keyboardEnabled || !isReady) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code !== "Space") return;
-      if (document.activeElement === inputRef.current) return;
+      const input = inputRef.current;
+      if (document.activeElement === input && input?.dataset.typing) return;
 
       e.preventDefault();
       if (play) pausePlayback();
@@ -267,7 +269,8 @@ export function Player({
             </Styled.VolumeSlot>
           </Styled.TransportRow>
           <Styled.Hint>
-            Press <kbd>Space</kbd> to play or pause
+            <kbd>Space</kbd> play · <kbd>Shift</kbd>+<kbd>Enter</kbd> skip ·
+            just type to search
           </Styled.Hint>
         </>
       )}

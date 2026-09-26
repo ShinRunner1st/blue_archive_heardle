@@ -16,6 +16,8 @@ interface Props {
   startTime: number;
   /** How much of the clip the player heard on their last try, in seconds. */
   clipLength: number;
+  /** False while a dialog is open, which gets the keys instead. */
+  keyboardEnabled?: boolean;
 }
 
 function formatTime(seconds: number): string {
@@ -36,7 +38,12 @@ function percent(part: number, whole: number): string {
  * The whole song is only downloaded once the round is over, so it can't give
  * the answer away early.
  */
-export function NowPlaying({ song, startTime, clipLength }: Props) {
+export function NowPlaying({
+  song,
+  startTime,
+  clipLength,
+  keyboardEnabled = true,
+}: Props) {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   // Set while "Replay my clip" runs, so playback stops where the clip did.
   const stopAtRef = React.useRef<number | null>(null);
@@ -126,6 +133,20 @@ export function NowPlaying({ song, startTime, clipLength }: Props) {
     if (audio.paused) play(audio);
     else audio.pause();
   }, [play]);
+
+  // Space plays or pauses the answer, as it does the clip during the round.
+  React.useEffect(() => {
+    if (!keyboardEnabled || !loaded) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.code !== "Space" || e.repeat) return;
+      e.preventDefault();
+      togglePlay();
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [keyboardEnabled, loaded, togglePlay]);
 
   const replayClip = React.useCallback(() => {
     const audio = audioRef.current;

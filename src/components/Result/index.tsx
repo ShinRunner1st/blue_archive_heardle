@@ -124,7 +124,8 @@ export function Result({
     if (!keyboardEnabled || isDaily) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key !== "Enter") return;
+      // Not a held key, nor the Shift+Enter that just gave the round up.
+      if (e.key !== "Enter" || e.shiftKey || e.repeat) return;
       e.preventDefault();
       advance();
     };
@@ -172,6 +173,7 @@ export function Result({
         // within the whole song.
         startTime={clipInfo(solution.themeNo).start + (startTime ?? 0)}
         clipLength={clipLength}
+        keyboardEnabled={keyboardEnabled}
       />
       {isDaily && <DailyCountdown onNewDay={onNewDay} />}
       <Styled.Buttons>

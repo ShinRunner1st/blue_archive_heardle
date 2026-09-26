@@ -24,6 +24,7 @@ function mount(
       setSelectedSong,
       selectedSong: undefined,
       inputRef,
+      keyboardEnabled: true,
       ...extra,
     })
   );
@@ -273,6 +274,61 @@ describe("Search with the full song list", () => {
     expect(
       container.querySelector('button[aria-label="Browse all OST"]')
     ).toBeNull();
+  });
+
+  it("takes a letter typed anywhere on the page", () => {
+    mount();
+
+    act(() => {
+      document.body.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "k", bubbles: true })
+      );
+    });
+
+    expect(document.activeElement).toBe(input());
+  });
+
+  it("leaves Space, shortcuts and other text fields alone", () => {
+    mount();
+    const other = document.createElement("input");
+    document.body.appendChild(other);
+    const keyDown = (target: EventTarget, init: KeyboardEventInit) =>
+      act(() => {
+        target.dispatchEvent(
+          new KeyboardEvent("keydown", { bubbles: true, ...init })
+        );
+      });
+
+    keyDown(document.body, { key: " " });
+    keyDown(document.body, { key: "c", ctrlKey: true });
+    keyDown(other, { key: "k" });
+
+    expect(document.activeElement).not.toBe(input());
+    other.remove();
+  });
+
+  it("doesn't take keys while a dialog is open", () => {
+    mount(0, { keyboardEnabled: false });
+
+    act(() => {
+      document.body.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "k", bubbles: true })
+      );
+    });
+
+    expect(document.activeElement).not.toBe(input());
+  });
+
+  it("tells the player when a name is being typed", () => {
+    mount();
+    expect(input().dataset.typing).toBeUndefined();
+
+    type("kar");
+    expect(input().dataset.typing).toBe("true");
+
+    // A picked song is not a name being typed.
+    mount(0, { selectedSong: songs[0] });
+    expect(input().dataset.typing).toBeUndefined();
   });
 
   it("shows a song picked from the list in the box", () => {

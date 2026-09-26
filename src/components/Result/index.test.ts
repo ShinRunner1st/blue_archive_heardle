@@ -252,6 +252,21 @@ describe("Result interactions", () => {
     expect(onNextSong).toHaveBeenCalled();
   });
 
+  it("doesn't advance on Shift+Enter or a held Enter", () => {
+    mount();
+
+    act(() => {
+      window.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter", shiftKey: true })
+      );
+      window.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Enter", repeat: true })
+      );
+    });
+
+    expect(onNextSong).not.toHaveBeenCalled();
+  });
+
   it("ignores Enter while a dialog is open", () => {
     mount({ keyboardEnabled: false });
 
