@@ -111,6 +111,6 @@ describe("buildShareText", () => {
       score: "1/1",
     });
 
-    expect(text.endsWith("https://bluearchive-heardle.xyz/")).toBe(true);
+    expect(text.endsWith("https://baheardle.com/")).toBe(true);
   });
 });

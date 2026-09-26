@@ -19,10 +19,13 @@ function epochDate(): Date {
  * The puzzle number for a date: 1 on the launch day, counting local calendar
  * days. Both ends are snapped to local midnight and the division is rounded
  * rather than floored, so a daylight-saving shift can't drop or add a day.
+ *
+ * Never below 1: a player whose calendar hasn't reached the launch day yet,
+ * behind the launch timezone, plays puzzle #1 early rather than a #0.
  */
 export function dayNumber(now: Date = new Date()): number {
   const elapsed = startOfDay(now).getTime() - epochDate().getTime();
-  return Math.round(elapsed / MS_PER_DAY) + 1;
+  return Math.max(1, Math.round(elapsed / MS_PER_DAY) + 1);
 }
 
 const byThemeNo = new Map(songs.map((song) => [song.themeNo, song]));

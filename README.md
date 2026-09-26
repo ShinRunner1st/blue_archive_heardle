@@ -2,7 +2,7 @@
 
 A Heardle-style game: guess the Blue Archive OST from a few seconds of music.
 
-**Play it at [bluearchive-heardle.xyz](https://bluearchive-heardle.xyz/)**
+**Play it at [baheardle.com](https://baheardle.com/)**
 
 <p>
   <img src="docs/screenshot-game.webp" alt="A round in progress: one wrong guess, one skip, and the clip player" width="49%">
@@ -263,6 +263,13 @@ The audio is on Cloudflare (see [Audio](#audio)), so a deployment is about
   names, so browsers keep them for a week, then go on using them while they
   check in the background. A replaced file under the same name can take up to
   a week to reach everyone; give it a new name to reach them at once.
+
+The game moved from `bluearchive-heardle.xyz` to `baheardle.com` on
+27 September 2026. Progress wasn't carried over: a browser keeps each
+address's saves apart, so everyone started fresh, and daily mode restarted at
+#1 that day. The old address stays attached to the Vercel project and sends
+every visit on with a permanent redirect (`redirects` in `vercel.json`); keep
+it registered for a year or so, while links to it are still around.
 
 ## Privacy
 

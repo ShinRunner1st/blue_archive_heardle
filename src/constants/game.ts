@@ -48,12 +48,13 @@ export const WHATS_NEW_KEY = "whatsNew";
 
 /**
  * Day 1 of daily mode, as a local calendar date. Moving this renumbers every
- * puzzle and reshuffles which song lands on which day, so it is fixed.
+ * puzzle and reshuffles which song lands on which day, so it is fixed. (It was
+ * moved once, to restart at #1 when the game moved to baheardle.com.)
  */
-export const DAILY_EPOCH = "2026-09-21";
+export const DAILY_EPOCH = "2026-09-27";
 
 /** Public URL used in the shareable result. */
-export const SITE_URL = "https://bluearchive-heardle.xyz/";
+export const SITE_URL = "https://baheardle.com/";
 
 /**
  * Shown in the welcome pop-up. Injected by Vite at build time (see

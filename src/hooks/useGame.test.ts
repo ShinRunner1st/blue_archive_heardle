@@ -6,7 +6,7 @@ import { createHarness } from "../test/harness";
 import { MAX_TRIES, STORAGE_KEY } from "../constants/game";
 import { songs } from "../constants";
 import { dailySong, dayNumber } from "../helpers/daily";
-import { loadRounds } from "../helpers/storage";
+import { emptyGuesses, loadRounds, saveRounds } from "../helpers/storage";
 import { GameMode } from "../types/mode";
 import { useGame } from "./useGame";
 
@@ -184,6 +184,36 @@ describe("useGame in daily mode", () => {
     expect(game.day).toBe(today);
     expect(game.solution).toEqual(dailySong(today));
     expect(loadRounds("daily")).toHaveLength(1);
+  });
+
+  it("drops rounds from a later day, left from before the numbering restarted", () => {
+    const today = dayNumber();
+    saveRounds(
+      [
+        {
+          solution: dailySong(today + 5),
+          currentTry: 0,
+          didGuess: false,
+          guesses: emptyGuesses(),
+          startTime: null,
+          day: today + 5,
+        },
+        {
+          solution: dailySong(today + 6),
+          currentTry: 0,
+          didGuess: false,
+          guesses: emptyGuesses(),
+          startTime: null,
+          day: today + 6,
+        },
+      ],
+      "daily"
+    );
+
+    render("daily");
+
+    expect(game.day).toBe(today);
+    expect(loadRounds("daily").map((round) => round.day)).toEqual([today]);
   });
 
   it("gives every player the same song for a given day", () => {

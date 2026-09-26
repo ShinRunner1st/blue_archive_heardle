@@ -25,8 +25,14 @@ describe("dayNumber", () => {
     at(`${DAILY_EPOCH}T23:59:00`);
     expect(dayNumber()).toBe(1);
 
-    at("2026-09-22T00:01:00");
+    at("2026-09-28T00:01:00");
     expect(dayNumber()).toBe(2);
+  });
+
+  it("is 1, not 0, for a player whose calendar is still on the day before", () => {
+    at("2026-09-26T20:00:00");
+
+    expect(dayNumber()).toBe(1);
   });
 
   it("counts whole calendar days, not 24-hour blocks", () => {
@@ -74,7 +80,7 @@ describe("dailySong", () => {
 
 describe("msUntilNextDay", () => {
   it("counts down to local midnight", () => {
-    at("2026-09-21T23:00:00");
+    at(`${DAILY_EPOCH}T23:00:00`);
 
     expect(msUntilNextDay()).toBe(60 * 60 * 1000);
   });

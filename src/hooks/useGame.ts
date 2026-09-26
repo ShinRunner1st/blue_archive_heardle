@@ -33,9 +33,16 @@ function createEndlessRound(playedRounds: Round[]): Round {
   return newRound(pickSong(playedRounds));
 }
 
-/** Appends today's puzzle unless the stored history already ends with it. */
-function withToday(stored: Round[]): Round[] {
+/**
+ * Appends today's puzzle unless the stored history already ends with it.
+ * Rounds from a day after today are dropped: they can only come from before
+ * daily mode restarted its numbering at baheardle.com, or a clock set back.
+ */
+function withToday(saved: Round[]): Round[] {
   const day = dayNumber();
+  const stored = saved.filter(
+    (round) => round.day === undefined || round.day <= day
+  );
   const last = stored[stored.length - 1];
 
   if (last && last.day === day) return stored;
