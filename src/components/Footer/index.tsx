@@ -7,7 +7,7 @@ export function Footer() {
     <Styled.Text>
       Made with <IoHeart aria-hidden="true" /> by{" "}
       <Styled.Link
-        href="https://github.com/ShinRunner1st/ba_ost_guess"
+        href="https://github.com/ShinRunner1st/blue_archive_heardle"
         target="_blank"
         rel="noopener noreferrer"
       >
