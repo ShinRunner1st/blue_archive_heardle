@@ -1,4 +1,5 @@
 import React from "react";
+import { IoClose } from "react-icons/io5";
 
 import * as Styled from "./index.styled";
 
@@ -8,6 +9,11 @@ interface Props {
   /** Optional one-line description under the heading. */
   subtitle?: string;
   onClose: () => void;
+  /**
+   * The buttons at the bottom. They stay in view while the body scrolls, so
+   * a long pop-up can always be closed.
+   */
+  actions?: React.ReactNode;
   children?: React.ReactNode;
 }
 
@@ -19,8 +25,12 @@ let openCount = 0;
 /**
  * Shared modal shell: one place for the overlay, dismissal, focus handling and
  * dialog semantics, so the pop-ups can't drift apart again.
+ *
+ * The panel never grows past the screen: the title and the actions stay put
+ * and only the body between them scrolls. On a phone it is a sheet from the
+ * bottom edge.
  */
-export function PopUp({ title, subtitle, onClose, children }: Props) {
+export function PopUp({ title, subtitle, onClose, actions, children }: Props) {
   const panelRef = React.useRef<HTMLDivElement>(null);
   const titleId = React.useId();
 
@@ -99,10 +109,16 @@ export function PopUp({ title, subtitle, onClose, children }: Props) {
         aria-labelledby={titleId}
         tabIndex={-1}
       >
-        <Styled.Title id={titleId}>{title}</Styled.Title>
-        {subtitle && <Styled.Subtitle>{subtitle}</Styled.Subtitle>}
-        <Styled.Divider />
-        {children}
+        <Styled.Head>
+          <Styled.Title id={titleId}>{title}</Styled.Title>
+          {subtitle && <Styled.Subtitle>{subtitle}</Styled.Subtitle>}
+          <Styled.Close type="button" onClick={onClose} aria-label="Close">
+            <IoClose aria-hidden="true" />
+          </Styled.Close>
+          <Styled.Divider />
+        </Styled.Head>
+        <Styled.Scroll>{children}</Styled.Scroll>
+        {actions && <Styled.Actions>{actions}</Styled.Actions>}
       </Styled.Panel>
     </Styled.Overlay>
   );
@@ -120,4 +136,3 @@ export const PopUpCardText = Styled.CardText;
 export const PopUpChips = Styled.Chips;
 export const PopUpChip = Styled.Chip;
 export const PopUpMeta = Styled.Meta;
-export const PopUpActions = Styled.Actions;

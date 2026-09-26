@@ -3,8 +3,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MODE_KEY, STORAGE_KEY } from "../constants/game";
 import {
   emptyGuesses,
+  hasSeenWhatsNew,
   loadMode,
   loadRounds,
+  markWhatsNewSeen,
   saveMode,
   saveRounds,
 } from "./storage";
@@ -131,6 +133,18 @@ describe("emptyGuesses", () => {
 
     expect(guesses).toHaveLength(6);
     expect(guesses[0]).not.toBe(guesses[1]);
+  });
+});
+
+describe("What's new", () => {
+  beforeEach(() => localStorage.clear());
+
+  it("is unseen until marked, and again once the id changes", () => {
+    expect(hasSeenWhatsNew("a")).toBe(false);
+
+    markWhatsNewSeen("a");
+    expect(hasSeenWhatsNew("a")).toBe(true);
+    expect(hasSeenWhatsNew("b")).toBe(false);
   });
 });
 

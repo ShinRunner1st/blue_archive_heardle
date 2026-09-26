@@ -121,6 +121,36 @@ describe("PopUp", () => {
     opener.remove();
   });
 
+  it("closes from the close button", () => {
+    mount();
+
+    act(() => {
+      panel().querySelector<HTMLButtonElement>('[aria-label="Close"]')!.click();
+    });
+
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps the actions outside the scrolling body", () => {
+    harness.render(
+      React.createElement(
+        PopUp,
+        {
+          title: "Stats",
+          onClose,
+          actions: React.createElement("button", null, "Done"),
+        },
+        React.createElement("p", null, "Body")
+      )
+    );
+
+    const body = container.querySelector("p")!.parentElement!;
+    const done = Array.from(panel().querySelectorAll("button")).find(
+      (button) => button.textContent === "Done"
+    )!;
+    expect(body.contains(done)).toBe(false);
+  });
+
   it("keeps Tab inside the dialog", () => {
     mount(
       React.createElement(
@@ -131,7 +161,11 @@ describe("PopUp", () => {
       )
     );
 
-    const [first, last] = Array.from(panel().querySelectorAll("button"));
+    // The close button in the corner comes first.
+    const buttons = Array.from(panel().querySelectorAll("button"));
+    const first = buttons[0];
+    const last = buttons[buttons.length - 1];
+    expect(first.getAttribute("aria-label")).toBe("Close");
 
     last.focus();
     press("Tab");

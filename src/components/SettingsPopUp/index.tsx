@@ -9,7 +9,6 @@ import { CharacterChoice } from "../../types/character";
 import { Button } from "../Button";
 import {
   PopUp,
-  PopUpActions,
   PopUpBody,
   PopUpCard,
   PopUpCardBody,
@@ -37,7 +36,16 @@ export function SettingsPopUp({ onClose }: Props) {
   const characterLabel = React.useId();
 
   return (
-    <PopUp title="Settings" subtitle="Saved on this device." onClose={onClose}>
+    <PopUp
+      title="Settings"
+      subtitle="Saved on this device."
+      onClose={onClose}
+      actions={
+        <Button variant="green" onClick={onClose}>
+          Done
+        </Button>
+      }
+    >
       <PopUpBody>
         <Styled.Setting
           type="button"
@@ -88,12 +96,6 @@ export function SettingsPopUp({ onClose }: Props) {
           </Styled.Stack>
         </PopUpCard>
       </PopUpBody>
-
-      <PopUpActions>
-        <Button variant="green" onClick={onClose}>
-          Done
-        </Button>
-      </PopUpActions>
     </PopUp>
   );
 }

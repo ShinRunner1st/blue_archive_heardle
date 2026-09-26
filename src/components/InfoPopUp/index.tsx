@@ -10,7 +10,6 @@ import {
 import { Button } from "../Button";
 import {
   PopUp,
-  PopUpActions,
   PopUpBody,
   PopUpCard,
   PopUpCardBody,
@@ -58,6 +57,18 @@ export function InfoPopUp({ onClose, canReset, onReset, mode }: Props) {
       title="Welcome, Sensei 👋"
       subtitle="Guess the Blue Archive OST from a few seconds of audio."
       onClose={onClose}
+      actions={
+        <>
+          <Button variant="green" onClick={onClose}>
+            Let&apos;s play
+          </Button>
+          {canReset && (
+            <Button variant="red" onClick={handleReset}>
+              {isDaily ? "Reset daily stats" : "Reset Score"}
+            </Button>
+          )}
+        </>
+      }
     >
       <PopUpBody>
         <PopUpCard>
@@ -127,17 +138,6 @@ export function InfoPopUp({ onClose, canReset, onReset, mode }: Props) {
       </PopUpBody>
 
       {LAST_UPDATED && <PopUpMeta>Last updated {LAST_UPDATED}</PopUpMeta>}
-
-      <PopUpActions>
-        <Button variant="green" onClick={onClose}>
-          Let&apos;s play
-        </Button>
-        {canReset && (
-          <Button variant="red" onClick={handleReset}>
-            {isDaily ? "Reset daily stats" : "Reset Score"}
-          </Button>
-        )}
-      </PopUpActions>
     </PopUp>
   );
 }

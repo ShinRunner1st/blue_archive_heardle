@@ -14,20 +14,30 @@ export const Overlay = styled.div`
   }
 
   /* Fixed so the overlay always covers the viewport, even when the page below
-     it has been scrolled. */
+     it has been scrolled. Edges rather than inset, for older Safari. */
   position: fixed;
-  inset: 0;
-  z-index: 2;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  /* Over everything on the page, the footer (2) and the menu (3) included. */
+  z-index: 10;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  overflow-y: auto;
   padding: 24px 16px;
 
   background-color: ${({ theme }) => theme.overlay};
+  -webkit-backdrop-filter: blur(3px);
   backdrop-filter: blur(3px);
+
+  /* A sheet on phones: the panel sits on the bottom edge, in thumb reach. */
+  @media (max-width: 480px) {
+    align-items: flex-end;
+    padding: 12px 0 0;
+  }
 `;
 
 export const Panel = styled.div`
@@ -46,17 +56,17 @@ export const Panel = styled.div`
 
   font-family: "Nunito Sans Variable";
 
-  width: 100%;
-  max-width: 430px;
-  padding: 26px 24px 20px;
-
-  @media (max-width: 480px) {
-    padding: 22px 18px 18px;
-  }
-
+  position: relative;
   display: flex;
   flex-direction: column;
-  align-items: center;
+
+  width: 100%;
+  max-width: 430px;
+  /* Never taller than the screen, whatever the browser's toolbars do. dvh
+     follows them where supported; vh is the fallback. */
+  max-height: calc(100vh - 48px);
+  max-height: calc(100dvh - 48px);
+  overflow: hidden;
 
   color: ${({ theme }) => theme.text};
   background-color: ${({ theme }) => theme.background100};
@@ -68,10 +78,119 @@ export const Panel = styled.div`
   &:focus {
     outline: none;
   }
+
+  @media (max-width: 480px) {
+    animation-name: sheet;
+    max-width: none;
+    max-height: calc(100vh - 12px);
+    max-height: calc(100dvh - 12px);
+
+    border-width: 1px 0 0;
+    border-radius: 18px 18px 0 0;
+
+    @keyframes sheet {
+      from {
+        transform: translateY(40px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+  }
+`;
+
+/** The title block, fixed above the scrolling body. */
+export const Head = styled.div`
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 26px 24px 0;
+
+  @media (max-width: 480px) {
+    padding: 22px 18px 0;
+  }
+
+  /* The divider ends the head; the body's padding gives the space below. */
+  & > div:last-child {
+    margin-bottom: 0;
+  }
+`;
+
+export const Close = styled.button`
+  position: absolute;
+  top: 12px;
+  right: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+  padding: 0;
+
+  font-size: 20px;
+  color: ${({ theme }) => theme.text};
+  background: rgba(241, 247, 237, 0.08);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  opacity: 0.75;
+
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+
+  &:hover {
+    opacity: 1;
+    background: rgba(241, 247, 237, 0.16);
+  }
+
+  &:focus-visible {
+    opacity: 1;
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
+`;
+
+/** The body: the one part that scrolls when the content is taller than the screen. */
+export const Scroll = styled.div`
+  /* Its top padding stands in for the head divider's lower margin, so the
+     content disappears right at the line as it scrolls. */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 18px 24px 20px;
+
+  /* The body scrolls rather than squashing what is in it. */
+  & > * {
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 480px) {
+    padding: 18px 18px 18px;
+
+    /* A sheet without actions ends here, so this keeps clear of the home
+       indicator. */
+    &:last-child {
+      padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    }
+  }
 `;
 
 export const Title = styled.h2`
   margin: 0;
+  /* Clear of the close button either side, so it stays centred. */
+  padding: 0 32px;
 
   font-size: 1.3rem;
   font-weight: 800;
@@ -98,6 +217,7 @@ export const Divider = styled.div`
   height: 1px;
   margin: 18px 0;
   flex-shrink: 0;
+  align-self: stretch;
 
   background: linear-gradient(
     90deg,
@@ -217,14 +337,19 @@ export const Meta = styled.p`
   opacity: 0.5;
 `;
 
+/** The buttons, pinned below the scrolling body. */
 export const Actions = styled.div`
+  flex-shrink: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   justify-content: center;
 
-  width: 100%;
-  margin-top: 20px;
+  padding: 14px 24px 20px;
+  /* Clear of the home indicator on phones with one. */
+  padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+
+  border-top: 1px solid rgba(241, 247, 237, 0.1);
 `;
 
 /** Kept for the stats rows, which lay out as label / bar / count. */

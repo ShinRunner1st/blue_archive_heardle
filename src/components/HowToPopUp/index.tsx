@@ -3,7 +3,6 @@ import { IoCalendarNumber, IoInfinite } from "react-icons/io5";
 import { Button } from "../Button";
 import {
   PopUp,
-  PopUpActions,
   PopUpBody,
   PopUpCard,
   PopUpCardBody,
@@ -43,6 +42,11 @@ export function HowToPopUp({ onClose }: Props) {
       title="How to play"
       subtitle="Name the track in as few tries as you can."
       onClose={onClose}
+      actions={
+        <Button variant="green" onClick={onClose}>
+          Got it
+        </Button>
+      }
     >
       <PopUpBody>
         <Styled.Steps>
@@ -106,12 +110,6 @@ export function HowToPopUp({ onClose }: Props) {
           ))}
         </Styled.Shortcuts>
       </PopUpBody>
-
-      <PopUpActions>
-        <Button variant="green" onClick={onClose}>
-          Got it
-        </Button>
-      </PopUpActions>
     </PopUp>
   );
 }

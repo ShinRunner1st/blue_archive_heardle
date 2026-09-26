@@ -1,4 +1,4 @@
-import { IoBarChart } from "react-icons/io5";
+import { IoBarChart, IoDisc } from "react-icons/io5";
 
 import { GameMode } from "../../types/mode";
 
@@ -10,8 +10,10 @@ import img from "../../image/BlueArchive-Heardle.png";
 interface Props {
   openInfoPopUp: () => void;
   openStatsPopUp: () => void;
+  openBadgesPopUp: () => void;
   openHowToPopUp: () => void;
   openSettingsPopUp: () => void;
+  openWhatsNewPopUp: () => void;
   mode: GameMode;
   onModeChange: (mode: GameMode) => void;
   /**
@@ -29,8 +31,10 @@ const MODES: Array<{ mode: GameMode; label: string; hint: string }> = [
 export function Header({
   openInfoPopUp,
   openStatsPopUp,
+  openBadgesPopUp,
   openHowToPopUp,
   openSettingsPopUp,
+  openWhatsNewPopUp,
   mode,
   onModeChange,
   streak,
@@ -87,10 +91,18 @@ export function Header({
           >
             <IoBarChart size="1em" aria-hidden="true" />
           </Styled.IconButton>
+          <Styled.IconButton
+            type="button"
+            onClick={openBadgesPopUp}
+            aria-label="OST badges"
+          >
+            <IoDisc size="1em" aria-hidden="true" />
+          </Styled.IconButton>
           <HeaderMenu
             openInfoPopUp={openInfoPopUp}
             openHowToPopUp={openHowToPopUp}
             openSettingsPopUp={openSettingsPopUp}
+            openWhatsNewPopUp={openWhatsNewPopUp}
           />
         </Styled.Tools>
         <Styled.Tagline>Guess the Blue Archive OST</Styled.Tagline>

@@ -160,11 +160,19 @@ export const MoreIcon = styled(IoChevronDown)<{ $expanded: boolean }>`
   transition: transform 0.2s ease;
 `;
 
-/** Scrolls on its own, so the filter stays in view above it. */
+/**
+ * Scrolls on its own, so the filter stays in view above it. On a short screen
+ * it gives up height first, down to a few rows, before the pop-up scrolls.
+ */
 export const List = styled.div`
   box-sizing: border-box;
   width: 100%;
   max-height: min(55vh, 480px);
+
+  && {
+    flex-shrink: 1;
+    min-height: 160px;
+  }
   overflow-y: auto;
   overscroll-behavior: contain;
 

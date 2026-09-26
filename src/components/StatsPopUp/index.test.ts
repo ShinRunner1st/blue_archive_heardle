@@ -5,16 +5,12 @@ import { StatsPopUp } from "./index";
 import { createHarness } from "../../test/harness";
 import { GameMode } from "../../types/mode";
 import { StatsTally } from "../../types/stats";
-import { VOLUMES } from "../../constants/volumes";
-import { badgeProgress } from "../../helpers/badges";
 
 let harness: ReturnType<typeof createHarness>;
 const onClose = vi.fn();
 
 const stats: StatsTally = [1, 4, 2, 0, 0, 0, 0, 7];
 const streaks = { current: 3, max: 9 };
-// Vol.2 complete, one song towards Vol.1.
-const badges = badgeProgress(new Set([...VOLUMES[1].songs, "1"]));
 
 function mount(mode: GameMode = "endless") {
   harness.render(
@@ -24,7 +20,6 @@ function mount(mode: GameMode = "endless") {
       stats,
       mode,
       streaks,
-      badges,
     })
   );
 }
@@ -85,20 +80,5 @@ describe("StatsPopUp", () => {
       close?.click();
     });
     expect(onClose).toHaveBeenCalled();
-  });
-});
-
-describe("OST badges", () => {
-  it("shows every album with how far along it is", () => {
-    mount();
-
-    const badge = (n: number) =>
-      [...harness.container.querySelectorAll("[title]")].find((el) =>
-        el.getAttribute("title")?.startsWith(`Original Soundtrack Vol.${n} `)
-      );
-    // Vol.1: theme 1, plus Water Drop (39), which is on Vol.2 as well.
-    expect(badge(1)?.textContent).toContain("2/39");
-    expect(badge(2)?.textContent).toContain("✓");
-    expect(badge(8)?.textContent).toContain("0/28");
   });
 });

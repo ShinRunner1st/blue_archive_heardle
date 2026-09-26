@@ -10,6 +10,8 @@ const openInfoPopUp = vi.fn();
 const openStatsPopUp = vi.fn();
 const openHowToPopUp = vi.fn();
 const openSettingsPopUp = vi.fn();
+const openBadgesPopUp = vi.fn();
+const openWhatsNewPopUp = vi.fn();
 const onModeChange = vi.fn();
 
 function buttonFor(label: string) {
@@ -42,6 +44,8 @@ function mount(mode: GameMode = "daily", streak = 0) {
       openStatsPopUp,
       openHowToPopUp,
       openSettingsPopUp,
+      openBadgesPopUp,
+      openWhatsNewPopUp,
       mode,
       onModeChange,
       streak,
@@ -63,8 +67,8 @@ describe("Header", () => {
   // These were bare <svg onClick> elements, unreachable by keyboard and
   // unnamed for screen readers.
   it("keeps only the everyday controls on the bar", () => {
-    // Stats and the menu, plus the two mode buttons.
-    expect(harness.container.querySelectorAll("button")).toHaveLength(4);
+    // Stats, badges and the menu, plus the two mode buttons.
+    expect(harness.container.querySelectorAll("button")).toHaveLength(5);
     expect(buttonFor("Your stats")).not.toBeNull();
     expect(buttonFor("Menu")).not.toBeNull();
   });
@@ -191,6 +195,17 @@ describe("Header menu", () => {
     act(() => menuItem("Settings")!.click());
 
     expect(openSettingsPopUp).toHaveBeenCalled();
+
+    openMenu();
+    act(() => menuItem("What's new")!.click());
+
+    expect(openWhatsNewPopUp).toHaveBeenCalled();
+  });
+
+  it("opens the OST badges from the header", () => {
+    act(() => buttonFor("OST badges")!.click());
+
+    expect(openBadgesPopUp).toHaveBeenCalled();
   });
 
   it("closes on a tap outside it", () => {

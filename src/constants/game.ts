@@ -40,6 +40,9 @@ export const CHARACTER_KEY = "character";
 /** localStorage key recording that the welcome pop-up has been dismissed. */
 export const FIRST_RUN_KEY = "firstRun";
 
+/** localStorage key holding the id of the last "What's new" the player saw. */
+export const WHATS_NEW_KEY = "whatsNew";
+
 /**
  * Day 1 of daily mode, as a local calendar date. Moving this renumbers every
  * puzzle and reshuffles which song lands on which day, so it is fixed.

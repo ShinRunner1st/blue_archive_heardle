@@ -1,17 +1,10 @@
 import React, { useEffect, useState } from "react";
 
 import { Button } from "../Button";
-import {
-  PopUp,
-  PopUpActions,
-  PopUpBody,
-  PopUpGroupLabel,
-  PopUpSpacer,
-} from "../PopUp";
+import { PopUp, PopUpBody, PopUpGroupLabel, PopUpSpacer } from "../PopUp";
 import { songs } from "../../constants";
 import { GameMode } from "../../types/mode";
 import { StatsTally } from "../../types/stats";
-import { BadgeProgress } from "../../helpers/badges";
 import { Streaks } from "../../helpers/streaks";
 
 import * as Styled from "./index.styled";
@@ -22,8 +15,6 @@ interface Props {
   stats: StatsTally;
   mode: GameMode;
   streaks: Streaks;
-  /** The OST badges, from both modes. */
-  badges: BadgeProgress[];
 }
 
 /** Each mode keeps its own history, so the pop-up says which one it is showing. */
@@ -98,14 +89,7 @@ function StatRow({
   );
 }
 
-export function StatsPopUp({
-  onClose,
-  score,
-  stats,
-  mode,
-  streaks,
-  badges,
-}: Props) {
+export function StatsPopUp({ onClose, score, stats, mode, streaks }: Props) {
   const [animate, setAnimate] = useState(false);
 
   useEffect(() => {
@@ -121,6 +105,11 @@ export function StatsPopUp({
       title="Your stats 📊"
       subtitle={subtitleFor(mode, total)}
       onClose={onClose}
+      actions={
+        <Button variant="green" onClick={onClose}>
+          Close
+        </Button>
+      }
     >
       <PopUpBody>
         <PopUpGroupLabel>Guessed in</PopUpGroupLabel>
@@ -168,49 +157,7 @@ export function StatsPopUp({
             </Styled.Tile>
           )}
         </Styled.Tiles>
-
-        <PopUpSpacer />
-
-        <PopUpGroupLabel>OST badges</PopUpGroupLabel>
-        <Styled.Badges>
-          {badges.map(({ volume, found, total, done }) => (
-            <Styled.Badge
-              key={volume.number}
-              $done={done}
-              title={`Original Soundtrack Vol.${volume.number} ~${
-                volume.title
-              }~: ${done ? "complete" : `${found} of ${total} songs guessed`}`}
-            >
-              <Styled.Cover
-                src={volume.cover}
-                alt=""
-                $done={done}
-                loading="lazy"
-              />
-              <Styled.BadgeLabel>
-                Vol.{volume.number}
-                <Styled.BadgeCount>
-                  {done ? "✓" : `${found}/${total}`}
-                </Styled.BadgeCount>
-              </Styled.BadgeLabel>
-              <Styled.BadgeTrack aria-hidden="true">
-                <Styled.BadgeFill
-                  style={{ width: `${(found / total) * 100}%` }}
-                />
-              </Styled.BadgeTrack>
-            </Styled.Badge>
-          ))}
-        </Styled.Badges>
-        <Styled.BadgeHint>
-          Guess every song on an album, in either mode, to earn its badge.
-        </Styled.BadgeHint>
       </PopUpBody>
-
-      <PopUpActions>
-        <Button variant="green" onClick={onClose}>
-          Close
-        </Button>
-      </PopUpActions>
     </PopUp>
   );
 }

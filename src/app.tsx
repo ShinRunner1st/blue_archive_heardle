@@ -4,11 +4,14 @@ import { GameMode } from "./types/mode";
 import { Song } from "./types/song";
 
 import { useGame } from "./hooks/useGame";
+import { WHATS_NEW } from "./constants/whatsNew";
 import { placeFor } from "./helpers/winStreak";
 import {
+  hasSeenWhatsNew,
   isFirstRun,
   loadMode,
   markFirstRunDone,
+  markWhatsNewSeen,
   saveMode,
 } from "./helpers/storage";
 
@@ -23,6 +26,8 @@ import {
   HowToPopUp,
   SongListPopUp,
   SettingsPopUp,
+  BadgesPopUp,
+  WhatsNewPopUp,
 } from "./components";
 
 import * as Styled from "./app.styled";
@@ -80,10 +85,17 @@ function App() {
   const [isHowToPopUpOpen, setIsHowToPopUpOpen] = React.useState(false);
   const [isSongListOpen, setIsSongListOpen] = React.useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+  const [isBadgesOpen, setIsBadgesOpen] = React.useState(false);
+  // Returning players see the latest news once; new players get the welcome,
+  // which counts as having seen it.
+  const [isWhatsNewOpen, setIsWhatsNewOpen] = React.useState(
+    () => !isFirstRun() && !hasSeenWhatsNew(WHATS_NEW.id)
+  );
 
   const openInfoPopUp = React.useCallback(() => setIsInfoPopUpOpen(true), []);
   const closeInfoPopUp = React.useCallback(() => {
     markFirstRunDone();
+    markWhatsNewSeen(WHATS_NEW.id);
     setIsInfoPopUpOpen(false);
   }, []);
 
@@ -108,6 +120,15 @@ function App() {
     []
   );
 
+  const openBadges = React.useCallback(() => setIsBadgesOpen(true), []);
+  const closeBadges = React.useCallback(() => setIsBadgesOpen(false), []);
+
+  const openWhatsNew = React.useCallback(() => setIsWhatsNewOpen(true), []);
+  const closeWhatsNew = React.useCallback(() => {
+    markWhatsNewSeen(WHATS_NEW.id);
+    setIsWhatsNewOpen(false);
+  }, []);
+
   const openSongList = React.useCallback(() => setIsSongListOpen(true), []);
   const closeSongList = React.useCallback(() => setIsSongListOpen(false), []);
   const pickFromSongList = React.useCallback((song: Song) => {
@@ -126,7 +147,9 @@ function App() {
     isStatsPopUpOpen ||
     isHowToPopUpOpen ||
     isSongListOpen ||
-    isSettingsOpen;
+    isSettingsOpen ||
+    isBadgesOpen ||
+    isWhatsNewOpen;
 
   // Marked in the song list, so a wrong answer isn't picked twice by accident.
   const guessedThemeNos = React.useMemo(
@@ -157,8 +180,10 @@ function App() {
       <Header
         openInfoPopUp={openInfoPopUp}
         openStatsPopUp={openStatsPopUp}
+        openBadgesPopUp={openBadges}
         openHowToPopUp={openHowToPopUp}
         openSettingsPopUp={openSettingsPopUp}
+        openWhatsNewPopUp={openWhatsNew}
         mode={mode}
         onModeChange={changeMode}
         streak={streak.current}
@@ -170,7 +195,6 @@ function App() {
           stats={stats}
           mode={mode}
           streaks={streaks}
-          badges={badges}
         />
       )}
       {isInfoPopUpOpen && (
@@ -183,6 +207,8 @@ function App() {
       )}
       {isHowToPopUpOpen && <HowToPopUp onClose={closeHowToPopUp} />}
       {isSettingsOpen && <SettingsPopUp onClose={closeSettingsPopUp} />}
+      {isBadgesOpen && <BadgesPopUp onClose={closeBadges} badges={badges} />}
+      {isWhatsNewOpen && <WhatsNewPopUp onClose={closeWhatsNew} />}
       {isSongListOpen && (
         <SongListPopUp
           onClose={closeSongList}

@@ -9,6 +9,7 @@ import {
   COLOR_SCHEME_KEY,
   CUSTOM_CURSOR_KEY,
   CHARACTER_KEY,
+  WHATS_NEW_KEY,
 } from "../constants/game";
 import { ColorScheme } from "../constants/theme";
 import { CharacterChoice, isCharacterChoice } from "../types/character";
@@ -180,6 +181,15 @@ export function isFirstRun(): boolean {
 
 export function markFirstRunDone(): void {
   writeKey(FIRST_RUN_KEY, "false");
+}
+
+/** Whether the player has already seen the "What's new" with this id. */
+export function hasSeenWhatsNew(id: string): boolean {
+  return readKey(WHATS_NEW_KEY) === id;
+}
+
+export function markWhatsNewSeen(id: string): void {
+  writeKey(WHATS_NEW_KEY, id);
 }
 
 /** The volume the player last chose, or the default for a new player. */

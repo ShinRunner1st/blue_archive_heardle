@@ -1,6 +1,7 @@
 import React from "react";
 import {
   IoClose,
+  IoGift,
   IoGameController,
   IoInformationCircle,
   IoMenu,
@@ -18,6 +19,7 @@ interface Props {
   openInfoPopUp: () => void;
   openHowToPopUp: () => void;
   openSettingsPopUp: () => void;
+  openWhatsNewPopUp: () => void;
 }
 
 /**
@@ -29,6 +31,7 @@ export function HeaderMenu({
   openInfoPopUp,
   openHowToPopUp,
   openSettingsPopUp,
+  openWhatsNewPopUp,
 }: Props) {
   const [open, setOpen] = React.useState(false);
   const wrapperRef = React.useRef<HTMLDivElement>(null);
@@ -117,6 +120,10 @@ export function HeaderMenu({
             Settings
           </Styled.Item>
           <Styled.Divider />
+          <Styled.Item type="button" onClick={openPopUp(openWhatsNewPopUp)}>
+            <IoGift aria-hidden="true" />
+            What&apos;s new
+          </Styled.Item>
           <Styled.Item type="button" onClick={openPopUp(openInfoPopUp)}>
             <IoInformationCircle aria-hidden="true" />
             About this game
