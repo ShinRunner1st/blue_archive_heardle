@@ -8,12 +8,13 @@
  * It also writes src/constants/audioClips.ts - where each clip starts, how
  * long each song is, and each song's version - and audio-dist/_headers, which
  * lets browsers keep every file for good. `npm run upload:audio` then puts
- * audio-dist/ on Cloudflare.
+ * audio-dist/ on Cloudflare, with the pictures build-pictures copies into
+ * audio-dist/pictures/.
  *
  * Run `npm run songs` after adding or replacing an original. Needs ffmpeg and
  * ffprobe on the PATH. A song whose original hasn't changed is skipped. The
- * cuts are byte-for-byte repeatable, and anything else in audio-dist/ is
- * removed, so an old name can't linger there.
+ * cuts are byte-for-byte repeatable, and anything else in audio-dist/ (but the
+ * pictures folder) is removed, so an old name can't linger there.
  */
 import { execFile } from "node:child_process";
 import {
@@ -41,19 +42,9 @@ import {
   SOURCE_DIR,
   loadManifest,
   versionOf,
+  writeHeaders,
 } from "./lib/audio.mjs";
 import { loadSongs } from "./lib/songs.mjs";
-
-/**
- * The file names never change for the same bytes, so browsers and Cloudflare
- * can keep them for a year without asking again. The game downloads the files
- * itself (see src/helpers/audioSource.ts), from another address than its own,
- * so it needs Access-Control-Allow-Origin to read them.
- */
-const HEADERS = `/*
-  Cache-Control: public, max-age=31536000, immutable
-  Access-Control-Allow-Origin: *
-`;
 
 const run = promisify(execFile);
 
@@ -178,6 +169,7 @@ const entries = await inPool(songs, (song) =>
 // Anything else in the output is stale: a removed or replaced song.
 const expected = new Set([
   "_headers",
+  "pictures",
   ...entries.flatMap(({ themeNo, v }) => [
     clipFile(themeNo, v),
     songFile(themeNo, v),
@@ -186,7 +178,7 @@ const expected = new Set([
 const stale = readdirSync(OUTPUT_DIR).filter((file) => !expected.has(file));
 for (const file of stale) rmSync(join(OUTPUT_DIR, file));
 
-writeFileSync(join(OUTPUT_DIR, "_headers"), HEADERS);
+writeHeaders(OUTPUT_DIR);
 writeFileSync(MANIFEST_PATH, render(entries));
 
 const known = new Set(songs.map((song) => sourceFile(song.themeNo)));

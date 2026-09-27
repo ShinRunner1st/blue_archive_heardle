@@ -36,6 +36,9 @@ jobs:
       - name: Check every song has its audio file
         run: npm run check:audio
 
+      - name: Check every picture is built
+        run: npm run check:pictures
+
       - name: Test
         run: npm test
 

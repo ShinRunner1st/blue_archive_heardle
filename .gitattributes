@@ -10,3 +10,6 @@ package-lock.json -diff linguist-generated
 
 # Game audio - never normalize line endings or diff it
 *.ogg binary
+
+# Pictures served from the Worker are named after their bytes
+*.webp binary

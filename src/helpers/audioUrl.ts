@@ -2,12 +2,13 @@ import { audioClips } from "../constants/audioClips";
 import { clipFile, songFile } from "./audioFiles";
 
 /**
- * Where the audio lives. Defaults to the files deployed from `public/audio`;
- * set VITE_AUDIO_BASE_URL (no trailing slash) to serve them from a CDN instead.
- * `||` rather than `??` on purpose: an empty value in a .env file comes
- * through as "", which would otherwise point every request at the site root.
+ * Where the audio, and the pictures served with it, live: the Worker in
+ * production (VITE_AUDIO_BASE_URL, no trailing slash), or `/audio`, which
+ * `npm run dev` serves from audio-dist/. `||` rather than `??` on purpose: an
+ * empty value in a .env file comes through as "", which would otherwise point
+ * every request at the site root.
  */
-function audioBaseUrl(): string {
+export function audioBaseUrl(): string {
   return import.meta.env.VITE_AUDIO_BASE_URL || "/audio";
 }
 

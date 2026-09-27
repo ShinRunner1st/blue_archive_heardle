@@ -5,15 +5,17 @@ import { defineConfig, type Connect } from "vite";
 import react from "@vitejs/plugin-react";
 
 /**
- * Serves the built audio (audio-dist/, from `npm run build:audio`) at /audio
- * while developing, the way Cloudflare serves it once deployed. Production
- * builds read it from VITE_AUDIO_BASE_URL in .env.production instead.
+ * Serves the built audio and pictures (audio-dist/, from `npm run build:audio`
+ * and `npm run build:pictures`) at /audio while developing, the way Cloudflare
+ * serves them once deployed. Production builds read them from
+ * VITE_AUDIO_BASE_URL in .env.production instead.
  */
 const serveLocalAudio: Connect.NextHandleFunction = (req, res, next) => {
-  const match = req.url?.match(/^\/audio\/([\w.]+)$/);
+  const match = req.url?.match(/^\/audio\/(pictures\/)?([\w.-]+)$/);
   if (!match) return next();
 
-  const file = join("audio-dist", basename(match[1]));
+  const [, folder = "", name] = match;
+  const file = join("audio-dist", folder, basename(name));
   if (!existsSync(file)) {
     // A plain 404, not the app's HTML, so a missing file fails loudly.
     res.statusCode = 404;
@@ -21,7 +23,7 @@ const serveLocalAudio: Connect.NextHandleFunction = (req, res, next) => {
     return;
   }
 
-  res.setHeader("Content-Type", "audio/ogg");
+  res.setHeader("Content-Type", folder ? "image/webp" : "audio/ogg");
   createReadStream(file).pipe(res);
 };
 

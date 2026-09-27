@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
 export const SOURCE_DIR = "audio";
 export const OUTPUT_DIR = "audio-dist";
@@ -43,4 +44,21 @@ export function loadAudioBaseUrl() {
     .split(/\r?\n/)
     .find((text) => text.startsWith("VITE_AUDIO_BASE_URL="));
   return line ? line.slice("VITE_AUDIO_BASE_URL=".length).trim() : null;
+}
+
+/**
+ * The file names never change for the same bytes, so browsers and Cloudflare
+ * can keep them for a year without asking again. The game downloads the audio
+ * itself (see src/helpers/audioSource.ts) and draws the pictures into share
+ * pictures, from another address than its own, so it needs
+ * Access-Control-Allow-Origin to read them.
+ */
+const HEADERS = `/*
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+`;
+
+/** Writes the headers above into `dir` for Cloudflare to send. */
+export function writeHeaders(dir) {
+  writeFileSync(join(dir, "_headers"), HEADERS);
 }
