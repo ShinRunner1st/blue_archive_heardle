@@ -251,3 +251,19 @@ export const Swatch = styled.span<{ $tone: DayTone }>`
   background-color: ${({ theme, $tone }) => fill(theme, $tone)};
   border-radius: 3px;
 `;
+
+/** One time attack run in the recent list: how it was played, and its score. */
+export const RunRow = styled.div`
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+
+  width: 100%;
+  font-size: 0.85rem;
+`;
+
+export const RunScore = styled.span`
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+`;

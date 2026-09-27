@@ -19,6 +19,11 @@ export const PLAY_STYLES: Array<{
     label: "4-Choice",
     hint: "A short clip and one pick from four answers",
   },
+  {
+    mode: "timeattack",
+    label: "Time Attack",
+    hint: "As many songs as you can in three minutes",
+  },
 ];
 
 /**

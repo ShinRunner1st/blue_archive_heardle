@@ -4,7 +4,7 @@ import { Button } from "../Button";
 import { PopUp, PopUpBody, PopUpGroupLabel, PopUpSpacer } from "../PopUp";
 import { songs } from "../../constants";
 import { SITE_URL } from "../../constants/game";
-import { GameMode } from "../../types/mode";
+import { RoundMode } from "../../types/mode";
 import { StatsTally } from "../../types/stats";
 import { Streaks } from "../../helpers/streaks";
 import { DayOutcome } from "../../helpers/dailyCalendar";
@@ -25,7 +25,7 @@ interface Props {
   onClose: () => void;
   score: string;
   stats: StatsTally;
-  mode: GameMode;
+  mode: RoundMode;
   streaks: Streaks;
   /** How each daily puzzle went, for the calendar. */
   dailyResults: Map<number, DayOutcome>;
@@ -33,14 +33,14 @@ interface Props {
   recap: RecapStats;
 }
 
-const NOUNS: Record<GameMode, string> = {
+const NOUNS: Record<RoundMode, string> = {
   daily: "daily puzzle",
   endless: "endless round",
   choice: "four-choice round",
 };
 
 /** Each mode keeps its own history, so the pop-up says which one it is showing. */
-function subtitleFor(mode: GameMode, total: number): string {
+function subtitleFor(mode: RoundMode, total: number): string {
   if (total === 0) {
     return mode === "daily"
       ? "Finish today's puzzle and your history shows up here."

@@ -22,7 +22,8 @@ name, when it's built.
    Worker._ After 2026-12-10, the old-domain cleanup in "Dates to remember" in
    `CLAUDE.md` can ride along.
 3. **Group 3: new ways to play the OST.** Jukebox, then four-choice answers,
-   then time attack (it uses four-choice).
+   then time attack (it uses four-choice). _Built on `feat/ost-modes`
+   (stacked on Group 2), not merged yet._
 4. **Group 4: storage.** The user checks the Worker's file limit and makes an R2
    bucket on our own domain; then copy the OST to R2 and fall back to it.
 5. **Group 5: Badle.** Data script, then the icon sprite sheet, then Gameplay
@@ -73,36 +74,18 @@ until released. Each new mode's rounds go into the save file too
 
 ## Phase 2: new ways to play the OST
 
-6. **Jukebox.**
-   - Opens only from the result screen, never while a round or a time attack
-     run is going, and closes when the next round starts, so it can't be used
-     to check the clip while guessing. Players can still look songs up
-     elsewhere; this only keeps the game itself from being the shortcut.
-   - Lists every song, grouped or sorted by OST volume, with an "Other" group
-     for songs not on Vol.1-8. Every song can be played.
-   - Songs guessed right in any mode stand out (brighter); the rest are dimmed.
-     Never mark missed songs apart from songs not played yet: that would show
-     what's left in the endless bag. The bright songs still hint a little: in
-     the first endless cycle, a song guessed right there won't come up again
-     until the cycle ends. Players could track that themselves anyway.
-   - Plays full songs with the result screen's player. Each song downloads
-     once; the Worker already sends a one-year cache header, so replays need no
-     request.
-7. **Four-choice answers**, in endless and time attack only (never daily).
-   - One try per song, with a short clip of about 1-3 seconds.
-   - Its own stats and win streak. Streak places work; no badges are earned.
-   - The wrong choices should sound close: same artist or nearby theme
-     numbers. Four random songs are too easy.
-8. **Time attack**: as many songs as possible in 3 minutes.
-   - One try per song. Before starting, the player picks the clip length,
-     random start on or off, and typed or four-choice answers.
-   - Random start stays inside the 16-second clip: that keeps the single-clip
-     rule, and full songs are too big to wait for.
-   - The next song loads during the current one; the timer pauses while a song
-     loads.
-   - Streak places: the background moves up as the run's score grows and goes
-     back to the start for each new run.
-   - Its own stats. No badges, and the start screen says so.
+All of Phase 2 (6 to 8: Jukebox, four-choice answers, time attack) is built,
+on the branch `feat/ost-modes` until released. What was agreed is now in
+"What the game has" in `CLAUDE.md`. Choices made while building it:
+
+- The header keeps Daily and Endless; a switch above the game picks Classic,
+  4-Choice or Time Attack, since more buttons don't fit beside the logo on a
+  phone.
+- 4-Choice plays 3 seconds (`CHOICE_CLIP_SECONDS`). Time attack offers 1, 2, 4
+  or 7 seconds.
+- The song record on the result card stays with Daily and Classic: it counts
+  tries.
+- Time attack has no share picture or recap picture yet, only share text.
 
 ## Timed: seasonal touches
 

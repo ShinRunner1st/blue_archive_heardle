@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { sharePicture } from "../../helpers/picture/share";
 import { StatsPopUp } from "./index";
 import { createHarness } from "../../test/harness";
-import { GameMode } from "../../types/mode";
+import { RoundMode } from "../../types/mode";
 import { StatsTally } from "../../types/stats";
 
 let harness: ReturnType<typeof createHarness>;
@@ -31,7 +31,7 @@ vi.mock("../../helpers/picture/share", () => ({
   sharePicture: vi.fn(() => Promise.resolve("shared")),
 }));
 
-function mount(mode: GameMode = "endless", tally: StatsTally = stats) {
+function mount(mode: RoundMode = "endless", tally: StatsTally = stats) {
   harness.render(
     React.createElement(StatsPopUp, {
       onClose,

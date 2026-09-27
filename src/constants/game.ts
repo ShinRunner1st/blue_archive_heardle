@@ -16,6 +16,15 @@ export const DAILY_STORAGE_KEY = "stats.daily";
 /** localStorage key holding the array of four-choice rounds. */
 export const CHOICE_STORAGE_KEY = "stats.choice";
 
+/** localStorage key holding the songs answered in time attack runs. */
+export const TIME_ATTACK_STORAGE_KEY = "stats.timeattack";
+
+/**
+ * localStorage key holding the time attack settings picked last, so the
+ * start screen offers them again.
+ */
+export const TIME_ATTACK_SETTINGS_KEY = "timeAttack";
+
 /**
  * How much of the clip a four-choice round plays, in seconds. One try only,
  * so a little more than the first try of six, and the four answers are picked

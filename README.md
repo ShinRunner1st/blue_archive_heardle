@@ -23,9 +23,23 @@ answer's, and turns orange when it is within 10.
 - **Daily** - one track a day, the same for everyone. Keeps a streak and
   shares a spoiler-free result.
 - **Endless** - as many rounds as you like. No track repeats until every one
-  has been played.
+  has been played. A switch above the game picks how to play it:
+  - **Classic** - the six tries above.
+  - **4-Choice** - 3 seconds of the clip, then one pick from four answers, with
+    a tap or the keys 1 to 4. The wrong answers are picked to sound close: one
+    by the same composer when there is one, the rest from nearby theme
+    numbers. The four are saved with the round, so a reload deals the same
+    four.
+  - **Time Attack** - as many songs as you can in three minutes, one try each.
+    Pick the clip length (1, 2, 4 or 7 seconds), a random start inside the
+    16-second clip, and typed or four-choice answers. Each clip plays as soon
+    as it loads and the next one loads while it plays; the clock stops while a
+    song loads. A run isn't resumed after a reload: it ends with what was
+    answered, so a reload can't win time back.
 
-Each mode keeps its own score and history, saved in your browser.
+Each mode keeps its own score, streak and history, saved in your browser.
+4-Choice and Time Attack earn no OST badges, since picking from four (or
+naming against the clock) isn't the same test.
 
 ### Finding a song
 
@@ -47,16 +61,24 @@ Each mode keeps its own score and history, saved in your browser.
   for a day not played. It names no songs, so it spoils nothing.
 - **Result screen** - plays the answer from where your clip started, marks
   which part was your clip, and can replay just that part. Under the song it
-  shows your record with it across both modes, such as "Heard 4 times ·
+  shows your record with it in Daily and Classic, such as "Heard 4 times ·
   guessed 3 · best in 2 tries".
+- **Jukebox** - the result screen's Jukebox button (and the end of a Time
+  Attack run) lists every song by OST album, Vol.1 to Vol.8 then Other, and
+  plays any of them in full. Songs guessed right in any mode are bright, the
+  rest dimmed; missed songs look like unplayed ones, so it never shows what is
+  left in the endless bag. It opens only after a round and closes when the
+  next one starts, so it can't be used to check a clip. Starting a song pauses
+  any other playing on the page.
 - **Volume** - set it once; it's remembered. New players start at 20%.
 - **Dark mode** - in the ☰ menu. Follows your device until you pick one.
 - **Blue Archive cursor** - the game's cursor, with its flash on every click
   and trail when you drag. Turn it off in ☰ → Settings to use your own.
 - **Streak places** - every 10 wins in a row moves the background somewhere
   new in Kivotos, by day or by night to match the colour scheme, up to the sky
-  above Kivotos at 100. Each mode keeps its own: endless counts wins in a row,
-  daily counts its day streak. Where the next place is, and when, stays a
+  above Kivotos at 100. Each mode keeps its own: Classic and 4-Choice count
+  wins in a row, daily counts its day streak, and a Time Attack run counts its
+  score, from the library again with each run. Where the next place is, and when, stays a
   surprise until you reach it; a loss sends the background back to the Trinity
   library. The places are listed in `src/constants/streakPlaces.ts`; their
   pictures are the game's scenario backgrounds, blurred and dimmed so the game
@@ -68,7 +90,7 @@ Each mode keeps its own score and history, saved in your browser.
   `src/constants/seasons.ts`; the pictures are served from the Worker (see
   [Pictures on the Worker](#pictures-on-the-worker)).
 - **OST badges** - one for each official soundtrack album, Vol.1 to Vol.8,
-  earned by guessing every song on it at least once, in either mode. The disc
+  earned by guessing every song on it at least once, in Daily or Classic. The disc
   in the header shows each album's progress; the result screen says when a
   round adds to one. The albums' songs are in `src/constants/volumes.ts`, from their
   published tracklists.
@@ -100,7 +122,8 @@ A round can be played start to finish without the mouse.
 | `Space`       | Play or pause the clip, or the answer on the result screen |
 | `↑ ↓`         | Move through search results                                |
 | `Enter`       | Pick a result, submit your guess, then go to the next song |
-| `Shift+Enter` | Skip, or give up on the last try                           |
+| `Shift+Enter` | Skip, give up on the last try, or pass in Time Attack      |
+| `1–4`         | Pick an answer in 4-Choice                                 |
 | `Esc`         | Clear the search box, close a pop-up                       |
 
 `Space` types a space only while you are typing a name; in an empty search box,
@@ -271,7 +294,8 @@ src/
   constants/    Song list, daily schedule, clip lengths, themes, game settings
   helpers/      Search, stats, song picking, daily puzzle, storage, volume,
                 colour scheme, audio URLs
-  hooks/        useGame (all game state), useVolume, useColorScheme
+  hooks/        useGame (the round-by-round modes), useTimeAttack,
+                useVolume, useColorScheme
   image/        Logo and the day and night backgrounds
 public/spine/   The characters, made by build-spine
   test/         Render harness and shared setup for the tests
@@ -285,8 +309,9 @@ scripts/        build-audio, check-audio, build-pictures, check-pictures,
 docs/           README screenshots
 ```
 
-Game state lives in `useGame`, which keeps both modes and saves each to its
-own `localStorage` key. Everything read back from storage is validated, so a
+Game state lives in `useGame`, which keeps Daily, Classic and 4-Choice and
+saves each to its own `localStorage` key; `useTimeAttack` saves the songs of
+each Time Attack run the same way, tagged with the run. Everything read back from storage is validated, so a
 corrupted or outdated save starts a fresh game instead of breaking the page.
 Save files (`src/helpers/saveFile.ts`) go through the same checks.
 

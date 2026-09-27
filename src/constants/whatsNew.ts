@@ -1,6 +1,9 @@
 import type { IconType } from "react-icons";
 import {
+  IoGrid,
   IoImage,
+  IoRadio,
+  IoStopwatch,
   IoCalendar,
   IoDisc,
   IoKeypad,
@@ -32,6 +35,27 @@ export interface NewsUpdate {
  * below it (see SHOWN_UPDATES) for anyone who missed them.
  */
 export const WHATS_NEW: NewsUpdate[] = [
+  {
+    id: "2026-09-ost-modes",
+    name: "New ways to play the OST",
+    items: [
+      {
+        icon: IoGrid,
+        title: "4-Choice",
+        text: "In Endless, switch to 4-Choice: hear 3 seconds, then pick the song from four that sound alike. It has its own stats and streak.",
+      },
+      {
+        icon: IoStopwatch,
+        title: "Time Attack",
+        text: "Name as many songs as you can in three minutes. Pick the clip length, a random start, and typed or four-choice answers. Beat your best in Stats.",
+      },
+      {
+        icon: IoRadio,
+        title: "Jukebox",
+        text: "After a round, open the Jukebox to play any song in full, by OST album. The songs you've guessed stand out.",
+      },
+    ],
+  },
   {
     id: "2026-09-save-file",
     name: "Share, save and look back",

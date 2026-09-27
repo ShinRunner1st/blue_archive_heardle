@@ -47,6 +47,7 @@ describe("save files", () => {
           daily: [round({ day: 1 }), round({ day: 2 })],
           endless: [round()],
           choice: [],
+          timeattack: [],
         },
       },
     });
@@ -94,7 +95,12 @@ describe("save files", () => {
       ok: true,
       save: {
         exported: "",
-        rounds: { daily: [round()], endless: [], choice: [] },
+        rounds: {
+          daily: [round()],
+          endless: [],
+          choice: [],
+          timeattack: [],
+        },
       },
     });
 

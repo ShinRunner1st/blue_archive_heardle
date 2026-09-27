@@ -32,6 +32,15 @@ interface Props {
   lengths?: number[];
   /** The keyboard hint under the controls, for a round played differently. */
   hint?: React.ReactNode;
+  /**
+   * Where in the clip file to start, in seconds, for time attack's random
+   * start. Without it the clip plays from the top.
+   */
+  offset?: number;
+  /** Plays as soon as the clip has loaded, as time attack does. */
+  autoPlay?: boolean;
+  /** Told whenever the player starts loading, is ready, or fails. */
+  onStatusChange?: (status: PlayerStatus) => void;
 }
 
 const POLL_INTERVAL_MS = 250;
@@ -45,6 +54,8 @@ const READY_TIMEOUT_MS = 12_000;
 
 type Status = "loading" | "ready" | "blocked" | "timedout";
 
+export type PlayerStatus = Status;
+
 export function Player({
   themeNo,
   currentTry,
@@ -55,6 +66,9 @@ export function Player({
   onSkipTrack,
   lengths = playTimes,
   hint,
+  offset,
+  autoPlay = false,
+  onStatusChange,
 }: Props) {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
@@ -114,7 +128,7 @@ export function Player({
     return () => window.clearInterval(interval);
   }, [play]);
 
-  const clipStart = startTime ?? 0;
+  const clipStart = offset ?? startTime ?? 0;
 
   const pausePlayback = React.useCallback(() => {
     const audio = audioRef.current;
@@ -170,18 +184,28 @@ export function Player({
     (event: React.SyntheticEvent<HTMLAudioElement>) => {
       const audio = event.currentTarget;
 
-      // The file is only the round's clip, cut at a fixed point in the song
-      // (see scripts/build-audio.mjs), so it always plays from the top. A
-      // round saved before clips existed holds a point in the whole song
-      // instead, and starts over at the top of the clip.
-      if (startTime !== 0) setStartTime(0);
-      audio.currentTime = 0;
+      if (offset !== undefined) {
+        audio.currentTime = offset;
+        setCurrentTime(offset);
+      } else {
+        // The file is only the round's clip, cut at a fixed point in the song
+        // (see scripts/build-audio.mjs), so it always plays from the top. A
+        // round saved before clips existed holds a point in the whole song
+        // instead, and starts over at the top of the clip.
+        if (startTime !== 0) setStartTime(0);
+        audio.currentTime = 0;
+        setCurrentTime(0);
+      }
 
-      setCurrentTime(0);
       setStatus("ready");
+      if (autoPlay) startPlayback();
     },
-    [startTime, setStartTime]
+    [offset, startTime, setStartTime, autoPlay, startPlayback]
   );
+
+  React.useEffect(() => {
+    onStatusChange?.(status);
+  }, [status, onStatusChange]);
 
   const handleError = React.useCallback(() => {
     // Unlike a timeout, this is the file itself failing - missing, or in a

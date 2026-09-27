@@ -6,6 +6,7 @@ import {
   MAX_TRIES,
   MODE_KEY,
   STORAGE_KEY,
+  TIME_ATTACK_STORAGE_KEY,
   VOLUME_KEY,
   COLOR_SCHEME_KEY,
   CUSTOM_CURSOR_KEY,
@@ -25,6 +26,7 @@ const ROUNDS_KEYS: Record<GameMode, string> = {
   daily: DAILY_STORAGE_KEY,
   endless: STORAGE_KEY,
   choice: CHOICE_STORAGE_KEY,
+  timeattack: TIME_ATTACK_STORAGE_KEY,
 };
 
 function keyFor(mode: GameMode): string {
@@ -137,6 +139,11 @@ function toRound(value: unknown): Round | null {
       ? round.clip
       : undefined;
 
+  const run =
+    typeof round.run === "number" && Number.isFinite(round.run)
+      ? round.run
+      : undefined;
+
   const day =
     typeof round.day === "number" && Number.isFinite(round.day)
       ? Math.trunc(round.day)
@@ -155,6 +162,7 @@ function toRound(value: unknown): Round | null {
     ...(tries === undefined ? {} : { tries }),
     ...(choices === undefined ? {} : { choices }),
     ...(clip === undefined ? {} : { clip }),
+    ...(run === undefined ? {} : { run }),
   };
 }
 

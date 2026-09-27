@@ -30,6 +30,11 @@ export type Round = {
   choices?: string[];
   /** Seconds of the clip a round with one try plays; six tries use playTimes. */
   clip?: number;
+  /**
+   * Which time attack run the round was part of: the time the run started,
+   * in milliseconds. The rounds of a run are its score.
+   */
+  run?: number;
 };
 
 /** Index 0 holds losses, 1-6 hold wins by try count, 7 holds the round total. */

@@ -48,9 +48,12 @@ What the project cares about:
   live in `pictures/<folder>/`; `npm run build:pictures` copies them into
   `audio-dist/pictures/` with fingerprinted names (`src/constants/pictureFiles.ts`).
   `scripts/make-backdrop.mjs` makes a backdrop from a game scenario background.
-- **Game state** lives in `src/hooks/useGame.ts`; each mode saves to its own
+- **Game state** lives in `src/hooks/useGame.ts` (daily, classic endless,
+  4-choice) and `src/hooks/useTimeAttack.ts`; each mode saves to its own
   localStorage key (`src/helpers/storage.ts`, scrambled by `obscure.ts`,
-  validated on load so a bad save never breaks the page).
+  validated on load so a bad save never breaks the page). `GameMode` in
+  `src/types/mode.ts` lists the modes; the header shows Daily/Endless and a
+  switch above the game picks Classic, 4-Choice or Time Attack.
 - **Daily** song comes from `src/constants/dailyOrder.ts` (only ever appended
   to) and the day number from `src/helpers/daily.ts` (`DAILY_EPOCH`).
 - **Characters** are Spine 4.2 skeletons in `public/spine/`, drawn by
@@ -66,6 +69,21 @@ What the project cares about:
 - **Daily** (same song for everyone, streak, spoiler-free share text, a
   calendar in stats coloured by how each day went) and
   **endless** (no repeats until every song is played). Separate stats each.
+- **4-Choice** (in Endless): a 3-second clip and one pick from four answers
+  that sound close (same composer or nearby theme numbers,
+  `src/helpers/choices.ts`), saved with the round. Own bag, stats and win
+  streak; no badges, no song record.
+- **Time Attack** (in Endless): as many songs as possible in 3 minutes, one
+  try each; the player picks clip length, random start (inside the 16-second
+  clip) and typed or four-choice answers. The next clip loads during the
+  current one and the clock stops while a song loads. Each answered song is
+  saved tagged with its run; a run isn't resumed after a reload. Stats are
+  per run (best typed and 4-choice). The background moves with the run's
+  score. No badges.
+- **Jukebox**: from a result screen (or the end of a run) only, closed when
+  the next round starts. Every song by OST album plus Other, played in full;
+  songs guessed right in any mode are bright. Playing any audio pauses the
+  rest (`src/helpers/onePlayer.ts`).
 - **Search** by name, artist or theme number; **All OST** list with artist
   filters.
 - **Result screen**: now-playing card, plays the answer from the clip's start,

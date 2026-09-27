@@ -22,11 +22,11 @@ import {
   loadRounds,
   saveRounds,
 } from "../helpers/storage";
-import { BADGE_MODES, GAME_MODES, GameMode } from "../types/mode";
+import { BADGE_MODES, ROUND_MODES, RoundMode } from "../types/mode";
 import { Round } from "../types/stats";
 import { Song } from "../types/song";
 
-type Histories = Record<GameMode, Round[]>;
+type Histories = Record<RoundMode, Round[]>;
 
 function newRound(solution: Song, day?: number): Round {
   return {
@@ -43,7 +43,7 @@ function newRound(solution: Song, day?: number): Round {
  * The next round for a mode that deals from a bag: endless, or four-choice
  * with its four answers drawn up now and saved with it.
  */
-function createRound(mode: GameMode, playedRounds: Round[]): Round {
+function createRound(mode: RoundMode, playedRounds: Round[]): Round {
   const solution = pickSong(playedRounds);
   if (mode !== "choice") return newRound(solution);
 
@@ -60,7 +60,7 @@ function createRound(mode: GameMode, playedRounds: Round[]): Round {
  * resumed, otherwise a new one is dealt. A four-choice round that lost its
  * choices to a damaged save can't be played, so it is dealt again.
  */
-function resumeOrDeal(mode: GameMode, stored: Round[]): Round[] {
+function resumeOrDeal(mode: RoundMode, stored: Round[]): Round[] {
   const last = stored[stored.length - 1];
   if (!last || isFinished(last)) {
     return [...stored, createRound(mode, stored)];
@@ -101,7 +101,7 @@ function initialHistories(): Histories {
 /** Every mode's rounds in one list, or only the modes given. */
 function allRounds(
   histories: Histories,
-  modes: GameMode[] = GAME_MODES
+  modes: RoundMode[] = ROUND_MODES
 ): Round[] {
   return modes.flatMap((mode) => histories[mode]);
 }
@@ -112,7 +112,7 @@ function allRounds(
  * own localStorage key by its own effect, so persistence can't drift out of
  * sync with what is on screen.
  */
-export function useGame(mode: GameMode) {
+export function useGame(mode: RoundMode) {
   const [histories, setHistories] = React.useState<Histories>(initialHistories);
 
   React.useEffect(() => {

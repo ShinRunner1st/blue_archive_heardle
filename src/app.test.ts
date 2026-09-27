@@ -147,6 +147,30 @@ describe("App mode switch", () => {
     expect(modeButton("4-Choice")?.getAttribute("aria-pressed")).toBe("true");
   });
 
+  it("ends a time attack run when the player leaves for another mode", () => {
+    localStorage.setItem("whatsNew", LATEST_UPDATE_ID);
+    mount();
+    act(() => {
+      modeButton("Endless")!.click();
+    });
+    act(() => {
+      modeButton("Time Attack")!.click();
+    });
+    act(() => {
+      modeButton("Start")!.click();
+    });
+    expect(container.querySelector('[role="timer"]')).not.toBeNull();
+
+    act(() => {
+      modeButton("Classic")!.click();
+    });
+    act(() => {
+      modeButton("Time Attack")!.click();
+    });
+
+    expect(container.textContent).toContain("Time's up, Sensei!");
+  });
+
   it("keeps each mode's history in its own place", () => {
     mount();
 

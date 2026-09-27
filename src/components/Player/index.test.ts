@@ -175,6 +175,57 @@ describe("Player", () => {
     expect(setStartTime).not.toHaveBeenCalled();
   });
 
+  it("starts from a time attack offset, plays at once, and says when it's ready", () => {
+    const statuses: string[] = [];
+    harness.render(
+      React.createElement(Player, {
+        themeNo: "1",
+        currentTry: 0,
+        setStartTime,
+        startTime: 5.5,
+        offset: 5.5,
+        inputRef: React.createRef<HTMLInputElement>(),
+        keyboardEnabled: true,
+        lengths: [2000],
+        autoPlay: true,
+        onStatusChange: (status) => statuses.push(status),
+      })
+    );
+    expect(statuses).toEqual(["loading"]);
+
+    fire("loadedmetadata");
+
+    expect(seeks).toContain(5.5);
+    expect(setStartTime).not.toHaveBeenCalled();
+    expect(play).toHaveBeenCalled();
+    expect(statuses).toEqual(["loading", "ready"]);
+  });
+
+  it("stops a time attack clip after its own length, from its offset", () => {
+    harness.render(
+      React.createElement(Player, {
+        themeNo: "1",
+        currentTry: 0,
+        setStartTime,
+        startTime: 5,
+        offset: 5,
+        inputRef: React.createRef<HTMLInputElement>(),
+        keyboardEnabled: true,
+        lengths: [2000],
+        autoPlay: true,
+      })
+    );
+    fire("loadedmetadata");
+    pause.mockClear();
+
+    advancePlayback(1);
+    expect(pause).not.toHaveBeenCalled();
+
+    advancePlayback(1.2);
+    expect(pause).toHaveBeenCalled();
+    expect(media.now).toBe(5);
+  });
+
   it("starts a round saved before clips existed at the top of the clip", () => {
     mount(42);
 

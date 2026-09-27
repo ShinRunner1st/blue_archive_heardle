@@ -1,4 +1,9 @@
-import { IoCalendarNumber, IoGrid, IoInfinite } from "react-icons/io5";
+import {
+  IoCalendarNumber,
+  IoGrid,
+  IoInfinite,
+  IoStopwatch,
+} from "react-icons/io5";
 
 import { CHOICE_CLIP_SECONDS } from "../../constants/game";
 
@@ -36,7 +41,7 @@ const SHORTCUTS: Array<[string, string]> = [
   ["Space", "Play or pause the clip, or the answer"],
   ["↑ ↓", "Move through search results"],
   ["Enter", "Pick a result, submit it, then go to the next song"],
-  ["Shift+Enter", "Skip, or give up on the last try"],
+  ["Shift+Enter", "Skip, give up on the last try, or pass in Time Attack"],
   ["1–4", "Pick an answer in 4-Choice"],
   ["Esc", "Clear the search box"],
 ];
@@ -100,6 +105,18 @@ export function HowToPopUp({ onClose }: Props) {
             <PopUpCardText>
               In Endless: hear {CHOICE_CLIP_SECONDS} seconds, then pick the song
               from four that sound alike. One try, its own streak, no badges.
+            </PopUpCardText>
+          </PopUpCardBody>
+        </PopUpCard>
+        <PopUpCard>
+          <PopUpCardIcon>
+            <IoStopwatch aria-hidden="true" />
+          </PopUpCardIcon>
+          <PopUpCardBody>
+            <PopUpCardTitle>Time Attack</PopUpCardTitle>
+            <PopUpCardText>
+              In Endless: name as many songs as you can in three minutes, typed
+              or from four. Pick the clip length first. No badges.
             </PopUpCardText>
           </PopUpCardBody>
         </PopUpCard>

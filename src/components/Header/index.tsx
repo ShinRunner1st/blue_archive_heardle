@@ -42,7 +42,11 @@ export function Header({
 }: Props) {
   const showStreak = streak > 0;
   const streakLabel =
-    mode === "daily" ? `${streak} day streak` : `${streak} wins in a row`;
+    mode === "daily"
+      ? `${streak} day streak`
+      : mode === "timeattack"
+      ? `${streak} right this run`
+      : `${streak} wins in a row`;
 
   return (
     <Styled.Container>

@@ -7,7 +7,7 @@ import { MAX_TRIES, STORAGE_KEY } from "../constants/game";
 import { songs } from "../constants";
 import { dailySong, dayNumber } from "../helpers/daily";
 import { emptyGuesses, loadRounds, saveRounds } from "../helpers/storage";
-import { GameMode } from "../types/mode";
+import { RoundMode } from "../types/mode";
 import { useGame } from "./useGame";
 
 type Game = ReturnType<typeof useGame>;
@@ -15,12 +15,12 @@ type Game = ReturnType<typeof useGame>;
 let harness: ReturnType<typeof createHarness>;
 let game: Game;
 
-function Probe({ mode }: { mode: GameMode }) {
+function Probe({ mode }: { mode: RoundMode }) {
   game = useGame(mode);
   return null;
 }
 
-function render(mode: GameMode = "endless") {
+function render(mode: RoundMode = "endless") {
   harness.render(React.createElement(Probe, { mode }));
 }
 

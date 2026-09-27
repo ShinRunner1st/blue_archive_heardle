@@ -4,6 +4,8 @@ import { GameMode, isEndlessStyle } from "./types/mode";
 import { Song } from "./types/song";
 
 import { useGame } from "./hooks/useGame";
+import { useTimeAttack } from "./hooks/useTimeAttack";
+import { runsOf } from "./helpers/timeAttack";
 import { LATEST_UPDATE_ID } from "./constants/whatsNew";
 import { placeFor } from "./helpers/winStreak";
 import {
@@ -31,11 +33,14 @@ import {
   JukeboxPopUp,
 } from "./components";
 import { PlayStyles } from "./components/PlayStyles";
+import { TimeAttack } from "./components/TimeAttack";
+import { TimeAttackStats } from "./components/StatsPopUp/TimeAttackStats";
 
 import * as Styled from "./app.styled";
 
 function App() {
   const [mode, setMode] = React.useState<GameMode>(loadMode);
+  const isTimeAttack = mode === "timeattack";
 
   const {
     solution,
@@ -64,12 +69,24 @@ function App() {
     replaceCurrentSong,
     resetScore,
     refreshDay,
-  } = useGame(mode);
+    // Time attack runs its own songs (see useTimeAttack); this side of the
+    // game stays on Endless behind it, unseen.
+  } = useGame(isTimeAttack ? "endless" : mode);
+
+  const timeAttack = useTimeAttack();
+  const { finish: finishRun } = timeAttack;
+
+  // Leaving time attack for another mode ends the run there and then.
+  React.useEffect(() => {
+    if (!isTimeAttack) finishRun();
+  }, [isTimeAttack, finishRun]);
 
   const [selectedSong, setSelectedSong] = React.useState<Song>();
 
-  // The mode's own run: it sets the background and the header's count.
+  // The mode's own run: it sets the background and the header's count. In
+  // time attack that is the run's score, from zero again with each run.
   const streak = mode === "daily" ? dayStreak : winStreak;
+  const run = isTimeAttack ? timeAttack.score : streak.current;
 
   // The way to play Endless picked last, which the header's Endless button
   // goes back to.
@@ -159,8 +176,30 @@ function App() {
   const openJukebox = React.useCallback(() => setIsJukeboxOpen(true), []);
   const closeJukebox = React.useCallback(() => setIsJukeboxOpen(false), []);
 
-  // Changes when a new round starts, in any mode.
-  const roundKey = `${mode}:${round.day ?? ""}:${solution.themeNo}`;
+  // Changes when a new round starts, in any mode: in time attack, with each
+  // song answered.
+  const taRun = timeAttack.run;
+  const roundKey = isTimeAttack
+    ? `${mode}:${taRun?.id ?? ""}:${taRun?.rounds.length ?? 0}`
+    : `${mode}:${round.day ?? ""}:${solution.themeNo}`;
+
+  // What the character reacts to: the round being played, or in time attack
+  // the last song answered.
+  const lastAnswered = taRun?.rounds[taRun.rounds.length - 1];
+  const reactTo = isTimeAttack
+    ? lastAnswered ?? { guesses: [], currentTry: 0, didGuess: false }
+    : round;
+
+  // Songs guessed right in any mode, time attack included.
+  const jukeboxGuessed = React.useMemo(
+    () => new Set([...guessedEver, ...timeAttack.guessed]),
+    [guessedEver, timeAttack.guessed]
+  );
+
+  const timeAttackRuns = React.useMemo(
+    () => runsOf(timeAttack.history),
+    [timeAttack.history]
+  );
 
   // The Jukebox belongs to the result screen: a new round closes it, so it
   // can never be open while a clip is being guessed.
@@ -217,7 +256,7 @@ function App() {
 
   return (
     <Styled.BG>
-      <Backdrop place={placeFor(streak.current)} />
+      <Backdrop place={placeFor(run)} />
       <Header
         openInfoPopUp={openInfoPopUp}
         openStatsPopUp={openStatsPopUp}
@@ -227,9 +266,16 @@ function App() {
         openWhatsNewPopUp={openWhatsNew}
         mode={mode}
         onModeChange={changeMode}
-        streak={streak.current}
+        streak={run}
       />
-      {isStatsPopUpOpen && (
+      {isStatsPopUpOpen && isTimeAttack && (
+        <TimeAttackStats
+          onClose={closeStatsPopUp}
+          stats={timeAttack.stats}
+          runs={timeAttackRuns}
+        />
+      )}
+      {isStatsPopUpOpen && !isTimeAttack && (
         <StatsPopUp
           onClose={closeStatsPopUp}
           score={score}
@@ -243,8 +289,8 @@ function App() {
       {isInfoPopUpOpen && (
         <InfoPopUp
           onClose={closeInfoPopUp}
-          canReset={hasHistory}
-          onReset={resetScore}
+          canReset={isTimeAttack ? timeAttack.stats.runs > 0 : hasHistory}
+          onReset={isTimeAttack ? timeAttack.resetHistory : resetScore}
           mode={mode}
         />
       )}
@@ -253,7 +299,7 @@ function App() {
       {isBadgesOpen && <BadgesPopUp onClose={closeBadges} badges={badges} />}
       {isWhatsNewOpen && <WhatsNewPopUp onClose={closeWhatsNew} />}
       {isJukeboxOpen && (
-        <JukeboxPopUp onClose={closeJukebox} guessed={guessedEver} />
+        <JukeboxPopUp onClose={closeJukebox} guessed={jukeboxGuessed} />
       )}
       {isSongListOpen && (
         <SongListPopUp
@@ -267,45 +313,53 @@ function App() {
         {isEndlessStyle(mode) && (
           <PlayStyles mode={mode} onChange={changeStyle} />
         )}
-        <Game
-          // Remounting on a mode change clears the search box and the player,
-          // which otherwise carry the old mode's round over.
-          key={mode}
-          guesses={guesses}
-          didGuess={didGuess}
-          solution={solution}
-          currentTry={currentTry}
-          selectedSong={selectedSong}
-          setSelectedSong={setSelectedSong}
-          skip={skip}
-          guess={submitGuess}
-          pick={guess}
-          score={score}
-          bagEmpty={bagEmpty}
-          onNextSong={nextSong}
-          onResetScore={resetScore}
-          setStartTime={setStartTime}
-          startTime={startTime}
-          keyboardEnabled={!isPopUpOpen}
-          mode={mode}
-          round={round}
-          onNewDay={refreshDay}
-          // Daily is the same puzzle for everyone, so a bad track there cannot
-          // be swapped out - only the bag modes can deal a replacement.
-          onSkipTrack={mode === "daily" ? undefined : replaceCurrentSong}
-          onBrowseSongs={openSongList}
-          streak={streak}
-          badgeLines={badgeLines}
-          record={record}
-          onOpenJukebox={openJukebox}
-        />
+        {isTimeAttack ? (
+          <TimeAttack
+            timeAttack={timeAttack}
+            keyboardEnabled={!isPopUpOpen}
+            onOpenJukebox={openJukebox}
+          />
+        ) : (
+          <Game
+            // Remounting on a mode change clears the search box and the player,
+            // which otherwise carry the old mode's round over.
+            key={mode}
+            guesses={guesses}
+            didGuess={didGuess}
+            solution={solution}
+            currentTry={currentTry}
+            selectedSong={selectedSong}
+            setSelectedSong={setSelectedSong}
+            skip={skip}
+            guess={submitGuess}
+            pick={guess}
+            score={score}
+            bagEmpty={bagEmpty}
+            onNextSong={nextSong}
+            onResetScore={resetScore}
+            setStartTime={setStartTime}
+            startTime={startTime}
+            keyboardEnabled={!isPopUpOpen}
+            mode={mode}
+            round={round}
+            onNewDay={refreshDay}
+            // Daily is the same puzzle for everyone, so a bad track there cannot
+            // be swapped out - only the bag modes can deal a replacement.
+            onSkipTrack={mode === "daily" ? undefined : replaceCurrentSong}
+            onBrowseSongs={openSongList}
+            streak={streak}
+            badgeLines={badgeLines}
+            record={record}
+            onOpenJukebox={openJukebox}
+          />
+        )}
       </Styled.Container>
       <Character
-        guesses={guesses}
-        currentTry={currentTry}
-        didGuess={didGuess}
+        guesses={reactTo.guesses}
+        currentTry={reactTo.currentTry}
+        didGuess={reactTo.didGuess}
         roundKey={roundKey}
-        tries={round.tries}
+        tries={isTimeAttack ? 1 : round.tries}
       />
       <Footer />
     </Styled.BG>

@@ -8,6 +8,7 @@ import {
   IoCafe,
   IoShieldCheckmark,
   IoHeart,
+  IoStopwatch,
 } from "react-icons/io5";
 
 import { Button } from "../Button";
@@ -78,7 +79,20 @@ export function InfoPopUp({ onClose, canReset, onReset, mode }: Props) {
       }
     >
       <PopUpBody>
-        {mode === "choice" ? (
+        {mode === "timeattack" ? (
+          <PopUpCard>
+            <PopUpCardIcon>
+              <IoStopwatch aria-hidden="true" />
+            </PopUpCardIcon>
+            <PopUpCardBody>
+              <PopUpCardTitle>Three minutes, go</PopUpCardTitle>
+              <PopUpCardText>
+                Name as many songs as you can, one try each. The clock stops
+                while a song loads.
+              </PopUpCardText>
+            </PopUpCardBody>
+          </PopUpCard>
+        ) : mode === "choice" ? (
           <PopUpCard>
             <PopUpCardIcon>
               <IoGrid aria-hidden="true" />
