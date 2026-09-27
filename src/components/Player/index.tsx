@@ -25,10 +25,16 @@ interface Props {
    * an unplayable one cannot be swapped out without breaking the shared puzzle.
    */
   onSkipTrack?: () => void;
+  /**
+   * How long the clip plays on each try, in milliseconds. Six tries by
+   * default; a four-choice round has one.
+   */
+  lengths?: number[];
+  /** The keyboard hint under the controls, for a round played differently. */
+  hint?: React.ReactNode;
 }
 
 const POLL_INTERVAL_MS = 250;
-const LONGEST_CLIP_SECONDS = playTimes[playTimes.length - 1] / 1000;
 
 /**
  * How long to wait for the file's metadata before assuming it is never coming.
@@ -47,6 +53,8 @@ export function Player({
   inputRef,
   keyboardEnabled,
   onSkipTrack,
+  lengths = playTimes,
+  hint,
 }: Props) {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
@@ -59,8 +67,8 @@ export function Player({
   const isReady = status === "ready";
   const hasFailed = status === "blocked" || status === "timedout";
 
-  const currentPlayTime =
-    playTimes[currentTry] ?? playTimes[playTimes.length - 1];
+  const longestClipSeconds = lengths[lengths.length - 1] / 1000;
+  const currentPlayTime = lengths[currentTry] ?? lengths[lengths.length - 1];
 
   /**
    * A new song, or a retry, starts the wait over. This runs during render
@@ -229,23 +237,23 @@ export function Player({
           <Styled.ProgressBackground>
             <Styled.Progress
               $value={Math.max(currentTime - clipStart, 0)}
-              $max={LONGEST_CLIP_SECONDS}
+              $max={longestClipSeconds}
             />
-            {playTimes.map((playTime) => (
+            {lengths.map((playTime) => (
               <Styled.Separator
                 style={{
-                  left: `${(playTime / 1000 / LONGEST_CLIP_SECONDS) * 100}%`,
+                  left: `${(playTime / 1000 / longestClipSeconds) * 100}%`,
                 }}
                 key={playTime}
               />
             ))}
           </Styled.ProgressBackground>
           <Styled.TimeStamps>
-            {playTimes.map((playTime) => (
+            {lengths.map((playTime) => (
               <Styled.TimeStamp
                 key={playTime}
                 style={{
-                  left: `${(playTime / 1000 / LONGEST_CLIP_SECONDS) * 100}%`,
+                  left: `${(playTime / 1000 / longestClipSeconds) * 100}%`,
                 }}
               >
                 {playTime / 1000}s
@@ -269,8 +277,12 @@ export function Player({
             </Styled.VolumeSlot>
           </Styled.TransportRow>
           <Styled.Hint>
-            <kbd>Space</kbd> play · <kbd>Shift</kbd>+<kbd>Enter</kbd> skip ·
-            just type to search
+            {hint ?? (
+              <>
+                <kbd>Space</kbd> play · <kbd>Shift</kbd>+<kbd>Enter</kbd> skip ·
+                just type to search
+              </>
+            )}
           </Styled.Hint>
         </>
       )}

@@ -19,11 +19,11 @@ import {
 export interface RecapStats {
   mode: GameMode;
   tally: StatsTally;
-  /** The mode's run now: daily's day streak, or endless wins in a row. */
+  /** The mode's run now: daily's day streak, or wins in a row. */
   current: number;
   /** The longest that run has been. */
   best: number;
-  /** Songs guessed right at least once, in any mode. */
+  /** Songs guessed right at least once, in the modes that earn badges. */
   songsGuessed: number;
   songsTotal: number;
   badgesEarned: number;
@@ -35,7 +35,7 @@ export interface RecapPictureContent {
   title: string;
   subtitle: string;
   tiles: Array<{ label: string; value: string }>;
-  /** Wins by try count, 1 to 6, then losses. */
+  /** Wins by try count, 1 to 6 (or just wins, for four-choice), then losses. */
   bars: Array<{ label: string; count: number; lost?: boolean }>;
   footer: string;
 }
@@ -53,9 +53,14 @@ export function recapPictureContent(
   const wins = played - tally[0];
   const rate = played > 0 ? Math.round((wins / played) * 100) : 0;
   const isDaily = mode === "daily";
+  const isChoice = mode === "choice";
 
   return {
-    tag: isDaily ? "DAILY RECAP" : "ENDLESS RECAP",
+    tag: isDaily
+      ? "DAILY RECAP"
+      : isChoice
+      ? "4-CHOICE RECAP"
+      : "ENDLESS RECAP",
     title: "Schale activity report",
     subtitle: `As of ${now.toLocaleDateString("en-GB", {
       day: "numeric",
@@ -72,8 +77,9 @@ export function recapPictureContent(
       { label: "Best streak", value: String(stats.best) },
     ],
     bars: [
-      ...[1, 2, 3, 4, 5, 6].map((tries) => ({
-        label: String(tries),
+      // Four-choice has one try: right, or not.
+      ...(isChoice ? [1] : [1, 2, 3, 4, 5, 6]).map((tries) => ({
+        label: isChoice ? "✓" : String(tries),
         count: tally[tries],
       })),
       { label: "X", count: tally[0], lost: true },

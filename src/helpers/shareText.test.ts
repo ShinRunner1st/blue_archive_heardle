@@ -93,6 +93,18 @@ describe("buildShareText", () => {
     expect(text).toContain("Score: 4/7");
   });
 
+  it("shows a four-choice round as one square, with the score", () => {
+    const text = buildShareText({
+      mode: "choice",
+      round: { ...round(["correct"]), tries: 1, choices: ["1", "2", "3", "4"] },
+      score: "7/9",
+    });
+
+    expect(text.split("\n")[0]).toBe("Blue Archive Heardle (4-Choice)");
+    expect(strip(text)).toBe("🔈🟩");
+    expect(text).toContain("Score: 7/9");
+  });
+
   it("never leaks the answer", () => {
     const text = buildShareText({
       mode: "daily",

@@ -110,6 +110,43 @@ describe("App mode switch", () => {
     expect(modeButton("Endless")?.getAttribute("aria-pressed")).toBe("true");
   });
 
+  it("shows the ways to play Endless only in Endless", () => {
+    mount();
+    expect(modeButton("4-Choice")).toBeUndefined();
+
+    act(() => {
+      modeButton("Endless")!.click();
+    });
+
+    expect(modeButton("Classic")?.getAttribute("aria-pressed")).toBe("true");
+    expect(modeButton("4-Choice")?.getAttribute("aria-pressed")).toBe("false");
+  });
+
+  it("plays four-choice, and goes back to it from Daily", () => {
+    localStorage.setItem("whatsNew", LATEST_UPDATE_ID);
+    mount();
+    act(() => {
+      modeButton("Endless")!.click();
+    });
+    act(() => {
+      modeButton("4-Choice")!.click();
+    });
+
+    expect(localStorage.getItem(MODE_KEY)).toBe("choice");
+    expect(container.querySelector('[aria-label="Answers"]')).not.toBeNull();
+    // No search box: the answer is picked from four.
+    expect(container.querySelectorAll("input")).toHaveLength(0);
+
+    act(() => {
+      modeButton("Daily")!.click();
+    });
+    act(() => {
+      modeButton("Endless")!.click();
+    });
+
+    expect(modeButton("4-Choice")?.getAttribute("aria-pressed")).toBe("true");
+  });
+
   it("keeps each mode's history in its own place", () => {
     mount();
 

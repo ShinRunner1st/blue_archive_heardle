@@ -269,6 +269,64 @@ describe("useGame in daily mode", () => {
   });
 });
 
+describe("useGame in four-choice mode", () => {
+  it("deals a round of one try with four answers, the answer among them", () => {
+    render("choice");
+
+    expect(game.round.tries).toBe(1);
+    expect(game.round.choices).toHaveLength(4);
+    expect(game.round.choices).toContain(game.solution.themeNo);
+    expect(loadRounds("choice")).toHaveLength(1);
+    // Its own save: classic endless rounds stay six tries.
+    expect(loadRounds("endless").every((round) => !round.choices)).toBe(true);
+  });
+
+  it("ends the round on the first pick, right or wrong", () => {
+    render("choice");
+
+    act(() => game.guess(aWrongSong()));
+
+    expect(game.currentTry).toBe(1);
+    expect(game.didGuess).toBe(false);
+    expect(game.score).toBe("0/1");
+    expect(game.stats[0]).toBe(1);
+  });
+
+  it("keeps its own win streak and earns no badges", () => {
+    render("choice");
+
+    act(() => game.guess({ ...game.solution }));
+    expect(game.winStreak.current).toBe(1);
+    expect(game.stats[1]).toBe(1);
+    expect(game.badgeLines).toEqual([]);
+    expect(game.badges.every((badge) => badge.found === 0)).toBe(true);
+    // The Jukebox still lights it up.
+    expect(game.guessedEver.has(game.solution.themeNo)).toBe(true);
+  });
+
+  it("keeps the same four answers after a reload", () => {
+    render("choice");
+    const { choices } = game.round;
+
+    harness.unmount();
+    render("choice");
+
+    expect(game.round.choices).toEqual(choices);
+  });
+
+  it("deals the next song with new answers", () => {
+    render("choice");
+    const first = game.solution;
+
+    act(() => game.guess({ ...first }));
+    act(() => game.nextSong());
+
+    expect(game.solution.themeNo).not.toBe(first.themeNo);
+    expect(game.round.choices).toContain(game.solution.themeNo);
+    expect(game.currentTry).toBe(0);
+  });
+});
+
 describe("the song record", () => {
   it("waits for the round to end, then counts the song in every mode", () => {
     const solution = dailySong(dayNumber());

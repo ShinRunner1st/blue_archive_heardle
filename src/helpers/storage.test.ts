@@ -100,6 +100,44 @@ describe("loadRounds", () => {
     expect(loaded.guesses).toHaveLength(6);
   });
 
+  it("keeps a four-choice round's tries, choices and clip", () => {
+    saveRounds([
+      round({
+        tries: 1,
+        currentTry: 1,
+        choices: ["4", "1", "9", "2"],
+        clip: 3,
+      }),
+    ]);
+
+    const [loaded] = loadRounds();
+    expect(loaded.tries).toBe(1);
+    expect(loaded.currentTry).toBe(1);
+    expect(loaded.choices).toEqual(["4", "1", "9", "2"]);
+    expect(loaded.clip).toBe(3);
+  });
+
+  it("drops choices that are damaged or leave the answer out", () => {
+    saveRounds([
+      round({ choices: ["4", "9", "2", "5"] }),
+      round({ choices: ["1", "1", "2", "3"] }),
+      round({ choices: "1,2,3,4" }),
+      round({ tries: 0, clip: -1 }),
+    ]);
+
+    for (const loaded of loadRounds()) {
+      expect(loaded.choices).toBeUndefined();
+      expect(loaded.tries).toBeUndefined();
+      expect(loaded.clip).toBeUndefined();
+    }
+  });
+
+  it("clamps a one-try round's currentTry to its one try", () => {
+    saveRounds([round({ tries: 1, currentTry: 4 })]);
+
+    expect(loadRounds()[0].currentTry).toBe(1);
+  });
+
   it("clamps an out-of-range currentTry", () => {
     localStorage.setItem(
       STORAGE_KEY,

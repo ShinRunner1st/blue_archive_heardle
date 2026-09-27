@@ -44,6 +44,7 @@ describe("the result picture", () => {
       title: "Mission complete, Sensei~",
       subtitle: "Guessed in 3 of 6 tries",
       tries: ["wrong", "skipped", "correct", "unused", "unused", "unused"],
+      tryLabels: ["1s", "2s", "4s", "7s", "11s", "16s"],
       stats: [
         { label: "Tries", value: "3/6" },
         { label: "Day streak", value: "5" },

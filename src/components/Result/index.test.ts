@@ -114,6 +114,60 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
+describe("Result of a four-choice round", () => {
+  const choices = ["2", "1", "3", "4"];
+
+  function choiceRound(pickedTheme: string): Round {
+    const guesses = emptyGuesses();
+    const picked = pickedTheme === "1";
+    guesses[0] = {
+      song: { ...solution, themeNo: pickedTheme },
+      skipped: false,
+      isCorrect: picked,
+    };
+    return {
+      solution,
+      currentTry: 1,
+      didGuess: picked,
+      guesses,
+      startTime: 0,
+      tries: 1,
+      choices,
+      clip: 3,
+    };
+  }
+
+  it("cheers a right pick without counting stars", () => {
+    mount({ round: choiceRound("1"), currentTry: 1, mode: "choice" });
+
+    expect(container.textContent).toContain("Target acquired, Sensei!");
+    expect(container.textContent).toContain("You picked it out of four.");
+  });
+
+  it("shows the four again, with the answer and a wrong pick marked", () => {
+    mount({
+      round: choiceRound("3"),
+      didGuess: false,
+      currentTry: 1,
+      mode: "choice",
+    });
+
+    const answers = container.querySelector('[aria-label="Answers"]');
+    expect(answers?.querySelectorAll("button")).toHaveLength(4);
+    answers?.querySelectorAll("button").forEach((button) => {
+      expect(button.disabled).toBe(true);
+    });
+  });
+
+  it("marks the clip the round played", () => {
+    mount({ round: choiceRound("1"), currentTry: 1, mode: "choice" });
+
+    expect(container.textContent).toContain(
+      `Your clip: ${clock(cut)} – ${clock(cut + 3)}`
+    );
+  });
+});
+
 describe("Result on a win", () => {
   it("names the song and the score", () => {
     mount();

@@ -1,4 +1,6 @@
-import { IoCalendarNumber, IoInfinite } from "react-icons/io5";
+import { IoCalendarNumber, IoGrid, IoInfinite } from "react-icons/io5";
+
+import { CHOICE_CLIP_SECONDS } from "../../constants/game";
 
 import { Button } from "../Button";
 import {
@@ -35,6 +37,7 @@ const SHORTCUTS: Array<[string, string]> = [
   ["↑ ↓", "Move through search results"],
   ["Enter", "Pick a result, submit it, then go to the next song"],
   ["Shift+Enter", "Skip, or give up on the last try"],
+  ["1–4", "Pick an answer in 4-Choice"],
   ["Esc", "Clear the search box"],
 ];
 
@@ -64,7 +67,7 @@ export function HowToPopUp({ onClose }: Props) {
 
         <PopUpSpacer />
 
-        <PopUpGroupLabel>Two ways to play</PopUpGroupLabel>
+        <PopUpGroupLabel>Ways to play</PopUpGroupLabel>
         <PopUpCard>
           <PopUpCardIcon>
             <IoCalendarNumber aria-hidden="true" />
@@ -85,6 +88,18 @@ export function HowToPopUp({ onClose }: Props) {
             <PopUpCardTitle>Endless</PopUpCardTitle>
             <PopUpCardText>
               Play as long as you like. Each mode keeps its own score.
+            </PopUpCardText>
+          </PopUpCardBody>
+        </PopUpCard>
+        <PopUpCard>
+          <PopUpCardIcon>
+            <IoGrid aria-hidden="true" />
+          </PopUpCardIcon>
+          <PopUpCardBody>
+            <PopUpCardTitle>4-Choice</PopUpCardTitle>
+            <PopUpCardText>
+              In Endless: hear {CHOICE_CLIP_SECONDS} seconds, then pick the song
+              from four that sound alike. One try, its own streak, no badges.
             </PopUpCardText>
           </PopUpCardBody>
         </PopUpCard>

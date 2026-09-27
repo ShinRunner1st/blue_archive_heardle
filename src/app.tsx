@@ -1,6 +1,6 @@
 import React from "react";
 
-import { GameMode } from "./types/mode";
+import { GameMode, isEndlessStyle } from "./types/mode";
 import { Song } from "./types/song";
 
 import { useGame } from "./hooks/useGame";
@@ -30,6 +30,7 @@ import {
   WhatsNewPopUp,
   JukeboxPopUp,
 } from "./components";
+import { PlayStyles } from "./components/PlayStyles";
 
 import * as Styled from "./app.styled";
 
@@ -70,9 +71,29 @@ function App() {
   // The mode's own run: it sets the background and the header's count.
   const streak = mode === "daily" ? dayStreak : winStreak;
 
-  const changeMode = React.useCallback((next: GameMode) => {
+  // The way to play Endless picked last, which the header's Endless button
+  // goes back to.
+  const [endlessStyle, setEndlessStyle] = React.useState<GameMode>(() =>
+    isEndlessStyle(mode) ? mode : "endless"
+  );
+
+  const changeMode = React.useCallback(
+    (next: GameMode) => {
+      // The header's Endless button, pressed while already in Endless.
+      if (next === "endless" && isEndlessStyle(mode)) return;
+
+      const target = next === "endless" ? endlessStyle : next;
+      if (isEndlessStyle(target)) setEndlessStyle(target);
+      setMode(target);
+      // A song picked for the old mode's round must not carry over.
+      setSelectedSong(undefined);
+    },
+    [mode, endlessStyle]
+  );
+
+  const changeStyle = React.useCallback((next: GameMode) => {
+    setEndlessStyle(next);
     setMode(next);
-    // A song picked for the old mode's round must not carry over.
     setSelectedSong(undefined);
   }, []);
 
@@ -243,6 +264,9 @@ function App() {
         />
       )}
       <Styled.Container>
+        {isEndlessStyle(mode) && (
+          <PlayStyles mode={mode} onChange={changeStyle} />
+        )}
         <Game
           // Remounting on a mode change clears the search box and the player,
           // which otherwise carry the old mode's round over.
@@ -255,6 +279,7 @@ function App() {
           setSelectedSong={setSelectedSong}
           skip={skip}
           guess={submitGuess}
+          pick={guess}
           score={score}
           bagEmpty={bagEmpty}
           onNextSong={nextSong}
@@ -266,8 +291,8 @@ function App() {
           round={round}
           onNewDay={refreshDay}
           // Daily is the same puzzle for everyone, so a bad track there cannot
-          // be swapped out - only endless can deal a replacement.
-          onSkipTrack={mode === "endless" ? replaceCurrentSong : undefined}
+          // be swapped out - only the bag modes can deal a replacement.
+          onSkipTrack={mode === "daily" ? undefined : replaceCurrentSong}
           onBrowseSongs={openSongList}
           streak={streak}
           badgeLines={badgeLines}
@@ -280,6 +305,7 @@ function App() {
         currentTry={currentTry}
         didGuess={didGuess}
         roundKey={roundKey}
+        tries={round.tries}
       />
       <Footer />
     </Styled.BG>

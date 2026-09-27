@@ -1,6 +1,7 @@
 import React from "react";
 import {
   IoCalendarNumber,
+  IoGrid,
   IoMusicalNotes,
   IoShuffle,
   IoStatsChart,
@@ -20,7 +21,11 @@ import {
   PopUpCardTitle,
   PopUpMeta,
 } from "../PopUp";
-import { KOFI_URL, LAST_UPDATED } from "../../constants/game";
+import {
+  CHOICE_CLIP_SECONDS,
+  KOFI_URL,
+  LAST_UPDATED,
+} from "../../constants/game";
 import { songs } from "../../constants";
 import { artists } from "../../helpers/searchSong";
 import { GameMode } from "../../types/mode";
@@ -73,17 +78,32 @@ export function InfoPopUp({ onClose, canReset, onReset, mode }: Props) {
       }
     >
       <PopUpBody>
-        <PopUpCard>
-          <PopUpCardIcon>
-            <IoMusicalNotes aria-hidden="true" />
-          </PopUpCardIcon>
-          <PopUpCardBody>
-            <PopUpCardTitle>Six tries, one track</PopUpCardTitle>
-            <PopUpCardText>
-              Each skip or wrong guess unlocks a little more of the clip.
-            </PopUpCardText>
-          </PopUpCardBody>
-        </PopUpCard>
+        {mode === "choice" ? (
+          <PopUpCard>
+            <PopUpCardIcon>
+              <IoGrid aria-hidden="true" />
+            </PopUpCardIcon>
+            <PopUpCardBody>
+              <PopUpCardTitle>One pick from four</PopUpCardTitle>
+              <PopUpCardText>
+                Hear {CHOICE_CLIP_SECONDS} seconds, then pick the song from four
+                that sound alike.
+              </PopUpCardText>
+            </PopUpCardBody>
+          </PopUpCard>
+        ) : (
+          <PopUpCard>
+            <PopUpCardIcon>
+              <IoMusicalNotes aria-hidden="true" />
+            </PopUpCardIcon>
+            <PopUpCardBody>
+              <PopUpCardTitle>Six tries, one track</PopUpCardTitle>
+              <PopUpCardText>
+                Each skip or wrong guess unlocks a little more of the clip.
+              </PopUpCardText>
+            </PopUpCardBody>
+          </PopUpCard>
+        )}
 
         <PopUpCard>
           <PopUpCardIcon>

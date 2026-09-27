@@ -12,6 +12,7 @@ import { playTimes } from "../../constants";
 import { LOSS_TEXT, resultTitle } from "../../constants/resultText";
 
 import { Button } from "../Button";
+import { Choices } from "../Choices";
 import { NowPlaying } from "../NowPlaying";
 import { clipInfo } from "../../helpers/audioUrl";
 import {
@@ -154,9 +155,11 @@ export function Result({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [keyboardEnabled, isDaily, advance]);
 
-  // The longest clip heard this round: the one for the final try taken.
+  // The longest clip heard this round: the one for the final try taken, or
+  // the one clip of a round with a single try.
   const lastTry = Math.min(Math.max(currentTry, 1), playTimes.length);
-  const clipLength = playTimes[lastTry - 1] / 1000;
+  const clipLength = round.clip ?? playTimes[lastTry - 1] / 1000;
+  const isChoice = round.choices !== undefined;
 
   const news = streakNews(
     streak,
@@ -166,7 +169,7 @@ export function Result({
   );
 
   const Title = didGuess ? Styled.CorrectResultTitle : Styled.FailResultTitle;
-  const title = resultTitle(didGuess, currentTry);
+  const title = resultTitle(didGuess, currentTry, round.tries);
 
   return (
     <>
@@ -174,9 +177,11 @@ export function Result({
       <Styled.Tries>
         {!isDaily && bagEmpty && "That was the last song. "}
         {didGuess
-          ? `You got it right in ${currentTry} ${
-              currentTry === 1 ? "guess" : "guesses"
-            }.`
+          ? isChoice
+            ? "You picked it out of four."
+            : `You got it right in ${currentTry} ${
+                currentTry === 1 ? "guess" : "guesses"
+              }.`
           : LOSS_TEXT}
       </Styled.Tries>
       <Styled.Score>
@@ -188,6 +193,13 @@ export function Result({
       {badgeLines.map((line) => (
         <Styled.Note key={line}>{line}</Styled.Note>
       ))}
+      {round.choices && (
+        <Choices
+          choices={round.choices}
+          answer={solution.themeNo}
+          picked={round.guesses[0]?.song?.themeNo}
+        />
+      )}
       <NowPlaying
         song={solution}
         // The round's start is within the clip; the song player needs it

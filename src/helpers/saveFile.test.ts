@@ -46,6 +46,7 @@ describe("save files", () => {
         rounds: {
           daily: [round({ day: 1 }), round({ day: 2 })],
           endless: [round()],
+          choice: [],
         },
       },
     });
@@ -91,7 +92,10 @@ describe("save files", () => {
     );
     expect(result).toEqual({
       ok: true,
-      save: { exported: "", rounds: { daily: [round()], endless: [] } },
+      save: {
+        exported: "",
+        rounds: { daily: [round()], endless: [], choice: [] },
+      },
     });
 
     expect(readSaveFile(file({ rounds: { daily: [{}] } }))).toEqual({

@@ -33,6 +33,12 @@ interface Props {
   recap: RecapStats;
 }
 
+const NOUNS: Record<GameMode, string> = {
+  daily: "daily puzzle",
+  endless: "endless round",
+  choice: "four-choice round",
+};
+
 /** Each mode keeps its own history, so the pop-up says which one it is showing. */
 function subtitleFor(mode: GameMode, total: number): string {
   if (total === 0) {
@@ -41,7 +47,7 @@ function subtitleFor(mode: GameMode, total: number): string {
       : "Finish a round and your history shows up here.";
   }
 
-  const noun = mode === "daily" ? "daily puzzle" : "endless round";
+  const noun = NOUNS[mode];
   return `Across ${total} finished ${noun}${total === 1 ? "" : "s"}.`;
 }
 
@@ -123,6 +129,7 @@ export function StatsPopUp({
   }, []);
 
   const total = stats[7];
+  const isChoice = mode === "choice";
 
   // On the backdrop the page is showing, like the result picture.
   const backdrop = useBackdropSrc(recap.current);
@@ -157,12 +164,13 @@ ${SITE_URL}`
       }
     >
       <PopUpBody>
-        <PopUpGroupLabel>Guessed in</PopUpGroupLabel>
+        <PopUpGroupLabel>{isChoice ? "Picked" : "Guessed in"}</PopUpGroupLabel>
         <Styled.Rows>
-          {TRY_BUCKETS.map((tries) => (
+          {/* One try a round in four-choice: right or not. */}
+          {(isChoice ? [1] : TRY_BUCKETS).map((tries) => (
             <StatRow
               key={tries}
-              label={String(tries)}
+              label={isChoice ? "✓" : String(tries)}
               value={stats[tries]}
               total={total}
               animate={animate}
@@ -179,7 +187,7 @@ ${SITE_URL}`
 
         <PopUpSpacer />
 
-        <Styled.Tiles $columns={mode === "daily" ? 3 : 2}>
+        <Styled.Tiles $columns={mode === "endless" ? 2 : 3}>
           <Styled.Tile>
             <Styled.TileValue>{score}</Styled.TileValue>
             <Styled.TileLabel>Score</Styled.TileLabel>
@@ -192,6 +200,17 @@ ${SITE_URL}`
               </Styled.Tile>
               <Styled.Tile>
                 <Styled.TileValue>{streaks.max}</Styled.TileValue>
+                <Styled.TileLabel>Best</Styled.TileLabel>
+              </Styled.Tile>
+            </>
+          ) : isChoice ? (
+            <>
+              <Styled.Tile>
+                <Styled.TileValue>{recap.current}</Styled.TileValue>
+                <Styled.TileLabel>Streak</Styled.TileLabel>
+              </Styled.Tile>
+              <Styled.Tile>
+                <Styled.TileValue>{recap.best}</Styled.TileValue>
                 <Styled.TileLabel>Best</Styled.TileLabel>
               </Styled.Tile>
             </>

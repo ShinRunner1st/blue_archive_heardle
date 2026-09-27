@@ -1,8 +1,13 @@
 import { MAX_TRIES } from "../constants/game";
 import { Round, StatsTally } from "../types/stats";
 
+/** How many tries the round has: six, or one for a four-choice round. */
+export function triesOf(round: Round): number {
+  return round.tries ?? MAX_TRIES;
+}
+
 export function isFinished(round: Round): boolean {
-  return round.didGuess || round.currentTry >= MAX_TRIES;
+  return round.didGuess || round.currentTry >= triesOf(round);
 }
 
 /**

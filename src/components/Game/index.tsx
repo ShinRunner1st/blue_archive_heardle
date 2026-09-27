@@ -7,8 +7,10 @@ import { Song } from "../../types/song";
 import { Round } from "../../types/stats";
 import { MAX_TRIES } from "../../constants/game";
 import { playTimes } from "../../constants";
+import { isFinished } from "../../helpers";
 
 import { Button, Guess, Player, Search, Result } from "../";
+import { Choices } from "../Choices";
 
 import * as Styled from "./index.styled";
 
@@ -21,6 +23,8 @@ interface Props {
   setSelectedSong: React.Dispatch<React.SetStateAction<Song | undefined>>;
   skip: () => void;
   guess: () => void;
+  /** Answers a four-choice round with the song picked. */
+  pick: (song: Song) => void;
   score: string;
   bagEmpty: boolean;
   onNextSong: () => void;
@@ -59,6 +63,7 @@ export function Game({
   setSelectedSong,
   skip,
   guess,
+  pick,
   score,
   bagEmpty,
   onNextSong,
@@ -73,13 +78,14 @@ export function Game({
   onBrowseSongs,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const isOver = didGuess || currentTry >= MAX_TRIES;
+  const isOver = isFinished(round);
+  const choices = round.choices;
 
   // Shift+Enter skips (or gives up, on the last try) from anywhere, so a round
   // can be played start to finish without the mouse. A held key doesn't
   // repeat it, or one press could skip every try.
   React.useEffect(() => {
-    if (!keyboardEnabled || isOver) return;
+    if (!keyboardEnabled || isOver || choices) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "Enter" || !e.shiftKey || e.repeat) return;
@@ -89,7 +95,7 @@ export function Game({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [keyboardEnabled, isOver, skip]);
+  }, [keyboardEnabled, isOver, choices, skip]);
 
   if (isOver) {
     return (
@@ -111,6 +117,34 @@ export function Game({
         record={record}
         onOpenJukebox={onOpenJukebox}
       />
+    );
+  }
+
+  // Four-choice: one short clip, then one pick from four.
+  if (choices) {
+    return (
+      <>
+        <Player
+          themeNo={solution.themeNo}
+          currentTry={0}
+          setStartTime={setStartTime}
+          startTime={startTime}
+          inputRef={inputRef}
+          keyboardEnabled={keyboardEnabled}
+          onSkipTrack={onSkipTrack}
+          lengths={[(round.clip ?? playTimes[0] / 1000) * 1000]}
+          hint={
+            <>
+              <kbd>Space</kbd> play · <kbd>1</kbd>–<kbd>4</kbd> pick an answer
+            </>
+          }
+        />
+        <Choices
+          choices={choices}
+          onPick={pick}
+          keyboardEnabled={keyboardEnabled}
+        />
+      </>
     );
   }
 

@@ -21,6 +21,8 @@ export interface Moods {
 
 export interface MoodState {
   currentTry: number;
+  /** The round's tries: six, or one for a four-choice round. */
+  tries?: number;
   didGuess: boolean;
   playing: boolean;
   /** Just guessed wrong. */
@@ -35,7 +37,7 @@ function at(list: string[], index: number): string {
 /** The expression that fits the round as it stands. */
 export function pickExpression(moods: Moods, state: MoodState): string {
   if (state.didGuess) return at(moods.won, state.currentTry - 1);
-  if (state.currentTry >= MAX_TRIES) return moods.lost;
+  if (state.currentTry >= (state.tries ?? MAX_TRIES)) return moods.lost;
   if (state.reacting) return moods.wrong;
   if (state.playing) return moods.listening;
   if (state.currentTry === 0) return moods.idle;

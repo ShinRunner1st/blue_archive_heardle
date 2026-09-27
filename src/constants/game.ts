@@ -13,6 +13,16 @@ export const STORAGE_KEY = "stats";
 /** localStorage key holding the array of daily-mode rounds. */
 export const DAILY_STORAGE_KEY = "stats.daily";
 
+/** localStorage key holding the array of four-choice rounds. */
+export const CHOICE_STORAGE_KEY = "stats.choice";
+
+/**
+ * How much of the clip a four-choice round plays, in seconds. One try only,
+ * so a little more than the first try of six, and the four answers are picked
+ * to sound close.
+ */
+export const CHOICE_CLIP_SECONDS = 3;
+
 /** localStorage key remembering which mode was last played. */
 export const MODE_KEY = "mode";
 

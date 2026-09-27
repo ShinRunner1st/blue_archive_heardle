@@ -26,6 +26,8 @@ interface Props {
   didGuess: boolean;
   /** Changes when a new round starts. */
   roundKey: string;
+  /** The round's tries, when not the usual six. */
+  tries?: number;
 }
 
 /**
@@ -71,6 +73,7 @@ function Stage({
   currentTry,
   didGuess,
   roundKey,
+  tries,
 }: Props & {
   character: SpineCharacter;
   partner: SpineCharacter | null;
@@ -89,6 +92,7 @@ function Stage({
 
   const expression = pickExpression(character.moods, {
     currentTry,
+    tries,
     didGuess,
     playing,
     reacting,

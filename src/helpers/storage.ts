@@ -1,4 +1,5 @@
 import {
+  CHOICE_STORAGE_KEY,
   DAILY_STORAGE_KEY,
   DEFAULT_VOLUME,
   FIRST_RUN_KEY,
@@ -20,8 +21,14 @@ import { Song } from "../types/song";
 import { obscure, reveal } from "./obscure";
 
 /** Each mode keeps its own history, so stats and bags never mix. */
+const ROUNDS_KEYS: Record<GameMode, string> = {
+  daily: DAILY_STORAGE_KEY,
+  endless: STORAGE_KEY,
+  choice: CHOICE_STORAGE_KEY,
+};
+
 function keyFor(mode: GameMode): string {
-  return mode === "daily" ? DAILY_STORAGE_KEY : STORAGE_KEY;
+  return ROUNDS_KEYS[mode];
 }
 
 /**
@@ -101,10 +108,34 @@ function toRound(value: unknown): Round | null {
     guesses.push({ song: undefined, skipped: false, isCorrect: undefined });
   }
 
+  const tries =
+    typeof round.tries === "number" &&
+    Number.isInteger(round.tries) &&
+    round.tries >= 1 &&
+    round.tries < MAX_TRIES
+      ? round.tries
+      : undefined;
+
   const currentTry =
     typeof round.currentTry === "number" && Number.isFinite(round.currentTry)
-      ? Math.min(Math.max(Math.trunc(round.currentTry), 0), MAX_TRIES)
+      ? Math.min(Math.max(Math.trunc(round.currentTry), 0), tries ?? MAX_TRIES)
       : 0;
+
+  // Kept only when whole: strings, the answer among them, no repeats.
+  const choices =
+    Array.isArray(round.choices) &&
+    round.choices.every((theme) => typeof theme === "string") &&
+    new Set(round.choices).size === round.choices.length &&
+    round.choices.includes(round.solution.themeNo)
+      ? (round.choices as string[])
+      : undefined;
+
+  const clip =
+    typeof round.clip === "number" &&
+    Number.isFinite(round.clip) &&
+    round.clip > 0
+      ? round.clip
+      : undefined;
 
   const day =
     typeof round.day === "number" && Number.isFinite(round.day)
@@ -121,6 +152,9 @@ function toRound(value: unknown): Round | null {
         ? round.startTime
         : null,
     ...(day === undefined ? {} : { day }),
+    ...(tries === undefined ? {} : { tries }),
+    ...(choices === undefined ? {} : { choices }),
+    ...(clip === undefined ? {} : { clip }),
   };
 }
 
@@ -164,12 +198,12 @@ export function saveRounds(rounds: Round[], mode: GameMode = "endless"): void {
 }
 
 /**
- * Swaps every mode's rounds for the given ones, as one change: if any write
- * fails (storage full or blocked), the ones already made are undone, so the
- * player never ends up with half a save. Returns whether it worked.
+ * Swaps the rounds of each mode given for the new ones, as one change: if any
+ * write fails (storage full or blocked), the ones already made are undone, so
+ * the player never ends up with half a save. Returns whether it worked.
  */
 export function replaceAllRounds(
-  histories: Record<GameMode, Round[]>
+  histories: Partial<Record<GameMode, Round[]>>
 ): boolean {
   const modes = Object.keys(histories) as GameMode[];
   const before = modes.map((mode) => readKey(keyFor(mode)));
@@ -178,7 +212,7 @@ export function replaceAllRounds(
     for (const mode of modes) {
       localStorage.setItem(
         keyFor(mode),
-        obscure(JSON.stringify(histories[mode]))
+        obscure(JSON.stringify(histories[mode] ?? []))
       );
     }
     return true;

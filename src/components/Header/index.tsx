@@ -1,6 +1,6 @@
 import { IoBarChart, IoDisc } from "react-icons/io5";
 
-import { GameMode } from "../../types/mode";
+import { GameMode, isEndlessStyle } from "../../types/mode";
 
 import { preloadCovers } from "../../helpers/preloadCovers";
 import { HeaderMenu } from "../HeaderMenu";
@@ -54,20 +54,26 @@ export function Header({
           */}
           <Styled.ModeThumb
             aria-hidden="true"
-            $index={MODES.findIndex((option) => option.mode === mode)}
+            $index={isEndlessStyle(mode) ? 1 : 0}
           />
-          {MODES.map((option) => (
-            <Styled.ModeButton
-              key={option.mode}
-              type="button"
-              $active={mode === option.mode}
-              aria-pressed={mode === option.mode}
-              title={option.hint}
-              onClick={() => onModeChange(option.mode)}
-            >
-              {option.label}
-            </Styled.ModeButton>
-          ))}
+          {MODES.map((option) => {
+            // Endless stands for every way to play it (see PlayStyles).
+            const active =
+              option.mode === "daily" ? mode === "daily" : isEndlessStyle(mode);
+
+            return (
+              <Styled.ModeButton
+                key={option.mode}
+                type="button"
+                $active={active}
+                aria-pressed={active}
+                title={option.hint}
+                onClick={() => onModeChange(option.mode)}
+              >
+                {option.label}
+              </Styled.ModeButton>
+            );
+          })}
         </Styled.Modes>
 
         {/* The wordmark carries the page heading, so its alt text is the h1. */}

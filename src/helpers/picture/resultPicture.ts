@@ -4,6 +4,7 @@ import { resultTitle } from "../../constants/resultText";
 import { GameMode } from "../../types/mode";
 import { Round } from "../../types/stats";
 import { Song } from "../../types/song";
+import { triesOf } from "../calStats";
 import {
   COLORS,
   CONTENT_LEFT as LEFT,
@@ -36,6 +37,8 @@ export interface ResultPictureContent {
   title: string;
   subtitle: string;
   tries: TryTone[];
+  /** Under each square: how much of the clip that try played. */
+  tryLabels: string[];
   stats: Array<{ label: string; value: string }>;
   /** The answer, on endless pictures only: a daily one must spoil nothing. */
   song: Song | null;
@@ -43,7 +46,7 @@ export interface ResultPictureContent {
 
 /** The same squares as the share text: the coloured run is the score. */
 function tryTones(round: Round): TryTone[] {
-  return Array.from({ length: MAX_TRIES }, (_, index) => {
+  return Array.from({ length: triesOf(round) }, (_, index) => {
     const guess = round.guesses[index];
     if (index >= round.currentTry) return "unused";
     if (guess?.isCorrect) return "correct";
@@ -59,18 +62,31 @@ export function resultPictureContent({
   streak,
 }: ResultPictureInput): ResultPictureContent {
   const isDaily = mode === "daily";
+  const isChoice = round.choices !== undefined;
   const tries = Math.min(round.currentTry, MAX_TRIES);
 
   return {
     tag:
       isDaily && typeof round.day === "number"
         ? `DAILY #${round.day}`
+        : isChoice
+        ? "4-CHOICE"
         : "ENDLESS",
-    title: withoutEmoji(resultTitle(round.didGuess, round.currentTry)),
-    subtitle: round.didGuess
+    title: withoutEmoji(
+      resultTitle(round.didGuess, round.currentTry, round.tries)
+    ),
+    subtitle: isChoice
+      ? round.didGuess
+        ? "Picked out of four answers"
+        : "Missed out of four answers"
+      : round.didGuess
       ? `Guessed in ${tries} of ${MAX_TRIES} ${tries === 1 ? "try" : "tries"}`
       : `Not guessed in ${MAX_TRIES} tries`,
     tries: tryTones(round),
+    tryLabels:
+      round.clip !== undefined
+        ? [`${round.clip}s`]
+        : playTimes.map((time) => `${time / 1000}s`),
     stats: isDaily
       ? [
           { label: "Tries", value: round.didGuess ? `${tries}/6` : "X/6" },
@@ -121,7 +137,7 @@ export function drawResultPicture(
     ctx.font = `700 22px ${FONT}`;
     ctx.textAlign = "center";
     ctx.fillText(
-      `${playTimes[index] / 1000}s`,
+      content.tryLabels[index] ?? "",
       x + TILE / 2,
       TILES_TOP + TILE + 32
     );
@@ -186,5 +202,5 @@ export function makeResultPicture(
 export function resultPictureName({ mode, round }: ResultPictureInput): string {
   return mode === "daily" && typeof round.day === "number"
     ? `baheardle-daily-${round.day}.png`
-    : "baheardle-endless.png";
+    : `baheardle-${mode}.png`;
 }

@@ -130,6 +130,13 @@ describe("Header mode switch", () => {
     expect(modeButton("Endless")?.getAttribute("aria-pressed")).toBe("true");
   });
 
+  it("keeps Endless lit for every way to play it", () => {
+    mount("choice");
+
+    expect(modeButton("Daily")?.getAttribute("aria-pressed")).toBe("false");
+    expect(modeButton("Endless")?.getAttribute("aria-pressed")).toBe("true");
+  });
+
   it("reports the mode the player picked", () => {
     modeButton("Endless")!.click();
     expect(onModeChange).toHaveBeenCalledWith("endless");

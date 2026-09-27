@@ -17,6 +17,19 @@ export type Round = {
    * endless round can never be mistaken for today's.
    */
   day?: number;
+  /**
+   * How many tries the round has, when not the usual six: four-choice rounds
+   * have one.
+   */
+  tries?: number;
+  /**
+   * The four answers offered, as theme numbers, answer included. Saved with
+   * the round so a reload can't deal a different four: comparing the two
+   * would narrow the answer down.
+   */
+  choices?: string[];
+  /** Seconds of the clip a round with one try plays; six tries use playTimes. */
+  clip?: number;
 };
 
 /** Index 0 holds losses, 1-6 hold wins by try count, 7 holds the round total. */

@@ -6,7 +6,7 @@ import * as Styled from "./index.styled";
 
 interface Props {
   onClose: () => void;
-  /** The OST badges, from both modes. */
+  /** The OST badges, from Daily and Classic Endless. */
   badges: BadgeProgress[];
 }
 
@@ -60,7 +60,8 @@ export function BadgesPopUp({ onClose, badges }: Props) {
       </Styled.Shelf>
 
       <PopUpMeta>
-        Guess every song on an album, in either mode, to earn its badge.
+        Guess every song on an album, in Daily or Classic Endless, to earn its
+        badge.
       </PopUpMeta>
     </PopUp>
   );
