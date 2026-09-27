@@ -5,6 +5,35 @@ file, so it loads every session. Build in the order below: later parts reuse
 earlier ones. When the user decides something new, update this file; when a
 feature ships, add it to "What the game has" in `CLAUDE.md` and remove it here.
 
+## Build order
+
+Only a merge to `main` redeploys Vercel, so releases stay rare. Each group gets
+its own branch, made off the previous group's branch (stacked), even before that
+group is merged. Nothing merges until the user says so; then everything built
+so far goes to `main` in one release. Mark a step done here, with its branch
+name, when it's built.
+
+1. **Group 1: small features.** Save export and import, per-song record, daily
+   calendar, result picture, recap card. _Built on `feat/save-export-import`,
+   not merged yet._
+2. **Group 2: seasonal, merged before 2026-12-25.** Christmas and New Year
+   backgrounds. _Built on `feat/seasonal-backgrounds` (stacked on Group 1), not
+   merged yet; run `npm run songs` before merging to put the pictures on the
+   Worker._ After 2026-12-10, the old-domain cleanup in "Dates to remember" in
+   `CLAUDE.md` can ride along.
+3. **Group 3: new ways to play the OST.** Jukebox, then four-choice answers,
+   then time attack (it uses four-choice).
+4. **Group 4: storage.** The user checks the Worker's file limit and makes an R2
+   bucket on our own domain; then copy the OST to R2 and fall back to it.
+5. **Group 5: Badle.** Data script, then the icon sprite sheet, then Gameplay
+   mode, then Lore mode, then student birthday touches (they use the Badle
+   student table).
+6. **Group 6: dream plan.** The user messages SchaleDB first, then Voice line
+   mode. The user checks the Durable Objects and PartyServer free-tier limits,
+   then Multiplayer.
+
+Any time: `npm run songs` when new OSTs come out.
+
 ## Keeping new features cheap, private and fair
 
 - **Worker first.** The audio Worker only serves static files, and those
@@ -77,9 +106,10 @@ until released. Each new mode's rounds go into the save file too
 
 ## Timed: seasonal touches
 
-9. **Seasonal touches** on set dates: Christmas and New Year backgrounds, the
-   Blue Archive anniversary, student birthdays. Pictures go on the Worker. Have
-   Christmas ready before 2026-12-25. Birthdays can use the Badle student table
+9. **Seasonal touches** on set dates: Christmas and New Year backgrounds
+   (built), the Blue Archive anniversary, student birthdays. Pictures go on the
+   Worker (`pictures/`, see the README). Add a season to `SEASONS` in
+   `src/constants/seasons.ts`. Birthdays can use the Badle student table
    (Phase 3).
 
 ## Phase 3: Badle (guess a student)

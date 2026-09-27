@@ -43,7 +43,11 @@ What the project cares about:
   named with a salted hash (`src/helpers/audioFiles.ts`). Files are fetched
   whole into blob URLs (`src/helpers/audioSource.ts`) because the Worker doesn't
   answer Range requests. `npm run songs` rebuilds, uploads and checks it; run
-  it before merging any song change.
+  it before merging any song or picture change.
+- **Pictures on the Worker**: pictures that only show at times (the seasons)
+  live in `pictures/<folder>/`; `npm run build:pictures` copies them into
+  `audio-dist/pictures/` with fingerprinted names (`src/constants/pictureFiles.ts`).
+  `scripts/make-backdrop.mjs` makes a backdrop from a game scenario background.
 - **Game state** lives in `src/hooks/useGame.ts`; each mode saves to its own
   localStorage key (`src/helpers/storage.ts`, scrambled by `obscure.ts`,
   validated on load so a bad save never breaks the page).
@@ -80,6 +84,9 @@ What the project cares about:
   react to guesses and can be held, stroked and tapped. Wide screens only.
 - **Streak places**: every 10 wins in a row moves the background somewhere new
   in Kivotos, up to the sky at 100; a loss sends it back to the Trinity library.
+- **Seasons**: the home background becomes a Christmas lodge (18-26 Dec) or a
+  New Year shrine (31 Dec - 7 Jan), from the Worker (`src/constants/seasons.ts`).
+  Streak places still win from 10 wins. `?season=<id>` previews one in dev.
 - **OST badges**: Vol.1-8, earned by guessing every song on an album.
 - **What's new** pop-up after updates, the welcome/How to play pop-up, About
   with a privacy notice and a Ko-fi card.
@@ -129,8 +136,10 @@ multi-line message write it to a file and use `git commit -F <file>`.
 
 - Never add Claude attribution or `Co-Authored-By` trailers to commits or PRs.
 - Never add `prefers-reduced-motion` handling.
-- Work on a new branch off `main`. Push only when asked. Merge to `main` only when
-  the user explicitly says so: merging deploys to production.
+- Work on a new branch for each group in `docs/plan.md`, made off the previous
+  group's branch (stacked), so releases stay rare. Push only when asked. Merge
+  to `main` only when the user explicitly says so: merging deploys to
+  production.
 - Before merging, run the full check above, and measure what the release adds in
   Vercel requests, bandwidth and storage (check cache headers). The user watches
   the Hobby limits closely.
