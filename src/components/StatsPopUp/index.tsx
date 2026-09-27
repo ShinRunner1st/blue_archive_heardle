@@ -3,10 +3,19 @@ import React, { useEffect, useState } from "react";
 import { Button } from "../Button";
 import { PopUp, PopUpBody, PopUpGroupLabel, PopUpSpacer } from "../PopUp";
 import { songs } from "../../constants";
+import { SITE_URL } from "../../constants/game";
 import { GameMode } from "../../types/mode";
 import { StatsTally } from "../../types/stats";
 import { Streaks } from "../../helpers/streaks";
 import { DayOutcome } from "../../helpers/dailyCalendar";
+import {
+  makeRecapPicture,
+  recapPictureName,
+  RecapStats,
+} from "../../helpers/picture/recapPicture";
+import { useBackdropSrc } from "../../hooks/useBackdropSrc";
+import { useSharePicture } from "../../hooks/useSharePicture";
+import logo from "../../image/BlueArchive-Heardle.png";
 
 import { DailyCalendar } from "./DailyCalendar";
 
@@ -20,6 +29,8 @@ interface Props {
   streaks: Streaks;
   /** How each daily puzzle went, for the calendar. */
   dailyResults: Map<number, DayOutcome>;
+  /** The mode's record, drawn as the recap picture. */
+  recap: RecapStats;
 }
 
 /** Each mode keeps its own history, so the pop-up says which one it is showing. */
@@ -101,6 +112,7 @@ export function StatsPopUp({
   mode,
   streaks,
   dailyResults,
+  recap,
 }: Props) {
   const [animate, setAnimate] = useState(false);
 
@@ -112,15 +124,36 @@ export function StatsPopUp({
 
   const total = stats[7];
 
+  // On the backdrop the page is showing, like the result picture.
+  const backdrop = useBackdropSrc(recap.current);
+  const makeRecap = React.useCallback(
+    () => makeRecapPicture(recap, { backdrop, logo }),
+    [recap, backdrop]
+  );
+  const picture = useSharePicture(
+    "Share recap",
+    makeRecap,
+    recapPictureName(mode),
+    `My Blue Archive Heardle ${mode} recap
+${SITE_URL}`
+  );
+
   return (
     <PopUp
       title="Your stats 📊"
       subtitle={subtitleFor(mode, total)}
       onClose={onClose}
       actions={
-        <Button variant="green" onClick={onClose}>
-          Close
-        </Button>
+        <>
+          {total > 0 && (
+            <Button variant="pink" onClick={picture.share}>
+              {picture.text}
+            </Button>
+          )}
+          <Button variant="green" onClick={onClose}>
+            Close
+          </Button>
+        </>
       }
     >
       <PopUpBody>

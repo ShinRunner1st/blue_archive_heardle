@@ -5,7 +5,13 @@ import { badgeNews, badgeProgress, guessedThemes } from "../helpers/badges";
 import { dailyOutcomes } from "../helpers/dailyCalendar";
 import { songRecord, songRecordText } from "../helpers/songRecord";
 import { calStreaks } from "../helpers/streaks";
-import { calDayStreak, calWinStreak } from "../helpers/winStreak";
+import {
+  bestWinStreak,
+  calDayStreak,
+  calWinStreak,
+} from "../helpers/winStreak";
+import { RecapStats } from "../helpers/picture/recapPicture";
+import { songs } from "../constants";
 import { dailySong, dayNumber } from "../helpers/daily";
 import { isBagEmpty, pickSong } from "../helpers/pickSong";
 import {
@@ -240,6 +246,21 @@ export function useGame(mode: GameMode) {
     [histories]
   );
 
+  // The mode's record, for the recap picture in stats.
+  const recap = React.useMemo<RecapStats>(() => {
+    const guessed = guessedThemes([...histories.endless, ...histories.daily]);
+    return {
+      mode,
+      tally: stats,
+      current: mode === "daily" ? streaks.current : winStreak.current,
+      best: mode === "daily" ? streaks.max : bestWinStreak(histories.endless),
+      songsGuessed: songs.filter((song) => guessed.has(song.themeNo)).length,
+      songsTotal: songs.length,
+      badgesEarned: badges.filter((badge) => badge.done).length,
+      badgesTotal: badges.length,
+    };
+  }, [mode, stats, streaks, winStreak, histories, badges]);
+
   // What the round just won did for them: judged against every other round.
   const badgeLines = React.useMemo(() => {
     if (!current.didGuess) return [];
@@ -275,6 +296,7 @@ export function useGame(mode: GameMode) {
     winStreak,
     dayStreak,
     badges,
+    recap,
     badgeLines,
     record,
     bagEmpty,

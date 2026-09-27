@@ -42,6 +42,17 @@ export function calWinStreak(rounds: Round[]): WinStreak {
   };
 }
 
+/** The longest endless run of wins in a row, for the recap. */
+export function bestWinStreak(rounds: Round[]): number {
+  let best = 0;
+  let wins = 0;
+  for (const round of rounds.filter(isFinished)) {
+    wins = round.didGuess ? wins + 1 : 0;
+    best = Math.max(best, wins);
+  }
+  return best;
+}
+
 /**
  * The daily day streak, as a WinStreak: the same count as the header's and the
  * stats', and what today's round did to it.

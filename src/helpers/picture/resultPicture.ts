@@ -5,17 +5,16 @@ import { GameMode } from "../../types/mode";
 import { Round } from "../../types/stats";
 import { Song } from "../../types/song";
 import {
-  canvasToBlob,
   COLORS,
-  drawBackdrop,
-  drawPanel,
-  drawTag,
+  CONTENT_LEFT as LEFT,
+  CONTENT_RIGHT as RIGHT,
+  drawAddress,
+  drawFrame,
   fitText,
   FONT,
-  loadFonts,
-  loadImage,
-  PICTURE_HEIGHT,
-  PICTURE_WIDTH,
+  makePicture,
+  PANEL,
+  PictureImages,
   roundedRect,
   withoutEmoji,
 } from "./canvas";
@@ -92,15 +91,6 @@ const TONE_COLORS: Record<TryTone, string> = {
   unused: COLORS.unused,
 };
 
-/** The pictures the drawing needs; either may be missing. */
-export interface ResultPictureImages {
-  backdrop: HTMLImageElement | null;
-  logo: HTMLImageElement | null;
-}
-
-const PANEL = { x: 70, y: 56, width: 1060, height: 563 };
-const LEFT = 110;
-const RIGHT = PANEL.x + PANEL.width - 40;
 const TILE = 96;
 const TILE_GAP = 18;
 const TILES_TOP = 350;
@@ -108,17 +98,9 @@ const TILES_TOP = 350;
 export function drawResultPicture(
   ctx: CanvasRenderingContext2D,
   content: ResultPictureContent,
-  { backdrop, logo }: ResultPictureImages
+  images: PictureImages
 ): void {
-  drawBackdrop(ctx, backdrop);
-  drawPanel(ctx, PANEL.x, PANEL.y, PANEL.width, PANEL.height);
-
-  if (logo && logo.naturalWidth > 0) {
-    const height = 96;
-    const width = (logo.naturalWidth / logo.naturalHeight) * height;
-    ctx.drawImage(logo, LEFT - 10, PANEL.y + 26, width, height);
-  }
-  drawTag(ctx, content.tag, RIGHT, PANEL.y + 44);
+  drawFrame(ctx, images, content.tag);
 
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";
@@ -186,31 +168,18 @@ export function drawResultPicture(
     );
   }
 
-  ctx.fillStyle = COLORS.navy;
-  ctx.font = `800 26px ${FONT}`;
-  ctx.textAlign = "right";
-  ctx.fillText("baheardle.com", RIGHT, bottom - 8);
+  drawAddress(ctx, bottom - 8);
 }
 
 /** Draws the picture as a PNG. Fails only if the browser has no canvas. */
-export async function makeResultPicture(
+export function makeResultPicture(
   input: ResultPictureInput,
   sources: { backdrop: string; logo: string }
 ): Promise<Blob> {
-  const [backdrop, logo] = await Promise.all([
-    loadImage(sources.backdrop),
-    loadImage(sources.logo),
-    loadFonts(),
-  ]);
-
-  const canvas = document.createElement("canvas");
-  canvas.width = PICTURE_WIDTH;
-  canvas.height = PICTURE_HEIGHT;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("This browser can't draw pictures");
-
-  drawResultPicture(ctx, resultPictureContent(input), { backdrop, logo });
-  return canvasToBlob(canvas);
+  const content = resultPictureContent(input);
+  return makePicture(sources, (ctx, images) =>
+    drawResultPicture(ctx, content, images)
+  );
 }
 
 /** Daily pictures are named by puzzle; endless ones never name the song. */

@@ -37,13 +37,10 @@ feature ships, add it to "What the game has" in `CLAUDE.md` and remove it here.
 
 ## Phase 1: small, no new files to host
 
-Save export and import (1), the per-song record (2), the daily calendar (3)
-and the result picture (4) are built, on the branch `feat/save-export-import`
+All of Phase 1 (1 to 5) is built, on the branch `feat/save-export-import`
 until released. Each new mode's rounds go into the save file too
-(`GAME_MODES` in `src/types/mode.ts`).
-
-5. **Personal recap card** in stats, for every mode. It reuses the result
-   picture's drawing code in `src/helpers/picture/canvas.ts`.
+(`GAME_MODES` in `src/types/mode.ts`), and new share pictures reuse
+`src/helpers/picture/canvas.ts`.
 
 ## Phase 2: new ways to play the OST
 

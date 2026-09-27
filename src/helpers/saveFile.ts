@@ -1,5 +1,6 @@
 import { GAME_MODES, GameMode } from "../types/mode";
 import { Round } from "../types/stats";
+import { dateStamp } from "./daily";
 import { downloadBlob } from "./download";
 import { loadRounds, toRounds } from "./storage";
 import { obscure, reveal } from "./obscure";
@@ -50,11 +51,7 @@ export function buildSaveFile(now: Date = new Date()): string {
 
 /** For example baheardle-save-2026-09-28.txt, dated by the player's calendar. */
 export function saveFileName(now: Date = new Date()): string {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(
-    now.getDate()
-  )}`;
-  return `baheardle-save-${date}.txt`;
+  return `baheardle-save-${dateStamp(now)}.txt`;
 }
 
 const NOT_A_SAVE = "That file isn't a Blue Archive Heardle save.";

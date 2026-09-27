@@ -39,6 +39,9 @@ Each mode keeps its own score and history, saved in your browser.
   a picture for X, on the backdrop you're playing on, and opens your phone's
   share sheet (or saves it on a computer). A daily picture never shows the
   song; an endless one does, since that round is over for everyone.
+- **Recap** - Share recap in Stats draws the mode's record as a picture in
+  the same style: rounds, win rate, streaks, the guess spread, songs guessed
+  and badges. It names no songs.
 - **Daily calendar** - daily stats show every puzzle on a month calendar,
   coloured by how it went: greener for fewer tries, red for a loss, faint
   for a day not played. It names no songs, so it spoils nothing.

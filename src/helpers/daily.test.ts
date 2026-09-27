@@ -3,7 +3,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { songs } from "../constants";
 import { DAILY_EPOCH } from "../constants/game";
 import { dailyOrder } from "../constants/dailyOrder";
-import { dailySong, dayNumber, formatCountdown, msUntilNextDay } from "./daily";
+import {
+  dailySong,
+  dateStamp,
+  dayNumber,
+  formatCountdown,
+  msUntilNextDay,
+} from "./daily";
 
 function at(iso: string) {
   vi.useFakeTimers();
@@ -136,5 +142,11 @@ describe("the checked-in daily schedule", () => {
     expect(dailySong(dailyOrder.length).themeNo).toBe(
       dailyOrder[dailyOrder.length - 1]
     );
+  });
+});
+
+describe("dateStamp", () => {
+  it("writes the player's own date for file names", () => {
+    expect(dateStamp(new Date(2026, 0, 5, 23, 59))).toBe("2026-01-05");
   });
 });

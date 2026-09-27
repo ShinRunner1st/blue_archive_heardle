@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { useTheme } from "styled-components";
 
-import { placeFor, streakNews, WinStreak } from "../../helpers/winStreak";
+import { streakNews, WinStreak } from "../../helpers/winStreak";
 
 import { Song } from "../../types/song";
 import { GameMode } from "../../types/mode";
@@ -14,14 +13,13 @@ import { LOSS_TEXT, resultTitle } from "../../constants/resultText";
 import { Button } from "../Button";
 import { NowPlaying } from "../NowPlaying";
 import { clipInfo } from "../../helpers/audioUrl";
-import { backdropSrc } from "../../helpers/backdrop";
 import {
+  makeResultPicture,
   resultPictureName,
-  ResultPictureInput,
 } from "../../helpers/picture/resultPicture";
-import { sharePicture } from "../../helpers/picture/share";
-import { useColorScheme } from "../../hooks/useColorScheme";
-import { useResultPicture } from "../../hooks/useResultPicture";
+import { useBackdropSrc } from "../../hooks/useBackdropSrc";
+import { useSharePicture } from "../../hooks/useSharePicture";
+import logo from "../../image/BlueArchive-Heardle.png";
 
 import * as Styled from "./index.styled";
 
@@ -49,8 +47,6 @@ interface Props {
 }
 
 const COUNTDOWN_TICK_MS = 30_000;
-
-const PICTURE_LABEL = "Share picture";
 
 /**
  * Counts down to the next puzzle. Daily mode has nothing to advance to, so this
@@ -95,42 +91,25 @@ export function Result({
   record,
 }: Props) {
   const [buttonText, setButtonText] = useState("Share result");
-  const [pictureText, setPictureText] = useState(PICTURE_LABEL);
   const isDaily = mode === "daily";
 
   // The picture sits on the same backdrop as the page behind it.
-  const theme = useTheme();
-  const scheme = useColorScheme();
-  const backdrop = backdropSrc(
-    placeFor(streak.current),
-    scheme,
-    theme.backgroundImage
+  const wins = streak.current;
+  const backdrop = useBackdropSrc(wins);
+  const makePicture = React.useCallback(
+    () =>
+      makeResultPicture(
+        { mode, round, score, streak: wins },
+        { backdrop, logo }
+      ),
+    [mode, round, score, wins, backdrop]
   );
-  const pictureInput: ResultPictureInput = {
-    mode,
-    round,
-    score,
-    streak: streak.current,
-  };
-  const getPicture = useResultPicture(pictureInput, backdrop);
-
-  const sharePictureNow = () => {
-    setPictureText("Drawing…");
-    getPicture()
-      .then((blob) =>
-        sharePicture(
-          blob,
-          resultPictureName(pictureInput),
-          buildShareText({ mode, round, score })
-        )
-      )
-      .then((outcome) =>
-        setPictureText(
-          outcome === "saved" ? "Saved to your downloads" : PICTURE_LABEL
-        )
-      )
-      .catch(() => setPictureText("Couldn't draw the picture"));
-  };
+  const picture = useSharePicture(
+    "Share picture",
+    makePicture,
+    resultPictureName({ mode, round, score, streak: wins }),
+    buildShareText({ mode, round, score })
+  );
 
   const copyResult = React.useCallback(() => {
     navigator.clipboard
@@ -138,13 +117,6 @@ export function Result({
       .then(() => setButtonText("Copied to your clipboard"))
       .catch(() => setButtonText("Copy failed"));
   }, [mode, round, score]);
-
-  React.useEffect(() => {
-    if (pictureText === PICTURE_LABEL || pictureText === "Drawing…") return;
-
-    const timer = window.setTimeout(() => setPictureText(PICTURE_LABEL), 2000);
-    return () => window.clearTimeout(timer);
-  }, [pictureText]);
 
   // Reset the label after a copy, and cancel the timer if the round advances
   // before it fires.
@@ -216,11 +188,11 @@ export function Result({
       />
       {isDaily && <DailyCountdown onNewDay={onNewDay} />}
       <Styled.Buttons>
-        <Button stroke onClick={copyResult} variant="background100">
+        <Button stroke onClick={copyResult} variant="blue">
           {buttonText}
         </Button>
-        <Button stroke onClick={sharePictureNow} variant="background100">
-          {pictureText}
+        <Button stroke onClick={picture.share} variant="pink">
+          {picture.text}
         </Button>
         {!isDaily && (
           <Button stroke onClick={advance} variant={bagEmpty ? "red" : "green"}>

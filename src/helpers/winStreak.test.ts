@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import { emptyGuesses } from "./storage";
-import { calDayStreak, calWinStreak, placeFor, streakNews } from "./winStreak";
+import {
+  bestWinStreak,
+  calDayStreak,
+  calWinStreak,
+  placeFor,
+  streakNews,
+} from "./winStreak";
 import { Round } from "../types/stats";
 
 const song = { artist: "Mitsukiyo", name: "Constant Moderato", themeNo: "1" };
@@ -39,6 +45,24 @@ describe("calWinStreak", () => {
       before: 1,
     });
     expect(calWinStreak([])).toEqual({ current: 0, before: 0 });
+  });
+});
+
+describe("bestWinStreak", () => {
+  it("finds the longest run, skipping the round in progress", () => {
+    expect(bestWinStreak([])).toBe(0);
+    expect(
+      bestWinStreak([
+        round("won"),
+        round("won"),
+        round("lost"),
+        round("won"),
+        round("won"),
+        round("playing"),
+        round("won"),
+        round("lost"),
+      ])
+    ).toBe(3);
   });
 });
 

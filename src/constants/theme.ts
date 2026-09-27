@@ -16,6 +16,10 @@ export const theme = {
   red: "#FF0000",
   gray: "#E6E6E6",
   orange: "#FFA500",
+  /** Blue Archive's own blue, for buttons that share text. */
+  blue: "#128AFA",
+  /** MomoTalk's pink, for buttons that share a picture. */
+  pink: "#EC6A8C",
 
   /** Dims the page behind a pop-up. */
   overlay: "rgba(18, 10, 4, 0.72)",
@@ -43,6 +47,10 @@ export const darkTheme: Theme = {
   red: "#FF4D4D",
   gray: "#C8C5DC",
   orange: "#FFA500",
+  /** Blue Archive's own blue, for buttons that share text. */
+  blue: "#128AFA",
+  /** MomoTalk's pink, for buttons that share a picture. */
+  pink: "#EC6A8C",
 
   overlay: "rgba(8, 6, 20, 0.72)",
   surface: "rgba(22, 19, 40, 0.5)",

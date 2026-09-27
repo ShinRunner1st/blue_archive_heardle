@@ -202,3 +202,66 @@ export function canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
     );
   });
 }
+
+/** The pictures every card draws on; either may be missing. */
+export interface PictureImages {
+  backdrop: HTMLImageElement | null;
+  logo: HTMLImageElement | null;
+}
+
+/** Where the white panel sits, and the margins the content keeps inside it. */
+export const PANEL = { x: 70, y: 56, width: 1060, height: 563 };
+export const CONTENT_LEFT = 110;
+export const CONTENT_RIGHT = PANEL.x + PANEL.width - 40;
+
+/**
+ * What every card shares: the backdrop, the white panel, the logo at the top
+ * left and the blue tag at the top right.
+ */
+export function drawFrame(
+  ctx: CanvasRenderingContext2D,
+  { backdrop, logo }: PictureImages,
+  tag: string
+): void {
+  drawBackdrop(ctx, backdrop);
+  drawPanel(ctx, PANEL.x, PANEL.y, PANEL.width, PANEL.height);
+
+  if (logo && logo.naturalWidth > 0) {
+    const height = 96;
+    const width = (logo.naturalWidth / logo.naturalHeight) * height;
+    ctx.drawImage(logo, CONTENT_LEFT - 10, PANEL.y + 26, width, height);
+  }
+  drawTag(ctx, tag, CONTENT_RIGHT, PANEL.y + 44);
+}
+
+/** The site's address at the bottom right, on every card. */
+export function drawAddress(ctx: CanvasRenderingContext2D, y: number): void {
+  ctx.fillStyle = COLORS.navy;
+  ctx.font = `800 26px ${FONT}`;
+  ctx.textAlign = "right";
+  ctx.fillText("baheardle.com", CONTENT_RIGHT, y);
+}
+
+/**
+ * Loads what a card needs, draws it and returns the PNG. Fails only if the
+ * browser has no canvas.
+ */
+export async function makePicture(
+  sources: { backdrop: string; logo: string },
+  draw: (ctx: CanvasRenderingContext2D, images: PictureImages) => void
+): Promise<Blob> {
+  const [backdrop, logo] = await Promise.all([
+    loadImage(sources.backdrop),
+    loadImage(sources.logo),
+    loadFonts(),
+  ]);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = PICTURE_WIDTH;
+  canvas.height = PICTURE_HEIGHT;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("This browser can't draw pictures");
+
+  draw(ctx, { backdrop, logo });
+  return canvasToBlob(canvas);
+}

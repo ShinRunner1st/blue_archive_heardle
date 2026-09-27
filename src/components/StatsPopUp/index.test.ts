@@ -1,6 +1,7 @@
 import React, { act } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { sharePicture } from "../../helpers/picture/share";
 import { StatsPopUp } from "./index";
 import { createHarness } from "../../test/harness";
 import { GameMode } from "../../types/mode";
@@ -18,15 +19,37 @@ const dailyResults = new Map([
   [5, { won: true as const, tries: 6 }],
 ]);
 
-function mount(mode: GameMode = "endless") {
+// jsdom has no canvas: the picture and the share sheet are stood in for.
+const picture = new Blob(["png"], { type: "image/png" });
+vi.mock("../../helpers/picture/recapPicture", async (importOriginal) => ({
+  ...(await importOriginal<
+    typeof import("../../helpers/picture/recapPicture")
+  >()),
+  makeRecapPicture: () => Promise.resolve(picture),
+}));
+vi.mock("../../helpers/picture/share", () => ({
+  sharePicture: vi.fn(() => Promise.resolve("shared")),
+}));
+
+function mount(mode: GameMode = "endless", tally: StatsTally = stats) {
   harness.render(
     React.createElement(StatsPopUp, {
       onClose,
       score: "4/7",
-      stats,
+      stats: tally,
       mode,
       streaks,
       dailyResults,
+      recap: {
+        mode,
+        tally,
+        current: 3,
+        best: 9,
+        songsGuessed: 6,
+        songsTotal: 345,
+        badgesEarned: 0,
+        badgesTotal: 8,
+      },
     })
   );
 }
@@ -127,5 +150,29 @@ describe("StatsPopUp calendar", () => {
     expect(text()).toContain("30 September, puzzle #4: not played");
     expect(text()).not.toContain("puzzle #0");
     expect(button("Previous month").disabled).toBe(true);
+  });
+});
+
+describe("StatsPopUp recap", () => {
+  const shareButton = () =>
+    [...harness.container.querySelectorAll("button")].find(
+      (button) => button.textContent === "Share recap"
+    );
+
+  it("shares the mode's recap as a picture", async () => {
+    vi.setSystemTime(new Date(2026, 8, 28, 12));
+    mount("endless");
+
+    await act(async () => shareButton()!.click());
+
+    const [blob, name, text] = vi.mocked(sharePicture).mock.calls[0];
+    expect(blob).toBe(picture);
+    expect(name).toBe("baheardle-endless-recap-2026-09-28.png");
+    expect(text).toContain("https://baheardle.com/");
+  });
+
+  it("has nothing to share before a round is finished", () => {
+    mount("daily", [0, 0, 0, 0, 0, 0, 0, 0]);
+    expect(shareButton()).toBeUndefined();
   });
 });

@@ -63,6 +63,14 @@ export function dateOfDay(day: number): Date {
   );
 }
 
+/** The player's own date as 2026-09-28, for file names. */
+export function dateStamp(now: Date = new Date()): string {
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(
+    now.getDate()
+  )}`;
+}
+
 /** Milliseconds from `now` until the next local midnight. */
 export function msUntilNextDay(now: Date = new Date()): number {
   const tomorrow = new Date(

@@ -15,8 +15,11 @@ import { Result } from "./index";
 // jsdom has no canvas: the picture and the share sheet are stood in for.
 const picture = new Blob(["png"], { type: "image/png" });
 const getPicture = vi.fn(() => Promise.resolve(picture));
-vi.mock("../../hooks/useResultPicture", () => ({
-  useResultPicture: () => getPicture,
+vi.mock("../../helpers/picture/resultPicture", async (importOriginal) => ({
+  ...(await importOriginal<
+    typeof import("../../helpers/picture/resultPicture")
+  >()),
+  makeResultPicture: () => getPicture(),
 }));
 vi.mock("../../helpers/picture/share", () => ({
   sharePicture: vi.fn(() => Promise.resolve("saved")),

@@ -38,8 +38,8 @@ export const WHATS_NEW: NewsUpdate[] = [
     items: [
       {
         icon: IoImage,
-        title: "Share a picture of your result",
-        text: "Share picture on the result screen makes a picture of your round for X. Daily pictures never show the song.",
+        title: "Share a picture",
+        text: "Share picture on the result screen makes a picture of your round for X, and Share recap in Stats sums up your record. Daily pictures never show the song.",
       },
       {
         icon: IoSave,
