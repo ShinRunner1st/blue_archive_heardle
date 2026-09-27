@@ -35,6 +35,10 @@ Each mode keeps its own score and history, saved in your browser.
 
 ### Also
 
+- **Result picture** - Share picture on the result screen draws the round as
+  a picture for X, on the backdrop you're playing on, and opens your phone's
+  share sheet (or saves it on a computer). A daily picture never shows the
+  song; an endless one does, since that round is over for everyone.
 - **Daily calendar** - daily stats show every puzzle on a month calendar,
   coloured by how it went: greener for fewer tries, red for a loss, faint
   for a day not played. It names no songs, so it spoils nothing.
@@ -289,6 +293,8 @@ The game collects nothing about its players: no accounts, cookies, ads,
 analytics or tracking scripts. Progress and settings are kept in the
 browser's `localStorage` (the keys are in `src/constants/game.ts`) and never
 sent anywhere; the clipboard is only written when a player presses Share.
+Result pictures are drawn in the browser and go only where the player sends
+them from the share sheet, or to their downloads.
 Like any website, the hosts - Vercel for the site, Cloudflare for the audio -
 see standard connection details such as IP addresses to serve the files.
 Players see the same in About this game.

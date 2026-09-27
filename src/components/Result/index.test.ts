@@ -8,7 +8,19 @@ import { Round } from "../../types/stats";
 import { emptyGuesses } from "../../helpers/storage";
 import { clipInfo } from "../../helpers/audioUrl";
 
+import { sharePicture } from "../../helpers/picture/share";
+
 import { Result } from "./index";
+
+// jsdom has no canvas: the picture and the share sheet are stood in for.
+const picture = new Blob(["png"], { type: "image/png" });
+const getPicture = vi.fn(() => Promise.resolve(picture));
+vi.mock("../../hooks/useResultPicture", () => ({
+  useResultPicture: () => getPicture,
+}));
+vi.mock("../../helpers/picture/share", () => ({
+  sharePicture: vi.fn(() => Promise.resolve("saved")),
+}));
 
 const solution: Song = {
   artist: "Mitsukiyo",
@@ -251,6 +263,30 @@ describe("Result interactions", () => {
     await act(async () => undefined);
 
     expect(container.textContent).toContain("Copy failed");
+  });
+
+  it("shares a picture of the daily result, with the text beside it", async () => {
+    mount({ mode: "daily", round: wonRound(12) });
+
+    click("Share picture");
+    await act(async () => undefined);
+
+    const [blob, name, text] = vi.mocked(sharePicture).mock.calls[0];
+    expect(blob).toBe(picture);
+    expect(name).toBe("baheardle-daily-12.png");
+    expect(text).toContain("Blue Archive Heardle #12");
+    expect(container.textContent).toContain("Saved to your downloads");
+  });
+
+  it("says so when the picture can't be drawn", async () => {
+    getPicture.mockRejectedValueOnce(new Error("no canvas"));
+    mount();
+
+    click("Share picture");
+    await act(async () => undefined);
+
+    expect(sharePicture).not.toHaveBeenCalled();
+    expect(container.textContent).toContain("Couldn't draw the picture");
   });
 
   it("advances on Enter", () => {

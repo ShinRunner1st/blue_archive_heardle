@@ -2,6 +2,7 @@ import React from "react";
 import { useTheme } from "styled-components";
 
 import { StreakPlace } from "../../constants/streakPlaces";
+import { backdropSrc } from "../../helpers/backdrop";
 import { useColorScheme } from "../../hooks/useColorScheme";
 
 import * as Styled from "./index.styled";
@@ -23,11 +24,7 @@ interface Props {
 export function Backdrop({ place }: Props) {
   const theme = useTheme();
   const scheme = useColorScheme();
-  const src = place
-    ? scheme === "dark"
-      ? place.night
-      : place.day
-    : theme.backgroundImage;
+  const src = backdropSrc(place, scheme, theme.backgroundImage);
 
   // The previous place stays under the new one until it has faded in.
   const [layers, setLayers] = React.useState([

@@ -67,7 +67,9 @@ What the project cares about:
 - **Result screen**: now-playing card, plays the answer from the clip's start,
   marks and replays the clip part; results worded as Blue Archive missions.
   The card shows the player's record with the song across both modes
-  (`src/helpers/songRecord.ts`).
+  (`src/helpers/songRecord.ts`). Share picture draws the result on a canvas
+  (`src/helpers/picture/`) and opens the share sheet or saves it; daily
+  pictures never show the song.
 - **Settings**: volume (remembered, 20% default), dark mode, Blue Archive
   cursor with tap and drag effects (can be turned off), character choice.
 - **Save file**: export all modes to one scrambled file and import it on

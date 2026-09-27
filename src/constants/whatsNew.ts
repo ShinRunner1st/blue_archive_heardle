@@ -1,5 +1,6 @@
 import type { IconType } from "react-icons";
 import {
+  IoImage,
   IoCalendar,
   IoDisc,
   IoKeypad,
@@ -33,8 +34,13 @@ export interface NewsUpdate {
 export const WHATS_NEW: NewsUpdate[] = [
   {
     id: "2026-09-save-file",
-    name: "Your save, your songs, your days",
+    name: "Share, save and look back",
     items: [
+      {
+        icon: IoImage,
+        title: "Share a picture of your result",
+        text: "Share picture on the result screen makes a picture of your round for X. Daily pictures never show the song.",
+      },
       {
         icon: IoSave,
         title: "Take your progress with you",

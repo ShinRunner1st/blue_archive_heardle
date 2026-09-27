@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { streakNews, WinStreak } from "../../helpers/winStreak";
+import { useTheme } from "styled-components";
+
+import { placeFor, streakNews, WinStreak } from "../../helpers/winStreak";
 
 import { Song } from "../../types/song";
 import { GameMode } from "../../types/mode";
@@ -7,10 +9,19 @@ import { Round } from "../../types/stats";
 import { buildShareText } from "../../helpers";
 import { formatCountdown, msUntilNextDay } from "../../helpers/daily";
 import { playTimes } from "../../constants";
+import { LOSS_TEXT, resultTitle } from "../../constants/resultText";
 
 import { Button } from "../Button";
 import { NowPlaying } from "../NowPlaying";
 import { clipInfo } from "../../helpers/audioUrl";
+import { backdropSrc } from "../../helpers/backdrop";
+import {
+  resultPictureName,
+  ResultPictureInput,
+} from "../../helpers/picture/resultPicture";
+import { sharePicture } from "../../helpers/picture/share";
+import { useColorScheme } from "../../hooks/useColorScheme";
+import { useResultPicture } from "../../hooks/useResultPicture";
 
 import * as Styled from "./index.styled";
 
@@ -37,23 +48,9 @@ interface Props {
   record: string;
 }
 
-/**
- * The win message for each try, told as a Blue Archive mission: a first-try
- * win is a three-star clear, and it gets hairier from there.
- */
-const TEXT_FOR_TRY = [
-  "3★ clear on the first try! ✨",
-  "Sensei's EX Skill landed! 💥",
-  "Mission complete, Sensei~ 📋",
-  "Schale pulls through! 💪",
-  "A narrow escape in Kivotos… 😅",
-  "Cleared at the last second! 😭💥",
-];
-
-const LOSS_TITLE = "Tactical retreat, Sensei… 💔";
-const LOSS_TEXT = "Arona says there's always next time! 📱";
-
 const COUNTDOWN_TICK_MS = 30_000;
+
+const PICTURE_LABEL = "Share picture";
 
 /**
  * Counts down to the next puzzle. Daily mode has nothing to advance to, so this
@@ -98,7 +95,42 @@ export function Result({
   record,
 }: Props) {
   const [buttonText, setButtonText] = useState("Share result");
+  const [pictureText, setPictureText] = useState(PICTURE_LABEL);
   const isDaily = mode === "daily";
+
+  // The picture sits on the same backdrop as the page behind it.
+  const theme = useTheme();
+  const scheme = useColorScheme();
+  const backdrop = backdropSrc(
+    placeFor(streak.current),
+    scheme,
+    theme.backgroundImage
+  );
+  const pictureInput: ResultPictureInput = {
+    mode,
+    round,
+    score,
+    streak: streak.current,
+  };
+  const getPicture = useResultPicture(pictureInput, backdrop);
+
+  const sharePictureNow = () => {
+    setPictureText("Drawing…");
+    getPicture()
+      .then((blob) =>
+        sharePicture(
+          blob,
+          resultPictureName(pictureInput),
+          buildShareText({ mode, round, score })
+        )
+      )
+      .then((outcome) =>
+        setPictureText(
+          outcome === "saved" ? "Saved to your downloads" : PICTURE_LABEL
+        )
+      )
+      .catch(() => setPictureText("Couldn't draw the picture"));
+  };
 
   const copyResult = React.useCallback(() => {
     navigator.clipboard
@@ -106,6 +138,13 @@ export function Result({
       .then(() => setButtonText("Copied to your clipboard"))
       .catch(() => setButtonText("Copy failed"));
   }, [mode, round, score]);
+
+  React.useEffect(() => {
+    if (pictureText === PICTURE_LABEL || pictureText === "Drawing…") return;
+
+    const timer = window.setTimeout(() => setPictureText(PICTURE_LABEL), 2000);
+    return () => window.clearTimeout(timer);
+  }, [pictureText]);
 
   // Reset the label after a copy, and cancel the timer if the round advances
   // before it fires.
@@ -144,11 +183,7 @@ export function Result({
   const news = streakNews(streak, didGuess, isDaily ? "day" : "win");
 
   const Title = didGuess ? Styled.CorrectResultTitle : Styled.FailResultTitle;
-  const title = didGuess
-    ? TEXT_FOR_TRY[
-        Math.min(Math.max(currentTry - 1, 0), TEXT_FOR_TRY.length - 1)
-      ]
-    : LOSS_TITLE;
+  const title = resultTitle(didGuess, currentTry);
 
   return (
     <>
@@ -183,6 +218,9 @@ export function Result({
       <Styled.Buttons>
         <Button stroke onClick={copyResult} variant="background100">
           {buttonText}
+        </Button>
+        <Button stroke onClick={sharePictureNow} variant="background100">
+          {pictureText}
         </Button>
         {!isDaily && (
           <Button stroke onClick={advance} variant={bagEmpty ? "red" : "green"}>

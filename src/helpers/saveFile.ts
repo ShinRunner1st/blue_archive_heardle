@@ -1,5 +1,6 @@
 import { GAME_MODES, GameMode } from "../types/mode";
 import { Round } from "../types/stats";
+import { downloadBlob } from "./download";
 import { loadRounds, toRounds } from "./storage";
 import { obscure, reveal } from "./obscure";
 
@@ -110,20 +111,9 @@ export function readSaveFile(text: string): SaveFileResult {
   return { ok: true, save: { exported, rounds } };
 }
 
-/**
- * Hands the text to the browser as a download. Made on the device, so nothing
- * is sent anywhere.
- */
+/** Downloads the save file. */
 export function downloadText(fileName: string, text: string): void {
-  const url = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = fileName;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  // Revoking straight away can cancel the download in some browsers.
-  window.setTimeout(() => URL.revokeObjectURL(url), 10_000);
+  downloadBlob(fileName, new Blob([text], { type: "text/plain" }));
 }
 
 /**
