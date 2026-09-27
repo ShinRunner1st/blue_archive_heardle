@@ -111,7 +111,7 @@ export const Rows = styled.ul`
     padding: 2px 8px;
 
     font-size: 0.68rem;
-    font-weight: 700;
+    font-weight: 500;
     line-height: 1.4;
     text-align: center;
     white-space: nowrap;

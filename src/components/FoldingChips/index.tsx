@@ -20,7 +20,7 @@ interface Props {
 }
 
 /**
- * Filter chips that fold to two rows, with a button under them to show the
+ * Filter chips that fold to one row, with a button under them to show the
  * rest, offered only when they don't fit - so any number of chips fits
  * without the list below moving. All OST's artists and the Jukebox's albums.
  */

@@ -22,10 +22,13 @@ name, when it's built.
    Worker._ After 2026-12-10, the old-domain cleanup in "Dates to remember" in
    `CLAUDE.md` can ride along.
 3. **Group 3: new ways to play the OST.** Jukebox, then four-choice answers,
-   then time attack (it uses four-choice). _Built on `feat/ost-modes`
-   (stacked on Group 2), not merged yet._
-4. **Group 4: storage.** The user checks the Worker's file limit and makes an R2
-   bucket on our own domain; then copy the OST to R2 and fall back to it.
+   then time attack (it uses four-choice). _Done on `feat/ost-modes` (stacked
+   on Group 2), including the changes the user asked for after testing; not
+   merged yet. No new Worker files, so it adds nothing to `npm run songs`._
+4. **Group 4: storage. Next up.** Make its branch off `feat/ost-modes`. It
+   starts with the user: they check the Worker's file limit and make an R2
+   bucket on our own domain, so ask for both before writing code. Then copy
+   the OST to R2 and fall back to it.
 5. **Group 5: Badle.** Data script, then the icon sprite sheet, then Gameplay
    mode, then Lore mode, then student birthday touches (they use the Badle
    student table).

@@ -76,7 +76,7 @@ naming against the clock) isn't the same test.
   guessed 3 · best in 2 tries".
 - **Jukebox** - in the ☰ menu: every song in theme order, played in full,
   with a search box and OST album chips (Vol.1 to Vol.8 and Other, any
-  number at once, folding to two rows), like All OST. Songs guessed right in any mode are bright,
+  number at once, folding to one row), like All OST. Songs guessed right in any mode are bright,
   the rest dimmed; missed songs look like unplayed ones, so it never shows
   what is left in the endless bag. The repeat button (remembered) goes off →
   play the next song → repeat this song → off. Starting a song pauses any

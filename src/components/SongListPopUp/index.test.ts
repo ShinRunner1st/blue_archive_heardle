@@ -288,7 +288,7 @@ describe("SongListPopUp artist chips fold", () => {
     expect(moreButton()).toBeNull();
   });
 
-  it("folds to two rows and unfolds on request when the chips overflow", () => {
+  it("folds to one row and unfolds on request when the chips overflow", () => {
     vi.spyOn(HTMLElement.prototype, "scrollHeight", "get").mockReturnValue(150);
     vi.spyOn(HTMLElement.prototype, "clientHeight", "get").mockReturnValue(72);
     mount();

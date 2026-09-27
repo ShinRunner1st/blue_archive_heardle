@@ -47,14 +47,14 @@ export const FilterInput = styled.input`
   }
 `;
 
-/** Height of one chip, so "two rows" below is an exact measurement. */
+/** Height of one chip, so "one row" below is an exact measurement. */
 const CHIP_HEIGHT = 30;
 const CHIP_GAP = 6;
 /** Room for a focused chip's outline, which the fold would otherwise clip. */
 const CHIP_PAD = 3;
 
 /**
- * The artist chips wrap onto as many rows as they need, folded to two until
+ * The artist chips wrap onto as many rows as they need, folded to one until
  * the player asks for the rest - so any number of artists fits.
  */
 export const Artists = styled.div<{ $expanded: boolean }>`
@@ -67,7 +67,7 @@ export const Artists = styled.div<{ $expanded: boolean }>`
   padding: ${CHIP_PAD}px;
 
   max-height: ${({ $expanded }) =>
-    $expanded ? "none" : `${CHIP_HEIGHT * 2 + CHIP_GAP + CHIP_PAD * 2}px`};
+    $expanded ? "none" : `${CHIP_HEIGHT + CHIP_PAD * 2}px`};
   overflow: hidden;
 `;
 
@@ -83,7 +83,7 @@ export const Chip = styled.button<{ $active: boolean }>`
 
   font-family: inherit;
   font-size: 0.8rem;
-  font-weight: 700;
+  font-weight: 600;
   white-space: nowrap;
   color: ${({ theme }) => theme.text};
 
