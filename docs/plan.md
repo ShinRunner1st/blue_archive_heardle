@@ -37,11 +37,10 @@ feature ships, add it to "What the game has" in `CLAUDE.md` and remove it here.
 
 ## Phase 1: small, no new files to host
 
-Save export and import (1) and the per-song record (2) are built, on the branch
-`feat/save-export-import` until released. Each new mode's rounds go into the
-save file too (`GAME_MODES` in `src/types/mode.ts`).
+Save export and import (1), the per-song record (2) and the daily calendar (3)
+are built, on the branch `feat/save-export-import` until released. Each new
+mode's rounds go into the save file too (`GAME_MODES` in `src/types/mode.ts`).
 
-3. **Daily calendar** in stats: each day coloured by how it went.
 4. **Result picture** for sharing on X. Drawn in the browser, then shared
    through the phone's share sheet or saved. In every mode. The daily picture
    never shows the song; endless and time attack pictures can.

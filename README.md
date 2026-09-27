@@ -35,6 +35,9 @@ Each mode keeps its own score and history, saved in your browser.
 
 ### Also
 
+- **Daily calendar** - daily stats show every puzzle on a month calendar,
+  coloured by how it went: greener for fewer tries, red for a loss, faint
+  for a day not played. It names no songs, so it spoils nothing.
 - **Result screen** - plays the answer from where your clip started, marks
   which part was your clip, and can replay just that part. Under the song it
   shows your record with it across both modes, such as "Heard 4 times ·

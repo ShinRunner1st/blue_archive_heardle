@@ -45,6 +45,7 @@ function App() {
     stats,
     score,
     streaks,
+    dailyResults,
     winStreak,
     dayStreak,
     badges,
@@ -197,6 +198,7 @@ function App() {
           stats={stats}
           mode={mode}
           streaks={streaks}
+          dailyResults={dailyResults}
         />
       )}
       {isInfoPopUpOpen && (

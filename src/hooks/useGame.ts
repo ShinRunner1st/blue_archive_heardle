@@ -2,6 +2,7 @@ import React from "react";
 
 import { calRecentCorrect, calStats, isFinished } from "../helpers";
 import { badgeNews, badgeProgress, guessedThemes } from "../helpers/badges";
+import { dailyOutcomes } from "../helpers/dailyCalendar";
 import { songRecord, songRecordText } from "../helpers/songRecord";
 import { calStreaks } from "../helpers/streaks";
 import { calDayStreak, calWinStreak } from "../helpers/winStreak";
@@ -213,6 +214,12 @@ export function useGame(mode: GameMode) {
     [histories.daily]
   );
 
+  // How each daily puzzle went, for the calendar in stats.
+  const dailyResults = React.useMemo(
+    () => dailyOutcomes(histories.daily),
+    [histories.daily]
+  );
+
   // Each mode's own run, which moves its background (see
   // constants/streakPlaces): endless wins in a row, and the daily day streak.
   const winStreak = React.useMemo(
@@ -264,6 +271,7 @@ export function useGame(mode: GameMode) {
     stats,
     score,
     streaks,
+    dailyResults,
     winStreak,
     dayStreak,
     badges,

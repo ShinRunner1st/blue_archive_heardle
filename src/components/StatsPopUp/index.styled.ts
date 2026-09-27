@@ -1,5 +1,7 @@
 import styled from "styled-components";
 
+import { Theme } from "../../constants/theme";
+
 export const Rows = styled.div`
   display: flex;
   flex-direction: column;
@@ -98,4 +100,154 @@ export const TileLabel = styled.span`
   letter-spacing: 0.9px;
   text-transform: uppercase;
   opacity: 0.55;
+`;
+
+export const Calendar = styled.div`
+  width: 100%;
+`;
+
+export const CalendarHead = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 8px;
+`;
+
+export const MonthName = styled.span`
+  font-size: 0.92rem;
+  font-weight: 800;
+`;
+
+export const MonthButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 30px;
+  height: 30px;
+
+  font-size: 16px;
+  color: ${({ theme }) => theme.text};
+
+  background-color: rgba(241, 247, 237, 0.08);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background-color: rgba(241, 247, 237, 0.16);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
+`;
+
+export const Grid = styled.table`
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 4px;
+  table-layout: fixed;
+
+  td {
+    padding: 0;
+  }
+`;
+
+export const Weekday = styled.th`
+  padding-bottom: 2px;
+
+  font-size: 0.68rem;
+  font-weight: 700;
+  opacity: 0.55;
+`;
+
+export type DayTone =
+  | "best"
+  | "good"
+  | "close"
+  | "lost"
+  | "missed"
+  | "open"
+  | "none";
+
+/** The day's colour. Hex alpha on the theme colours keeps both schemes right. */
+const fill = (theme: Theme, tone: DayTone): string => {
+  switch (tone) {
+    case "best":
+      return theme.green;
+    case "good":
+      return `${theme.green}a6`;
+    case "close":
+      return `${theme.green}59`;
+    case "lost":
+      return `${theme.red}b3`;
+    case "missed":
+      return "rgba(241, 247, 237, 0.07)";
+    default:
+      return "transparent";
+  }
+};
+
+export const Day = styled.span<{ $tone: DayTone; $today?: boolean }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  aspect-ratio: 1;
+  max-height: 40px;
+  margin: 0 auto;
+
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+
+  background-color: ${({ theme, $tone }) => fill(theme, $tone)};
+  border: 2px solid
+    ${({ theme, $today }) => ($today ? theme.border : "transparent")};
+  border-radius: 8px;
+  opacity: ${({ $tone }) => ($tone === "none" ? 0.3 : 1)};
+`;
+
+/** Read out by screen readers, never shown. */
+export const Hidden = styled.span`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+`;
+
+export const Legend = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px 12px;
+
+  margin-top: 8px;
+
+  font-size: 0.72rem;
+  opacity: 0.75;
+`;
+
+export const LegendItem = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+`;
+
+export const Swatch = styled.span<{ $tone: DayTone }>`
+  width: 11px;
+  height: 11px;
+
+  background-color: ${({ theme, $tone }) => fill(theme, $tone)};
+  border-radius: 3px;
 `;

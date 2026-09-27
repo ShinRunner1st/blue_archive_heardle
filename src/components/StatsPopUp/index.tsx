@@ -6,6 +6,9 @@ import { songs } from "../../constants";
 import { GameMode } from "../../types/mode";
 import { StatsTally } from "../../types/stats";
 import { Streaks } from "../../helpers/streaks";
+import { DayOutcome } from "../../helpers/dailyCalendar";
+
+import { DailyCalendar } from "./DailyCalendar";
 
 import * as Styled from "./index.styled";
 
@@ -15,6 +18,8 @@ interface Props {
   stats: StatsTally;
   mode: GameMode;
   streaks: Streaks;
+  /** How each daily puzzle went, for the calendar. */
+  dailyResults: Map<number, DayOutcome>;
 }
 
 /** Each mode keeps its own history, so the pop-up says which one it is showing. */
@@ -89,7 +94,14 @@ function StatRow({
   );
 }
 
-export function StatsPopUp({ onClose, score, stats, mode, streaks }: Props) {
+export function StatsPopUp({
+  onClose,
+  score,
+  stats,
+  mode,
+  streaks,
+  dailyResults,
+}: Props) {
   const [animate, setAnimate] = useState(false);
 
   useEffect(() => {
@@ -157,6 +169,14 @@ export function StatsPopUp({ onClose, score, stats, mode, streaks }: Props) {
             </Styled.Tile>
           )}
         </Styled.Tiles>
+
+        {mode === "daily" && (
+          <>
+            <PopUpSpacer />
+            <PopUpGroupLabel>Calendar</PopUpGroupLabel>
+            <DailyCalendar outcomes={dailyResults} />
+          </>
+        )}
       </PopUpBody>
     </PopUp>
   );

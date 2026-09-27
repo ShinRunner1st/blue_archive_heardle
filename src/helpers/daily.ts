@@ -53,6 +53,16 @@ export function dailySong(day: number): Song {
   return songs[index % songs.length];
 }
 
+/** The local calendar date of a puzzle number: the reverse of dayNumber. */
+export function dateOfDay(day: number): Date {
+  const epoch = epochDate();
+  return new Date(
+    epoch.getFullYear(),
+    epoch.getMonth(),
+    epoch.getDate() + day - 1
+  );
+}
+
 /** Milliseconds from `now` until the next local midnight. */
 export function msUntilNextDay(now: Date = new Date()): number {
   const tomorrow = new Date(

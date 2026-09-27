@@ -11,6 +11,12 @@ const onClose = vi.fn();
 
 const stats: StatsTally = [1, 4, 2, 0, 0, 0, 0, 7];
 const streaks = { current: 3, max: 9 };
+const dailyResults = new Map([
+  [1, { won: true as const, tries: 1 }],
+  [2, { won: true as const, tries: 4 }],
+  [3, { won: false as const }],
+  [5, { won: true as const, tries: 6 }],
+]);
 
 function mount(mode: GameMode = "endless") {
   harness.render(
@@ -20,6 +26,7 @@ function mount(mode: GameMode = "endless") {
       stats,
       mode,
       streaks,
+      dailyResults,
     })
   );
 }
@@ -80,5 +87,45 @@ describe("StatsPopUp", () => {
       close?.click();
     });
     expect(onClose).toHaveBeenCalled();
+  });
+});
+
+describe("StatsPopUp calendar", () => {
+  const text = () => harness.container.textContent ?? "";
+  const button = (label: string) =>
+    harness.container.querySelector<HTMLButtonElement>(
+      `button[aria-label="${label}"]`
+    )!;
+
+  beforeEach(() => {
+    // Puzzle #6.
+    vi.setSystemTime(new Date(2026, 9, 2, 12));
+  });
+
+  it("isn't in endless stats", () => {
+    mount("endless");
+    expect(text()).not.toContain("Calendar");
+  });
+
+  it("opens on this month and says how each day went", () => {
+    mount("daily");
+
+    expect(text()).toContain("October 2026");
+    expect(text()).toContain("1 October, puzzle #5: won in 6 tries");
+    expect(text()).toContain("2 October, puzzle #6: not finished yet");
+    expect(button("Next month").disabled).toBe(true);
+  });
+
+  it("goes back to earlier months, as far as the first puzzle", () => {
+    mount("daily");
+    act(() => button("Previous month").click());
+
+    expect(text()).toContain("September 2026");
+    expect(text()).toContain("27 September, puzzle #1: won in 1 try");
+    expect(text()).toContain("28 September, puzzle #2: won in 4 tries");
+    expect(text()).toContain("29 September, puzzle #3: lost");
+    expect(text()).toContain("30 September, puzzle #4: not played");
+    expect(text()).not.toContain("puzzle #0");
+    expect(button("Previous month").disabled).toBe(true);
   });
 });

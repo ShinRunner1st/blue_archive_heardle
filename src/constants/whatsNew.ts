@@ -1,5 +1,6 @@
 import type { IconType } from "react-icons";
 import {
+  IoCalendar,
   IoDisc,
   IoKeypad,
   IoMap,
@@ -32,7 +33,7 @@ export interface NewsUpdate {
 export const WHATS_NEW: NewsUpdate[] = [
   {
     id: "2026-09-save-file",
-    name: "Your save and your songs",
+    name: "Your save, your songs, your days",
     items: [
       {
         icon: IoSave,
@@ -43,6 +44,11 @@ export const WHATS_NEW: NewsUpdate[] = [
         icon: IoMusicalNotes,
         title: "Your record with each song",
         text: "The result screen now shows how often you've heard the song, how many times you guessed it and your best number of tries.",
+      },
+      {
+        icon: IoCalendar,
+        title: "Daily calendar",
+        text: "Daily stats now have a calendar of every puzzle, coloured by how it went. No song names, so it's safe to show off.",
       },
     ],
   },

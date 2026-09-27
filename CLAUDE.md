@@ -59,7 +59,8 @@ What the project cares about:
 - **345 songs** in `src/constants/songs.ts`, each a 16-second Ogg clip. Six
   tries; each wrong guess or skip lengthens the clip (1s → 2s → 4s → 7s → 11s
   → 16s). Wrong guesses show an arrow towards the answer's theme number.
-- **Daily** (same song for everyone, streak, spoiler-free share text) and
+- **Daily** (same song for everyone, streak, spoiler-free share text, a
+  calendar in stats coloured by how each day went) and
   **endless** (no repeats until every song is played). Separate stats each.
 - **Search** by name, artist or theme number; **All OST** list with artist
   filters.
