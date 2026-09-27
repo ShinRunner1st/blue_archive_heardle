@@ -58,6 +58,11 @@ Each mode keeps its own score and history, saved in your browser.
   stands beside the game and reacts to your guesses. Hold her to make her look
   at you, stroke her head, or tap her. ☰ → Settings swaps in Mari or turns
   her off.
+- **Save file** - ☰ → Settings exports your progress in every mode to a
+  file, scrambled like the saves, and imports it in another browser or on
+  another device. The file is made and read on the device; nothing is
+  uploaded. An import is checked like a save, shows what's in it and asks
+  before it replaces the progress there.
 - **What's new** - after an update, returning players see what was added,
   once, with the two updates before it for anyone who missed them. It stays
   in the ☰ menu. The updates are listed newest first in
@@ -241,6 +246,7 @@ docs/           README screenshots
 Game state lives in `useGame`, which keeps both modes and saves each to its
 own `localStorage` key. Everything read back from storage is validated, so a
 corrupted or outdated save starts a fresh game instead of breaking the page.
+Save files (`src/helpers/saveFile.ts`) go through the same checks.
 
 ## Deploying
 

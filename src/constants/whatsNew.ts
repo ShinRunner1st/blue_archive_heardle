@@ -4,6 +4,7 @@ import {
   IoKeypad,
   IoMap,
   IoNavigate,
+  IoSave,
   IoShieldCheckmark,
   IoSparkles,
 } from "react-icons/io5";
@@ -28,6 +29,17 @@ export interface NewsUpdate {
  * below it (see SHOWN_UPDATES) for anyone who missed them.
  */
 export const WHATS_NEW: NewsUpdate[] = [
+  {
+    id: "2026-09-save-file",
+    name: "Save file",
+    items: [
+      {
+        icon: IoSave,
+        title: "Take your progress with you",
+        text: "Export your progress in every mode to a file in Settings, then import it on another device or browser to carry on there.",
+      },
+    ],
+  },
   {
     id: "2026-09-keyboard",
     name: "Keyboard and privacy",

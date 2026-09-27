@@ -1,12 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { MODE_KEY, STORAGE_KEY } from "../constants/game";
+import { DAILY_STORAGE_KEY, MODE_KEY, STORAGE_KEY } from "../constants/game";
 import {
   emptyGuesses,
   hasSeenWhatsNew,
   loadMode,
   loadRounds,
   markWhatsNewSeen,
+  replaceAllRounds,
   saveMode,
   saveRounds,
 } from "./storage";
@@ -197,5 +198,43 @@ describe("loadMode", () => {
     localStorage.setItem(MODE_KEY, "sideways");
 
     expect(loadMode()).toBe("daily");
+  });
+});
+
+describe("replaceAllRounds", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.restoreAllMocks();
+  });
+
+  it("swaps every mode's rounds", () => {
+    saveRounds([round()], "endless");
+
+    const daily = [round({ day: 3 })];
+    expect(replaceAllRounds({ daily, endless: [] })).toBe(true);
+
+    expect(loadRounds("daily")).toEqual(daily);
+    expect(loadRounds("endless")).toEqual([]);
+  });
+
+  it("undoes the writes already made when one fails", () => {
+    localStorage.setItem(STORAGE_KEY, "old endless");
+    const setItem = Storage.prototype.setItem;
+    vi.spyOn(Storage.prototype, "setItem").mockImplementation(function (
+      this: Storage,
+      key: string,
+      value: string
+    ) {
+      if (key === STORAGE_KEY && value !== "old endless") {
+        throw new DOMException("full", "QuotaExceededError");
+      }
+      setItem.call(this, key, value);
+    });
+
+    expect(replaceAllRounds({ daily: [round()], endless: [round()] })).toBe(
+      false
+    );
+    expect(localStorage.getItem(DAILY_STORAGE_KEY)).toBeNull();
+    expect(localStorage.getItem(STORAGE_KEY)).toBe("old endless");
   });
 });

@@ -18,6 +18,7 @@ import {
 } from "../PopUp";
 import { Switch } from "../Switch";
 
+import { SaveFile } from "./SaveFile";
 import * as Styled from "./index.styled";
 
 interface Props {
@@ -95,6 +96,8 @@ export function SettingsPopUp({ onClose }: Props) {
             </Styled.Choices>
           </Styled.Stack>
         </PopUpCard>
+
+        <SaveFile />
       </PopUpBody>
     </PopUp>
   );

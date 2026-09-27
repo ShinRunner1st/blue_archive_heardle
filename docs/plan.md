@@ -37,8 +37,9 @@ feature ships, add it to "What the game has" in `CLAUDE.md` and remove it here.
 
 ## Phase 1: small, no new files to host
 
-1. **Save export and import** in Settings. All modes in one file, scrambled like
-   the saves, and checked on import so a bad file never breaks the page.
+Save export and import (1) has shipped. Each new mode's rounds go into its
+save file too (`GAME_MODES` in `src/types/mode.ts`).
+
 2. **Per-song record** on the result screen, for example "Heard 4 times, guessed
    3, best in 2 tries". Made from the saved rounds.
 3. **Daily calendar** in stats: each day coloured by how it went.

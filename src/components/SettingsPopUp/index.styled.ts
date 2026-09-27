@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { PopUpCard } from "../PopUp";
 
@@ -68,4 +68,75 @@ export const Choice = styled.button<{ $active: boolean }>`
     outline: 2px solid ${({ theme }) => theme.border};
     outline-offset: 1px;
   }
+`;
+
+/** Buttons side by side under a card's text. */
+export const Actions = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
+const action = css<{ $tone?: "red" }>`
+  flex: 1;
+  padding: 8px 12px;
+
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: ${({ theme }) => theme.text};
+  text-align: center;
+  white-space: nowrap;
+
+  background-color: ${({ theme, $tone }) =>
+    $tone ? theme[$tone] : "rgba(241, 247, 237, 0.1)"};
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+`;
+
+export const Action = styled.button<{ $tone?: "red" }>`
+  ${action}
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
+`;
+
+/**
+ * A label that opens the file picker. The input inside is hidden from sight
+ * but not from the keyboard, so Tab reaches it and the ring shows here.
+ */
+export const FileAction = styled.label<{ $tone?: "red" }>`
+  ${action}
+
+  position: relative;
+
+  input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  &:has(input:focus-visible) {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
+`;
+
+export const Notice = styled.p`
+  margin: 0;
+
+  font-size: 0.82rem;
+  line-height: 1.45;
 `;

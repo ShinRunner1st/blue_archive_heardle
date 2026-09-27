@@ -147,13 +147,49 @@ export function loadRounds(mode: GameMode = "endless"): Round[] {
     return [];
   }
 
-  if (!Array.isArray(parsed)) return [];
+  return toRounds(parsed);
+}
 
-  return parsed.map(toRound).filter((round): round is Round => round !== null);
+/**
+ * The usable rounds in a parsed value, dropping any too damaged to repair.
+ * Shared with save files, which are checked the same way as the saves.
+ */
+export function toRounds(value: unknown): Round[] {
+  if (!Array.isArray(value)) return [];
+  return value.map(toRound).filter((round): round is Round => round !== null);
 }
 
 export function saveRounds(rounds: Round[], mode: GameMode = "endless"): void {
   writeKey(keyFor(mode), obscure(JSON.stringify(rounds)));
+}
+
+/**
+ * Swaps every mode's rounds for the given ones, as one change: if any write
+ * fails (storage full or blocked), the ones already made are undone, so the
+ * player never ends up with half a save. Returns whether it worked.
+ */
+export function replaceAllRounds(
+  histories: Record<GameMode, Round[]>
+): boolean {
+  const modes = Object.keys(histories) as GameMode[];
+  const before = modes.map((mode) => readKey(keyFor(mode)));
+
+  try {
+    for (const mode of modes) {
+      localStorage.setItem(
+        keyFor(mode),
+        obscure(JSON.stringify(histories[mode]))
+      );
+    }
+    return true;
+  } catch {
+    modes.forEach((mode, i) => {
+      const previous = before[i];
+      if (previous === null) removeKey(keyFor(mode));
+      else writeKey(keyFor(mode), previous);
+    });
+    return false;
+  }
 }
 
 export function clearRounds(mode: GameMode = "endless"): void {

@@ -67,6 +67,9 @@ What the project cares about:
   marks and replays the clip part; results worded as Blue Archive missions.
 - **Settings**: volume (remembered, 20% default), dark mode, Blue Archive
   cursor with tap and drag effects (can be turned off), character choice.
+- **Save file**: export all modes to one scrambled file and import it on
+  another device (`src/helpers/saveFile.ts`); checked like the saves, asks
+  before replacing, then reloads the page.
 - **Characters**: Arona (light) / Plana (dark) / Mari, drawn with Spine,
   react to guesses and can be held, stroked and tapped. Wide screens only.
 - **Streak places**: every 10 wins in a row moves the background somewhere new
