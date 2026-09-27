@@ -53,7 +53,7 @@ export const WHATS_NEW: NewsUpdate[] = [
       {
         icon: IoRadio,
         title: "Jukebox",
-        text: "Open the Jukebox from the ☰ menu to play any song in full. Search it or pick OST albums; the songs you've guessed stand out. Turn on Auto next to keep the music going.",
+        text: "Open the Jukebox from the ☰ menu to play any song in full. Search it or pick OST albums; the songs you've guessed stand out. The repeat button plays on to the next song, or loops the one you love.",
       },
       {
         icon: IoPerson,

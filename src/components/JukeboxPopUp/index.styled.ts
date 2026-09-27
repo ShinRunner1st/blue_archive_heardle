@@ -1,15 +1,10 @@
 import styled from "styled-components";
-import {
-  IoRepeat,
-  IoPlaySkipBack,
-  IoPlaySkipForward,
-  IoVolumeHigh,
-} from "react-icons/io5";
+import { IoPlaySkipBack, IoPlaySkipForward } from "react-icons/io5";
+import { MdRepeat, MdRepeatOne } from "react-icons/md";
 
 import { slimScrollbar } from "../PopUp/scrollbar";
 
 export {
-  ArtistTag,
   Chip,
   ChipCount,
   Count,
@@ -17,9 +12,6 @@ export {
   Filter,
   FilterIcon,
   FilterInput,
-  NameCell,
-  SongName,
-  ThemeNo,
 } from "../SongListPopUp/index.styled";
 export {
   Art,
@@ -100,10 +92,10 @@ export const PlayerControls = styled.div`
 `;
 
 /**
- * Turns auto-next on and off: an icon the size of the skip buttons, so the
- * row keeps its layout, green while on.
+ * Off, next song, this song: an icon the size of the skip buttons, so the
+ * row keeps its layout, green while on and with a 1 for this song.
  */
-export const AutoNext = styled.button<{ $on: boolean }>`
+export const Repeat = styled.button<{ $on: boolean }>`
   flex-shrink: 0;
 
   display: flex;
@@ -130,7 +122,8 @@ export const AutoNext = styled.button<{ $on: boolean }>`
   }
 `;
 
-export const AutoNextIcon = IoRepeat;
+export const RepeatIcon = MdRepeat;
+export const RepeatOneIcon = MdRepeatOne;
 
 /** The volume keeps to the right, away from the transport buttons. */
 export const PlayerVolume = styled.div`
@@ -165,17 +158,6 @@ export const Skip = styled.button`
 export const PreviousIcon = IoPlaySkipBack;
 export const NextIcon = IoPlaySkipForward;
 
-/** The album chips, which all fit on a line or two. */
-export const Albums = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-
-  width: 100%;
-  margin-top: 10px;
-  padding: 3px;
-`;
-
 /** Scrolls on its own, like the All OST list, so the player stays in view. */
 export const List = styled.div`
   box-sizing: border-box;
@@ -194,71 +176,4 @@ export const List = styled.div`
   }
 
   ${slimScrollbar}
-`;
-
-/** One grid for every row, so the number and artist columns line up. */
-export const Songs = styled.ul`
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-
-  margin: 0;
-  padding: 4px;
-  list-style: none;
-
-  li {
-    display: grid;
-    grid-column: 1 / -1;
-    grid-template-columns: subgrid;
-  }
-`;
-
-/**
- * Songs guessed right stand out and the rest are dimmed. There is no third
- * look for songs missed: that would show what is left in the endless bag.
- * Hovering changes colour only, never size, so a pointer resting on the line
- * between two rows can't flick between them.
- */
-export const SongButton = styled.button<{
-  $bright: boolean;
-  $selected: boolean;
-}>`
-  display: grid;
-  grid-column: 1 / -1;
-  grid-template-columns: subgrid;
-  align-items: center;
-  column-gap: 8px;
-
-  width: 100%;
-  padding: 9px 10px;
-
-  font-family: inherit;
-  font-size: 0.95rem;
-  font-weight: ${({ $bright }) => ($bright ? 700 : 400)};
-  text-align: left;
-  color: ${({ theme }) => theme.text};
-
-  background-color: ${({ theme, $selected }) =>
-    $selected ? theme.background100 : "transparent"};
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-
-  opacity: ${({ $bright, $selected }) => ($bright || $selected ? 1 : 0.5)};
-
-  &:hover {
-    opacity: 1;
-    background-color: ${({ theme }) => theme.background100};
-  }
-
-  &:focus-visible {
-    opacity: 1;
-    outline: 2px solid ${({ theme }) => theme.border};
-    outline-offset: -2px;
-  }
-`;
-
-export const NowIcon = styled(IoVolumeHigh)`
-  flex-shrink: 0;
-  font-size: 16px;
-  color: ${({ theme }) => theme.green};
 `;

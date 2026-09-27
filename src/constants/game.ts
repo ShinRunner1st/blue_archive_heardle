@@ -43,10 +43,11 @@ export const CLIP_OPTIONS = [1, 2, 3, 5, 7];
 export const PLAYER_NAME_KEY = "playerName";
 
 /**
- * localStorage key holding "true" once the player has the Jukebox play the
- * next song when one ends. Absent means off.
+ * localStorage key holding what the Jukebox does when a song ends: "next"
+ * plays the next song in the list, "one" plays the same song again. Absent
+ * means it stops.
  */
-export const JUKEBOX_AUTO_NEXT_KEY = "jukeboxAutoNext";
+export const JUKEBOX_REPEAT_KEY = "jukeboxRepeat";
 
 /** localStorage key holding the clip length picked for 4-Choice. */
 export const CHOICE_CLIP_KEY = "choiceClip";

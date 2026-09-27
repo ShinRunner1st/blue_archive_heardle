@@ -2,13 +2,16 @@ import React from "react";
 
 import { ALBUM_FILTERS, albumCount, jukeboxSongs } from "../../helpers/jukebox";
 import {
-  loadJukeboxAutoNext,
-  saveJukeboxAutoNext,
+  JukeboxRepeat,
+  loadJukeboxRepeat,
+  saveJukeboxRepeat,
 } from "../../helpers/storage";
 import { Song } from "../../types/song";
 
 import { Button } from "../Button";
+import { FoldingChips } from "../FoldingChips";
 import { PopUp } from "../PopUp";
+import { SongRows } from "../SongRows";
 
 import { JukeboxPlayer } from "./JukeboxPlayer";
 import * as Styled from "./index.styled";
@@ -35,11 +38,11 @@ export function JukeboxPopUp({ onClose, guessed }: Props) {
   const [filter, setFilter] = React.useState("");
   const [albums, setAlbums] = React.useState<string[]>([]);
   const [playing, setPlaying] = React.useState<Song>();
-  const [autoNext, setAutoNext] = React.useState(loadJukeboxAutoNext);
+  const [repeat, setRepeat] = React.useState(loadJukeboxRepeat);
 
-  const changeAutoNext = (on: boolean) => {
-    setAutoNext(on);
-    saveJukeboxAutoNext(on);
+  const changeRepeat = (next: JukeboxRepeat) => {
+    setRepeat(next);
+    saveJukeboxRepeat(next);
   };
 
   const matches = React.useMemo(
@@ -91,8 +94,8 @@ export function JukeboxPopUp({ onClose, guessed }: Props) {
         song={playing}
         onPrevious={previous && (() => setPlaying(previous))}
         onNext={next && (() => setPlaying(next))}
-        autoNext={autoNext}
-        onAutoNextChange={changeAutoNext}
+        repeat={repeat}
+        onRepeatChange={changeRepeat}
       />
 
       <Styled.Filter>
@@ -108,7 +111,17 @@ export function JukeboxPopUp({ onClose, guessed }: Props) {
         />
       </Styled.Filter>
 
-      <Styled.Albums role="group" aria-label="Filter by album">
+      <FoldingChips
+        id="jukebox-albums"
+        label="Filter by album"
+        more="All albums"
+        fewer="Fewer albums"
+        summary={
+          <Styled.Count role="status" aria-live="polite">
+            {matches.length} {matches.length === 1 ? "song" : "songs"}
+          </Styled.Count>
+        }
+      >
         <Styled.Chip
           type="button"
           aria-pressed={albums.length === 0}
@@ -129,44 +142,19 @@ export function JukeboxPopUp({ onClose, guessed }: Props) {
             <Styled.ChipCount>{COUNTS.get(album.id)}</Styled.ChipCount>
           </Styled.Chip>
         ))}
-      </Styled.Albums>
-
-      <Styled.Count role="status" aria-live="polite">
-        {matches.length} {matches.length === 1 ? "song" : "songs"}
-      </Styled.Count>
+      </FoldingChips>
 
       <Styled.List>
         {matches.length === 0 && (
           <Styled.Empty>No songs match “{filter.trim()}”.</Styled.Empty>
         )}
-        <Styled.Songs>
-          {matches.map((song) => {
-            const isPlaying = playing?.themeNo === song.themeNo;
-
-            return (
-              <li key={song.themeNo}>
-                <Styled.SongButton
-                  type="button"
-                  onClick={() => setPlaying(song)}
-                  aria-pressed={isPlaying}
-                  $bright={guessed.has(song.themeNo)}
-                  $selected={isPlaying}
-                >
-                  <Styled.NameCell>
-                    <Styled.SongName>{song.name}</Styled.SongName>
-                    {isPlaying && <Styled.NowIcon aria-hidden="true" />}
-                  </Styled.NameCell>
-                  <Styled.ThemeNo>
-                    {song.name !== `Theme ${song.themeNo}` && song.themeNo}
-                  </Styled.ThemeNo>
-                  <Styled.ArtistTag title={song.artist}>
-                    {song.artist}
-                  </Styled.ArtistTag>
-                </Styled.SongButton>
-              </li>
-            );
-          })}
-        </Styled.Songs>
+        <SongRows
+          songs={matches}
+          selected={playing?.themeNo}
+          onPick={setPlaying}
+          selectedMark="playing"
+          bright={guessed}
+        />
       </Styled.List>
     </PopUp>
   );

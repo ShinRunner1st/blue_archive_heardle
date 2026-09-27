@@ -3,7 +3,7 @@ import {
   CHOICE_CLIP_SECONDS,
   CHOICE_STORAGE_KEY,
   CLIP_OPTIONS,
-  JUKEBOX_AUTO_NEXT_KEY,
+  JUKEBOX_REPEAT_KEY,
   PLAYER_NAME_KEY,
   DAILY_STORAGE_KEY,
   DEFAULT_VOLUME,
@@ -293,13 +293,17 @@ export function savePlayerName(name: string): void {
   else writeKey(PLAYER_NAME_KEY, name);
 }
 
-/** Whether the Jukebox plays on to the next song. Off unless turned on. */
-export function loadJukeboxAutoNext(): boolean {
-  return readKey(JUKEBOX_AUTO_NEXT_KEY) === "true";
+/** What the Jukebox does when a song ends; it stops unless told otherwise. */
+export type JukeboxRepeat = "off" | "next" | "one";
+
+export function loadJukeboxRepeat(): JukeboxRepeat {
+  const stored = readKey(JUKEBOX_REPEAT_KEY);
+  return stored === "next" || stored === "one" ? stored : "off";
 }
 
-export function saveJukeboxAutoNext(on: boolean): void {
-  writeKey(JUKEBOX_AUTO_NEXT_KEY, String(on));
+export function saveJukeboxRepeat(repeat: JukeboxRepeat): void {
+  if (repeat === "off") removeKey(JUKEBOX_REPEAT_KEY);
+  else writeKey(JUKEBOX_REPEAT_KEY, repeat);
 }
 
 /** The clip length picked for 4-Choice, in seconds. */

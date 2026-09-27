@@ -86,8 +86,9 @@ What the project cares about:
   score. No badges.
 - **Jukebox** (☰ menu): every song in full, searchable, with album chips
   like All OST's artist chips; songs guessed right in any mode are bright.
-  Its player keeps one fixed layout; Auto next is off by default and
-  remembered. Playing any audio pauses the rest (`src/helpers/onePlayer.ts`).
+  Its player keeps one fixed layout; the repeat button cycles off / next
+  song / this song, remembered. Rows come from `SongRows` (shared with All
+  OST, kept light for speed) and chips from `FoldingChips`. Playing any audio pauses the rest (`src/helpers/onePlayer.ts`).
 - **Search** by name, artist or theme number; **All OST** list with artist
   filters.
 - **Result screen**: now-playing card, plays the answer from the clip's start,

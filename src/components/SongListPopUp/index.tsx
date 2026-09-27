@@ -3,7 +3,9 @@ import React from "react";
 import { artists, filterSongs } from "../../helpers/searchSong";
 import { Song } from "../../types/song";
 
+import { FoldingChips } from "../FoldingChips";
 import { PopUp } from "../PopUp";
+import { SongRows } from "../SongRows";
 
 import * as Styled from "./index.styled";
 
@@ -48,26 +50,6 @@ export function SongListPopUp({
             .filter((name) => name === artist || current.includes(name))
     );
 
-  // The chips fold to two rows, and only offer to unfold when they need to -
-  // so the list can take any number of artists without a layout change.
-  const chipsRef = React.useRef<HTMLDivElement>(null);
-  const [expanded, setExpanded] = React.useState(false);
-  const [overflows, setOverflows] = React.useState(false);
-
-  React.useLayoutEffect(() => {
-    const chips = chipsRef.current;
-    if (!chips || expanded) return;
-
-    const measure = () =>
-      setOverflows(chips.scrollHeight > chips.clientHeight + 1);
-    measure();
-
-    if (typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(measure);
-    observer.observe(chips);
-    return () => observer.disconnect();
-  }, [expanded]);
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // With the list narrowed to one song, Enter picks it.
     if (e.key === "Enter" && matches.length === 1) {
@@ -98,12 +80,22 @@ export function SongListPopUp({
         />
       </Styled.Filter>
 
-      <Styled.Artists
-        ref={chipsRef}
+      <FoldingChips
         id="song-list-artists"
-        role="group"
-        aria-label="Filter by artist"
-        $expanded={expanded}
+        label="Filter by artist"
+        more={`All ${artists.length} artists`}
+        fewer="Fewer artists"
+        summary={
+          <Styled.Count role="status" aria-live="polite">
+            {matches.length} {matches.length === 1 ? "song" : "songs"}
+            {picked.length > 0 && (
+              <>
+                {" · "}
+                {picked.length === 1 ? picked[0] : `${picked.length} artists`}
+              </>
+            )}
+          </Styled.Count>
+        }
       >
         <Styled.Chip
           type="button"
@@ -129,30 +121,7 @@ export function SongListPopUp({
             </Styled.Chip>
           );
         })}
-      </Styled.Artists>
-
-      <Styled.Summary>
-        <Styled.Count role="status" aria-live="polite">
-          {matches.length} {matches.length === 1 ? "song" : "songs"}
-          {picked.length > 0 && (
-            <>
-              {" · "}
-              {picked.length === 1 ? picked[0] : `${picked.length} artists`}
-            </>
-          )}
-        </Styled.Count>
-        {(overflows || expanded) && (
-          <Styled.MoreButton
-            type="button"
-            onClick={() => setExpanded((was) => !was)}
-            aria-expanded={expanded}
-            aria-controls="song-list-artists"
-          >
-            {expanded ? "Fewer artists" : `All ${artists.length} artists`}
-            <Styled.MoreIcon $expanded={expanded} aria-hidden="true" />
-          </Styled.MoreButton>
-        )}
-      </Styled.Summary>
+      </FoldingChips>
 
       <Styled.List>
         {matches.length === 0 && (
@@ -163,36 +132,13 @@ export function SongListPopUp({
           </Styled.Empty>
         )}
 
-        <Styled.Songs>
-          {matches.map((song) => {
-            const isSelected = selectedSong?.themeNo === song.themeNo;
-            const isGuessed = guessedSet.has(song.themeNo);
-
-            return (
-              <li key={song.themeNo}>
-                <Styled.SongButton
-                  type="button"
-                  onClick={() => onSelect(song)}
-                  aria-pressed={isSelected}
-                  $selected={isSelected}
-                  $guessed={isGuessed}
-                >
-                  <Styled.NameCell>
-                    <Styled.SongName>{song.name}</Styled.SongName>
-                    {isGuessed && <Styled.Tag>Guessed</Styled.Tag>}
-                    {isSelected && <Styled.Check aria-hidden="true" />}
-                  </Styled.NameCell>
-                  <Styled.ThemeNo>
-                    {song.name !== `Theme ${song.themeNo}` && song.themeNo}
-                  </Styled.ThemeNo>
-                  <Styled.ArtistTag title={song.artist}>
-                    {song.artist}
-                  </Styled.ArtistTag>
-                </Styled.SongButton>
-              </li>
-            );
-          })}
-        </Styled.Songs>
+        <SongRows
+          songs={matches}
+          selected={selectedSong?.themeNo}
+          onPick={onSelect}
+          selectedMark="check"
+          guessed={guessedSet}
+        />
       </Styled.List>
     </PopUp>
   );

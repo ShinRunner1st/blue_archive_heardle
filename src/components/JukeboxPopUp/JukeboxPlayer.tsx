@@ -3,6 +3,7 @@ import React from "react";
 import { clipInfo, getSongUrl } from "../../helpers/audioUrl";
 import { useAudioSource } from "../../hooks/useAudioSource";
 import { useAudioVolume } from "../../hooks/useVolume";
+import { JukeboxRepeat } from "../../helpers/storage";
 import { Song } from "../../types/song";
 
 import { VolumeControl } from "../VolumeControl";
@@ -15,10 +16,23 @@ interface Props {
   /** The songs either side of it in the list shown, if any. */
   onPrevious?: () => void;
   onNext?: () => void;
-  /** Plays the next song in the list when one ends. */
-  autoNext: boolean;
-  onAutoNextChange: (on: boolean) => void;
+  /** When a song ends: stop, play the next in the list, or play it again. */
+  repeat: JukeboxRepeat;
+  onRepeatChange: (repeat: JukeboxRepeat) => void;
 }
+
+/** Each press of the repeat button moves on one. */
+const NEXT_REPEAT: Record<JukeboxRepeat, JukeboxRepeat> = {
+  off: "next",
+  next: "one",
+  one: "off",
+};
+
+const REPEAT_LABEL: Record<JukeboxRepeat, string> = {
+  off: "Repeat: off",
+  next: "Repeat: play the next song",
+  one: "Repeat: this song",
+};
 
 function formatTime(seconds: number): string {
   if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
@@ -30,14 +44,15 @@ function formatTime(seconds: number): string {
  * The Jukebox's player. It keeps one audio element and one layout for every
  * song, and knows each song's length before it downloads, so picking another
  * song changes the words and nothing else: the list under it never moves.
- * With auto-next on, the next song in the list plays when one ends.
+ * The repeat button picks what happens when a song ends: it stops, the next
+ * song in the list plays, or the same song plays again.
  */
 export function JukeboxPlayer({
   song,
   onPrevious,
   onNext,
-  autoNext,
-  onAutoNextChange,
+  repeat,
+  onRepeatChange,
 }: Props) {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = React.useState(false);
@@ -94,13 +109,15 @@ export function JukeboxPlayer({
         ref={audioRef}
         src={source.src}
         preload="auto"
+        // The browser starts the song over by itself, with no gap.
+        loop={repeat === "one"}
         onLoadedMetadata={handleReady}
         onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
         onEnded={() => {
           setPlaying(false);
-          if (autoNext) onNext?.();
+          if (repeat === "next") onNext?.();
         }}
       />
 
@@ -173,17 +190,19 @@ export function JukeboxPlayer({
         >
           <Styled.NextIcon aria-hidden="true" />
         </Styled.Skip>
-        <Styled.AutoNext
+        <Styled.Repeat
           type="button"
-          role="switch"
-          aria-checked={autoNext}
-          $on={autoNext}
-          onClick={() => onAutoNextChange(!autoNext)}
-          aria-label="Auto next"
-          title={`Auto next: ${autoNext ? "on" : "off"}`}
+          $on={repeat !== "off"}
+          onClick={() => onRepeatChange(NEXT_REPEAT[repeat])}
+          aria-label={REPEAT_LABEL[repeat]}
+          title={REPEAT_LABEL[repeat]}
         >
-          <Styled.AutoNextIcon aria-hidden="true" />
-        </Styled.AutoNext>
+          {repeat === "one" ? (
+            <Styled.RepeatOneIcon aria-hidden="true" />
+          ) : (
+            <Styled.RepeatIcon aria-hidden="true" />
+          )}
+        </Styled.Repeat>
         <Styled.PlayerVolume>
           <VolumeControl />
         </Styled.PlayerVolume>

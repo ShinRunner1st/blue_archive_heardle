@@ -76,11 +76,13 @@ naming against the clock) isn't the same test.
   guessed 3 · best in 2 tries".
 - **Jukebox** - in the ☰ menu: every song in theme order, played in full,
   with a search box and OST album chips (Vol.1 to Vol.8 and Other, any
-  number at once), like All OST. Songs guessed right in any mode are bright,
+  number at once, folding to two rows), like All OST. Songs guessed right in any mode are bright,
   the rest dimmed; missed songs look like unplayed ones, so it never shows
-  what is left in the endless bag. Auto next (off to start with, and
-  remembered) plays the next song in the list when one ends. Starting a song
-  pauses any other playing on the page.
+  what is left in the endless bag. The repeat button (remembered) goes off →
+  play the next song → repeat this song → off. Starting a song pauses any
+  other playing on the page. Both lists draw their rows from one shared
+  component (`src/components/SongRows`) with plain elements, fixed columns
+  and off-screen rows skipped, so they open and refilter quickly.
 - **Volume** - set it once; it's remembered. New players start at 20%.
 - **Dark mode** - in the ☰ menu. Follows your device until you pick one.
 - **Blue Archive cursor** - the game's cursor, with its flash on every click

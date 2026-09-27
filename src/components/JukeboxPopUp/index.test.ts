@@ -118,12 +118,9 @@ describe("JukeboxPopUp", () => {
   it("marks songs guessed right apart from the rest", () => {
     mount(["1"]);
 
-    expect(getComputedStyle(songButton("Constant Moderato")!).opacity).toBe(
-      "1"
-    );
-    expect(getComputedStyle(songButton("Mischievous Step")!).opacity).toBe(
-      "0.5"
-    );
+    expect(songButton("Constant Moderato")!.dataset.dim).toBe("false");
+    expect(songButton("Constant Moderato")!.dataset.strong).toBe("true");
+    expect(songButton("Mischievous Step")!.dataset.dim).toBe("true");
   });
 
   it("lists the songs in one list, filtered by the albums picked", () => {
@@ -161,25 +158,47 @@ describe("JukeboxPopUp", () => {
     expect(player().textContent).toContain("Luminous memory");
   });
 
-  it("stops at the end of a song unless auto next is on", async () => {
+  it("stops at the end of a song, plays the next, or repeats it", async () => {
     mount();
-    const autoNext = () =>
-      player().querySelector<HTMLButtonElement>('[role="switch"]')!;
-    expect(autoNext().getAttribute("aria-checked")).toBe("false");
+    const repeat = () =>
+      player().querySelector<HTMLButtonElement>('[aria-label^="Repeat"]')!;
+    const audio = () => player().querySelector("audio")!;
+    const end = () =>
+      act(() => {
+        audio().dispatchEvent(new Event("ended"));
+      });
+    expect(repeat().getAttribute("aria-label")).toBe("Repeat: off");
 
     click(songButton("Constant Moderato"));
     await songLoads();
-    act(() => {
-      player().querySelector("audio")!.dispatchEvent(new Event("ended"));
-    });
+    end();
     expect(player().textContent).toContain("Constant Moderato");
 
-    click(autoNext());
-    expect(localStorage.getItem("jukeboxAutoNext")).toBe("true");
-    act(() => {
-      player().querySelector("audio")!.dispatchEvent(new Event("ended"));
-    });
+    click(repeat());
+    expect(repeat().getAttribute("aria-label")).toBe(
+      "Repeat: play the next song"
+    );
+    expect(localStorage.getItem("jukeboxRepeat")).toBe("next");
+    end();
     expect(player().textContent).toContain("Luminous memory");
+
+    click(repeat());
+    expect(repeat().getAttribute("aria-label")).toBe("Repeat: this song");
+    expect(audio().loop).toBe(true);
+
+    click(repeat());
+    expect(repeat().getAttribute("aria-label")).toBe("Repeat: off");
+    expect(audio().loop).toBe(false);
+    expect(localStorage.getItem("jukeboxRepeat")).toBeNull();
+  });
+
+  it("folds its album chips like All OST's artists", () => {
+    mount();
+
+    expect(document.querySelector("#jukebox-albums")).not.toBeNull();
+    expect(
+      document.querySelector('[aria-label="Filter by album"]')?.children
+    ).toHaveLength(10);
   });
 
   it("closes from its button", () => {
