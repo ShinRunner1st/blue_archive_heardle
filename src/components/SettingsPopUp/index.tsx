@@ -1,8 +1,10 @@
 import React from "react";
-import { IoNavigate, IoSparkles } from "react-icons/io5";
+import { IoNavigate, IoPerson, IoSparkles } from "react-icons/io5";
 
 import { setCharacterChoice } from "../../helpers/characterChoice";
 import { setCustomCursor } from "../../helpers/customCursor";
+import { MAX_PLAYER_NAME, setPlayerName } from "../../helpers/playerName";
+import { usePlayerName } from "../../hooks/usePlayerName";
 import { useCharacterChoice } from "../../hooks/useCharacterChoice";
 import { useCustomCursor } from "../../hooks/useCustomCursor";
 import { CharacterChoice } from "../../types/character";
@@ -35,6 +37,8 @@ export function SettingsPopUp({ onClose }: Props) {
   const customCursor = useCustomCursor();
   const character = useCharacterChoice();
   const characterLabel = React.useId();
+  const playerName = usePlayerName();
+  const nameLabel = React.useId();
 
   return (
     <PopUp
@@ -94,6 +98,32 @@ export function SettingsPopUp({ onClose }: Props) {
                 </Styled.Choice>
               ))}
             </Styled.Choices>
+          </Styled.Stack>
+        </PopUpCard>
+
+        <PopUpCard>
+          <PopUpCardIcon>
+            <IoPerson aria-hidden="true" />
+          </PopUpCardIcon>
+          <Styled.Stack>
+            <PopUpCardBody>
+              <PopUpCardTitle id={nameLabel}>Player name</PopUpCardTitle>
+              <PopUpCardText>
+                Shown as &ldquo;Sensei &hellip;&rdquo; on the pictures you
+                share, and nowhere else. It stays on this device. Leave it empty
+                to share without a name.
+              </PopUpCardText>
+            </PopUpCardBody>
+            <Styled.NameInput
+              type="text"
+              value={playerName}
+              onChange={(e) => setPlayerName(e.currentTarget.value)}
+              maxLength={MAX_PLAYER_NAME}
+              placeholder="Your name"
+              aria-labelledby={nameLabel}
+              autoComplete="nickname"
+              spellCheck={false}
+            />
           </Styled.Stack>
         </PopUpCard>
 

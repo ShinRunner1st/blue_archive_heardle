@@ -152,6 +152,21 @@ describe("NowPlaying", () => {
     ).toBe("45");
   });
 
+  it("waits for the play button when the round didn't just end here", () => {
+    harness.render(
+      React.createElement(NowPlaying, {
+        song,
+        startTime: 42,
+        clipLength: 7,
+        autoPlay: false,
+      })
+    );
+    fire("loadedmetadata");
+
+    expect(play).not.toHaveBeenCalled();
+    expect(seeks).toEqual([42]);
+  });
+
   it("plays from where the round's clip started, at the default volume", () => {
     mount(42);
     fire("loadedmetadata");

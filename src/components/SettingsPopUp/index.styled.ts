@@ -140,3 +140,29 @@ export const Notice = styled.p`
   font-size: 0.82rem;
   line-height: 1.45;
 `;
+
+/** The name for shared pictures. */
+export const NameInput = styled.input`
+  box-sizing: border-box;
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: ${({ theme }) => theme.text};
+
+  background-color: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(241, 247, 237, 0.22);
+  border-radius: 8px;
+
+  &::placeholder {
+    color: ${({ theme }) => theme.text};
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
+`;

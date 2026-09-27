@@ -1,4 +1,6 @@
+import { CLIP_OPTIONS } from "../../constants/game";
 import { GameMode } from "../../types/mode";
+import { RunSummary, TimeAttackStats } from "../timeAttack";
 import { StatsTally } from "../../types/stats";
 import { dateStamp } from "../daily";
 import {
@@ -37,7 +39,18 @@ export interface RecapPictureContent {
   tiles: Array<{ label: string; value: string }>;
   /** Wins by try count, 1 to 6 (or just wins, for four-choice), then losses. */
   bars: Array<{ label: string; count: number; lost?: boolean }>;
+  /** A heading over the bars, when they aren't the guess spread. */
+  barsLabel?: string;
   footer: string;
+}
+
+/** "As of 28 September 2026", on the player's calendar. */
+function asOf(now: Date): string {
+  return `As of ${now.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })}`;
 }
 
 /**
@@ -62,11 +75,7 @@ export function recapPictureContent(
       ? "4-CHOICE RECAP"
       : "ENDLESS RECAP",
     title: "Schale activity report",
-    subtitle: `As of ${now.toLocaleDateString("en-GB", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    })}`,
+    subtitle: asOf(now),
     tiles: [
       { label: isDaily ? "Puzzles" : "Rounds", value: String(played) },
       { label: "Win rate", value: `${rate}%` },
@@ -85,6 +94,41 @@ export function recapPictureContent(
       { label: "X", count: tally[0], lost: true },
     ],
     footer: `Songs guessed ${stats.songsGuessed}/${stats.songsTotal} · OST badges ${stats.badgesEarned}/${stats.badgesTotal}`,
+  };
+}
+
+/**
+ * Time attack's recap: runs rather than rounds. The bars are the best run at
+ * each clip length, so the picture shows how far each length has been taken.
+ * Like the other recaps, it names no song.
+ */
+export function timeAttackRecapContent(
+  stats: TimeAttackStats,
+  runs: RunSummary[],
+  now: Date = new Date()
+): RecapPictureContent {
+  const rate =
+    stats.answered > 0 ? Math.round((stats.right / stats.answered) * 100) : 0;
+
+  return {
+    tag: "TIME ATTACK RECAP",
+    title: "Schale activity report",
+    subtitle: asOf(now),
+    tiles: [
+      { label: "Runs", value: String(stats.runs) },
+      { label: "Right", value: `${rate}%` },
+      { label: "Best typed", value: String(stats.best.typed) },
+      { label: "Best 4-Choice", value: String(stats.best.choice) },
+    ],
+    barsLabel: "Best run by clip length",
+    bars: CLIP_OPTIONS.map((clip) => ({
+      label: `${clip}s`,
+      count: Math.max(
+        0,
+        ...runs.filter((run) => run.clip === clip).map((run) => run.score)
+      ),
+    })),
+    footer: `Songs named ${stats.right} of ${stats.answered} in time attack runs`,
   };
 }
 
@@ -127,6 +171,13 @@ export function drawRecapPicture(
     ctx.font = `700 17px ${FONT}`;
     ctx.fillText(label.toUpperCase(), x + 20, y + 74);
   });
+
+  if (content.barsLabel) {
+    ctx.textAlign = "left";
+    ctx.fillStyle = COLORS.muted;
+    ctx.font = `700 17px ${FONT}`;
+    ctx.fillText(content.barsLabel.toUpperCase(), BARS_LEFT - 6, TOP - 14);
+  }
 
   // The guess spread on the right, as bars against the fullest row.
   const most = Math.max(1, ...content.bars.map((bar) => bar.count));
@@ -178,6 +229,18 @@ export function makeRecapPicture(
   sources: { backdrop: string; logo: string }
 ): Promise<Blob> {
   const content = recapPictureContent(stats);
+  return makePicture(sources, (ctx, images) =>
+    drawRecapPicture(ctx, content, images)
+  );
+}
+
+/** Draws time attack's recap as a PNG. */
+export function makeTimeAttackRecap(
+  stats: TimeAttackStats,
+  runs: RunSummary[],
+  sources: { backdrop: string; logo: string }
+): Promise<Blob> {
+  const content = timeAttackRecapContent(stats, runs);
   return makePicture(sources, (ctx, images) =>
     drawRecapPicture(ctx, content, images)
   );

@@ -88,8 +88,10 @@ on the branch `feat/ost-modes` until released. What was agreed is now in
   (`CLIP_OPTIONS`); 4-Choice starts at 3.
 - Time attack shows each answer before the next song: briefly when right,
   with the clock stopped; 2 seconds when wrong or passed, with it running, so
-  spamming answers doesn't pay. It has Quit, share text and a share picture,
-  but no recap picture.
+  spamming answers doesn't pay. It has Quit, share text, a share picture and
+  a recap picture (best run by clip length).
+- A player name in Settings goes on every share picture. It's a setting like
+  the volume, so it isn't in the save file.
 - The song record on the result card stays with Daily and Classic: it counts
   tries.
 

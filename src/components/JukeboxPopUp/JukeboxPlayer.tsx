@@ -15,6 +15,9 @@ interface Props {
   /** The songs either side of it in the list shown, if any. */
   onPrevious?: () => void;
   onNext?: () => void;
+  /** Plays the next song in the list when one ends. */
+  autoNext: boolean;
+  onAutoNextChange: (on: boolean) => void;
 }
 
 function formatTime(seconds: number): string {
@@ -27,9 +30,15 @@ function formatTime(seconds: number): string {
  * The Jukebox's player. It keeps one audio element and one layout for every
  * song, and knows each song's length before it downloads, so picking another
  * song changes the words and nothing else: the list under it never moves.
- * When a song ends the next one in the list plays.
+ * With auto-next on, the next song in the list plays when one ends.
  */
-export function JukeboxPlayer({ song, onPrevious, onNext }: Props) {
+export function JukeboxPlayer({
+  song,
+  onPrevious,
+  onNext,
+  autoNext,
+  onAutoNextChange,
+}: Props) {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = React.useState(false);
   const [ready, setReady] = React.useState(false);
@@ -91,7 +100,7 @@ export function JukeboxPlayer({ song, onPrevious, onNext }: Props) {
         onPause={() => setPlaying(false)}
         onEnded={() => {
           setPlaying(false);
-          onNext?.();
+          if (autoNext) onNext?.();
         }}
       />
 
@@ -164,6 +173,17 @@ export function JukeboxPlayer({ song, onPrevious, onNext }: Props) {
         >
           <Styled.NextIcon aria-hidden="true" />
         </Styled.Skip>
+        <Styled.AutoNext
+          type="button"
+          role="switch"
+          aria-checked={autoNext}
+          $on={autoNext}
+          onClick={() => onAutoNextChange(!autoNext)}
+          title="Play the next song in the list when one ends"
+        >
+          <Styled.AutoNextIcon aria-hidden="true" />
+          Auto next
+        </Styled.AutoNext>
         <Styled.PlayerVolume>
           <VolumeControl />
         </Styled.PlayerVolume>

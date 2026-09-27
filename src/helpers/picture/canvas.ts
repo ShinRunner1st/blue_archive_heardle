@@ -4,6 +4,8 @@
  * the page has already loaded, so making one costs no requests.
  */
 
+import { getPlayerName } from "../playerName";
+
 /** 16:9, which X shows whole in the timeline without cropping. */
 export const PICTURE_WIDTH = 1200;
 export const PICTURE_HEIGHT = 675;
@@ -239,6 +241,22 @@ export function drawFrame(
   drawTag(ctx, tag, CONTENT_RIGHT, PANEL.y + 44);
 }
 
+/**
+ * The player's name from Settings, under the tag, when they gave one. Every
+ * picture gets it from makePicture, so none can forget it.
+ */
+export function drawPlayerName(ctx: CanvasRenderingContext2D, name: string) {
+  const shown = name.trim();
+  if (!shown) return;
+
+  ctx.textAlign = "right";
+  ctx.textBaseline = "alphabetic";
+  ctx.fillStyle = COLORS.muted;
+  // Players are Sensei in Blue Archive; one who wrote it already keeps theirs.
+  const label = /^sensei(\s|$)/i.test(shown) ? shown : `Sensei ${shown}`;
+  fitText(ctx, label, CONTENT_RIGHT, PANEL.y + 124, 420, "700", 26);
+}
+
 /** The site's address at the bottom right, on every card. */
 export function drawAddress(ctx: CanvasRenderingContext2D, y: number): void {
   ctx.fillStyle = COLORS.navy;
@@ -268,5 +286,6 @@ export async function makePicture(
   if (!ctx) throw new Error("This browser can't draw pictures");
 
   draw(ctx, { backdrop, logo });
+  drawPlayerName(ctx, getPlayerName());
   return canvasToBlob(canvas);
 }

@@ -1,6 +1,10 @@
 import React from "react";
 
 import { ALBUM_FILTERS, albumCount, jukeboxSongs } from "../../helpers/jukebox";
+import {
+  loadJukeboxAutoNext,
+  saveJukeboxAutoNext,
+} from "../../helpers/storage";
 import { Song } from "../../types/song";
 
 import { Button } from "../Button";
@@ -31,6 +35,12 @@ export function JukeboxPopUp({ onClose, guessed }: Props) {
   const [filter, setFilter] = React.useState("");
   const [albums, setAlbums] = React.useState<string[]>([]);
   const [playing, setPlaying] = React.useState<Song>();
+  const [autoNext, setAutoNext] = React.useState(loadJukeboxAutoNext);
+
+  const changeAutoNext = (on: boolean) => {
+    setAutoNext(on);
+    saveJukeboxAutoNext(on);
+  };
 
   const matches = React.useMemo(
     () => jukeboxSongs(filter, albums),
@@ -81,6 +91,8 @@ export function JukeboxPopUp({ onClose, guessed }: Props) {
         song={playing}
         onPrevious={previous && (() => setPlaying(previous))}
         onNext={next && (() => setPlaying(next))}
+        autoNext={autoNext}
+        onAutoNextChange={changeAutoNext}
       />
 
       <Styled.Filter>

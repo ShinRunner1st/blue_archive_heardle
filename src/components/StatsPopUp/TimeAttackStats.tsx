@@ -1,3 +1,13 @@
+import React from "react";
+
+import { SITE_URL } from "../../constants/game";
+import {
+  makeTimeAttackRecap,
+  recapPictureName,
+} from "../../helpers/picture/recapPicture";
+import { useBackdropSrc } from "../../hooks/useBackdropSrc";
+import { useSharePicture } from "../../hooks/useSharePicture";
+import logo from "../../image/BlueArchive-Heardle.png";
 import { Button } from "../Button";
 import { PopUp, PopUpBody, PopUpGroupLabel, PopUpSpacer } from "../PopUp";
 import {
@@ -13,6 +23,8 @@ interface Props {
   stats: Stats;
   /** Every run, oldest first. */
   runs: RunSummary[];
+  /** The run's score now, which picks the backdrop, as on the page. */
+  streak: number;
 }
 
 /** How many recent runs the list shows. */
@@ -26,10 +38,23 @@ function runLine(run: RunSummary): string {
  * Time attack's own stats: runs, not rounds, so a pop-up of their own rather
  * than the guess spread of the other modes.
  */
-export function TimeAttackStats({ onClose, stats, runs }: Props) {
+export function TimeAttackStats({ onClose, stats, runs, streak }: Props) {
   const recent = runs.slice(-RECENT).reverse();
   const rate =
     stats.answered > 0 ? Math.round((stats.right / stats.answered) * 100) : 0;
+
+  const backdrop = useBackdropSrc(streak);
+  const makeRecap = React.useCallback(
+    () => makeTimeAttackRecap(stats, runs, { backdrop, logo }),
+    [stats, runs, backdrop]
+  );
+  const picture = useSharePicture(
+    "Share recap",
+    makeRecap,
+    recapPictureName("timeattack"),
+    `My Blue Archive Heardle time attack recap
+${SITE_URL}`
+  );
 
   return (
     <PopUp
@@ -43,9 +68,16 @@ export function TimeAttackStats({ onClose, stats, runs }: Props) {
       }
       onClose={onClose}
       actions={
-        <Button variant="green" onClick={onClose}>
-          Close
-        </Button>
+        <>
+          {stats.runs > 0 && (
+            <Button variant="pink" onClick={picture.share}>
+              {picture.text}
+            </Button>
+          )}
+          <Button variant="green" onClick={onClose}>
+            Close
+          </Button>
+        </>
       }
     >
       <PopUpBody>

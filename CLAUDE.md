@@ -86,8 +86,8 @@ What the project cares about:
   score. No badges.
 - **Jukebox** (☰ menu): every song in full, searchable, with album chips
   like All OST's artist chips; songs guessed right in any mode are bright.
-  Its player keeps one fixed layout. Playing any audio pauses the rest
-  (`src/helpers/onePlayer.ts`).
+  Its player keeps one fixed layout; Auto next is off by default and
+  remembered. Playing any audio pauses the rest (`src/helpers/onePlayer.ts`).
 - **Search** by name, artist or theme number; **All OST** list with artist
   filters.
 - **Result screen**: now-playing card, plays the answer from the clip's start,
@@ -96,9 +96,13 @@ What the project cares about:
   (`src/helpers/songRecord.ts`). Share picture draws the result on a canvas
   (`src/helpers/picture/`) and opens the share sheet or saves it; daily
   pictures never show the song. Stats has Share recap, a picture of the
-  mode's record drawn with the same code.
+  mode's record drawn with the same code (time attack's too). The answer
+  only plays by itself right after the round ends on screen, never on a mode
+  switch or reload.
 - **Settings**: volume (remembered, 20% default), dark mode, Blue Archive
-  cursor with tap and drag effects (can be turned off), character choice.
+  cursor with tap and drag effects (can be turned off), character choice,
+  player name (drawn as "Sensei …" on every share picture by `makePicture`,
+  used for nothing else; `src/helpers/playerName.ts`).
 - **Save file**: export all modes to one scrambled file and import it on
   another device (`src/helpers/saveFile.ts`); checked like the saves, asks
   before replacing, then reloads the page.

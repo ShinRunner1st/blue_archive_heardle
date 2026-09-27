@@ -269,6 +269,7 @@ function App() {
           onClose={closeStatsPopUp}
           stats={timeAttack.stats}
           runs={timeAttackRuns}
+          streak={timeAttack.score}
         />
       )}
       {isStatsPopUpOpen && !isTimeAttack && (

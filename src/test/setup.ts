@@ -4,8 +4,10 @@ import {
   CHARACTER_KEY,
   COLOR_SCHEME_KEY,
   CUSTOM_CURSOR_KEY,
+  PLAYER_NAME_KEY,
   VOLUME_KEY,
 } from "../constants/game";
+import { resetPlayerNameState } from "../helpers/playerName";
 import { resetCharacterChoiceState } from "../helpers/characterChoice";
 import { resetColorSchemeState } from "../helpers/colorScheme";
 import { resetCustomCursorState } from "../helpers/customCursor";
@@ -25,6 +27,8 @@ beforeEach(() => {
   localStorage.removeItem(COLOR_SCHEME_KEY);
   localStorage.removeItem(CUSTOM_CURSOR_KEY);
   localStorage.removeItem(CHARACTER_KEY);
+  localStorage.removeItem(PLAYER_NAME_KEY);
+  resetPlayerNameState();
   resetVolumeState();
   resetColorSchemeState();
   resetCustomCursorState();

@@ -60,11 +60,17 @@ naming against the clock) isn't the same test.
   song; an endless one does, since that round is over for everyone.
 - **Recap** - Share recap in Stats draws the mode's record as a picture in
   the same style: rounds, win rate, streaks, the guess spread, songs guessed
-  and badges. It names no songs.
+  and badges. Time Attack's has runs, its best scores and the best run at
+  each clip length. It names no songs.
+- **Player name** - ☰ → Settings takes a name, drawn as "Sensei …" on every
+  picture you share. It's used for nothing else and stays in your browser;
+  leave it empty to share without one.
 - **Daily calendar** - daily stats show every puzzle on a month calendar,
   coloured by how it went: greener for fewer tries, red for a loss, faint
   for a day not played. It names no songs, so it spoils nothing.
-- **Result screen** - plays the answer from where your clip started, marks
+- **Result screen** - plays the answer from where your clip started (by itself
+  only when you just finished the round; switching to a mode whose round is
+  already over, or reloading, waits for the play button), marks
   which part was your clip, and can replay just that part. Under the song it
   shows your record with it in Daily and Classic, such as "Heard 4 times ·
   guessed 3 · best in 2 tries".
@@ -72,8 +78,9 @@ naming against the clock) isn't the same test.
   with a search box and OST album chips (Vol.1 to Vol.8 and Other, any
   number at once), like All OST. Songs guessed right in any mode are bright,
   the rest dimmed; missed songs look like unplayed ones, so it never shows
-  what is left in the endless bag. When a song ends the next one in the list
-  plays. Starting a song pauses any other playing on the page.
+  what is left in the endless bag. Auto next (off to start with, and
+  remembered) plays the next song in the list when one ends. Starting a song
+  pauses any other playing on the page.
 - **Volume** - set it once; it's remembered. New players start at 20%.
 - **Dark mode** - in the ☰ menu. Follows your device until you pick one.
 - **Blue Archive cursor** - the game's cursor, with its flash on every click
@@ -356,7 +363,8 @@ analytics or tracking scripts. Progress and settings are kept in the
 browser's `localStorage` (the keys are in `src/constants/game.ts`) and never
 sent anywhere; the clipboard is only written when a player presses Share.
 Result pictures are drawn in the browser and go only where the player sends
-them from the share sheet, or to their downloads.
+them from the share sheet, or to their downloads; the player name in Settings
+is only ever drawn on those pictures.
 Like any website, the hosts - Vercel for the site, Cloudflare for the audio and
 seasonal pictures -
 see standard connection details such as IP addresses to serve the files.

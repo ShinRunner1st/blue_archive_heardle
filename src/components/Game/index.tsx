@@ -82,6 +82,13 @@ export function Game({
   const isOver = isFinished(round);
   const choices = round.choices;
 
+  // Whether a round has been played on this screen since it opened. The
+  // answer only plays by itself when the round ended here: switching to a
+  // mode whose round is already over, or reloading, stays quiet. The screen
+  // is made again for each mode, so this starts false with each switch.
+  const playedHere = useRef(false);
+  if (!isOver) playedHere.current = true;
+
   // Shift+Enter skips (or gives up, on the last try) from anywhere, so a round
   // can be played start to finish without the mouse. A held key doesn't
   // repeat it, or one press could skip every try.
@@ -116,6 +123,7 @@ export function Game({
         streak={streak}
         badgeLines={badgeLines}
         record={record}
+        autoPlay={playedHere.current}
       />
     );
   }

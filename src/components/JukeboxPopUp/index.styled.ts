@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import {
+  IoRepeat,
   IoPlaySkipBack,
   IoPlaySkipForward,
   IoVolumeHigh,
@@ -97,6 +98,40 @@ export const PlayerControls = styled.div`
 
   margin-top: 4px;
 `;
+
+/** Turns auto-next on and off; green while on. */
+export const AutoNext = styled.button<{ $on: boolean }>`
+  flex-shrink: 0;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  margin-left: 4px;
+  padding: 4px 9px;
+
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+  color: ${({ theme }) => theme.text};
+
+  background-color: ${({ theme, $on }) =>
+    $on ? theme.green : "rgba(0, 0, 0, 0.25)"};
+  border: 1px solid
+    ${({ theme, $on }) => ($on ? theme.green : "rgba(255, 255, 255, 0.2)")};
+  border-radius: 999px;
+  cursor: pointer;
+
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
+`;
+
+export const AutoNextIcon = IoRepeat;
 
 /** The volume keeps to the right, away from the transport buttons. */
 export const PlayerVolume = styled.div`

@@ -39,6 +39,15 @@ export const CHOICE_CLIP_SECONDS = 3;
  */
 export const CLIP_OPTIONS = [1, 2, 3, 5, 7];
 
+/** localStorage key holding the name drawn on shared pictures. */
+export const PLAYER_NAME_KEY = "playerName";
+
+/**
+ * localStorage key holding "true" once the player has the Jukebox play the
+ * next song when one ends. Absent means off.
+ */
+export const JUKEBOX_AUTO_NEXT_KEY = "jukeboxAutoNext";
+
 /** localStorage key holding the clip length picked for 4-Choice. */
 export const CHOICE_CLIP_KEY = "choiceClip";
 

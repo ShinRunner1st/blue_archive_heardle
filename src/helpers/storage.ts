@@ -3,6 +3,8 @@ import {
   CHOICE_CLIP_SECONDS,
   CHOICE_STORAGE_KEY,
   CLIP_OPTIONS,
+  JUKEBOX_AUTO_NEXT_KEY,
+  PLAYER_NAME_KEY,
   DAILY_STORAGE_KEY,
   DEFAULT_VOLUME,
   FIRST_RUN_KEY,
@@ -279,6 +281,25 @@ export function hasSeenWhatsNew(id: string): boolean {
 
 export function markWhatsNewSeen(id: string): void {
   writeKey(WHATS_NEW_KEY, id);
+}
+
+/** The name for shared pictures, or "" for none. */
+export function loadPlayerName(): string {
+  return readKey(PLAYER_NAME_KEY) ?? "";
+}
+
+export function savePlayerName(name: string): void {
+  if (name.trim() === "") removeKey(PLAYER_NAME_KEY);
+  else writeKey(PLAYER_NAME_KEY, name);
+}
+
+/** Whether the Jukebox plays on to the next song. Off unless turned on. */
+export function loadJukeboxAutoNext(): boolean {
+  return readKey(JUKEBOX_AUTO_NEXT_KEY) === "true";
+}
+
+export function saveJukeboxAutoNext(on: boolean): void {
+  writeKey(JUKEBOX_AUTO_NEXT_KEY, String(on));
 }
 
 /** The clip length picked for 4-Choice, in seconds. */

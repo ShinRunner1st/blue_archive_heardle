@@ -1,6 +1,7 @@
 import type { IconType } from "react-icons";
 import {
   IoGrid,
+  IoPerson,
   IoImage,
   IoRadio,
   IoStopwatch,
@@ -47,12 +48,17 @@ export const WHATS_NEW: NewsUpdate[] = [
       {
         icon: IoStopwatch,
         title: "Time Attack",
-        text: "Name as many songs as you can in three minutes. Pick the clip length, a random start, and typed or four-choice answers. A miss costs two seconds. Beat your best in Stats.",
+        text: "Name as many songs as you can in three minutes. Pick the clip length, a random start, and typed or four-choice answers. A miss costs two seconds. Beat your best in Stats, and share a recap.",
       },
       {
         icon: IoRadio,
         title: "Jukebox",
-        text: "Open the Jukebox from the ☰ menu to play any song in full. Search it or pick OST albums; the songs you've guessed stand out.",
+        text: "Open the Jukebox from the ☰ menu to play any song in full. Search it or pick OST albums; the songs you've guessed stand out. Turn on Auto next to keep the music going.",
+      },
+      {
+        icon: IoPerson,
+        title: "Your name on pictures",
+        text: "Add a player name in Settings and your shared pictures say Sensei and your name. It stays on your device.",
       },
     ],
   },

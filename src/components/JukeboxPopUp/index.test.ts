@@ -67,6 +67,7 @@ async function songLoads() {
 }
 
 beforeEach(() => {
+  localStorage.clear();
   play = vi.fn(() => Promise.resolve());
   vi.spyOn(window.HTMLMediaElement.prototype, "play").mockImplementation(
     play as () => Promise<void>
@@ -157,6 +158,27 @@ describe("JukeboxPopUp", () => {
       player().querySelector<HTMLButtonElement>('[aria-label="Next song"]')
     );
 
+    expect(player().textContent).toContain("Luminous memory");
+  });
+
+  it("stops at the end of a song unless auto next is on", async () => {
+    mount();
+    const autoNext = () =>
+      player().querySelector<HTMLButtonElement>('[role="switch"]')!;
+    expect(autoNext().getAttribute("aria-checked")).toBe("false");
+
+    click(songButton("Constant Moderato"));
+    await songLoads();
+    act(() => {
+      player().querySelector("audio")!.dispatchEvent(new Event("ended"));
+    });
+    expect(player().textContent).toContain("Constant Moderato");
+
+    click(autoNext());
+    expect(localStorage.getItem("jukeboxAutoNext")).toBe("true");
+    act(() => {
+      player().querySelector("audio")!.dispatchEvent(new Event("ended"));
+    });
     expect(player().textContent).toContain("Luminous memory");
   });
 

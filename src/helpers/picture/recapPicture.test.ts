@@ -7,6 +7,7 @@ import {
   RecapStats,
   recapPictureContent,
   recapPictureName,
+  timeAttackRecapContent,
 } from "./recapPicture";
 
 function recap(overrides: Partial<RecapStats> = {}): RecapStats {
@@ -94,5 +95,51 @@ describe("the recap picture", () => {
     expect(recapPictureName("daily", new Date(2026, 8, 28))).toBe(
       "baheardle-daily-recap-2026-09-28.png"
     );
+  });
+});
+
+describe("the time attack recap", () => {
+  const runs = [
+    { id: 1, score: 12, answered: 20, answers: "typed" as const, clip: 2 },
+    { id: 2, score: 18, answered: 22, answers: "choice" as const, clip: 2 },
+    { id: 3, score: 9, answered: 15, answers: "choice" as const, clip: 7 },
+  ];
+  const stats = {
+    runs: 3,
+    best: { typed: 12, choice: 18 },
+    right: 39,
+    answered: 57,
+    last: runs[2],
+  };
+
+  it("counts runs and the best of each way to answer", () => {
+    const content = timeAttackRecapContent(stats, runs, new Date(2026, 8, 28));
+
+    expect(content.tag).toBe("TIME ATTACK RECAP");
+    expect(content.subtitle).toBe("As of 28 September 2026");
+    expect(content.tiles).toEqual([
+      { label: "Runs", value: "3" },
+      { label: "Right", value: "68%" },
+      { label: "Best typed", value: "12" },
+      { label: "Best 4-Choice", value: "18" },
+    ]);
+    expect(content.footer).toBe("Songs named 39 of 57 in time attack runs");
+  });
+
+  it("draws the best run at each clip length", () => {
+    const content = timeAttackRecapContent(stats, runs);
+
+    expect(content.barsLabel).toBe("Best run by clip length");
+    expect(content.bars).toEqual([
+      { label: "1s", count: 0 },
+      { label: "2s", count: 18 },
+      { label: "3s", count: 0 },
+      { label: "5s", count: 0 },
+      { label: "7s", count: 9 },
+    ]);
+
+    const { ctx, texts } = fakeContext();
+    drawRecapPicture(ctx, content, { backdrop: null, logo: null });
+    expect(texts).toContain("BEST RUN BY CLIP LENGTH");
   });
 });

@@ -1,6 +1,7 @@
 import React from "react";
 
 import { sharePicture } from "../helpers/picture/share";
+import { usePlayerName } from "./usePlayerName";
 
 /** After the screen's own entrance, so the drawing doesn't stall it. */
 const DRAW_DELAY_MS = 600;
@@ -34,13 +35,15 @@ export function useSharePicture(
     return picture.current;
   }, [make]);
 
+  // Drawn again when the name for pictures changes in Settings.
+  const name = usePlayerName();
   React.useEffect(() => {
     picture.current = null;
     const timer = window.setTimeout(() => {
       get().catch(() => {});
     }, DRAW_DELAY_MS);
     return () => window.clearTimeout(timer);
-  }, [get]);
+  }, [get, name]);
 
   // A result stays up for a moment, then the button reads as before.
   React.useEffect(() => {

@@ -20,6 +20,12 @@ interface Props {
   keyboardEnabled?: boolean;
   /** The player's history with this song, under the artist. */
   record?: string;
+  /**
+   * Plays as soon as the song has loaded. Only right after the guess that
+   * ended the round: a finished round met again, on a mode switch or a
+   * reload, waits for the play button.
+   */
+  autoPlay?: boolean;
 }
 
 function formatTime(seconds: number): string {
@@ -46,6 +52,7 @@ export function NowPlaying({
   clipLength,
   keyboardEnabled = true,
   record,
+  autoPlay = true,
 }: Props) {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   // Set while "Replay my clip" runs, so playback stops where the clip did.
@@ -96,11 +103,10 @@ export function NowPlaying({
       if (pending !== null) audio.currentTime = pending;
       setLoaded(true);
 
-      // Allowed straight after the guess that revealed the answer. On a
-      // reload the browser may block it, and the play button is there instead.
-      play(audio);
+      // Allowed straight after the guess that revealed the answer.
+      if (autoPlay) play(audio);
     },
-    [play]
+    [play, autoPlay]
   );
 
   const handleTimeUpdate = React.useCallback(

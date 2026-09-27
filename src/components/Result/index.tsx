@@ -47,6 +47,8 @@ interface Props {
   badgeLines: string[];
   /** The player's history with this song, for the now-playing card. */
   record: string;
+  /** Plays the answer as soon as it loads: the round just ended here. */
+  autoPlay?: boolean;
 }
 
 const COUNTDOWN_TICK_MS = 30_000;
@@ -92,6 +94,7 @@ export function Result({
   streak,
   badgeLines,
   record,
+  autoPlay = true,
 }: Props) {
   const [buttonText, setButtonText] = useState("Share result");
   const isDaily = mode === "daily";
@@ -205,6 +208,7 @@ export function Result({
         clipLength={clipLength}
         keyboardEnabled={keyboardEnabled}
         record={record}
+        autoPlay={autoPlay}
       />
       {isDaily && <DailyCountdown onNewDay={onNewDay} />}
       <Styled.Buttons>
