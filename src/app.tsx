@@ -28,6 +28,7 @@ import {
   SettingsPopUp,
   BadgesPopUp,
   WhatsNewPopUp,
+  JukeboxPopUp,
 } from "./components";
 
 import * as Styled from "./app.styled";
@@ -50,6 +51,7 @@ function App() {
     winStreak,
     dayStreak,
     badges,
+    guessedEver,
     badgeLines,
     record,
     bagEmpty,
@@ -132,6 +134,19 @@ function App() {
     setIsWhatsNewOpen(false);
   }, []);
 
+  const [isJukeboxOpen, setIsJukeboxOpen] = React.useState(false);
+  const openJukebox = React.useCallback(() => setIsJukeboxOpen(true), []);
+  const closeJukebox = React.useCallback(() => setIsJukeboxOpen(false), []);
+
+  // Changes when a new round starts, in any mode.
+  const roundKey = `${mode}:${round.day ?? ""}:${solution.themeNo}`;
+
+  // The Jukebox belongs to the result screen: a new round closes it, so it
+  // can never be open while a clip is being guessed.
+  React.useEffect(() => {
+    setIsJukeboxOpen(false);
+  }, [roundKey]);
+
   const openSongList = React.useCallback(() => setIsSongListOpen(true), []);
   const closeSongList = React.useCallback(() => setIsSongListOpen(false), []);
   const pickFromSongList = React.useCallback((song: Song) => {
@@ -152,7 +167,8 @@ function App() {
     isSongListOpen ||
     isSettingsOpen ||
     isBadgesOpen ||
-    isWhatsNewOpen;
+    isWhatsNewOpen ||
+    isJukeboxOpen;
 
   // Marked in the song list, so a wrong answer isn't picked twice by accident.
   const guessedThemeNos = React.useMemo(
@@ -215,6 +231,9 @@ function App() {
       {isSettingsOpen && <SettingsPopUp onClose={closeSettingsPopUp} />}
       {isBadgesOpen && <BadgesPopUp onClose={closeBadges} badges={badges} />}
       {isWhatsNewOpen && <WhatsNewPopUp onClose={closeWhatsNew} />}
+      {isJukeboxOpen && (
+        <JukeboxPopUp onClose={closeJukebox} guessed={guessedEver} />
+      )}
       {isSongListOpen && (
         <SongListPopUp
           onClose={closeSongList}
@@ -253,13 +272,14 @@ function App() {
           streak={streak}
           badgeLines={badgeLines}
           record={record}
+          onOpenJukebox={openJukebox}
         />
       </Styled.Container>
       <Character
         guesses={guesses}
         currentTry={currentTry}
         didGuess={didGuess}
-        roundKey={`${mode}:${round.day ?? ""}:${solution.themeNo}`}
+        roundKey={roundKey}
       />
       <Footer />
     </Styled.BG>

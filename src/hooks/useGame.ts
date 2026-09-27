@@ -239,6 +239,12 @@ export function useGame(mode: GameMode) {
 
   const current = rounds[rounds.length - 1];
 
+  // Songs guessed right in any mode, which stand out in the Jukebox.
+  const guessedEver = React.useMemo(
+    () => guessedThemes([...histories.endless, ...histories.daily]),
+    [histories]
+  );
+
   // The OST badges count songs guessed right in either mode.
   const badges = React.useMemo(
     () =>
@@ -296,6 +302,7 @@ export function useGame(mode: GameMode) {
     winStreak,
     dayStreak,
     badges,
+    guessedEver,
     recap,
     badgeLines,
     record,

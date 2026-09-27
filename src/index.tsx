@@ -9,6 +9,7 @@ import {
   applyCustomCursorToDocument,
   getCustomCursor,
 } from "./helpers/customCursor";
+import { playOneAtATime } from "./helpers/onePlayer";
 import { useColorScheme } from "./hooks/useColorScheme";
 import App from "./app";
 import "./index.css";
@@ -35,6 +36,7 @@ function Root() {
 // Before the first paint, so the right cursor shows from the start. The
 // effects run outside React, on their own canvas.
 applyCustomCursorToDocument(getCustomCursor());
+playOneAtATime();
 
 createRoot(rootElement).render(
   <React.StrictMode>

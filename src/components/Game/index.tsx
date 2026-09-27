@@ -42,12 +42,15 @@ interface Props {
   badgeLines: string[];
   /** The player's history with this song, once the round is over. */
   record: string;
+  /** Opens the Jukebox from the result screen. */
+  onOpenJukebox?: () => void;
 }
 
 export function Game({
   streak,
   badgeLines,
   record,
+  onOpenJukebox,
   guesses,
   solution,
   currentTry,
@@ -106,6 +109,7 @@ export function Game({
         streak={streak}
         badgeLines={badgeLines}
         record={record}
+        onOpenJukebox={onOpenJukebox}
       />
     );
   }
