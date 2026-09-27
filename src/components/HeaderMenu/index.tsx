@@ -6,6 +6,7 @@ import {
   IoInformationCircle,
   IoMenu,
   IoMoon,
+  IoMusicalNotes,
   IoSettings,
 } from "react-icons/io5";
 
@@ -20,6 +21,7 @@ interface Props {
   openHowToPopUp: () => void;
   openSettingsPopUp: () => void;
   openWhatsNewPopUp: () => void;
+  openJukeboxPopUp: () => void;
 }
 
 /**
@@ -32,6 +34,7 @@ export function HeaderMenu({
   openHowToPopUp,
   openSettingsPopUp,
   openWhatsNewPopUp,
+  openJukeboxPopUp,
 }: Props) {
   const [open, setOpen] = React.useState(false);
   const wrapperRef = React.useRef<HTMLDivElement>(null);
@@ -101,6 +104,10 @@ export function HeaderMenu({
 
       {open && (
         <Styled.Panel id={panelId}>
+          <Styled.Item type="button" onClick={openPopUp(openJukeboxPopUp)}>
+            <IoMusicalNotes aria-hidden="true" />
+            Jukebox
+          </Styled.Item>
           <Styled.Item type="button" onClick={openPopUp(openHowToPopUp)}>
             <IoGameController aria-hidden="true" />
             How to play

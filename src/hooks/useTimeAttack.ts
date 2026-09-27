@@ -30,10 +30,28 @@ export interface Run {
   next: Round;
   clock: Clock;
   over: boolean;
+  /**
+   * The song just answered, shown with its answer before the next one comes.
+   * Nothing can be answered meanwhile.
+   */
+  reveal: Round | null;
 }
 
 /** How often the clock is checked for the end of the run. */
 const TICK_MS = 200;
+
+/**
+ * How long a right answer shows before the next song, with the clock
+ * stopped: a moment to see it, and for the next clip to finish loading.
+ */
+export const RIGHT_PAUSE_MS = 700;
+
+/**
+ * How long a wrong answer or a pass shows the answer, with the clock running.
+ * That is the price of a miss, so tapping through the choices at random, or
+ * passing everything, costs more time than it wins.
+ */
+export const WRONG_PAUSE_MS = 2000;
 
 /** Ends the run, stopping its clock where it is. */
 function ended(run: Run, now: number): Run {
@@ -105,22 +123,53 @@ export function useTimeAttack() {
       next,
       clock: { spent: 0, since: null },
       over: false,
+      reveal: null,
     });
   }, [settings, history]);
 
   /**
-   * Answers `round`, the song playing, or passes on it with null, and moves
-   * on. Naming the round means a double tap can't answer the next song too.
+   * Answers `round`, the song playing, or passes on it with null. The answer
+   * shows for a moment before the next song (see RIGHT_PAUSE_MS and
+   * WRONG_PAUSE_MS). Naming the round means a double tap can't answer the
+   * next song too.
    */
   const answer = React.useCallback((round: Round, song: Song | null) => {
     setRun((was) => {
-      if (!was || was.over || was.current !== round) return was;
+      if (!was || was.over || was.reveal || was.current !== round) return was;
 
-      const rounds = [...was.rounds, answerRound(round, song)];
-      const next = dealRound(was.settings, was.id, [...rounds, was.next]);
-      return { ...was, rounds, current: was.next, next };
+      const answered = answerRound(round, song);
+      return {
+        ...was,
+        rounds: [...was.rounds, answered],
+        reveal: answered,
+        clock: answered.didGuess
+          ? runClock(was.clock, false, Date.now())
+          : was.clock,
+      };
     });
   }, []);
+
+  /** Moves on from the answer shown to the next song. */
+  const advance = React.useCallback(() => {
+    setRun((was) => {
+      if (!was || was.over || !was.reveal) return was;
+
+      const next = dealRound(was.settings, was.id, [...was.rounds, was.next]);
+      return { ...was, current: was.next, next, reveal: null };
+    });
+  }, []);
+
+  const reveal = run?.reveal;
+  const over = run?.over;
+  React.useEffect(() => {
+    if (!reveal || over) return;
+
+    const timer = window.setTimeout(
+      advance,
+      reveal.didGuess ? RIGHT_PAUSE_MS : WRONG_PAUSE_MS
+    );
+    return () => window.clearTimeout(timer);
+  }, [reveal, over, advance]);
 
   /**
    * Swaps `round` for another song when it won't play. Not the player's
@@ -128,7 +177,9 @@ export function useTimeAttack() {
    */
   const replaceCurrent = React.useCallback((round: Round) => {
     setRun((was) => {
-      if (!was || was.over || was.current !== round) return was;
+      if (!was || was.over || was.reveal || was.current !== round) {
+        return was;
+      }
 
       const next = dealRound(was.settings, was.id, [
         ...was.rounds,
@@ -143,12 +194,14 @@ export function useTimeAttack() {
   const setClockRunning = React.useCallback((running: boolean) => {
     setRun((was) => {
       if (!was || was.over) return was;
+      // Stays stopped through the pause after a right answer.
+      if (running && was.reveal?.didGuess) return was;
       const clock = runClock(was.clock, running, Date.now());
       return clock === was.clock ? was : { ...was, clock };
     });
   }, []);
 
-  /** Ends the run now: the player left it for another mode. */
+  /** Ends the run now: the player quit, or left it for another mode. */
   const finish = React.useCallback(() => {
     setRun((was) => (!was || was.over ? was : ended(was, Date.now())));
   }, []);

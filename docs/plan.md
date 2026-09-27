@@ -78,14 +78,20 @@ All of Phase 2 (6 to 8: Jukebox, four-choice answers, time attack) is built,
 on the branch `feat/ost-modes` until released. What was agreed is now in
 "What the game has" in `CLAUDE.md`. Choices made while building it:
 
-- The header keeps Daily and Endless; a switch above the game picks Classic,
-  4-Choice or Time Attack, since more buttons don't fit beside the logo on a
-  phone.
-- 4-Choice plays 3 seconds (`CHOICE_CLIP_SECONDS`). Time attack offers 1, 2, 4
-  or 7 seconds.
+- The header keeps Daily and Endless; a switch under the header, always in
+  the same place, picks Classic, 4-Choice or Time Attack, since more buttons
+  don't fit beside the logo on a phone.
+- After testing, the user moved the Jukebox to the ☰ menu: keeping it to the
+  result screen didn't stop anyone, since another mode's result screen was a
+  click away. Its list is flat and searchable, filtered by album chips.
+- 4-Choice and time attack both offer 1, 2, 3, 5 or 7 second clips
+  (`CLIP_OPTIONS`); 4-Choice starts at 3.
+- Time attack shows each answer before the next song: briefly when right,
+  with the clock stopped; 2 seconds when wrong or passed, with it running, so
+  spamming answers doesn't pay. It has Quit, share text and a share picture,
+  but no recap picture.
 - The song record on the result card stays with Daily and Classic: it counts
   tries.
-- Time attack has no share picture or recap picture yet, only share text.
 
 ## Timed: seasonal touches
 

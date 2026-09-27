@@ -12,14 +12,16 @@ import {
 } from "../helpers/winStreak";
 import { RecapStats } from "../helpers/picture/recapPicture";
 import { songs } from "../constants";
-import { CHOICE_CLIP_SECONDS } from "../constants/game";
+
 import { makeChoices } from "../helpers/choices";
 import { dailySong, dayNumber } from "../helpers/daily";
 import { isBagEmpty, pickSong } from "../helpers/pickSong";
 import {
   clearRounds,
   emptyGuesses,
+  loadChoiceClip,
   loadRounds,
+  saveChoiceClip,
   saveRounds,
 } from "../helpers/storage";
 import { BADGE_MODES, ROUND_MODES, RoundMode } from "../types/mode";
@@ -51,7 +53,7 @@ function createRound(mode: RoundMode, playedRounds: Round[]): Round {
     ...newRound(solution),
     tries: 1,
     choices: makeChoices(solution),
-    clip: CHOICE_CLIP_SECONDS,
+    clip: loadChoiceClip(),
   };
 }
 
@@ -174,6 +176,22 @@ export function useGame(mode: RoundMode) {
       return { ...round, guesses, currentTry: round.currentTry + 1 };
     });
   }, [updateCurrent]);
+
+  /**
+   * Picks the 4-Choice clip length: for this round too, if it isn't over, and
+   * every round after it.
+   */
+  const setClip = React.useCallback(
+    (seconds: number) => {
+      saveChoiceClip(seconds);
+      updateCurrent((round) =>
+        round.choices && !isFinished(round)
+          ? { ...round, clip: seconds }
+          : round
+      );
+    },
+    [updateCurrent]
+  );
 
   const setStartTime = React.useCallback(
     (startTime: number) => {
@@ -349,6 +367,7 @@ export function useGame(mode: RoundMode) {
     guess,
     skip,
     setStartTime,
+    setClip,
     nextSong,
     replaceCurrentSong,
     resetScore,

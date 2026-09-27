@@ -251,15 +251,6 @@ describe("Result on a win", () => {
     expect(container.textContent).toContain("Your 12-day streak is over");
   });
 
-  it("opens the Jukebox from its button", () => {
-    const onOpenJukebox = vi.fn();
-    mount({ onOpenJukebox });
-
-    click("Jukebox");
-
-    expect(onOpenJukebox).toHaveBeenCalled();
-  });
-
   it("offers Next Song while songs remain", () => {
     mount();
 

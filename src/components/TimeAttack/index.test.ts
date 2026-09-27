@@ -8,25 +8,32 @@ import { getClipUrl } from "../../helpers/audioUrl";
 import { loadRounds } from "../../helpers/storage";
 import { saveSettings, TIME_ATTACK_MS } from "../../helpers/timeAttack";
 import {
+  RIGHT_PAUSE_MS,
   TimeAttack as TimeAttackState,
   useTimeAttack,
+  WRONG_PAUSE_MS,
 } from "../../hooks/useTimeAttack";
 import { TimeAttack } from "./index";
 
 vi.mock("../../helpers/audioSource", () => ({
   loadAudio: vi.fn((url: string) => Promise.resolve(`blob:${url}`)),
 }));
+// jsdom has no canvas: the picture is stood in for.
+vi.mock("../../helpers/picture/timeAttackPicture", async (importOriginal) => ({
+  ...(await importOriginal<
+    typeof import("../../helpers/picture/timeAttackPicture")
+  >()),
+  makeTimeAttackPicture: () => Promise.resolve(new Blob(["png"])),
+}));
 
 let harness: ReturnType<typeof createHarness>;
 let state: TimeAttackState;
-const onOpenJukebox = vi.fn();
 
 function Probe() {
   state = useTimeAttack();
   return React.createElement(TimeAttack, {
     timeAttack: state,
     keyboardEnabled: true,
-    onOpenJukebox,
   });
 }
 
@@ -72,6 +79,16 @@ function answers() {
   );
 }
 
+function rightAnswer() {
+  const { name } = state.run!.current.solution;
+  return answers().find((b) => b.textContent?.includes(name))!;
+}
+
+function wrongAnswer() {
+  const { name } = state.run!.current.solution;
+  return answers().find((b) => !b.textContent?.includes(name))!;
+}
+
 beforeEach(() => {
   localStorage.clear();
   vi.useFakeTimers();
@@ -96,6 +113,7 @@ describe("TimeAttack's start screen", () => {
     expect(text()).toContain("Time Attack");
     expect(text()).toContain("No OST badges are earned in Time Attack");
     expect(button("1s")).toBeDefined();
+    expect(button("7s")).toBeDefined();
     expect(button("Random start")?.getAttribute("aria-checked")).toBe("false");
   });
 
@@ -148,22 +166,60 @@ describe("a time attack run", () => {
     expect(text()).toContain("2:50");
   });
 
-  it("scores right answers and moves straight on to the next song", async () => {
+  it("keeps the player's controls up while the next song loads", async () => {
+    mount();
+    click("Start");
+    await songLoads();
+
+    act(() => rightAnswer().click());
+    wait(RIGHT_PAUSE_MS);
+
+    expect(text()).not.toContain("Loading player");
+    expect(button("Play clip")?.disabled).toBe(true);
+  });
+
+  it("shows a right answer for a moment, clock stopped, then moves on", async () => {
     mount();
     click("Start");
     await songLoads();
     const first = state.run!.current;
 
-    const right = answers().find((b) =>
-      b.textContent?.includes(first.solution.name)
-    )!;
-    act(() => right.click());
+    act(() => rightAnswer().click());
 
     expect(state.score).toBe(1);
-    expect(state.run!.current).not.toBe(first);
     expect(text()).toContain(`✓ ${first.solution.name}`);
+    expect(state.run!.clock.since).toBeNull();
     // Saved as soon as it is answered.
     expect(loadRounds("timeattack")).toHaveLength(1);
+
+    wait(RIGHT_PAUSE_MS - 1);
+    expect(state.run!.current).toBe(first);
+
+    wait(1);
+    expect(state.run!.current).not.toBe(first);
+  });
+
+  it("shows the answer after a miss, and makes the player wait for it", async () => {
+    mount();
+    click("Start");
+    await songLoads();
+    const first = state.run!.current;
+
+    act(() => wrongAnswer().click());
+
+    // The four stay up with the answer marked, and can't be picked again.
+    expect(answers().every((b) => b.disabled)).toBe(true);
+    expect(text()).toContain(`✗ It was ${first.solution.name}`);
+    // The clock keeps running: that is the cost of the miss.
+    expect(state.run!.clock.since).not.toBeNull();
+
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "1" }));
+    });
+    expect(state.run!.rounds).toHaveLength(1);
+
+    wait(WRONG_PAUSE_MS);
+    expect(state.run!.current).not.toBe(first);
   });
 
   it("answers each song once, however quickly it's tapped", async () => {
@@ -180,11 +236,12 @@ describe("a time attack run", () => {
     expect(state.run!.rounds).toHaveLength(1);
   });
 
-  it("ends when time is up, with the songs and a way to play again", async () => {
+  it("ends when time is up, with the songs and ways to share", async () => {
     mount();
     click("Start");
     await songLoads();
-    act(() => answers()[0].click());
+    act(() => rightAnswer().click());
+    wait(RIGHT_PAUSE_MS);
     await songLoads();
 
     wait(TIME_ATTACK_MS);
@@ -192,17 +249,27 @@ describe("a time attack run", () => {
     expect(state.run!.over).toBe(true);
     expect(text()).toContain("Time's up, Sensei!");
     expect(harness.container.querySelectorAll("li")).toHaveLength(1);
+    expect(button("Share result")).toBeDefined();
+    expect(button("Share picture")).toBeDefined();
     expect(button("Play again")).toBeDefined();
+  });
 
-    click("Jukebox");
-    expect(onOpenJukebox).toHaveBeenCalled();
+  it("can be quit early, straight to how it went", async () => {
+    mount();
+    click("Start");
+    await songLoads();
+
+    click("Quit");
+
+    expect(state.run!.over).toBe(true);
+    expect(text()).toContain("Time's up, Sensei!");
   });
 
   it("goes back to the start screen for new settings", async () => {
     mount();
     click("Start");
     await songLoads();
-    act(() => state.finish());
+    click("Quit");
 
     click("Settings");
 
@@ -234,14 +301,20 @@ describe("a typed time attack run", () => {
     click("Start");
     await songLoads();
 
-    act(() => {
-      window.dispatchEvent(
-        new KeyboardEvent("keydown", { key: "Enter", shiftKey: true })
-      );
-    });
+    const shiftEnter = () =>
+      act(() => {
+        window.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Enter", shiftKey: true })
+        );
+      });
+
+    shiftEnter();
+    // A second press while the answer shows does nothing.
+    shiftEnter();
 
     expect(state.run!.rounds).toHaveLength(1);
     expect(state.run!.rounds[0].didGuess).toBe(false);
     expect(text()).toContain("Passed:");
+    expect(button("Pass")?.disabled).toBe(true);
   });
 });

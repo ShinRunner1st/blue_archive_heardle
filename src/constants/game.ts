@@ -26,11 +26,21 @@ export const TIME_ATTACK_STORAGE_KEY = "stats.timeattack";
 export const TIME_ATTACK_SETTINGS_KEY = "timeAttack";
 
 /**
- * How much of the clip a four-choice round plays, in seconds. One try only,
- * so a little more than the first try of six, and the four answers are picked
- * to sound close.
+ * How much of the clip a four-choice round plays, in seconds, until the
+ * player picks another length. One try only, so a little more than the first
+ * try of six, and the four answers are picked to sound close.
  */
 export const CHOICE_CLIP_SECONDS = 3;
+
+/**
+ * The clip lengths 4-Choice and time attack can be played with, in seconds.
+ * Up to 7: longer gives the song away, and a random start needs room inside
+ * the 16-second clip.
+ */
+export const CLIP_OPTIONS = [1, 2, 3, 5, 7];
+
+/** localStorage key holding the clip length picked for 4-Choice. */
+export const CHOICE_CLIP_KEY = "choiceClip";
 
 /** localStorage key remembering which mode was last played. */
 export const MODE_KEY = "mode";

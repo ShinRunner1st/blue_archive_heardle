@@ -47,8 +47,6 @@ interface Props {
   badgeLines: string[];
   /** The player's history with this song, for the now-playing card. */
   record: string;
-  /** Opens the Jukebox, which only the result screen offers. */
-  onOpenJukebox?: () => void;
 }
 
 const COUNTDOWN_TICK_MS = 30_000;
@@ -94,7 +92,6 @@ export function Result({
   streak,
   badgeLines,
   record,
-  onOpenJukebox,
 }: Props) {
   const [buttonText, setButtonText] = useState("Share result");
   const isDaily = mode === "daily";
@@ -217,11 +214,6 @@ export function Result({
         <Button stroke onClick={picture.share} variant="pink">
           {picture.text}
         </Button>
-        {onOpenJukebox && (
-          <Button stroke onClick={onOpenJukebox} variant="background100">
-            Jukebox
-          </Button>
-        )}
         {!isDaily && (
           <Button stroke onClick={advance} variant={bagEmpty ? "red" : "green"}>
             {bagEmpty ? "Reset Score" : didGuess ? "Next Song" : "Continue?"}

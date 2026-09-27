@@ -2,7 +2,6 @@ import React from "react";
 
 import {
   answersLabel,
-  CLIP_OPTIONS,
   formatClock,
   runsOf,
   TIME_ATTACK_MS,
@@ -10,13 +9,21 @@ import {
   timeLeft,
   TimeAttackSettings,
 } from "../../helpers/timeAttack";
+import {
+  makeTimeAttackPicture,
+  timeAttackPictureName,
+} from "../../helpers/picture/timeAttackPicture";
 import { placeFor } from "../../helpers/winStreak";
+import { useBackdropSrc } from "../../hooks/useBackdropSrc";
+import { useSharePicture } from "../../hooks/useSharePicture";
 import { Run, TimeAttack as TimeAttackState } from "../../hooks/useTimeAttack";
+import logo from "../../image/BlueArchive-Heardle.png";
 import { Round } from "../../types/stats";
 import { Song } from "../../types/song";
 
 import { Button } from "../Button";
 import { Choices } from "../Choices";
+import { ClipLength } from "../ClipLength";
 import { Player, PlayerStatus } from "../Player";
 import { Search } from "../Search";
 import { Chip } from "../SongListPopUp/index.styled";
@@ -28,8 +35,6 @@ interface Props {
   timeAttack: TimeAttackState;
   /** False while a dialog is open, so global shortcuts stay inert. */
   keyboardEnabled: boolean;
-  /** Opens the Jukebox, offered once a run is over. */
-  onOpenJukebox: () => void;
 }
 
 /** The last stretch of the run, when the clock turns red. */
@@ -42,20 +47,14 @@ const DRAW_MS = 250;
  * run has no Enter to play again: it would catch a key pressed to answer just
  * as the clock ran out.
  */
-export function TimeAttack({
-  timeAttack,
-  keyboardEnabled,
-  onOpenJukebox,
-}: Props) {
+export function TimeAttack({ timeAttack, keyboardEnabled }: Props) {
   const { run } = timeAttack;
 
   if (!run) {
     return <Start timeAttack={timeAttack} keyboardEnabled={keyboardEnabled} />;
   }
   if (run.over) {
-    return (
-      <Over run={run} timeAttack={timeAttack} onOpenJukebox={onOpenJukebox} />
-    );
+    return <Over run={run} timeAttack={timeAttack} />;
   }
   return (
     <Playing
@@ -98,7 +97,7 @@ function Start({
       <Styled.Title>Time Attack ⏱</Styled.Title>
       <Styled.Lead>
         Name as many songs as you can in {formatClock(TIME_ATTACK_MS)}. One try
-        each, and the clock stops while a song loads.
+        each, and a miss or a pass costs two seconds.
       </Styled.Lead>
 
       <Styled.Card aria-label="Run settings">
@@ -107,19 +106,10 @@ function Start({
             <Styled.SettingName>Clip length</Styled.SettingName>
             <Styled.SettingHint>How much of each song plays</Styled.SettingHint>
           </Styled.SettingText>
-          <Styled.Options role="group" aria-label="Clip length">
-            {CLIP_OPTIONS.map((seconds) => (
-              <Chip
-                key={seconds}
-                type="button"
-                $active={settings.clip === seconds}
-                aria-pressed={settings.clip === seconds}
-                onClick={() => change({ clip: seconds })}
-              >
-                {seconds}s
-              </Chip>
-            ))}
-          </Styled.Options>
+          <ClipLength
+            value={settings.clip}
+            onChange={(clip) => change({ clip })}
+          />
         </Styled.Setting>
 
         <Styled.Setting>
@@ -224,14 +214,16 @@ function Playing({
   timeAttack: TimeAttackState;
   keyboardEnabled: boolean;
 }) {
-  const { answer, replaceCurrent, setClockRunning, score } = timeAttack;
-  const { current, settings } = run;
+  const { answer, replaceCurrent, setClockRunning, finish, score } = timeAttack;
+  const { current, settings, reveal } = run;
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [selectedSong, setSelectedSong] = React.useState<Song>();
 
   const running = run.clock.since !== null;
   const left = timeLeft(run.clock, useNow(running));
   const low = left <= LOW_MS;
+  // While an answer shows, nothing more can be answered.
+  const waiting = reveal !== null;
 
   // The clock only runs while the song is ready to hear.
   const handleStatus = React.useCallback(
@@ -240,15 +232,14 @@ function Playing({
   );
 
   const submit = React.useCallback(() => {
-    if (!selectedSong) return;
+    if (!selectedSong || waiting) return;
     answer(current, selectedSong);
     setSelectedSong(undefined);
-  }, [answer, current, selectedSong]);
+  }, [answer, current, selectedSong, waiting]);
 
-  const pass = React.useCallback(
-    () => answer(current, null),
-    [answer, current]
-  );
+  const pass = React.useCallback(() => {
+    if (!waiting) answer(current, null);
+  }, [answer, current, waiting]);
   const pick = React.useCallback(
     (song: Song) => answer(current, song),
     [answer, current]
@@ -257,7 +248,7 @@ function Playing({
   // Enter answers with the song picked; Shift+Enter passes. A held key doesn't
   // repeat, or one press could pass every song.
   React.useEffect(() => {
-    if (!keyboardEnabled || current.choices) return;
+    if (!keyboardEnabled || current.choices || waiting) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "Enter" || e.repeat) return;
@@ -272,7 +263,7 @@ function Playing({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [keyboardEnabled, current.choices, selectedSong, submit, pass]);
+  }, [keyboardEnabled, current.choices, waiting, selectedSong, submit, pass]);
 
   const feedback = feedbackFor(run.rounds);
 
@@ -294,6 +285,9 @@ function Playing({
           />
         </Styled.TimeTrack>
         <Styled.Score aria-label={`${score} right`}>✓ {score}</Styled.Score>
+        <Styled.Quit type="button" onClick={finish}>
+          Quit
+        </Styled.Quit>
       </Styled.Status>
 
       <Styled.Feedback $right={feedback.right} aria-live="polite">
@@ -311,6 +305,7 @@ function Playing({
         onSkipTrack={() => replaceCurrent(current)}
         lengths={[settings.clip * 1000]}
         autoPlay
+        steady
         onStatusChange={handleStatus}
         hint={
           current.choices ? (
@@ -330,10 +325,12 @@ function Playing({
         <Choices
           // Fresh buttons for each song, so focus doesn't sit on the answer
           // just given.
-          key={run.rounds.length}
+          key={current.solution.themeNo}
           choices={current.choices}
           onPick={pick}
           keyboardEnabled={keyboardEnabled}
+          answer={reveal ? current.solution.themeNo : undefined}
+          picked={reveal?.guesses[0]?.song?.themeNo}
         />
       ) : (
         <>
@@ -343,17 +340,17 @@ function Playing({
             setSelectedSong={setSelectedSong}
             selectedSong={selectedSong}
             inputRef={inputRef}
-            keyboardEnabled={keyboardEnabled}
+            keyboardEnabled={keyboardEnabled && !waiting}
           />
           <Styled.PlayButtons>
-            <Button stroke onClick={pass}>
+            <Button stroke onClick={pass} disabled={waiting}>
               Pass
             </Button>
             <Button
               stroke
               variant="green"
               onClick={submit}
-              disabled={!selectedSong}
+              disabled={!selectedSong || waiting}
             >
               Answer
             </Button>
@@ -368,16 +365,8 @@ function noop() {
   // Time attack sets each song's start when it deals it.
 }
 
-function Over({
-  run,
-  timeAttack,
-  onOpenJukebox,
-}: {
-  run: Run;
-  timeAttack: TimeAttackState;
-  onOpenJukebox: () => void;
-}) {
-  const { start, leave, history, score } = timeAttack;
+function Over({ run, timeAttack }: { run: Run; timeAttack: TimeAttackState }) {
+  const { start, leave, history, score, stats } = timeAttack;
   const [copied, setCopied] = React.useState("Share result");
 
   // Judged against the other runs answered the same way.
@@ -392,18 +381,37 @@ function Over({
   const isBest = score > bestBefore;
   const place = placeFor(score);
 
+  const shareText = timeAttackShareText(run.rounds, run.settings);
   const copyResult = React.useCallback(() => {
     navigator.clipboard
-      .writeText(timeAttackShareText(run.rounds, run.settings))
+      .writeText(shareText)
       .then(() => setCopied("Copied to your clipboard"))
       .catch(() => setCopied("Copy failed"));
-  }, [run]);
+  }, [shareText]);
 
   React.useEffect(() => {
     if (copied === "Share result") return;
     const timer = window.setTimeout(() => setCopied("Share result"), 2000);
     return () => window.clearTimeout(timer);
   }, [copied]);
+
+  // On the backdrop the run reached, like the page behind it.
+  const backdrop = useBackdropSrc(score);
+  const best = stats.best[run.settings.answers];
+  const makePicture = React.useCallback(
+    () =>
+      makeTimeAttackPicture(
+        { rounds: run.rounds, settings: run.settings, best },
+        { backdrop, logo }
+      ),
+    [run, best, backdrop]
+  );
+  const picture = useSharePicture(
+    "Share picture",
+    makePicture,
+    timeAttackPictureName(),
+    shareText
+  );
 
   return (
     <>
@@ -441,10 +449,10 @@ function Over({
         <Button stroke variant="blue" onClick={copyResult}>
           {copied}
         </Button>
-        <Button stroke variant="background100" onClick={onOpenJukebox}>
-          Jukebox
+        <Button stroke variant="pink" onClick={picture.share}>
+          {picture.text}
         </Button>
-        <Button stroke onClick={leave}>
+        <Button stroke variant="orange" onClick={leave}>
           Settings
         </Button>
         <Button stroke variant="green" onClick={start}>

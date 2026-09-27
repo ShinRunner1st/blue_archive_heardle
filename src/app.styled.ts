@@ -44,3 +44,15 @@ export const BG = styled.div`
   display: flex;
   flex-direction: column;
 `;
+
+/** Holds the ways to play Endless in one place under the header. */
+export const StyleBar = styled.div`
+  display: flex;
+  justify-content: center;
+
+  padding: 16px 16px 0;
+
+  @media (max-width: 768px) {
+    padding-top: 12px;
+  }
+`;

@@ -39,21 +39,27 @@ export const Choice = styled.button<{ $tone: ChoiceTone }>`
         : $tone === "wrong"
         ? theme.red
         : theme.border};
-  border-width: ${({ $tone }) =>
-    $tone === "right" || $tone === "wrong" ? "2px" : "1px"};
+  /* A second line inside the border, so marking one doesn't move it. */
+  box-shadow: ${({ theme, $tone }) =>
+    $tone === "right"
+      ? `inset 0 0 0 1px ${theme.green}`
+      : $tone === "wrong"
+      ? `inset 0 0 0 1px ${theme.red}`
+      : "none"};
   border-radius: 8px;
   cursor: pointer;
 
   opacity: ${({ $tone }) => ($tone === "other" ? 0.55 : 1)};
-  transition: transform 0.12s ease, background-color 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 
+  /*
+   * Colour only, never size: a button that grew on hover moved its edge out
+   * from under a pointer resting there, which then un-hovered it, over and
+   * over, and a press shrinking it could lose the click.
+   */
   &:hover:not(:disabled) {
     background-color: ${({ theme }) => theme.background1};
-    transform: scale(1.02);
-  }
-
-  &:active:not(:disabled) {
-    transform: scale(0.98);
+    border-color: ${({ theme }) => theme.blue};
   }
 
   &:disabled {

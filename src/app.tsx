@@ -65,6 +65,7 @@ function App() {
     guess,
     skip,
     setStartTime,
+    setClip,
     nextSong,
     replaceCurrentSong,
     resetScore,
@@ -201,12 +202,6 @@ function App() {
     [timeAttack.history]
   );
 
-  // The Jukebox belongs to the result screen: a new round closes it, so it
-  // can never be open while a clip is being guessed.
-  React.useEffect(() => {
-    setIsJukeboxOpen(false);
-  }, [roundKey]);
-
   const openSongList = React.useCallback(() => setIsSongListOpen(true), []);
   const closeSongList = React.useCallback(() => setIsSongListOpen(false), []);
   const pickFromSongList = React.useCallback((song: Song) => {
@@ -264,6 +259,7 @@ function App() {
         openHowToPopUp={openHowToPopUp}
         openSettingsPopUp={openSettingsPopUp}
         openWhatsNewPopUp={openWhatsNew}
+        openJukeboxPopUp={openJukebox}
         mode={mode}
         onModeChange={changeMode}
         streak={run}
@@ -309,16 +305,16 @@ function App() {
           guessed={guessedThemeNos}
         />
       )}
-      <Styled.Container>
-        {isEndlessStyle(mode) && (
+      {/* Below the header rather than in the play area, which is centred on
+          the page: there it moved with every screen's height. */}
+      {isEndlessStyle(mode) && (
+        <Styled.StyleBar>
           <PlayStyles mode={mode} onChange={changeStyle} />
-        )}
+        </Styled.StyleBar>
+      )}
+      <Styled.Container>
         {isTimeAttack ? (
-          <TimeAttack
-            timeAttack={timeAttack}
-            keyboardEnabled={!isPopUpOpen}
-            onOpenJukebox={openJukebox}
-          />
+          <TimeAttack timeAttack={timeAttack} keyboardEnabled={!isPopUpOpen} />
         ) : (
           <Game
             // Remounting on a mode change clears the search box and the player,
@@ -333,6 +329,7 @@ function App() {
             skip={skip}
             guess={submitGuess}
             pick={guess}
+            setClip={setClip}
             score={score}
             bagEmpty={bagEmpty}
             onNextSong={nextSong}
@@ -350,7 +347,6 @@ function App() {
             streak={streak}
             badgeLines={badgeLines}
             record={record}
-            onOpenJukebox={openJukebox}
           />
         )}
       </Styled.Container>

@@ -1,5 +1,9 @@
 import { playTimes } from "../constants";
-import { SITE_URL, TIME_ATTACK_SETTINGS_KEY } from "../constants/game";
+import {
+  CLIP_OPTIONS,
+  SITE_URL,
+  TIME_ATTACK_SETTINGS_KEY,
+} from "../constants/game";
 import { Round } from "../types/stats";
 import { Song } from "../types/song";
 import { makeChoices } from "./choices";
@@ -8,9 +12,6 @@ import { emptyGuesses } from "./storage";
 
 /** How long a run lasts, in milliseconds. */
 export const TIME_ATTACK_MS = 3 * 60 * 1000;
-
-/** The clip lengths a run can be played with, in seconds. */
-export const CLIP_OPTIONS = [1, 2, 4, 7];
 
 /** The clip file's length: a random start stays inside it. */
 const CLIP_FILE_SECONDS = playTimes[playTimes.length - 1] / 1000;

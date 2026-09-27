@@ -1,58 +1,153 @@
 import styled from "styled-components";
-import { IoVolumeHigh } from "react-icons/io5";
+import {
+  IoPlaySkipBack,
+  IoPlaySkipForward,
+  IoVolumeHigh,
+} from "react-icons/io5";
 
 import { slimScrollbar } from "../PopUp/scrollbar";
 
 export {
   ArtistTag,
   Chip,
+  ChipCount,
+  Count,
+  Empty,
+  Filter,
+  FilterIcon,
+  FilterInput,
   NameCell,
   SongName,
   ThemeNo,
 } from "../SongListPopUp/index.styled";
+export {
+  Art,
+  Fill,
+  NoteIcon,
+  PauseIcon,
+  PlayIcon,
+  Seek,
+  Thumb,
+  Times,
+  Track,
+  Transport,
+} from "../NowPlaying/index.styled";
+
+/**
+ * The player card. Every line is one line tall whatever the song, so the card
+ * never changes height and the list below never moves under the pointer.
+ */
+export const Player = styled.section`
+  box-sizing: border-box;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 14px 16px 10px;
+
+  background-color: ${({ theme }) => theme.background1};
+  border: 1px solid ${({ theme }) => theme.background100};
+  border-radius: 12px;
+`;
+
+export const PlayerHead = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+export const PlayerMeta = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+const oneLine = `
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+export const PlayerName = styled.p`
+  margin: 0;
+
+  font-size: 1.05rem;
+  font-weight: 800;
+  line-height: 1.35;
+  color: lightblue;
+  ${oneLine}
+`;
+
+export const PlayerArtist = styled.p`
+  margin: 2px 0 0;
+
+  font-size: 0.85rem;
+  line-height: 1.35;
+  opacity: 0.8;
+  ${oneLine}
+`;
+
+/** The whole card's width, under the song. */
+export const PlayerTimeline = styled.div`
+  position: relative;
+  margin-top: 12px;
+`;
+
+export const PlayerControls = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-top: 4px;
+`;
+
+/** The volume keeps to the right, away from the transport buttons. */
+export const PlayerVolume = styled.div`
+  margin-left: auto;
+`;
+
+export const Skip = styled.button`
+  flex-shrink: 0;
+
+  display: flex;
+  padding: 4px;
+
+  font-size: 20px;
+  color: ${({ theme }) => theme.text};
+
+  background: none;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
+`;
+
+export const PreviousIcon = IoPlaySkipBack;
+export const NextIcon = IoPlaySkipForward;
 
 /** The album chips, which all fit on a line or two. */
-export const Shelves = styled.div`
+export const Albums = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 
   width: 100%;
-  margin: 0 0 10px;
+  margin-top: 10px;
   padding: 3px;
-`;
-
-/** Holds the now-playing card's place before a song is picked. */
-export const Idle = styled.p`
-  box-sizing: border-box;
-  width: 100%;
-  margin: 0 0 12px;
-  padding: 18px 12px;
-
-  font-size: 0.9rem;
-  text-align: center;
-  opacity: 0.75;
-
-  background-color: ${({ theme }) => theme.background1};
-  border-radius: 8px;
-`;
-
-/** The card sits flush in the pop-up rather than floating on the page. */
-export const Playing = styled.div`
-  width: 100%;
-
-  section {
-    width: 100%;
-    margin: 0 0 12px;
-    box-shadow: none;
-  }
 `;
 
 /** Scrolls on its own, like the All OST list, so the player stays in view. */
 export const List = styled.div`
   box-sizing: border-box;
   width: 100%;
-  max-height: min(45vh, 420px);
+  max-height: min(42vh, 400px);
+  margin-top: 6px;
   overflow-y: auto;
   overscroll-behavior: contain;
 
@@ -83,40 +178,11 @@ export const Songs = styled.ul`
   }
 `;
 
-export const ShelfHeading = styled.h3`
-  grid-column: 1 / -1;
-
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-
-  margin: 12px 10px 4px;
-
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: lightblue;
-`;
-
-export const ShelfTitle = styled.span`
-  flex: 1;
-  min-width: 0;
-
-  font-weight: 600;
-  opacity: 0.75;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`;
-
-export const ShelfCount = styled.span`
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  opacity: 0.75;
-`;
-
 /**
  * Songs guessed right stand out and the rest are dimmed. There is no third
  * look for songs missed: that would show what is left in the endless bag.
+ * Hovering changes colour only, never size, so a pointer resting on the line
+ * between two rows can't flick between them.
  */
 export const SongButton = styled.button<{
   $bright: boolean;

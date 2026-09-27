@@ -14,11 +14,8 @@ interface Props {
   song: Song;
   /** Where the round's clip started in the whole song, in seconds. */
   startTime: number;
-  /**
-   * How much of the clip the player heard on their last try, in seconds.
-   * Without it there is no clip to mark: the Jukebox plays songs on their own.
-   */
-  clipLength?: number;
+  /** How much of the clip the player heard on their last try, in seconds. */
+  clipLength: number;
   /** False while a dialog is open, which gets the keys instead. */
   keyboardEnabled?: boolean;
   /** The player's history with this song, under the artist. */
@@ -41,7 +38,7 @@ function percent(part: number, whole: number): string {
  * where the round's clip started, and a marker showing which part was the clip.
  *
  * The whole song is only downloaded once the round is over, so it can't give
- * the answer away early. The Jukebox uses it too, without a clip.
+ * the answer away early.
  */
 export function NowPlaying({
   song,
@@ -67,11 +64,10 @@ export function NowPlaying({
 
   useAudioVolume(audioRef, failed);
 
-  const hasClip = clipLength !== undefined;
   const clipEnd =
     duration > 0
-      ? Math.min(startTime + (clipLength ?? 0), duration)
-      : startTime + (clipLength ?? 0);
+      ? Math.min(startTime + clipLength, duration)
+      : startTime + clipLength;
 
   const play = React.useCallback((audio: HTMLAudioElement) => {
     // Rejected when the browser blocks it; the play button is there instead.
@@ -239,7 +235,7 @@ export function NowPlaying({
                 <Styled.Fill
                   style={{ width: percent(currentTime, duration) }}
                 />
-                {hasClip && duration > 0 && (
+                {duration > 0 && (
                   <Styled.ClipBand
                     data-testid="clip-band"
                     style={{
@@ -261,22 +257,20 @@ export function NowPlaying({
             </Styled.Timeline>
           </Styled.Controls>
 
-          {hasClip && (
-            <Styled.ClipRow>
-              <Styled.ClipLabel>
-                <Styled.ClipSwatch aria-hidden="true" />
-                Your clip: {formatTime(startTime)} – {formatTime(clipEnd)}
-              </Styled.ClipLabel>
-              <Styled.ReplayButton
-                type="button"
-                onClick={replayClip}
-                disabled={!loaded}
-              >
-                <Styled.ReplayIcon aria-hidden="true" />
-                Replay my clip
-              </Styled.ReplayButton>
-            </Styled.ClipRow>
-          )}
+          <Styled.ClipRow>
+            <Styled.ClipLabel>
+              <Styled.ClipSwatch aria-hidden="true" />
+              Your clip: {formatTime(startTime)} – {formatTime(clipEnd)}
+            </Styled.ClipLabel>
+            <Styled.ReplayButton
+              type="button"
+              onClick={replayClip}
+              disabled={!loaded}
+            >
+              <Styled.ReplayIcon aria-hidden="true" />
+              Replay my clip
+            </Styled.ReplayButton>
+          </Styled.ClipRow>
         </>
       )}
     </Styled.Card>

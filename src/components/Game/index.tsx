@@ -11,6 +11,7 @@ import { isFinished } from "../../helpers";
 
 import { Button, Guess, Player, Search, Result } from "../";
 import { Choices } from "../Choices";
+import { ClipLength } from "../ClipLength";
 
 import * as Styled from "./index.styled";
 
@@ -25,6 +26,8 @@ interface Props {
   guess: () => void;
   /** Answers a four-choice round with the song picked. */
   pick: (song: Song) => void;
+  /** Picks the four-choice clip length. */
+  setClip: (seconds: number) => void;
   score: string;
   bagEmpty: boolean;
   onNextSong: () => void;
@@ -46,15 +49,12 @@ interface Props {
   badgeLines: string[];
   /** The player's history with this song, once the round is over. */
   record: string;
-  /** Opens the Jukebox from the result screen. */
-  onOpenJukebox?: () => void;
 }
 
 export function Game({
   streak,
   badgeLines,
   record,
-  onOpenJukebox,
   guesses,
   solution,
   currentTry,
@@ -64,6 +64,7 @@ export function Game({
   skip,
   guess,
   pick,
+  setClip,
   score,
   bagEmpty,
   onNextSong,
@@ -115,7 +116,6 @@ export function Game({
         streak={streak}
         badgeLines={badgeLines}
         record={record}
-        onOpenJukebox={onOpenJukebox}
       />
     );
   }
@@ -124,6 +124,10 @@ export function Game({
   if (choices) {
     return (
       <>
+        <Styled.ClipRow>
+          <Styled.ClipLabel>Clip length</Styled.ClipLabel>
+          <ClipLength value={round.clip ?? 1} onChange={setClip} />
+        </Styled.ClipRow>
         <Player
           themeNo={solution.themeNo}
           currentTry={0}

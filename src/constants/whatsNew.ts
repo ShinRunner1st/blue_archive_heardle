@@ -42,17 +42,17 @@ export const WHATS_NEW: NewsUpdate[] = [
       {
         icon: IoGrid,
         title: "4-Choice",
-        text: "In Endless, switch to 4-Choice: hear 3 seconds, then pick the song from four that sound alike. It has its own stats and streak.",
+        text: "In Endless, switch to 4-Choice: hear a short clip, 1 to 7 seconds as you like, then pick the song from four that sound alike. It has its own stats and streak.",
       },
       {
         icon: IoStopwatch,
         title: "Time Attack",
-        text: "Name as many songs as you can in three minutes. Pick the clip length, a random start, and typed or four-choice answers. Beat your best in Stats.",
+        text: "Name as many songs as you can in three minutes. Pick the clip length, a random start, and typed or four-choice answers. A miss costs two seconds. Beat your best in Stats.",
       },
       {
         icon: IoRadio,
         title: "Jukebox",
-        text: "After a round, open the Jukebox to play any song in full, by OST album. The songs you've guessed stand out.",
+        text: "Open the Jukebox from the ☰ menu to play any song in full. Search it or pick OST albums; the songs you've guessed stand out.",
       },
     ],
   },

@@ -25,17 +25,22 @@ answer's, and turns orange when it is within 10.
 - **Endless** - as many rounds as you like. No track repeats until every one
   has been played. A switch above the game picks how to play it:
   - **Classic** - the six tries above.
-  - **4-Choice** - 3 seconds of the clip, then one pick from four answers, with
-    a tap or the keys 1 to 4. The wrong answers are picked to sound close: one
+  - **4-Choice** - a short clip (1, 2, 3, 5 or 7 seconds, 3 to start with;
+    remembered), then one pick from four answers, with a tap or the keys 1
+    to 4. The wrong answers are picked to sound close: one
     by the same composer when there is one, the rest from nearby theme
     numbers. The four are saved with the round, so a reload deals the same
     four.
   - **Time Attack** - as many songs as you can in three minutes, one try each.
-    Pick the clip length (1, 2, 4 or 7 seconds), a random start inside the
+    Pick the clip length (1, 2, 3, 5 or 7 seconds), a random start inside the
     16-second clip, and typed or four-choice answers. Each clip plays as soon
     as it loads and the next one loads while it plays; the clock stops while a
-    song loads. A run isn't resumed after a reload: it ends with what was
-    answered, so a reload can't win time back.
+    song loads. After each answer the result shows before the next song: a
+    right one for a moment with the clock stopped, a miss or a pass for two
+    seconds with it running, so tapping or passing at random doesn't pay. Quit
+    ends a run early. A run isn't resumed after a reload: it ends with what was
+    answered, so a reload can't win time back. The end of a run shares as text
+    or a picture, neither naming a song.
 
 Each mode keeps its own score, streak and history, saved in your browser.
 4-Choice and Time Attack earn no OST badges, since picking from four (or
@@ -63,13 +68,12 @@ naming against the clock) isn't the same test.
   which part was your clip, and can replay just that part. Under the song it
   shows your record with it in Daily and Classic, such as "Heard 4 times ·
   guessed 3 · best in 2 tries".
-- **Jukebox** - the result screen's Jukebox button (and the end of a Time
-  Attack run) lists every song by OST album, Vol.1 to Vol.8 then Other, and
-  plays any of them in full. Songs guessed right in any mode are bright, the
-  rest dimmed; missed songs look like unplayed ones, so it never shows what is
-  left in the endless bag. It opens only after a round and closes when the
-  next one starts, so it can't be used to check a clip. Starting a song pauses
-  any other playing on the page.
+- **Jukebox** - in the ☰ menu: every song in theme order, played in full,
+  with a search box and OST album chips (Vol.1 to Vol.8 and Other, any
+  number at once), like All OST. Songs guessed right in any mode are bright,
+  the rest dimmed; missed songs look like unplayed ones, so it never shows
+  what is left in the endless bag. When a song ends the next one in the list
+  plays. Starting a song pauses any other playing on the page.
 - **Volume** - set it once; it's remembered. New players start at 20%.
 - **Dark mode** - in the ☰ menu. Follows your device until you pick one.
 - **Blue Archive cursor** - the game's cursor, with its flash on every click

@@ -12,6 +12,7 @@ const openHowToPopUp = vi.fn();
 const openSettingsPopUp = vi.fn();
 const openBadgesPopUp = vi.fn();
 const openWhatsNewPopUp = vi.fn();
+const openJukeboxPopUp = vi.fn();
 const onModeChange = vi.fn();
 
 function buttonFor(label: string) {
@@ -46,6 +47,7 @@ function mount(mode: GameMode = "daily", streak = 0) {
       openSettingsPopUp,
       openBadgesPopUp,
       openWhatsNewPopUp,
+      openJukeboxPopUp,
       mode,
       onModeChange,
       streak,
@@ -207,6 +209,15 @@ describe("Header menu", () => {
     act(() => menuItem("What's new")!.click());
 
     expect(openWhatsNewPopUp).toHaveBeenCalled();
+  });
+
+  it("opens the Jukebox from the menu", () => {
+    mount();
+    openMenu();
+
+    act(() => menuItem("Jukebox")!.click());
+
+    expect(openJukeboxPopUp).toHaveBeenCalled();
   });
 
   it("opens the OST badges from the header", () => {

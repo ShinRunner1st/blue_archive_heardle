@@ -36,10 +36,10 @@ describe("time attack settings", () => {
   it("start from the defaults, and are remembered", () => {
     expect(loadSettings()).toEqual(DEFAULT_SETTINGS);
 
-    saveSettings({ clip: 4, randomStart: true, answers: "typed" });
+    saveSettings({ clip: 5, randomStart: true, answers: "typed" });
 
     expect(loadSettings()).toEqual({
-      clip: 4,
+      clip: 5,
       randomStart: true,
       answers: "typed",
     });
@@ -48,7 +48,7 @@ describe("time attack settings", () => {
   it("fall back one by one on values that don't belong", () => {
     localStorage.setItem(
       TIME_ATTACK_SETTINGS_KEY,
-      JSON.stringify({ clip: 5, randomStart: "yes", answers: "typed" })
+      JSON.stringify({ clip: 4, randomStart: "yes", answers: "typed" })
     );
 
     expect(loadSettings()).toEqual({ ...DEFAULT_SETTINGS, answers: "typed" });

@@ -13,6 +13,7 @@ vi.mock("../../helpers/audioSource", () => ({
 
 let harness: ReturnType<typeof createHarness>;
 const onClose = vi.fn();
+let play: ReturnType<typeof vi.fn>;
 
 function mount(guessed: string[] = []) {
   harness.render(
@@ -26,7 +27,7 @@ function songButton(name: string) {
   ).find((button) => button.textContent?.includes(name));
 }
 
-function click(button: HTMLButtonElement | undefined) {
+function click(button: HTMLButtonElement | null | undefined) {
   act(() => {
     button?.dispatchEvent(new MouseEvent("click", { bubbles: true }));
   });
@@ -34,16 +35,51 @@ function click(button: HTMLButtonElement | undefined) {
 
 function chip(label: string) {
   return Array.from(
-    document.querySelectorAll<HTMLButtonElement>('[aria-label="Album"] button')
-  ).find((button) => button.textContent === label);
+    document.querySelectorAll<HTMLButtonElement>(
+      '[aria-label="Filter by album"] button'
+    )
+  ).find((button) => button.textContent?.startsWith(label));
+}
+
+function search(text: string) {
+  const input = document.querySelector<HTMLInputElement>(
+    'input[aria-label="Search songs"]'
+  )!;
+  act(() => {
+    Object.getOwnPropertyDescriptor(
+      HTMLInputElement.prototype,
+      "value"
+    )!.set!.call(input, text);
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+}
+
+function player() {
+  return document.querySelector('[aria-label="Jukebox player"]')!;
+}
+
+/** The picked song's file arrives and its metadata loads. */
+async function songLoads() {
+  await act(async () => undefined);
+  act(() => {
+    player().querySelector("audio")!.dispatchEvent(new Event("loadedmetadata"));
+  });
 }
 
 beforeEach(() => {
+  play = vi.fn(() => Promise.resolve());
+  vi.spyOn(window.HTMLMediaElement.prototype, "play").mockImplementation(
+    play as () => Promise<void>
+  );
+  vi.spyOn(window.HTMLMediaElement.prototype, "pause").mockImplementation(
+    () => undefined
+  );
   harness = createHarness();
 });
 
 afterEach(() => {
   harness.destroy();
+  vi.restoreAllMocks();
   vi.clearAllMocks();
 });
 
@@ -51,45 +87,77 @@ describe("JukeboxPopUp", () => {
   it("downloads nothing until a song is picked", () => {
     mount();
 
-    expect(document.body.textContent).toContain("Pick a song to play it.");
+    expect(player().textContent).toContain("Pick a song to play it");
     expect(loadAudio).not.toHaveBeenCalled();
   });
 
-  it("plays the whole song that is picked", () => {
+  it("plays the whole song that is picked, as soon as it loads", async () => {
     mount();
 
     click(songButton("Constant Moderato"));
+    await songLoads();
 
     expect(loadAudio).toHaveBeenCalledWith(getSongUrl("1"));
-    expect(document.querySelector("section h2")?.textContent).toBe(
-      "Constant Moderato"
-    );
-    // A song on its own, with no clip of a round to mark.
-    expect(document.body.textContent).not.toContain("Replay my clip");
+    expect(player().textContent).toContain("Constant Moderato");
+    expect(play).toHaveBeenCalled();
+  });
+
+  it("keeps one player for every song, so its layout never changes", async () => {
+    mount();
+    click(songButton("Constant Moderato"));
+    await songLoads();
+    const audio = player().querySelector("audio");
+
+    click(songButton("Mischievous Step"));
+
+    expect(player().querySelector("audio")).toBe(audio);
+    expect(player().textContent).toContain("Mischievous Step");
   });
 
   it("marks songs guessed right apart from the rest", () => {
     mount(["1"]);
 
-    const bright = getComputedStyle(songButton("Constant Moderato")!).opacity;
-    const dim = getComputedStyle(songButton("Mischievous Step")!).opacity;
-    expect(bright).toBe("1");
-    expect(dim).toBe("0.5");
+    expect(getComputedStyle(songButton("Constant Moderato")!).opacity).toBe(
+      "1"
+    );
+    expect(getComputedStyle(songButton("Mischievous Step")!).opacity).toBe(
+      "0.5"
+    );
   });
 
-  it("counts the songs guessed", () => {
-    mount(["1", "3"]);
-
-    expect(document.body.textContent).toContain("the 2 of");
-  });
-
-  it("shows one album when its chip is picked", () => {
+  it("lists the songs in one list, filtered by the albums picked", () => {
     mount();
+    expect(songButton("Luminous memory")).toBeDefined();
 
     click(chip("Vol.2"));
 
     expect(songButton("Luminous memory")).toBeDefined();
     expect(songButton("Constant Moderato")).toBeUndefined();
+
+    click(chip("Vol.1"));
+
+    expect(songButton("Constant Moderato")).toBeDefined();
+  });
+
+  it("searches by name", () => {
+    mount();
+
+    search("mischievous");
+
+    expect(document.querySelectorAll("li > button")).toHaveLength(1);
+    expect(songButton("Mischievous Step")).toBeDefined();
+  });
+
+  it("goes to the next song in the list", async () => {
+    mount();
+    click(songButton("Constant Moderato"));
+    await songLoads();
+
+    click(
+      player().querySelector<HTMLButtonElement>('[aria-label="Next song"]')
+    );
+
+    expect(player().textContent).toContain("Luminous memory");
   });
 
   it("closes from its button", () => {

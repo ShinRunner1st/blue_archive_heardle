@@ -119,7 +119,7 @@ export const Buttons = styled.div`
 /** The clock and the score, above the player during a run. */
 export const Status = styled.div`
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   align-items: center;
   gap: 12px;
 
@@ -160,6 +160,32 @@ export const Score = styled.span`
   font-size: 1.3rem;
   color: lightgreen;
   ${shadowText}
+`;
+
+/** Ends the run early, straight to how it went. */
+export const Quit = styled.button`
+  padding: 4px 12px;
+
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: ${({ theme }) => theme.text};
+
+  background-color: rgba(0, 0, 0, 0.25);
+  border: 1px solid ${({ theme }) => theme.red};
+  border-radius: 999px;
+  cursor: pointer;
+
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.red};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
 `;
 
 /** How the last answer went: a line that changes with every song. */

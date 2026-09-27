@@ -15,6 +15,7 @@ interface Props {
   openHowToPopUp: () => void;
   openSettingsPopUp: () => void;
   openWhatsNewPopUp: () => void;
+  openJukeboxPopUp: () => void;
   mode: GameMode;
   onModeChange: (mode: GameMode) => void;
   /**
@@ -36,6 +37,7 @@ export function Header({
   openHowToPopUp,
   openSettingsPopUp,
   openWhatsNewPopUp,
+  openJukeboxPopUp,
   mode,
   onModeChange,
   streak,
@@ -118,6 +120,7 @@ export function Header({
             openHowToPopUp={openHowToPopUp}
             openSettingsPopUp={openSettingsPopUp}
             openWhatsNewPopUp={openWhatsNewPopUp}
+            openJukeboxPopUp={openJukeboxPopUp}
           />
         </Styled.Tools>
         <Styled.Tagline>Guess the Blue Archive OST</Styled.Tagline>

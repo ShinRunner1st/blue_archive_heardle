@@ -10,9 +10,10 @@ interface AudioSource {
 
 /**
  * Loads `url` whole (see helpers/audioSource) and returns where to play it
- * from. Changing `attempt` loads a failed file again.
+ * from. Changing `attempt` loads a failed file again. Null loads nothing, for
+ * a player with no song picked yet.
  */
-export function useAudioSource(url: string, attempt = 0): AudioSource {
+export function useAudioSource(url: string | null, attempt = 0): AudioSource {
   const [state, setState] = React.useState<AudioSource & { key: string }>({
     key: "",
     failed: false,
@@ -20,6 +21,7 @@ export function useAudioSource(url: string, attempt = 0): AudioSource {
   const key = `${url}#${attempt}`;
 
   React.useEffect(() => {
+    if (url === null) return;
     let live = true;
 
     loadAudio(url).then(

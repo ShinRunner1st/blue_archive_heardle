@@ -1,5 +1,8 @@
 import {
+  CHOICE_CLIP_KEY,
+  CHOICE_CLIP_SECONDS,
   CHOICE_STORAGE_KEY,
+  CLIP_OPTIONS,
   DAILY_STORAGE_KEY,
   DEFAULT_VOLUME,
   FIRST_RUN_KEY,
@@ -276,6 +279,16 @@ export function hasSeenWhatsNew(id: string): boolean {
 
 export function markWhatsNewSeen(id: string): void {
   writeKey(WHATS_NEW_KEY, id);
+}
+
+/** The clip length picked for 4-Choice, in seconds. */
+export function loadChoiceClip(): number {
+  const stored = Number(readKey(CHOICE_CLIP_KEY));
+  return CLIP_OPTIONS.includes(stored) ? stored : CHOICE_CLIP_SECONDS;
+}
+
+export function saveChoiceClip(seconds: number): void {
+  writeKey(CHOICE_CLIP_KEY, String(seconds));
 }
 
 /** The volume the player last chose, or the default for a new player. */

@@ -1,41 +1,48 @@
-import { songs } from "../constants";
 import { VOLUMES } from "../constants/volumes";
 import { Song } from "../types/song";
+import { filterSongs } from "./searchSong";
 
-/** One album in the Jukebox, or the songs on none of them. */
-export interface Shelf {
+/** A chip in the Jukebox: one OST album, or "Other" for songs on none. */
+export interface AlbumFilter {
   id: string;
-  /** "Vol.1" to "Vol.8", or "Other". */
   label: string;
-  /** The album's subtitle; none for Other. */
-  title?: string;
-  songs: Song[];
+  /** Theme numbers on it; null for "Other", the songs on no album. */
+  songs: Set<string> | null;
 }
 
-const byTheme = new Map(songs.map((song) => [song.themeNo, song]));
+const onAnAlbum = new Set(VOLUMES.flatMap((volume) => volume.songs));
 
-/**
- * Every song in the game, by OST album in the albums' order, then an Other
- * shelf for the songs on none of Vol.1-8 in theme order. A song on two albums
- * (Water Drop) is on both shelves.
- */
-export function jukeboxShelves(): Shelf[] {
-  const onAlbum = new Set(VOLUMES.flatMap((volume) => volume.songs));
-
-  const albums = VOLUMES.map((volume) => ({
+export const ALBUM_FILTERS: AlbumFilter[] = [
+  ...VOLUMES.map((volume) => ({
     id: `vol${volume.number}`,
     label: `Vol.${volume.number}`,
-    title: volume.title,
-    songs: volume.songs
-      .map((theme) => byTheme.get(theme))
-      .filter((song): song is Song => song !== undefined),
-  }));
+    songs: new Set(volume.songs),
+  })),
+  { id: "other", label: "Other", songs: null },
+];
 
-  const other = {
-    id: "other",
-    label: "Other",
-    songs: songs.filter((song) => !onAlbum.has(song.themeNo)),
-  };
+function isOn(filter: AlbumFilter, song: Song): boolean {
+  return filter.songs === null
+    ? !onAnAlbum.has(song.themeNo)
+    : filter.songs.has(song.themeNo);
+}
 
-  return other.songs.length > 0 ? [...albums, other] : albums;
+/**
+ * The Jukebox's list: every song in theme order, narrowed by a search term
+ * (name, artist or theme number, as in All OST) and by any number of albums.
+ * No albums picked means every song.
+ */
+export function jukeboxSongs(
+  term: string,
+  albumIds: readonly string[]
+): Song[] {
+  const picked = ALBUM_FILTERS.filter((filter) => albumIds.includes(filter.id));
+  const matches = filterSongs(term);
+  if (picked.length === 0) return matches;
+  return matches.filter((song) => picked.some((filter) => isOn(filter, song)));
+}
+
+/** How many songs each album filter holds, for its chip. */
+export function albumCount(filter: AlbumFilter): number {
+  return jukeboxSongs("", [filter.id]).length;
 }

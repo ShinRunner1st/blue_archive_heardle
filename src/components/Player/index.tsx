@@ -41,6 +41,12 @@ interface Props {
   autoPlay?: boolean;
   /** Told whenever the player starts loading, is ready, or fails. */
   onStatusChange?: (status: PlayerStatus) => void;
+  /**
+   * Keeps the controls on screen, play greyed out, while the next song loads,
+   * rather than swapping in the loading bar. Time attack changes song every
+   * few seconds, and the swap would flash each time.
+   */
+  steady?: boolean;
 }
 
 const POLL_INTERVAL_MS = 250;
@@ -69,6 +75,7 @@ export function Player({
   offset,
   autoPlay = false,
   onStatusChange,
+  steady = false,
 }: Props) {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
@@ -97,6 +104,8 @@ export function Player({
     sessionRef.current = session;
     setStatus("loading");
     setPlay(false);
+    // The progress bar starts again with the new song.
+    setCurrentTime(offset ?? startTime ?? 0);
   }
 
   /**
@@ -256,7 +265,7 @@ export function Player({
         onEnded={pausePlayback}
       />
 
-      {isReady && (
+      {(isReady || (steady && status === "loading")) && (
         <>
           <Styled.ProgressBackground>
             <Styled.Progress
@@ -288,6 +297,7 @@ export function Player({
             <Styled.TransportButton
               type="button"
               onClick={play ? pausePlayback : startPlayback}
+              disabled={!isReady}
               aria-label={play ? "Pause clip" : "Play clip"}
             >
               {play ? (
@@ -311,7 +321,7 @@ export function Player({
         </>
       )}
 
-      {status === "loading" && (
+      {status === "loading" && !steady && (
         <Styled.LoadingState>
           <Styled.LoadingBar />
           <Styled.LoadingLabel>Loading player…</Styled.LoadingLabel>

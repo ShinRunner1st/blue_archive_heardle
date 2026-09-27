@@ -2,40 +2,51 @@ import { describe, expect, it } from "vitest";
 
 import { songs } from "../constants";
 import { VOLUMES } from "../constants/volumes";
-import { jukeboxShelves } from "./jukebox";
+import { ALBUM_FILTERS, albumCount, jukeboxSongs } from "./jukebox";
 
-describe("jukeboxShelves", () => {
-  const shelves = jukeboxShelves();
+const themes = (list: { themeNo: string }[]) => list.map((s) => s.themeNo);
 
-  it("has a shelf per album, in order, then Other", () => {
-    expect(shelves.map((shelf) => shelf.label)).toEqual([
-      ...VOLUMES.map((volume) => `Vol.${volume.number}`),
-      "Other",
-    ]);
+describe("jukeboxSongs", () => {
+  it("lists every song, in theme order, with nothing picked", () => {
+    expect(jukeboxSongs("", [])).toHaveLength(songs.length);
+    expect(jukeboxSongs("", [])[0].themeNo).toBe("1");
   });
 
-  it("holds every song in the game", () => {
-    const held = new Set(
-      shelves.flatMap((shelf) => shelf.songs.map((song) => song.themeNo))
+  it("searches by name, artist or theme number, like All OST", () => {
+    expect(themes(jukeboxSongs("constant mod", []))).toContain("1");
+    expect(
+      jukeboxSongs("karut", []).every((song) => song.artist === "KARUT")
+    ).toBe(true);
+    expect(themes(jukeboxSongs("39", []))).toContain("39");
+  });
+
+  it("narrows to the albums picked, any of them", () => {
+    const vol1 = jukeboxSongs("", ["vol1"]);
+    expect(vol1).toHaveLength(VOLUMES[0].songs.length);
+
+    const both = jukeboxSongs("", ["vol1", "vol2"]);
+    // Water Drop is on both albums, and is listed once.
+    expect(both).toHaveLength(
+      new Set([...VOLUMES[0].songs, ...VOLUMES[1].songs]).size
     );
-
-    expect(held.size).toBe(songs.length);
   });
 
-  it("puts a song on both albums it is on", () => {
-    const withWaterDrop = shelves.filter((shelf) =>
-      shelf.songs.some((song) => song.themeNo === "39")
+  it("keeps album songs off the Other chip", () => {
+    const other = themes(jukeboxSongs("", ["other"]));
+    const onAlbums = new Set(VOLUMES.flatMap((volume) => volume.songs));
+
+    expect(other.length).toBeGreaterThan(0);
+    expect(other.some((theme) => onAlbums.has(theme))).toBe(false);
+  });
+
+  it("puts every song under one chip or another", () => {
+    const total = new Set(
+      ALBUM_FILTERS.flatMap((filter) => themes(jukeboxSongs("", [filter.id])))
     );
-
-    expect(withWaterDrop.map((shelf) => shelf.label)).toEqual([
-      "Vol.1",
-      "Vol.2",
-    ]);
+    expect(total.size).toBe(songs.length);
   });
 
-  it("keeps album songs off the Other shelf", () => {
-    const other = shelves[shelves.length - 1];
-
-    expect(other.songs.some((song) => song.themeNo === "1")).toBe(false);
+  it("counts each chip's songs", () => {
+    expect(albumCount(ALBUM_FILTERS[0])).toBe(VOLUMES[0].songs.length);
   });
 });

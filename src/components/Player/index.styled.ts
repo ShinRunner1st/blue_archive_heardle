@@ -214,6 +214,14 @@ export const TransportButton = styled.button`
   border-radius: 50%;
   cursor: pointer;
 
+  transition: opacity 0.15s ease;
+
+  /* Waiting for the next song to load. */
+  &:disabled {
+    opacity: 0.45;
+    cursor: default;
+  }
+
   &:focus-visible {
     outline: 2px solid ${({ theme }) => theme.border};
     outline-offset: 4px;

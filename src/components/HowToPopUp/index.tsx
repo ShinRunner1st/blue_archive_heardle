@@ -5,8 +5,6 @@ import {
   IoStopwatch,
 } from "react-icons/io5";
 
-import { CHOICE_CLIP_SECONDS } from "../../constants/game";
-
 import { Button } from "../Button";
 import {
   PopUp,
@@ -103,8 +101,9 @@ export function HowToPopUp({ onClose }: Props) {
           <PopUpCardBody>
             <PopUpCardTitle>4-Choice</PopUpCardTitle>
             <PopUpCardText>
-              In Endless: hear {CHOICE_CLIP_SECONDS} seconds, then pick the song
-              from four that sound alike. One try, its own streak, no badges.
+              In Endless: hear a short clip, 1 to 7 seconds as you like, then
+              pick the song from four that sound alike. One try, its own streak,
+              no badges.
             </PopUpCardText>
           </PopUpCardBody>
         </PopUpCard>
@@ -116,7 +115,7 @@ export function HowToPopUp({ onClose }: Props) {
             <PopUpCardTitle>Time Attack</PopUpCardTitle>
             <PopUpCardText>
               In Endless: name as many songs as you can in three minutes, typed
-              or from four. Pick the clip length first. No badges.
+              or from four. A miss or a pass costs two seconds. No badges.
             </PopUpCardText>
           </PopUpCardBody>
         </PopUpCard>

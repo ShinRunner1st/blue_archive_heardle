@@ -69,21 +69,25 @@ What the project cares about:
 - **Daily** (same song for everyone, streak, spoiler-free share text, a
   calendar in stats coloured by how each day went) and
   **endless** (no repeats until every song is played). Separate stats each.
-- **4-Choice** (in Endless): a 3-second clip and one pick from four answers
+- **4-Choice** (in Endless): a short clip (1-7s, player's pick, remembered;
+  `CLIP_OPTIONS`) and one pick from four answers
   that sound close (same composer or nearby theme numbers,
   `src/helpers/choices.ts`), saved with the round. Own bag, stats and win
   streak; no badges, no song record.
 - **Time Attack** (in Endless): as many songs as possible in 3 minutes, one
   try each; the player picks clip length, random start (inside the 16-second
   clip) and typed or four-choice answers. The next clip loads during the
-  current one and the clock stops while a song loads. Each answered song is
+  current one and the clock stops while a song loads. Each answer shows
+  before the next song: 0.7s with the clock stopped when right, 2s with it
+  running on a miss or pass (anti-spam). Quit ends a run; share text and a
+  share picture at the end. Each answered song is
   saved tagged with its run; a run isn't resumed after a reload. Stats are
   per run (best typed and 4-choice). The background moves with the run's
   score. No badges.
-- **Jukebox**: from a result screen (or the end of a run) only, closed when
-  the next round starts. Every song by OST album plus Other, played in full;
-  songs guessed right in any mode are bright. Playing any audio pauses the
-  rest (`src/helpers/onePlayer.ts`).
+- **Jukebox** (☰ menu): every song in full, searchable, with album chips
+  like All OST's artist chips; songs guessed right in any mode are bright.
+  Its player keeps one fixed layout. Playing any audio pauses the rest
+  (`src/helpers/onePlayer.ts`).
 - **Search** by name, artist or theme number; **All OST** list with artist
   filters.
 - **Result screen**: now-playing card, plays the answer from the clip's start,

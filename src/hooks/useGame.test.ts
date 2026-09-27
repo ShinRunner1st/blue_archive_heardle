@@ -314,6 +314,22 @@ describe("useGame in four-choice mode", () => {
     expect(game.round.choices).toEqual(choices);
   });
 
+  it("plays the clip length picked, now and for the rounds after", () => {
+    render("choice");
+    expect(game.round.clip).toBe(3);
+
+    act(() => game.setClip(7));
+    expect(game.round.clip).toBe(7);
+
+    act(() => game.guess({ ...game.solution }));
+    act(() => game.setClip(1));
+    // A finished round keeps the clip it was played with.
+    expect(game.round.clip).toBe(7);
+
+    act(() => game.nextSong());
+    expect(game.round.clip).toBe(1);
+  });
+
   it("deals the next song with new answers", () => {
     render("choice");
     const first = game.solution;

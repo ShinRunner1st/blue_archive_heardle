@@ -10,7 +10,6 @@ export const Styles = styled.div<{ $count: number }>`
   display: grid;
   grid-template-columns: repeat(${({ $count }) => $count}, 1fr);
 
-  margin: 0 auto 16px;
   padding: 3px;
 
   font-family: "Nunito Sans Variable";
@@ -18,10 +17,6 @@ export const Styles = styled.div<{ $count: number }>`
   background-color: rgba(0, 0, 0, 0.22);
   border: 1px solid ${({ theme }) => theme.border100};
   border-radius: 999px;
-
-  @media (max-width: 768px) {
-    margin-bottom: 12px;
-  }
 `;
 
 export const Thumb = styled.div<{ $index: number; $count: number }>`

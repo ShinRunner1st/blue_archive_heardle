@@ -3,6 +3,10 @@ import "@fontsource-variable/nunito-sans";
 
 export const Container = styled.header`
   font-family: "Nunito Sans Variable";
+
+  /* Above the page, so the menu's panel opens over the play area. */
+  position: relative;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
