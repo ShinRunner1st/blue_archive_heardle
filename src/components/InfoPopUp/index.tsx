@@ -130,8 +130,9 @@ export function InfoPopUp({ onClose, canReset, onReset, mode }: Props) {
             </PopUpCardText>
             <PopUpCardText>
               Like any website, the services that deliver it — Vercel for the
-              game, Cloudflare for the music — see basic connection details,
-              such as your IP address, to send you the pages.
+              game, Cloudflare for the music and seasonal pictures — see basic
+              connection details, such as your IP address, to send you the
+              pages.
             </PopUpCardText>
           </PopUpCardBody>
         </PopUpCard>

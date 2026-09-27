@@ -23,10 +23,15 @@ export const COLORS = {
   white: "#FFFFFF",
 };
 
-/** A picture ready to draw, or null if it wouldn't load. */
+/**
+ * A picture ready to draw, or null if it wouldn't load. Asked for with CORS:
+ * a seasonal backdrop comes from the Worker, and a picture from another
+ * address drawn without it would stop the canvas from being saved.
+ */
 export function loadImage(src: string): Promise<HTMLImageElement | null> {
   return new Promise((resolve) => {
     const image = new Image();
+    image.crossOrigin = "anonymous";
     image.onload = () => resolve(image);
     image.onerror = () => resolve(null);
     image.src = src;

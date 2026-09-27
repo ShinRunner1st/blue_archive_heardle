@@ -124,4 +124,15 @@ describe("streakNews", () => {
     );
     expect(streakNews({ current: 0, before: 4 }, false, "win")).toBeNull();
   });
+
+  it("sends a lost streak to the season's home in season", () => {
+    expect(
+      streakNews(
+        { current: 0, before: 31 },
+        false,
+        "win",
+        "the Christmas lodge"
+      )
+    ).toBe("Your 31-win streak is over. Back to the Christmas lodge.");
+  });
 });

@@ -61,6 +61,12 @@ Each mode keeps its own score and history, saved in your browser.
   library. The places are listed in `src/constants/streakPlaces.ts`; their
   pictures are the game's scenario backgrounds, blurred and dimmed so the game
   reads over them.
+- **Seasons** - from 18 to 26 December the library becomes a lodge decorated
+  for Christmas, and from 31 December to 7 January a shrine at New Year, on
+  the player's own calendar. A streak place still shows from 10 wins, and a
+  lost streak goes back to the season's picture. The dates are in
+  `src/constants/seasons.ts`; the pictures are served from the Worker (see
+  [Pictures on the Worker](#pictures-on-the-worker)).
 - **OST badges** - one for each official soundtrack album, Vol.1 to Vol.8,
   earned by guessing every song on it at least once, in either mode. The disc
   in the header shows each album's progress; the result screen says when a
@@ -127,13 +133,15 @@ npm run dev           # http://localhost:3000
 | `npm run songs`             | After adding songs: everything below, in order |
 | `npm run build:daily-order` | Extend the daily schedule                      |
 | `npm run build:audio`       | Build the served audio from `audio/`           |
-| `npm run upload:audio`      | Upload the built audio to Cloudflare           |
+| `npm run build:pictures`    | Copy `pictures/` in beside the audio           |
+| `npm run upload:audio`      | Upload the audio and pictures to Cloudflare    |
 | `npm run check:audio`       | Check the served audio is complete             |
+| `npm run check:pictures`    | Check the served pictures are up to date       |
 
 A pre-commit hook runs the format check, lint and type-check, and commit
 messages follow [Conventional Commits](https://www.conventionalcommits.org/).
-CI runs all of that plus the tests, `check:audio` and a build on every push and
-pull request.
+CI runs all of that plus the tests, `check:audio`, `check:pictures` and a build
+on every push and pull request.
 
 ### Adding a song
 
@@ -152,8 +160,9 @@ Cloudflare login (`npx wrangler login`, once per computer). It:
 - extends the daily schedule, `src/constants/dailyOrder.ts`. It is only ever
   appended to, so adding songs never changes a day that has already been
   played;
-- builds the new or changed audio into `audio-dist/` (see [Audio](#audio));
-- uploads it to Cloudflare, and checks that every file is there.
+- builds the new or changed audio into `audio-dist/` (see [Audio](#audio)),
+  and copies the [pictures](#pictures-on-the-worker) in beside it;
+- uploads it all to Cloudflare, and checks that every file is there.
 
 Commit before merging: the game only asks for files that are already
 uploaded, so the upload has to happen first, and `npm run songs` does it.
@@ -209,6 +218,25 @@ A file that fails to load or decode shows an error with a retry. In endless
 mode it can deal a different song instead, and the failing one is left out for
 the rest of the session.
 
+### Pictures on the Worker
+
+Pictures that only show at times, like the seasonal backgrounds, are served by
+the same Worker as the audio, so they cost Vercel nothing. They live in
+`pictures/<folder>/`, already made; `npm run build:pictures` copies them into
+`audio-dist/pictures/` named after a fingerprint of their bytes, so they can
+be cached for a year and a changed picture still reaches everyone at once.
+The names go into `src/constants/pictureFiles.ts`, which is committed, and
+`check:pictures` fails in CI if it doesn't match `pictures/`. `npm run songs`
+uploads them with the audio: an upload without them would take them off the
+Worker.
+
+`node scripts/make-backdrop.mjs <BG name> <day|night> <output.webp>` makes a
+backdrop from one of the game's scenario backgrounds, downloaded once from the
+Blue Archive wiki (`File:BG_<name>.jpg`), blurred and dimmed like the streak
+places. The game itself never asks the wiki for anything. `npm run dev` serves
+the pictures from `audio-dist/` too; add `?season=christmas` or
+`?season=new-year` to the address there to see a season on any day.
+
 ### Characters
 
 The character is a Spine skeleton, drawn with the official Spine 4.2 runtime
@@ -249,9 +277,11 @@ public/spine/   The characters, made by build-spine
   test/         Render harness and shared setup for the tests
   types/        Shared TypeScript types
 audio/          The OST originals, one Ogg file per theme number
-audio-worker/   The Cloudflare Worker that serves the built audio
-scripts/        build-audio, check-audio, build-daily-order, build-spine, and
-                the song list reader they share
+pictures/       Pictures served from the Worker, such as the seasonal backdrops
+audio-worker/   The Cloudflare Worker that serves the built audio and pictures
+scripts/        build-audio, check-audio, build-pictures, check-pictures,
+                make-backdrop, build-daily-order, build-spine, and the
+                helpers they share
 docs/           README screenshots
 ```
 
@@ -298,7 +328,8 @@ browser's `localStorage` (the keys are in `src/constants/game.ts`) and never
 sent anywhere; the clipboard is only written when a player presses Share.
 Result pictures are drawn in the browser and go only where the player sends
 them from the share sheet, or to their downloads.
-Like any website, the hosts - Vercel for the site, Cloudflare for the audio -
+Like any website, the hosts - Vercel for the site, Cloudflare for the audio and
+seasonal pictures -
 see standard connection details such as IP addresses to serve the files.
 Players see the same in About this game.
 

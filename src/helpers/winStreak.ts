@@ -81,17 +81,19 @@ export function placeFor(wins: number): StreakPlace | null {
 
 /**
  * The line the result screen shows about the streak: a place the moment it
- * is reached, or where a lost streak leaves you. Nothing otherwise - what
+ * is reached, or where a lost streak leaves you: `home`, which a season can
+ * change. Nothing otherwise - what
  * comes next, and when, stays a surprise.
  */
 export function streakNews(
   streak: WinStreak,
   didGuess: boolean,
-  unit: "win" | "day"
+  unit: "win" | "day",
+  home: string = HOME_PLACE
 ): string | null {
   if (!didGuess) {
     return placeFor(streak.before)
-      ? `Your ${streak.before}-${unit} streak is over. Back to ${HOME_PLACE}.`
+      ? `Your ${streak.before}-${unit} streak is over. Back to ${home}.`
       : null;
   }
   const reached = placeFor(streak.current);

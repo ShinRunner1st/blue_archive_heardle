@@ -7,6 +7,7 @@ import { GameMode } from "../../types/mode";
 import { Round } from "../../types/stats";
 import { buildShareText } from "../../helpers";
 import { formatCountdown, msUntilNextDay } from "../../helpers/daily";
+import { homeName } from "../../helpers/season";
 import { playTimes } from "../../constants";
 import { LOSS_TEXT, resultTitle } from "../../constants/resultText";
 
@@ -18,6 +19,7 @@ import {
   resultPictureName,
 } from "../../helpers/picture/resultPicture";
 import { useBackdropSrc } from "../../hooks/useBackdropSrc";
+import { useSeason } from "../../hooks/useSeason";
 import { useSharePicture } from "../../hooks/useSharePicture";
 import logo from "../../image/BlueArchive-Heardle.png";
 
@@ -96,6 +98,7 @@ export function Result({
   // The picture sits on the same backdrop as the page behind it.
   const wins = streak.current;
   const backdrop = useBackdropSrc(wins);
+  const season = useSeason();
   const makePicture = React.useCallback(
     () =>
       makeResultPicture(
@@ -152,7 +155,12 @@ export function Result({
   const lastTry = Math.min(Math.max(currentTry, 1), playTimes.length);
   const clipLength = playTimes[lastTry - 1] / 1000;
 
-  const news = streakNews(streak, didGuess, isDaily ? "day" : "win");
+  const news = streakNews(
+    streak,
+    didGuess,
+    isDaily ? "day" : "win",
+    homeName(season)
+  );
 
   const Title = didGuess ? Styled.CorrectResultTitle : Styled.FailResultTitle;
   const title = resultTitle(didGuess, currentTry);
