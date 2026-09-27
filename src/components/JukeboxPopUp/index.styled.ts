@@ -99,31 +99,30 @@ export const PlayerControls = styled.div`
   margin-top: 4px;
 `;
 
-/** Turns auto-next on and off; green while on. */
+/**
+ * Turns auto-next on and off: an icon the size of the skip buttons, so the
+ * row keeps its layout, green while on.
+ */
 export const AutoNext = styled.button<{ $on: boolean }>`
   flex-shrink: 0;
 
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
+  display: flex;
+  padding: 4px;
 
-  margin-left: 4px;
-  padding: 4px 9px;
+  font-size: 20px;
+  color: ${({ theme, $on }) => ($on ? theme.green : theme.text)};
+  opacity: ${({ $on }) => ($on ? 1 : 0.45)};
 
-  font-family: inherit;
-  font-size: 0.75rem;
-  font-weight: 800;
-  white-space: nowrap;
-  color: ${({ theme }) => theme.text};
-
-  background-color: ${({ theme, $on }) =>
-    $on ? theme.green : "rgba(0, 0, 0, 0.25)"};
-  border: 1px solid
-    ${({ theme, $on }) => ($on ? theme.green : "rgba(255, 255, 255, 0.2)")};
-  border-radius: 999px;
+  background: none;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
 
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  transition: color 0.15s ease, opacity 0.15s ease;
+
+  &:hover {
+    opacity: 1;
+  }
 
   &:focus-visible {
     outline: 2px solid ${({ theme }) => theme.border};

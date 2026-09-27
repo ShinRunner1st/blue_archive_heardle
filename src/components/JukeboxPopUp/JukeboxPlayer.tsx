@@ -179,10 +179,10 @@ export function JukeboxPlayer({
           aria-checked={autoNext}
           $on={autoNext}
           onClick={() => onAutoNextChange(!autoNext)}
-          title="Play the next song in the list when one ends"
+          aria-label="Auto next"
+          title={`Auto next: ${autoNext ? "on" : "off"}`}
         >
           <Styled.AutoNextIcon aria-hidden="true" />
-          Auto next
         </Styled.AutoNext>
         <Styled.PlayerVolume>
           <VolumeControl />

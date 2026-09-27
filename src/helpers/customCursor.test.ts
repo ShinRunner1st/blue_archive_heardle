@@ -22,6 +22,28 @@ describe("custom cursor", () => {
     stop.mockClear();
   });
 
+  it("puts the cursor back after a browser window of its own closes", async () => {
+    vi.useFakeTimers();
+    applyCustomCursorToDocument(true);
+    await vi.dynamicImportSettled();
+
+    window.dispatchEvent(new Event("focus"));
+    expect(cursorAttribute()).toBeUndefined();
+
+    vi.advanceTimersToNextFrame();
+    vi.advanceTimersToNextFrame();
+    expect(cursorAttribute()).toBe("custom");
+    vi.useRealTimers();
+  });
+
+  it("leaves a cursor turned off alone when the page comes back", () => {
+    applyCustomCursorToDocument(false);
+
+    window.dispatchEvent(new Event("focus"));
+
+    expect(cursorAttribute()).toBeUndefined();
+  });
+
   it("is on for a new player", () => {
     expect(getCustomCursor()).toBe(true);
   });

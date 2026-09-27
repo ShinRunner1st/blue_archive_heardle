@@ -19,6 +19,37 @@ export function getCustomCursor(): boolean {
 }
 
 /**
+ * Chrome forgets a CSS cursor while a window of its own is up - the file
+ * picker for Import, the share sheet - and shows the system arrow when the
+ * page comes back, until the cursor style changes. So on the way back the
+ * attribute the CSS keys off is dropped for a frame and put back, which
+ * makes the browser pick the cursor up again.
+ */
+function redrawCursor(): void {
+  if (!wanted || document.visibilityState === "hidden") return;
+
+  const root = document.documentElement;
+  delete root.dataset.cursor;
+  // Two frames: the first lets the change be seen, the second restores it.
+  requestAnimationFrame(() =>
+    requestAnimationFrame(() => {
+      if (wanted) root.dataset.cursor = "custom";
+    })
+  );
+}
+
+let watching = false;
+
+function watchReturns(on: boolean): void {
+  if (on === watching) return;
+  watching = on;
+
+  const method = on ? "addEventListener" : "removeEventListener";
+  window[method]("focus", redrawCursor);
+  document[method]("visibilitychange", redrawCursor);
+}
+
+/**
  * Shows or hides the cursor (the CSS in index.css keys off `data-cursor`)
  * and starts or stops the effects to match. The effects' code is only
  * fetched once they are wanted, so with the cursor off none of it loads.
@@ -29,6 +60,7 @@ export function applyCustomCursorToDocument(on: boolean): void {
   else delete root.dataset.cursor;
 
   wanted = on;
+  watchReturns(on);
   if (!on && stopEffects) {
     stopEffects();
     stopEffects = null;
