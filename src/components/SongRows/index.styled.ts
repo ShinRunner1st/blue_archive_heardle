@@ -23,7 +23,7 @@ export const Rows = styled.ul`
 
   .row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 3ch 8.5rem;
+    grid-template-columns: minmax(0, 1fr) 3ch 6rem;
     align-items: center;
     column-gap: 8px;
 
@@ -64,7 +64,7 @@ export const Rows = styled.ul`
     }
 
     @media (max-width: 480px) {
-      grid-template-columns: minmax(0, 1fr) 3ch 6.5rem;
+      grid-template-columns: minmax(0, 1fr) 3ch 4.75rem;
     }
   }
 
@@ -108,10 +108,10 @@ export const Rows = styled.ul`
      the whole of it on hover. */
   .artist {
     box-sizing: border-box;
-    padding: 2px 8px;
+    padding: 2px 6px;
 
     font-size: 0.68rem;
-    font-weight: 500;
+    font-weight: 700;
     line-height: 1.4;
     text-align: center;
     white-space: nowrap;

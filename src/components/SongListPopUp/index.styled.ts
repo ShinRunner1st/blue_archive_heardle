@@ -83,7 +83,7 @@ export const Chip = styled.button<{ $active: boolean }>`
 
   font-family: inherit;
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
   color: ${({ theme }) => theme.text};
 
