@@ -33,6 +33,8 @@ interface Props {
   streak: WinStreak;
   /** What this round did for the OST badges. */
   badgeLines: string[];
+  /** The player's history with this song, for the now-playing card. */
+  record: string;
 }
 
 /**
@@ -93,6 +95,7 @@ export function Result({
   onNewDay,
   streak,
   badgeLines,
+  record,
 }: Props) {
   const [buttonText, setButtonText] = useState("Share result");
   const isDaily = mode === "daily";
@@ -174,6 +177,7 @@ export function Result({
         startTime={clipInfo(solution.themeNo).start + (startTime ?? 0)}
         clipLength={clipLength}
         keyboardEnabled={keyboardEnabled}
+        record={record}
       />
       {isDaily && <DailyCountdown onNewDay={onNewDay} />}
       <Styled.Buttons>

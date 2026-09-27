@@ -268,3 +268,28 @@ describe("useGame in daily mode", () => {
     expect(loadRounds("endless")).toHaveLength(2);
   });
 });
+
+describe("the song record", () => {
+  it("waits for the round to end, then counts the song in every mode", () => {
+    const solution = dailySong(dayNumber());
+    saveRounds(
+      [
+        {
+          solution,
+          currentTry: 3,
+          didGuess: true,
+          guesses: emptyGuesses(),
+          startTime: 0,
+        },
+      ],
+      "endless"
+    );
+
+    render("daily");
+    expect(game.record).toBe("");
+
+    act(() => game.guess({ ...solution }));
+
+    expect(game.record).toBe("Heard 2 times · guessed 2 · best in 1 try");
+  });
+});

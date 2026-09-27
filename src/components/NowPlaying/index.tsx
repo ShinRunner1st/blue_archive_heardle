@@ -18,6 +18,8 @@ interface Props {
   clipLength: number;
   /** False while a dialog is open, which gets the keys instead. */
   keyboardEnabled?: boolean;
+  /** The player's history with this song, under the artist. */
+  record?: string;
 }
 
 function formatTime(seconds: number): string {
@@ -43,6 +45,7 @@ export function NowPlaying({
   startTime,
   clipLength,
   keyboardEnabled = true,
+  record,
 }: Props) {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   // Set while "Replay my clip" runs, so playback stops where the clip did.
@@ -177,6 +180,7 @@ export function NowPlaying({
         <Styled.Meta>
           <Styled.Name>{song.name}</Styled.Name>
           <Styled.Artist>{song.artist}</Styled.Artist>
+          {record && <Styled.Record>{record}</Styled.Record>}
         </Styled.Meta>
         {!failed && <VolumeControl />}
       </Styled.Heading>

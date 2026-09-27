@@ -3,6 +3,7 @@ import {
   IoDisc,
   IoKeypad,
   IoMap,
+  IoMusicalNotes,
   IoNavigate,
   IoSave,
   IoShieldCheckmark,
@@ -31,12 +32,17 @@ export interface NewsUpdate {
 export const WHATS_NEW: NewsUpdate[] = [
   {
     id: "2026-09-save-file",
-    name: "Save file",
+    name: "Your save and your songs",
     items: [
       {
         icon: IoSave,
         title: "Take your progress with you",
         text: "Export your progress in every mode to a file in Settings, then import it on another device or browser to carry on there.",
+      },
+      {
+        icon: IoMusicalNotes,
+        title: "Your record with each song",
+        text: "The result screen now shows how often you've heard the song, how many times you guessed it and your best number of tries.",
       },
     ],
   },

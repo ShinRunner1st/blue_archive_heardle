@@ -40,11 +40,14 @@ interface Props {
   streak: WinStreak;
   /** What this round did for the OST badges. */
   badgeLines: string[];
+  /** The player's history with this song, once the round is over. */
+  record: string;
 }
 
 export function Game({
   streak,
   badgeLines,
+  record,
   guesses,
   solution,
   currentTry,
@@ -102,6 +105,7 @@ export function Game({
         onNewDay={onNewDay}
         streak={streak}
         badgeLines={badgeLines}
+        record={record}
       />
     );
   }

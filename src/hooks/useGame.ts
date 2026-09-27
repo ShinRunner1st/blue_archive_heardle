@@ -2,6 +2,7 @@ import React from "react";
 
 import { calRecentCorrect, calStats, isFinished } from "../helpers";
 import { badgeNews, badgeProgress, guessedThemes } from "../helpers/badges";
+import { songRecord, songRecordText } from "../helpers/songRecord";
 import { calStreaks } from "../helpers/streaks";
 import { calDayStreak, calWinStreak } from "../helpers/winStreak";
 import { dailySong, dayNumber } from "../helpers/daily";
@@ -241,6 +242,17 @@ export function useGame(mode: GameMode) {
     return badgeNews(current.solution.themeNo, guessedThemes(others));
   }, [histories, current]);
 
+  // The player's history with this song, shown once the round is over.
+  const record = React.useMemo(() => {
+    if (!isFinished(current)) return "";
+    return songRecordText(
+      songRecord(
+        [...histories.endless, ...histories.daily],
+        current.solution.themeNo
+      )
+    );
+  }, [histories, current]);
+
   return {
     solution: current.solution,
     guesses: current.guesses,
@@ -256,6 +268,7 @@ export function useGame(mode: GameMode) {
     dayStreak,
     badges,
     badgeLines,
+    record,
     bagEmpty,
     hasHistory: stats[7] > 0,
     guess,

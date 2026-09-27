@@ -49,6 +49,7 @@ function App() {
     dayStreak,
     badges,
     badgeLines,
+    record,
     bagEmpty,
     hasHistory,
     guess,
@@ -247,6 +248,7 @@ function App() {
           onBrowseSongs={openSongList}
           streak={streak}
           badgeLines={badgeLines}
+          record={record}
         />
       </Styled.Container>
       <Character

@@ -83,6 +83,14 @@ export const Artist = styled.p`
   opacity: 0.8;
 `;
 
+export const Record = styled.p`
+  margin: 4px 0 0;
+
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.65;
+`;
+
 export const Controls = styled.div`
   display: flex;
   align-items: center;

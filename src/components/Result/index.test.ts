@@ -65,6 +65,7 @@ function mount(overrides: Partial<React.ComponentProps<typeof Result>> = {}) {
       onNewDay,
       streak: { current: 0, before: 0 },
       badgeLines: [],
+      record: "",
       ...overrides,
     })
   );
@@ -160,6 +161,14 @@ describe("Result on a win", () => {
     mount({ badgeLines: ["💿 New for OST Vol.1: 12 / 39"] });
 
     expect(container.textContent).toContain("New for OST Vol.1: 12 / 39");
+  });
+
+  it("shows the player's record with the song in the now-playing card", () => {
+    mount({ record: "Heard 4 times · guessed 3 · best in 2 tries" });
+
+    expect(container.querySelector("section")?.textContent).toContain(
+      "Heard 4 times · guessed 3 · best in 2 tries"
+    );
   });
 
   it("speaks of days for the daily streak", () => {

@@ -36,7 +36,9 @@ Each mode keeps its own score and history, saved in your browser.
 ### Also
 
 - **Result screen** - plays the answer from where your clip started, marks
-  which part was your clip, and can replay just that part.
+  which part was your clip, and can replay just that part. Under the song it
+  shows your record with it across both modes, such as "Heard 4 times ·
+  guessed 3 · best in 2 tries".
 - **Volume** - set it once; it's remembered. New players start at 20%.
 - **Dark mode** - in the ☰ menu. Follows your device until you pick one.
 - **Blue Archive cursor** - the game's cursor, with its flash on every click
