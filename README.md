@@ -272,9 +272,9 @@ account; R2 has no spending cap. So:
 - The free `r2.dev` address stays off: it is rate-limited and can't be
   cached or protected.
 - In the Cloudflare dashboard, R2 has usage alerts (Notifications > Usage
-  Based Billing: 1,000,000 reads, 100,000 writes, 5 GB stored), and
+  Based Billing: 9,000,000 reads and 800,000 writes a month), and
   `audio.baheardle.com` has a response header rule adding
-  `Access-Control-Allow-Origin: *` (Rules > Transform Rules), which the game
+  `Access-Control-Allow-Origin: *` (Rules > Transform Rules, "Set static"), which the game
   needs to read the files. Rate limiting is a paid add-on, so there is none. It is a header rule rather
   than the bucket's CORS setting because Cloudflare's cache would keep a
   copy without the header for everyone after one request without an Origin.
