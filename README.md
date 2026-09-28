@@ -1,6 +1,8 @@
 # Blue Archive Heardle
 
 A Heardle-style game: guess the Blue Archive OST from a few seconds of music.
+Or switch to Students and find a Blue Archive student from how each guess
+compares.
 
 **Play it at [baheardle.com](https://baheardle.com/)**
 
@@ -45,6 +47,33 @@ answer's, and turns orange when it is within 10.
 Each mode keeps its own score, streak and history, saved in your browser.
 4-Choice and Time Attack earn no OST badges, since picking from four (or
 naming against the clock) isn't the same test.
+
+### Students
+
+A switch under the header picks the game: **OST**, or **Students**, a guess
+the student game in the style of other Blue Archive "-dle" games. The header's
+Daily and Endless work for both. Type a student's name (either name, in either
+order: "armed hoshino" finds Hoshino (Armed)) and the guess goes straight into
+the table, newest on top, a column per attribute: green when it matches the
+answer, yellow when it's close, red when it doesn't, with an arrow for numbers
+pointing higher or lower. There's no limit on guesses; Give up (pressed twice)
+counts as a loss. A second switch picks how to play:
+
+- **Gameplay** - school, role, damage type, weapon type, EX skill cost (at
+  level 1) and release order. Every costume is its own answer, since its kit
+  differs: 262 on Global.
+- **Lore** - height, school, birthday (the right month is close), school year,
+  weapon type, favourite SSR gift (sharing one is close), club and release
+  order. Default costumes only: 144 on Global, Shiroko\*Terror among them.
+
+Each way to play keeps its own daily and endless rounds, stats and streak.
+Daily is one student a day, the same for everyone, from a schedule in
+`src/constants/studentDailyOrder.ts` that is only ever added to, like the
+OST's. Endless deals every student once before any comes round again. The
+result names the student; its share text is squares only, so it spoils
+nothing. On a student's birthday a note at the top of the page wishes them a
+happy one (with their icon in the student game; the OST game shows the name
+alone, so it never downloads the icons).
 
 ### Finding a song
 
@@ -139,6 +168,9 @@ A round can be played start to finish without the mouse.
 | `1–4`         | Pick an answer in 4-Choice                                 |
 | `Esc`         | Clear the search box, close a pop-up                       |
 
+In the student game, `Enter` guesses the highlighted name, or the top one, and
+moves on to the next student from the result.
+
 `Space` types a space only while you are typing a name; in an empty search box,
 or one showing the song you picked, it plays the clip.
 
@@ -157,23 +189,25 @@ npm run dev           # http://localhost:3000
 `VITE_AUDIO_BASE_URL=https://ba-heardle-audio.shinrunner1st.workers.dev` in a
 `.env.local` file to play the deployed audio instead.
 
-| Script                      | What it does                                   |
-| --------------------------- | ---------------------------------------------- |
-| `npm run dev`               | Start the dev server                           |
-| `npm run build`             | Type-check, then build to `build/`             |
-| `npm run preview`           | Serve the production build locally             |
-| `npm test`                  | Run the test suite                             |
-| `npm run lint`              | ESLint, warnings included                      |
-| `npm run typecheck`         | `tsc --noEmit`                                 |
-| `npm run format`            | Rewrite files with Prettier                    |
-| `npm run songs`             | After adding songs: everything below, in order |
-| `npm run build:daily-order` | Extend the daily schedule                      |
-| `npm run build:audio`       | Build the served audio from `audio/`           |
-| `npm run build:pictures`    | Copy `pictures/` in beside the audio           |
-| `npm run upload:audio`      | Upload the audio and pictures to Cloudflare    |
-| `npm run upload:backup`     | Copy new files to the backup on Cloudflare R2  |
-| `npm run check:audio`       | Check the served audio is complete             |
-| `npm run check:pictures`    | Check the served pictures are up to date       |
+| Script                      | What it does                                          |
+| --------------------------- | ----------------------------------------------------- |
+| `npm run dev`               | Start the dev server                                  |
+| `npm run build`             | Type-check, then build to `build/`                    |
+| `npm run preview`           | Serve the production build locally                    |
+| `npm test`                  | Run the test suite                                    |
+| `npm run lint`              | ESLint, warnings included                             |
+| `npm run typecheck`         | `tsc --noEmit`                                        |
+| `npm run format`            | Rewrite files with Prettier                           |
+| `npm run songs`             | After adding songs: everything below, in order        |
+| `npm run students`          | After a Global update: the student data, then `songs` |
+| `npm run build:students`    | Copy the student data and draw the icon sheet         |
+| `npm run build:daily-order` | Extend the daily schedule                             |
+| `npm run build:audio`       | Build the served audio from `audio/`                  |
+| `npm run build:pictures`    | Copy `pictures/` in beside the audio                  |
+| `npm run upload:audio`      | Upload the audio and pictures to Cloudflare           |
+| `npm run upload:backup`     | Copy new files to the backup on Cloudflare R2         |
+| `npm run check:audio`       | Check the served audio is complete                    |
+| `npm run check:pictures`    | Check the served pictures are up to date              |
 
 A pre-commit hook runs the format check, lint and type-check, and commit
 messages follow [Conventional Commits](https://www.conventionalcommits.org/).
@@ -304,6 +338,34 @@ places. The game itself never asks the wiki for anything. `npm run dev` serves
 the pictures from `audio-dist/` too; add `?season=christmas` or
 `?season=new-year` to the address there to see a season on any day.
 
+### Student data
+
+The student game's data comes from [SchaleDB](https://schaledb.com/), copied
+at build time: the game never asks SchaleDB for anything. After each Global
+update, run `npm run students` and commit what it changed. It runs
+`build:students`, then `npm run songs` to put the new icon sheet on the Worker
+and R2. `build:students`:
+
+- downloads `students.json`, `localization.json` and `items.json` from
+  `schaledb.com/data/en/`, checks their format and cuts them down to the
+  fields the game compares, into `src/constants/students.ts`
+  (`src/helpers/studentData.ts` does the converting). If the format has
+  changed, it stops naming the student and field, and writes nothing, so the
+  live site keeps working. Only Global students and the official English text
+  are used.
+- appends new students to each way to play's daily schedule, shuffled among
+  themselves, so no day already played changes.
+- downloads the icons it doesn't have yet into `.cache/` (not committed), one
+  at a time, and draws them all into one sheet, `pictures/students/icons.webp`
+  (80 px cells, set on a flat colour; about 380 KB), in the table's order
+  (`src/constants/studentIcons.ts`). One file means one request, and no file
+  name per student to give the answer away in DevTools. A new student changes
+  the whole sheet, so players download it again after each update.
+
+Needs ffmpeg built with libwebp, like `build:audio`. A student's favourite gift
+is the SSR gift sharing the most tags with them, as the game rates gifts; two
+gifts tie now and then, and a few guests from other series have none.
+
 ### Characters
 
 The character is a Spine skeleton, drawn with the official Spine 4.2 runtime
@@ -339,23 +401,25 @@ src/
   helpers/      Search, stats, song picking, daily puzzle, storage, volume,
                 colour scheme, audio URLs
   hooks/        useGame (the round-by-round modes), useTimeAttack,
-                useVolume, useColorScheme
+                useStudentGame, useVolume, useColorScheme
   image/        Logo and the day and night backgrounds
 public/spine/   The characters, made by build-spine
   test/         Render harness and shared setup for the tests
   types/        Shared TypeScript types
 audio/          The OST originals, one Ogg file per theme number
-pictures/       Pictures served from the Worker, such as the seasonal backdrops
+pictures/       Pictures served from the Worker: the seasonal backdrops and the
+                student icon sheet
 audio-worker/   The Cloudflare Worker that serves the built audio and pictures
 scripts/        build-audio, check-audio, build-pictures, check-pictures,
                 upload-backup, make-backdrop, build-daily-order, build-spine,
-                and the helpers they share
+                build-students, and the helpers they share
 docs/           README screenshots
 ```
 
 Game state lives in `useGame`, which keeps Daily, Classic and 4-Choice and
 saves each to its own `localStorage` key; `useTimeAttack` saves the songs of
-each Time Attack run the same way, tagged with the run. Everything read back from storage is validated, so a
+each Time Attack run the same way, tagged with the run, and `useStudentGame`
+keeps the student game's four (Gameplay and Lore, daily and endless). Everything read back from storage is validated, so a
 corrupted or outdated save starts a fresh game instead of breaking the page.
 Save files (`src/helpers/saveFile.ts`) go through the same checks.
 
@@ -399,7 +463,7 @@ Result pictures are drawn in the browser and go only where the player sends
 them from the share sheet, or to their downloads; the player name in Settings
 is only ever drawn on those pictures.
 Like any website, the hosts - Vercel for the site, Cloudflare for the audio and
-seasonal pictures -
+pictures -
 see standard connection details such as IP addresses to serve the files.
 Players see the same in About this game.
 
@@ -419,7 +483,7 @@ interrupts play.
 [Blue Archive](https://bluearchive.nexon.com/) is developed by NEXON Games and
 published by NEXON and Yostar. Its music, characters and artwork belong to
 their rights holders. The soundtrack is by KARUT, Mitsukiyo, Nor, EmoCosine and
-others.
+others. The student data and icons are from [SchaleDB](https://schaledb.com/).
 
 This is an unofficial fan game, not affiliated with or endorsed by NEXON Games,
 NEXON or Yostar.

@@ -9,7 +9,8 @@ Deploying); this file is the short version plus the house rules.
 **Blue Archive Heardle** is a free, unofficial fan game for players of Blue
 Archive (NEXON Games / Yostar). Like Heardle, it plays a short clip of a song
 from the game's soundtrack and the player has six tries to name it; every wrong
-guess or skip lets them hear more. Live at https://baheardle.com (moved from
+guess or skip lets them hear more. It also has a student game, like the other
+Blue Archive "-dle" games. Live at https://baheardle.com (moved from
 bluearchive-heardle.xyz on 2026-09-27).
 
 It is made and run by one person, ShinRunner1st (GitHub repo
@@ -60,6 +61,13 @@ What the project cares about:
   switch above the game picks Classic, 4-Choice or Time Attack.
 - **Daily** song comes from `src/constants/dailyOrder.ts` (only ever appended
   to) and the day number from `src/helpers/daily.ts` (`DAILY_EPOCH`).
+- **Student data** is copied from SchaleDB by `npm run students` (checked by
+  `src/helpers/studentData.ts`; it stops if the format changes) into
+  `src/constants/students.ts`, with each way to play's daily schedule in
+  `studentDailyOrder.ts` (only ever appended to) and every icon in one sheet,
+  `pictures/students/icons.webp`, on the Worker. State lives in
+  `src/hooks/useStudentGame.ts`, a localStorage key for each way to play and
+  mode.
 - **Characters** are Spine 4.2 skeletons in `public/spine/`, drawn by
   `src/helpers/spineStage.ts`, loaded only on wide screens.
 - CI (GitHub Actions) runs format, lint, typecheck, tests, `check:audio` and a
@@ -93,6 +101,19 @@ What the project cares about:
   Its player keeps one fixed layout; the repeat button cycles off / next
   song / this song, remembered. Rows come from `SongRows` (shared with All
   OST, kept light for speed) and chips from `FoldingChips`. Playing any audio pauses the rest (`src/helpers/onePlayer.ts`).
+- **Students** (the switch under the header picks OST or Students; Daily and
+  Endless work for both): guess a student and each guess shows how it
+  compares with the answer, right, close or wrong, with arrows for numbers.
+  No limit on guesses; Give up, pressed twice, is a loss. **Gameplay**
+  (school, role, damage, weapon, EX cost at level 1, release; 262 answers,
+  every costume its own) or **Lore** (height, school, birthday, year, weapon,
+  favourite SSR gift, club, release; 144 default costumes). Each keeps its
+  own daily and endless stats and streak, and the streak moves the
+  background. Squares-only share text, no picture.
+- **Birthdays**: on a student's birthday a note under the switches wishes
+  them a happy one, with their icon in the student game only (the OST game
+  never loads the icon sheet); a cake by their name in the student game.
+  `?birthday=<month>-<day>` previews one in dev.
 - **Search** by name, artist or theme number; **All OST** list with artist
   filters.
 - **Result screen**: now-playing card, plays the answer from the clip's start,
@@ -157,6 +178,7 @@ What the project cares about:
 npm run dev          # local server
 npm test             # vitest
 npm run format:check && npm run lint && npm run typecheck && npm test && npm run build
+npm run students     # after a Global update: student data and icons, then songs
 ```
 
 The pre-commit hook runs format:check, lint and typecheck. Commits follow

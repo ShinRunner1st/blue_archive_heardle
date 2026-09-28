@@ -30,12 +30,12 @@ name, when it's built.
    `npm run songs` uploads new files to it. The dashboard setup (the
    `Access-Control-Allow-Origin` header rule and the usage alerts) and the
    first full upload were done on 2026-09-28, with the Group 2 pictures.
-5. **Group 5: Badle. Next up.** Make its branch off `feat/storage`. Data script, then the icon sprite sheet, then Gameplay
-   mode, then Lore mode, then student birthday touches (they use the Badle
-   student table).
-6. **Group 6: dream plan.** The user messages SchaleDB first, then Voice line
-   mode. The user checks the Durable Objects and PartyServer free-tier limits,
-   then Multiplayer.
+5. **Group 5: Badle.** _Built on `feat/badle` (stacked on Group 4), not
+   merged yet._ Its icon sheet isn't on the Worker or R2 yet: it goes up
+   with `npm run songs` before merging (one new file, about 380 KB).
+6. **Group 6: dream plan. Next up.** Make its branch off `feat/badle`. The
+   user messages SchaleDB first, then Voice line mode. The user checks the
+   Durable Objects and PartyServer free-tier limits, then Multiplayer.
 
 Any time: `npm run songs` when new OSTs come out.
 
@@ -44,7 +44,7 @@ Any time: `npm run songs` when new OSTs come out.
 - **Worker first.** The audio Worker only serves static files, and those
   requests are free and unlimited (`audio-worker/wrangler.jsonc`). Its limits
   (checked 2026-09-28, free plan): 20,000 files per Worker version and 25 MiB
-  per file. The OST and pictures use 694.
+  per file. The OST and pictures use 694, 695 with the student icon sheet.
 - **R2 as backup.** A copy of everything on the Worker is on Cloudflare R2
   (bucket `ba-heardle-audio`, at `audio.baheardle.com`), and the game falls
   back to it if the Worker fails; `npm run songs` uploads to both. Files that
@@ -106,49 +106,45 @@ on the branch `feat/ost-modes` until released. What was agreed is now in
 ## Timed: seasonal touches
 
 9. **Seasonal touches** on set dates: Christmas and New Year backgrounds
-   (built), the Blue Archive anniversary, student birthdays. Pictures go on the
-   Worker (`pictures/`, see the README). Add a season to `SEASONS` in
-   `src/constants/seasons.ts`. Birthdays can use the Badle student table
-   (Phase 3).
+   and student birthdays (built), the Blue Archive anniversary. Pictures go on
+   the Worker (`pictures/`, see the README). Add a season to `SEASONS` in
+   `src/constants/seasons.ts`.
 
 ## Phase 3: Badle (guess a student)
 
-For players who want a Badle here too (other Blue Archive "-dle" games exist).
-Daily and endless, like the OST game. Each guess shows how its attributes
-compare with the answer, with up/down arrows for numbers.
+All of Phase 3 (the data script, the icon sheet, Gameplay, Lore and the
+birthday note) is built, on the branch `feat/badle` until released. What was
+agreed is now in "What the game has" in `CLAUDE.md`, and the data's details
+in the README's Student data. Choices made while building it:
 
-- **Gameplay mode:** School, Role, Damage Type, Weapon Type, EX Skill Cost,
-  Release Order. Each costume is its own answer, because their kits differ.
-  Hoshino (Armed) has two entries, one per form (Tanker with EX cost 4,
-  Attacker with EX cost 6): keep the first.
-- **Lore mode:** Height, School, Birthday, Year, Weapon Type, Fav SSR Gift,
-  Club, Release Order. Default costumes only (names without brackets): 144 on
-  Global, and Shiroko\*Terror counts as her own student.
-- **Data:** SchaleDB (`students.json`, `localization.json` and `items.json` at
-  schaledb.com/data/en/).
-  - Its FAQ allows reusing data, images and voice clips, but not community
-    translations without asking. Global students use the official English
-    text, so that should be fine.
-  - Global only (`IsReleased[1]`).
-  - Its format can change without notice, which is why we copy it at build
-    time.
-- **Conversions:**
-  - Height: `"145cm"` becomes a number.
-  - Birthday: `"January 2nd"` becomes a month and a day.
-  - EX cost is a list with one cost per skill level: pick one level.
-  - Club, school, role and damage type names come from `localization.json`
-    (`Kohshinjo68` becomes "Problem Solver 68").
-  - Fav SSR Gift: match `FavorItemTags` against `items.json`.
-  - Release Order: `DefaultOrder` (Global kept JP's order).
-- **Pictures:** student icons in one sprite sheet on the Worker.
-- **Reference repos:**
-  - puttimeth/blue-archive-wordle has converted data to check ours against. It
-    has no licence, so don't copy from it.
-  - starsbit/bardle is GPL-3.0: read it, but don't copy it.
-  - bluekiseki/BA-mobilization-trends-public is MIT, but it holds schedules,
-    not student data.
-- **New students:** rerun the data script after each Global update, like
-  `npm run songs`.
+- **Data** from SchaleDB's `students.json`, `localization.json` and
+  `items.json`, Global only, checked against puttimeth/blue-archive-wordle's
+  converted data on 2026-09-28 (all 262 matched on height, birthday, year and
+  release order). Hoshino (Armed) keeps her first entry, the Tank.
+  - EX cost is level 1's: what the student list shows and players quote.
+  - Fav SSR Gift is the gift sharing the most tags, counting the student's
+    personal tags; ties keep both (a shared one is "close"), and the four
+    guests from other series have none.
+  - Birthday: the right month is "close", with an arrow towards the day.
+    Year has arrows between numbered years; "Suspended" and "Drop out" only
+    match themselves.
+- **UI**: a second switch beside the Classic/4-Choice/Time Attack one, OST or
+  Students, then Gameplay or Lore. No limit on guesses, as in the other
+  "-dle" games; Give up needs a second press. Share text only, no share
+  picture.
+- **Daily** uses the OST's day numbers (`DAILY_EPOCH`), with its own schedule
+  for each way to play.
+- **Icon sheet**: 80 px cells with 72 px icons (shown at up to 36 px), set on a
+  flat colour: the icons' transparency more than doubled the file. 378 KB for
+  262 students, where SchaleDB's separate icons come to 2 MB. It falls back
+  to R2 if the Worker fails, like the audio.
+- **Bundle**: the student table (9.6 KB gzipped) and its UI ship in the main
+  bundle, 63 to 84 KB gzipped, rather than a lazy chunk: that would be one
+  more Vercel request, and the header, stats and character all need the
+  student game's state.
+- **Birthdays**: a note under the switches; icons only in the student game,
+  so OST players never download the sheet.
+- **New students:** rerun `npm run students` after each Global update.
 
 ## Dream plan (big, after the plan above)
 
@@ -216,6 +212,8 @@ Build after Badle: it reuses the student table and the sprite sheet.
 ## Always
 
 - Keep the song list current as new OSTs come out (`npm run songs`).
+- Keep the student table current after each Global update (`npm run
+students`).
 - Avoid leaderboards and accounts, even once multiplayer adds a server: they
   break the privacy promise.
 
