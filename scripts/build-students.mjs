@@ -6,8 +6,6 @@
  * - src/constants/students.ts: every student and costume out on Global, cut
  *   down to the fields the game compares (see src/helpers/studentData.ts,
  *   which stops the script if SchaleDB's format has changed).
- * - src/constants/studentBirthdays.ts: each student's birthday, for the
- *   birthday note, small enough for the OST game to carry without the table.
  * - src/constants/studentDailyOrder.ts: the daily schedule for each way to
  *   play. Like the OST's, it is only ever appended to, so a new student can't
  *   change a day already played.
@@ -53,7 +51,6 @@ const HEADERS = { "User-Agent": "baheardle.com build script" };
 
 const TABLE_PATH = "src/constants/students.ts";
 const ORDER_PATH = "src/constants/studentDailyOrder.ts";
-const BIRTHDAYS_PATH = "src/constants/studentBirthdays.ts";
 const ICON_CACHE = ".cache/student-icons";
 const SHEET_PATH = `pictures/${ICON_SHEET_KEY}.webp`;
 /**
@@ -99,24 +96,6 @@ writeFileSync(
  * GENERATED FILE - do not edit by hand. Run \`npm run students\`.
  */
 export const students: Student[] = ${JSON.stringify(students)};
-`
-);
-
-// One birthday a student: the costumes share theirs.
-const birthdays = lore
-  .filter(({ birthday }) => birthday)
-  .map(({ id, name, birthday }) => ({ id, name, birthday }));
-writeFileSync(
-  BIRTHDAYS_PATH,
-  `import { StudentBirthday } from "../types/student";
-
-/**
- * Each student's birthday, from students.ts, for the birthday note: small
- * enough for the page to carry without the whole table.
- *
- * GENERATED FILE - do not edit by hand. Run \`npm run students\`.
- */
-export const studentBirthdays: StudentBirthday[] = ${JSON.stringify(birthdays)};
 `
 );
 

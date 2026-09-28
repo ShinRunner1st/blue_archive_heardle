@@ -30,11 +30,19 @@ function plural(count: number, one: string, many: string): string {
 function describe(save: SaveFileData): string {
   const daily = calStats(save.rounds.daily)[7];
   const endless = calStats(save.rounds.endless)[7];
-  const counts = `${plural(
-    daily,
-    "daily puzzle",
-    "daily puzzles"
-  )} and ${plural(endless, "endless song", "endless songs")}`;
+  const students = Object.values(save.students).reduce(
+    (sum, rounds) => sum + rounds.length,
+    0
+  );
+  const songs = `${plural(daily, "daily puzzle", "daily puzzles")} and ${plural(
+    endless,
+    "endless song",
+    "endless songs"
+  )}`;
+  const counts =
+    students > 0
+      ? `${songs}, and ${plural(students, "student round", "student rounds")}`
+      : songs;
 
   if (!save.exported) return `It has ${counts}.`;
 
@@ -90,7 +98,7 @@ export function SaveFile() {
   const replace = () => {
     if (!pending) return;
 
-    if (!replaceAllRounds(pending.rounds)) {
+    if (!replaceAllRounds(pending.rounds, pending.students)) {
       setPending(null);
       setError(
         "This browser wouldn't store the save. Check that site data is allowed."

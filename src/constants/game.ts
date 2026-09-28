@@ -20,6 +20,23 @@ export const CHOICE_STORAGE_KEY = "stats.choice";
 export const TIME_ATTACK_STORAGE_KEY = "stats.timeattack";
 
 /**
+ * localStorage keys holding the student game's rounds, one for each way to
+ * play and mode.
+ */
+export const STUDENT_STORAGE_KEYS = {
+  "gameplay-daily": "students.gameplay.daily",
+  "gameplay-endless": "students.gameplay",
+  "lore-daily": "students.lore.daily",
+  "lore-endless": "students.lore",
+} as const;
+
+/** localStorage key remembering which game was last played: OST or students. */
+export const GAME_KEY = "game";
+
+/** localStorage key remembering the student game's way to play. */
+export const STUDENT_GAME_KEY = "studentGame";
+
+/**
  * localStorage key holding the time attack settings picked last, so the
  * start screen offers them again.
  */

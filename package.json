@@ -26,7 +26,7 @@
     "upload:audio": "npx --yes wrangler deploy --config audio-worker/wrangler.jsonc",
     "upload:backup": "node scripts/upload-backup.mjs",
     "build:daily-order": "node scripts/build-daily-order.mjs && prettier --write src/constants/dailyOrder.ts",
-    "build:students": "node scripts/build-students.mjs && prettier --write src/constants/students.ts src/constants/studentBirthdays.ts src/constants/studentDailyOrder.ts",
+    "build:students": "node scripts/build-students.mjs && prettier --write src/constants/students.ts src/constants/studentDailyOrder.ts",
     "songs": "npm run build:daily-order && npm run build:audio && npm run build:pictures && npm run upload:audio && npm run upload:backup && node scripts/check-audio.mjs --remote && node scripts/check-pictures.mjs --remote",
     "students": "npm run build:students && npm run songs",
     "typecheck": "tsc --noEmit",

@@ -1,15 +1,26 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { DAILY_STORAGE_KEY, MODE_KEY, STORAGE_KEY } from "../constants/game";
+import {
+  DAILY_STORAGE_KEY,
+  MODE_KEY,
+  STORAGE_KEY,
+  STUDENT_STORAGE_KEYS,
+} from "../constants/game";
 import {
   emptyGuesses,
   hasSeenWhatsNew,
+  loadGame,
   loadMode,
   loadRounds,
+  loadStudentGame,
+  loadStudentRounds,
   markWhatsNewSeen,
   replaceAllRounds,
+  saveGame,
   saveMode,
   saveRounds,
+  saveStudentGame,
+  saveStudentRounds,
 } from "./storage";
 import { Song } from "../types/song";
 
@@ -274,5 +285,84 @@ describe("replaceAllRounds", () => {
     );
     expect(localStorage.getItem(DAILY_STORAGE_KEY)).toBeNull();
     expect(localStorage.getItem(STORAGE_KEY)).toBe("old endless");
+  });
+
+  it("swaps the student game's rounds with them", () => {
+    saveStudentRounds("lore-endless", [{ answer: 1, guesses: [] }]);
+    const gameplay = [{ answer: 10005, guesses: [10000, 10005], day: 2 }];
+
+    expect(
+      replaceAllRounds(
+        { daily: [] },
+        { "gameplay-daily": gameplay, "lore-endless": [] }
+      )
+    ).toBe(true);
+
+    expect(loadStudentRounds("gameplay-daily")).toEqual(gameplay);
+    expect(loadStudentRounds("lore-endless")).toEqual([]);
+  });
+});
+
+describe("student rounds", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it("round-trips, scrambled so the answer isn't readable", () => {
+    const rounds = [
+      { answer: 10005, guesses: [10000], gaveUp: true },
+      { answer: 10000, guesses: [], day: 4 },
+    ];
+    saveStudentRounds("gameplay-endless", rounds);
+
+    expect(loadStudentRounds("gameplay-endless")).toEqual(rounds);
+    expect(
+      localStorage.getItem(STUDENT_STORAGE_KEYS["gameplay-endless"])
+    ).not.toContain("10005");
+  });
+
+  it("keeps each slot apart", () => {
+    saveStudentRounds("lore-daily", [{ answer: 3, guesses: [] }]);
+    expect(loadStudentRounds("lore-endless")).toEqual([]);
+  });
+
+  it("repairs what it can and drops what it can't", () => {
+    localStorage.setItem(
+      STUDENT_STORAGE_KEYS["lore-endless"],
+      JSON.stringify([
+        { answer: 5, guesses: [1, 1, "2", 5, 7], gaveUp: true },
+        { answer: "5", guesses: [] },
+        { answer: 6 },
+        null,
+      ])
+    );
+
+    expect(loadStudentRounds("lore-endless")).toEqual([
+      // Nothing after the answer, and a won round wasn't given up.
+      { answer: 5, guesses: [1, 5] },
+      { answer: 6, guesses: [] },
+    ]);
+  });
+
+  it("never throws on a damaged save", () => {
+    localStorage.setItem(STUDENT_STORAGE_KEYS["lore-daily"], "%%%");
+    expect(loadStudentRounds("lore-daily")).toEqual([]);
+  });
+});
+
+describe("game choice", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it("starts on the OST and Gameplay, then remembers", () => {
+    expect(loadGame()).toBe("ost");
+    expect(loadStudentGame()).toBe("gameplay");
+
+    saveGame("students");
+    saveStudentGame("lore");
+
+    expect(loadGame()).toBe("students");
+    expect(loadStudentGame()).toBe("lore");
   });
 });

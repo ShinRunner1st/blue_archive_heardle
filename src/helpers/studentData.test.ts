@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { studentBirthdays } from "../constants/studentBirthdays";
 import { gameplayOrder, loreOrder } from "../constants/studentDailyOrder";
 import { students } from "../constants/students";
 import {
@@ -214,12 +213,5 @@ describe("the checked-in student table", () => {
       // Run `npm run students` after changing the table.
       expect([...order].sort()).toEqual(pool.map(({ id }) => id).sort());
     }
-  });
-
-  it("has the birthdays of the Lore students", () => {
-    const lore = students.filter(({ lore, birthday }) => lore && birthday);
-    expect(studentBirthdays).toEqual(
-      lore.map(({ id, name, birthday }) => ({ id, name, birthday }))
-    );
   });
 });

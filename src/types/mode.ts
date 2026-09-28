@@ -33,3 +33,9 @@ export function isEndlessStyle(mode: GameMode): boolean {
 
 /** Modes whose rounds count towards the OST badges: typed answers only. */
 export const BADGE_MODES: RoundMode[] = ["daily", "endless"];
+
+/**
+ * The two games on the site: name the song, or name the student from how
+ * their attributes compare (see src/components/StudentGame).
+ */
+export type Game = "ost" | "students";

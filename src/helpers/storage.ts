@@ -17,13 +17,22 @@ import {
   CUSTOM_CURSOR_KEY,
   CHARACTER_KEY,
   WHATS_NEW_KEY,
+  GAME_KEY,
+  STUDENT_GAME_KEY,
+  STUDENT_STORAGE_KEYS,
 } from "../constants/game";
 import { ColorScheme } from "../constants/theme";
 import { CharacterChoice, isCharacterChoice } from "../types/character";
 import { GuessType } from "../types/guess";
-import { GameMode, isGameMode } from "../types/mode";
+import { Game, GameMode, isGameMode } from "../types/mode";
 import { Round } from "../types/stats";
 import { Song } from "../types/song";
+import {
+  isStudentGame,
+  StudentGame,
+  StudentRound,
+  StudentSlot,
+} from "../types/student";
 import { obscure, reveal } from "./obscure";
 
 /** Each mode keeps its own history, so stats and bags never mix. */
@@ -181,20 +190,22 @@ function toRound(value: unknown): Round | null {
  * and still load.
  */
 export function loadRounds(mode: GameMode = "endless"): Round[] {
-  const raw = readKey(keyFor(mode));
-  if (!raw) return [];
+  return toRounds(readSaved(keyFor(mode)));
+}
+
+/** A saved list, unscrambled and parsed, or null for anything unreadable. */
+function readSaved(key: string): unknown {
+  const raw = readKey(key);
+  if (!raw) return null;
 
   const text = raw.startsWith("[") ? raw : reveal(raw);
-  if (text === null) return [];
+  if (text === null) return null;
 
-  let parsed: unknown;
   try {
-    parsed = JSON.parse(text);
+    return JSON.parse(text);
   } catch {
-    return [];
+    return null;
   }
-
-  return toRounds(parsed);
 }
 
 /**
@@ -211,29 +222,38 @@ export function saveRounds(rounds: Round[], mode: GameMode = "endless"): void {
 }
 
 /**
- * Swaps the rounds of each mode given for the new ones, as one change: if any
- * write fails (storage full or blocked), the ones already made are undone, so
- * the player never ends up with half a save. Returns whether it worked.
+ * Swaps the rounds of each mode given for the new ones, the student game's
+ * too, as one change: if any write fails (storage full or blocked), the ones
+ * already made are undone, so the player never ends up with half a save.
+ * Returns whether it worked.
  */
 export function replaceAllRounds(
-  histories: Partial<Record<GameMode, Round[]>>
+  histories: Partial<Record<GameMode, Round[]>>,
+  studentHistories: Partial<Record<StudentSlot, StudentRound[]>> = {}
 ): boolean {
-  const modes = Object.keys(histories) as GameMode[];
-  const before = modes.map((mode) => readKey(keyFor(mode)));
+  const writes: Array<[key: string, rounds: unknown[]]> = [
+    ...(Object.keys(histories) as GameMode[]).map(
+      (mode): [string, unknown[]] => [keyFor(mode), histories[mode] ?? []]
+    ),
+    ...(Object.keys(studentHistories) as StudentSlot[]).map(
+      (slot): [string, unknown[]] => [
+        STUDENT_STORAGE_KEYS[slot],
+        studentHistories[slot] ?? [],
+      ]
+    ),
+  ];
+  const before = writes.map(([key]) => readKey(key));
 
   try {
-    for (const mode of modes) {
-      localStorage.setItem(
-        keyFor(mode),
-        obscure(JSON.stringify(histories[mode] ?? []))
-      );
+    for (const [key, rounds] of writes) {
+      localStorage.setItem(key, obscure(JSON.stringify(rounds)));
     }
     return true;
   } catch {
-    modes.forEach((mode, i) => {
+    writes.forEach(([key], i) => {
       const previous = before[i];
-      if (previous === null) removeKey(keyFor(mode));
-      else writeKey(keyFor(mode), previous);
+      if (previous === null) removeKey(key);
+      else writeKey(key, previous);
     });
     return false;
   }
@@ -241,6 +261,87 @@ export function replaceAllRounds(
 
 export function clearRounds(mode: GameMode = "endless"): void {
   removeKey(keyFor(mode));
+}
+
+const isId = (value: unknown): value is number =>
+  typeof value === "number" && Number.isInteger(value) && value > 0;
+
+/**
+ * Coerces a saved student round into a usable one, or null when it is too
+ * damaged to repair. Whether the ids are students the game knows is checked
+ * where the table is (see useStudentGame), so this file stays small enough
+ * for the page to carry without it.
+ */
+function toStudentRound(value: unknown): StudentRound | null {
+  if (typeof value !== "object" || value === null) return null;
+  const round = value as Record<string, unknown>;
+  if (!isId(round.answer)) return null;
+
+  // Each student once, and nothing after the answer: the round ended there.
+  const guesses: number[] = [];
+  for (const id of Array.isArray(round.guesses) ? round.guesses : []) {
+    if (!isId(id) || guesses.includes(id)) continue;
+    guesses.push(id);
+    if (id === round.answer) break;
+  }
+
+  const day =
+    typeof round.day === "number" && Number.isFinite(round.day)
+      ? Math.trunc(round.day)
+      : undefined;
+
+  return {
+    answer: round.answer,
+    guesses,
+    ...(round.gaveUp === true && !guesses.includes(round.answer)
+      ? { gaveUp: true }
+      : {}),
+    ...(day === undefined ? {} : { day }),
+  };
+}
+
+/** The usable student rounds in a parsed value; shared with save files. */
+export function toStudentRounds(value: unknown): StudentRound[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map(toStudentRound)
+    .filter((round): round is StudentRound => round !== null);
+}
+
+/** A student game's saved rounds; never throws, like loadRounds. */
+export function loadStudentRounds(slot: StudentSlot): StudentRound[] {
+  return toStudentRounds(readSaved(STUDENT_STORAGE_KEYS[slot]));
+}
+
+/** Saved scrambled, like the OST's, so the answer isn't in DevTools. */
+export function saveStudentRounds(
+  slot: StudentSlot,
+  rounds: StudentRound[]
+): void {
+  writeKey(STUDENT_STORAGE_KEYS[slot], obscure(JSON.stringify(rounds)));
+}
+
+export function clearStudentRounds(slot: StudentSlot): void {
+  removeKey(STUDENT_STORAGE_KEYS[slot]);
+}
+
+/** Which game was played last: the OST, unless the students were. */
+export function loadGame(): Game {
+  return readKey(GAME_KEY) === "students" ? "students" : "ost";
+}
+
+export function saveGame(game: Game): void {
+  writeKey(GAME_KEY, game);
+}
+
+/** The student game's way to play picked last; Gameplay to begin with. */
+export function loadStudentGame(): StudentGame {
+  const stored = readKey(STUDENT_GAME_KEY);
+  return isStudentGame(stored) ? stored : "gameplay";
+}
+
+export function saveStudentGame(game: StudentGame): void {
+  writeKey(STUDENT_GAME_KEY, game);
 }
 
 /**

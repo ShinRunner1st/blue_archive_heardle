@@ -38,13 +38,6 @@ export interface Student {
   gifts: string[];
 }
 
-/** A student's birthday, for the note on the day. */
-export interface StudentBirthday {
-  id: number;
-  name: string;
-  birthday: Birthday;
-}
-
 /** The two ways to play: by kit, or by profile. */
 export type StudentGame = "gameplay" | "lore";
 
@@ -52,4 +45,36 @@ export const STUDENT_GAMES: StudentGame[] = ["gameplay", "lore"];
 
 export function isStudentGame(value: unknown): value is StudentGame {
   return STUDENT_GAMES.includes(value as StudentGame);
+}
+
+/** Daily gives everyone the same student; endless deals from a bag. */
+export type StudentMode = "daily" | "endless";
+
+/** Each way to play and mode keeps its own rounds, stats and streak. */
+export type StudentSlot = `${StudentGame}-${StudentMode}`;
+
+export const STUDENT_SLOTS: StudentSlot[] = [
+  "gameplay-daily",
+  "gameplay-endless",
+  "lore-daily",
+  "lore-endless",
+];
+
+export function slotOf(game: StudentGame, mode: StudentMode): StudentSlot {
+  return `${game}-${mode}`;
+}
+
+/**
+ * One student to find. There is no limit on guesses: the round ends when the
+ * answer is guessed or the player gives up. The last round in a saved list
+ * is always the one in progress.
+ */
+export interface StudentRound {
+  /** The answer's id. */
+  answer: number;
+  /** The ids guessed, in order, the answer last once found. */
+  guesses: number[];
+  gaveUp?: boolean;
+  /** Which daily puzzle the round belongs to; daily rounds only. */
+  day?: number;
 }

@@ -4,7 +4,7 @@ import { DAILY_STORAGE_KEY, STORAGE_KEY } from "../constants/game";
 import { Song } from "../types/song";
 import { obscure } from "./obscure";
 import { buildSaveFile, readSaveFile, saveFileName } from "./saveFile";
-import { emptyGuesses, saveRounds } from "./storage";
+import { emptyGuesses, saveRounds, saveStudentRounds } from "./storage";
 
 const song: Song = {
   artist: "Mitsukiyo",
@@ -49,8 +49,33 @@ describe("save files", () => {
           choice: [],
           timeattack: [],
         },
+        students: {
+          "gameplay-daily": [],
+          "gameplay-endless": [],
+          "lore-daily": [],
+          "lore-endless": [],
+        },
       },
     });
+  });
+
+  it("carries the student game's rounds too", () => {
+    const rounds = [{ answer: 10005, guesses: [10000], day: 2 }];
+    saveStudentRounds("lore-daily", rounds);
+
+    const result = readSaveFile(buildSaveFile());
+    expect(result.ok && result.save.students["lore-daily"]).toEqual(rounds);
+    expect(buildSaveFile()).not.toContain("10005");
+  });
+
+  it("reads a save from before the student game, and one with only it", () => {
+    const old = readSaveFile(file({ rounds: { endless: [round()] } }));
+    expect(old.ok && old.save.students["gameplay-endless"]).toEqual([]);
+
+    const students = readSaveFile(
+      file({ students: { "gameplay-endless": [{ answer: 1, guesses: [] }] } })
+    );
+    expect(students.ok).toBe(true);
   });
 
   it("keeps the answer out of plain sight", () => {
@@ -100,6 +125,12 @@ describe("save files", () => {
           endless: [],
           choice: [],
           timeattack: [],
+        },
+        students: {
+          "gameplay-daily": [],
+          "gameplay-endless": [],
+          "lore-daily": [],
+          "lore-endless": [],
         },
       },
     });
