@@ -171,6 +171,7 @@ npm run dev           # http://localhost:3000
 | `npm run build:audio`       | Build the served audio from `audio/`           |
 | `npm run build:pictures`    | Copy `pictures/` in beside the audio           |
 | `npm run upload:audio`      | Upload the audio and pictures to Cloudflare    |
+| `npm run upload:backup`     | Copy new files to the backup on Cloudflare R2  |
 | `npm run check:audio`       | Check the served audio is complete             |
 | `npm run check:pictures`    | Check the served pictures are up to date       |
 
@@ -250,6 +251,35 @@ game and the scripts both use it. Changing its `SALT` renames every file.
 `.env.production` holds `VITE_AUDIO_BASE_URL`, the Worker's address, which
 production builds read from; `npm run dev` serves `audio-dist/` itself.
 
+#### The backup on R2
+
+A copy of `audio-dist/` lives in the Cloudflare R2 bucket `ba-heardle-audio`,
+served at `https://audio.baheardle.com` (`VITE_AUDIO_BACKUP_URL`). When a file
+doesn't come from the Worker, the game asks the backup for it instead
+(`src/helpers/audioSource.ts`), so a Worker outage doesn't stop the game.
+`npm run songs` runs `upload:backup`, which uploads only the files the backup
+doesn't have yet, and then checks both servers.
+
+The Worker stays first because its requests are free and unlimited. R2's are
+free only up to a monthly amount (10 GB stored, a million writes and ten
+million reads), and past that they are charged to the card on the Cloudflare
+account; R2 has no spending cap. So:
+
+- Normal play never touches R2: only a failed Worker request does.
+- Cloudflare's cache answers repeat requests for a file without asking R2, and
+  those don't count. The files are named after their contents, so they are
+  sent with a year-long `Cache-Control`.
+- The free `r2.dev` address stays off: it is rate-limited and can't be
+  cached or protected.
+- In the Cloudflare dashboard, `audio.baheardle.com` has a rate-limiting rule
+  (Security > WAF), a billing alert for R2 (Notifications), and a response
+  header rule adding `Access-Control-Allow-Origin: *` (Rules > Transform
+  Rules), which the game needs to read the files. It is a header rule rather
+  than the bucket's CORS setting because Cloudflare's cache would keep a
+  copy without the header for everyone after one request without an Origin.
+- If R2 ever needs shutting off, disconnecting the custom domain does it; the
+  game goes on playing from the Worker.
+
 A file that fails to load or decode shows an error with a retry. In endless
 mode it can deal a different song instead, and the failing one is left out for
 the rest of the session.
@@ -317,8 +347,8 @@ audio/          The OST originals, one Ogg file per theme number
 pictures/       Pictures served from the Worker, such as the seasonal backdrops
 audio-worker/   The Cloudflare Worker that serves the built audio and pictures
 scripts/        build-audio, check-audio, build-pictures, check-pictures,
-                make-backdrop, build-daily-order, build-spine, and the
-                helpers they share
+                upload-backup, make-backdrop, build-daily-order, build-spine,
+                and the helpers they share
 docs/           README screenshots
 ```
 
@@ -333,7 +363,7 @@ Save files (`src/helpers/saveFile.ts`) go through the same checks.
 The site is hosted on [Vercel](https://vercel.com/) and deploys from GitHub:
 every push to `main` goes to production. The build settings are in
 `vercel.json`. The audio is deployed separately, to Cloudflare, by
-`npm run songs`.
+`npm run songs`, which also copies it to the backup on R2.
 
 The audio is on Cloudflare (see [Audio](#audio)), so a deployment is about
 5 MB. To keep Vercel's deployment storage low on the Hobby plan:

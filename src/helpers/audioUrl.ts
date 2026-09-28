@@ -13,6 +13,24 @@ export function audioBaseUrl(): string {
 }
 
 /**
+ * The copy of the same files on Cloudflare R2, tried when a file doesn't come
+ * from the Worker (see loadAudio). The Worker stays first because its requests
+ * are free and unlimited, where R2's free reads run out each month. Null when
+ * there is no copy, as in `npm run dev`.
+ */
+export function audioBackupUrl(): string | null {
+  return import.meta.env.VITE_AUDIO_BACKUP_URL || null;
+}
+
+/** The backup copy of a file on the Worker, if there is one. */
+export function backupUrlFor(url: string): string | null {
+  const base = audioBaseUrl();
+  const backup = audioBackupUrl();
+  if (!backup || !url.startsWith(`${base}/`)) return null;
+  return backup + url.slice(base.length);
+}
+
+/**
  * Where a song's clip was cut from and how long the song is, in seconds, and
  * the version its file names carry. Known without downloading the song, so
  * the result screen can draw its timeline before the player chooses to listen.

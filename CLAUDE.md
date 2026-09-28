@@ -24,8 +24,8 @@ What the project cares about:
 - **Private**: no accounts, cookies, ads, analytics or tracking. Everything is
   kept in the player's browser. The About box and README Privacy section
   promise this, so don't add anything that breaks it.
-- **Cheap to run**: free tiers only (Vercel Hobby, Cloudflare Workers), so
-  every change is checked for requests, bandwidth and storage.
+- **Cheap to run**: free tiers only (Vercel Hobby, Cloudflare Workers and
+  R2), so every change is checked for requests, bandwidth and storage.
 - **Fair**: the answer is kept out of the page source, DevTools requests and
   saves, so it isn't a glance away.
 - **Polished**: works on phones, keyboard-only play, well tested.
@@ -42,8 +42,12 @@ What the project cares about:
   16-second clip and a full song per theme into `audio-dist/` (not committed),
   named with a salted hash (`src/helpers/audioFiles.ts`). Files are fetched
   whole into blob URLs (`src/helpers/audioSource.ts`) because the Worker doesn't
-  answer Range requests. `npm run songs` rebuilds, uploads and checks it; run
-  it before merging any song or picture change.
+  answer Range requests. If the Worker fails, the same files come from a
+  backup on Cloudflare R2 (bucket `ba-heardle-audio` at
+  `https://audio.baheardle.com`, `VITE_AUDIO_BACKUP_URL`); R2 can charge past
+  its free amounts, so it stays off the normal path. `npm run songs`
+  rebuilds, uploads to both and checks them; run it before merging any song
+  or picture change.
 - **Pictures on the Worker**: pictures that only show at times (the seasons)
   live in `pictures/<folder>/`; `npm run build:pictures` copies them into
   `audio-dist/pictures/` with fingerprinted names (`src/constants/pictureFiles.ts`).

@@ -6,8 +6,9 @@
  * runs this on every push. Originals with no song entry only get a warning:
  * they may be waiting for their entry to be added.
  *
- * With --remote it also asks the server in .env.production for every file,
- * so nothing goes live pointing at audio that was never uploaded.
+ * With --remote it also asks both servers in .env.production, the Worker and
+ * the backup on R2, for every file, so nothing goes live pointing at audio
+ * that was never uploaded.
  */
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -15,8 +16,9 @@ import { join } from "node:path";
 import { clipFile, songFile, sourceFile } from "../src/helpers/audioFiles.ts";
 import {
   SOURCE_DIR,
-  loadAudioBaseUrl,
+  checkServerFile,
   loadManifest,
+  loadServers,
   versionOf,
 } from "./lib/audio.mjs";
 import { loadSongs } from "./lib/songs.mjs";
@@ -47,29 +49,21 @@ for (const themeNo of manifest.keys()) {
 }
 
 async function checkRemote() {
-  const base = loadAudioBaseUrl();
-  if (!base) {
-    problems.push("no VITE_AUDIO_BASE_URL in .env.production");
-    return;
-  }
-
-  const urls = [...manifest.values()].flatMap(({ themeNo, v }) => [
-    `${base}/${clipFile(themeNo, v)}`,
-    `${base}/${songFile(themeNo, v)}`,
-  ]);
-  let next = 0;
-  const worker = async () => {
-    while (next < urls.length) {
-      const url = urls[next++];
-      const response = await fetch(url, { method: "HEAD" }).catch(() => null);
-      if (!response?.ok) {
-        const status = response?.status ?? "no answer";
-        problems.push(`not on the server (${status}): ${url}`);
+  for (const base of loadServers(problems)) {
+    const urls = [...manifest.values()].flatMap(({ themeNo, v }) => [
+      `${base}/${clipFile(themeNo, v)}`,
+      `${base}/${songFile(themeNo, v)}`,
+    ]);
+    let next = 0;
+    const asker = async () => {
+      while (next < urls.length) {
+        const problem = await checkServerFile(urls[next++]);
+        if (problem) problems.push(problem);
       }
-    }
-  };
-  await Promise.all(Array.from({ length: 8 }, worker));
-  console.log(`Asked ${base} for ${urls.length} files.`);
+    };
+    await Promise.all(Array.from({ length: 8 }, asker));
+    console.log(`Asked ${base} for ${urls.length} files.`);
+  }
 }
 
 if (process.argv.includes("--remote")) await checkRemote();

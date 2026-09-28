@@ -25,11 +25,14 @@ name, when it's built.
    then time attack (it uses four-choice). _Done on `feat/ost-modes` (stacked
    on Group 2), including the changes the user asked for after testing; not
    merged yet. No new Worker files, so it adds nothing to `npm run songs`._
-4. **Group 4: storage. Next up.** Make its branch off `feat/ost-modes`. It
-   starts with the user: they check the Worker's file limit and make an R2
-   bucket on our own domain, so ask for both before writing code. Then copy
-   the OST to R2 and fall back to it.
-5. **Group 5: Badle.** Data script, then the icon sprite sheet, then Gameplay
+4. **Group 4: storage.** _Built on `feat/storage` (stacked on Group 3), not
+   merged yet._ The R2 bucket `ba-heardle-audio` is served at
+   `audio.baheardle.com`; the game falls back to it when the Worker fails, and
+   `npm run songs` uploads new files to it. Before merging, the user sets up
+   the Cloudflare dashboard rules in the README's "The backup on R2" (the
+   `Access-Control-Allow-Origin` header rule, rate limiting, a billing alert),
+   then runs `npm run songs`, which does the first full upload.
+5. **Group 5: Badle. Next up.** Make its branch off `feat/storage`. Data script, then the icon sprite sheet, then Gameplay
    mode, then Lore mode, then student birthday touches (they use the Badle
    student table).
 6. **Group 6: dream plan.** The user messages SchaleDB first, then Voice line
@@ -41,13 +44,17 @@ Any time: `npm run songs` when new OSTs come out.
 ## Keeping new features cheap, private and fair
 
 - **Worker first.** The audio Worker only serves static files, and those
-  requests are free and unlimited (`audio-worker/wrangler.jsonc`). Its limit is
-  the number of files: about 20,000 per Worker on the free plan (check). The
-  OST uses 691.
-- **R2 as backup.** Keep a copy of the OST on Cloudflare R2 and fall back to it
-  if the Worker fails; `npm run songs` uploads to both. Files that don't fit on
-  the Worker also go to R2. Serve R2 through our own domain: the free `r2.dev`
-  address is rate-limited.
+  requests are free and unlimited (`audio-worker/wrangler.jsonc`). Its limits
+  (checked 2026-09-28, free plan): 20,000 files per Worker version and 25 MiB
+  per file. The OST and pictures use 694.
+- **R2 as backup.** A copy of everything on the Worker is on Cloudflare R2
+  (bucket `ba-heardle-audio`, at `audio.baheardle.com`), and the game falls
+  back to it if the Worker fails; `npm run songs` uploads to both. Files that
+  don't fit on the Worker also go to R2. The `r2.dev` address stays off.
+  - R2 has no spending cap: past the free amount (10 GB, 1M writes, 10M reads
+    a month) it charges the user's card, which worries them. Keep R2 reads
+    off the normal path, keep files cacheable, and name any new R2 cost when
+    proposing a feature.
 - **Pictures go in sprite sheets on the Worker**: one image holding many icons,
   cached for a year.
   - Tested on 2026-09-28 with 32 SchaleDB icons at the same WebP quality: the

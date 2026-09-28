@@ -7,7 +7,11 @@
  * seek past what they have downloaded. Played from memory, every browser can
  * play and seek it. The files are small - a clip is about 0.2 MB, a whole song
  * 1 to 3 MB - and downloads from Cloudflare cost nothing.
+ *
+ * If the Worker fails, the file comes from the copy on R2 instead, so a
+ * Worker outage doesn't stop the game.
  */
+import { backupUrlFor } from "./audioUrl";
 
 /** Recent files, oldest first. A round needs two: its clip and its song. */
 const loaded = new Map<string, Promise<string>>();
@@ -22,10 +26,11 @@ export function loadAudio(url: string): Promise<string> {
     return known;
   }
 
-  const loading = fetch(url)
-    .then((response) => {
-      if (!response.ok) throw new Error(`${response.status} for ${url}`);
-      return response.blob();
+  const loading = download(url)
+    .catch((error: unknown) => {
+      const backup = backupUrlFor(url);
+      if (!backup) throw error;
+      return download(backup);
     })
     .then((blob) => URL.createObjectURL(blob));
 
@@ -43,6 +48,13 @@ export function loadAudio(url: string): Promise<string> {
   }
 
   return loading;
+}
+
+function download(url: string): Promise<Blob> {
+  return fetch(url).then((response) => {
+    if (!response.ok) throw new Error(`${response.status} for ${url}`);
+    return response.blob();
+  });
 }
 
 /** Forgets every loaded file. For tests. */

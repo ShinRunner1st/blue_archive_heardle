@@ -3,10 +3,11 @@
  * picture added or changed without `npm run songs`. CI runs this on every
  * push.
  *
- * With --remote it also asks the server in .env.production for every picture,
- * so nothing goes live pointing at a picture that was never uploaded.
+ * With --remote it also asks both servers in .env.production, the Worker and
+ * the backup on R2, for every picture, so nothing goes live pointing at a
+ * picture that was never uploaded.
  */
-import { loadAudioBaseUrl } from "./lib/audio.mjs";
+import { checkServerFile, loadServers } from "./lib/audio.mjs";
 import {
   PICTURE_SOURCE_DIR,
   listPictures,
@@ -32,18 +33,13 @@ for (const key of manifest.keys()) {
 }
 
 if (process.argv.includes("--remote")) {
-  const base = loadAudioBaseUrl();
-  if (!base) problems.push("no VITE_AUDIO_BASE_URL in .env.production");
-  for (const file of base ? manifest.values() : []) {
-    const url = `${base}/${file}`;
-    const response = await fetch(url, { method: "HEAD" }).catch(() => null);
-    if (!response?.ok) {
-      problems.push(
-        `not on the server (${response?.status ?? "no answer"}): ${url}`
-      );
+  for (const base of loadServers(problems)) {
+    for (const file of manifest.values()) {
+      const problem = await checkServerFile(`${base}/${file}`);
+      if (problem) problems.push(problem);
     }
+    console.log(`Asked ${base} for ${manifest.size} pictures.`);
   }
-  if (base) console.log(`Asked ${base} for ${manifest.size} pictures.`);
 }
 
 console.log(`Checked ${pictures.length} pictures.`);

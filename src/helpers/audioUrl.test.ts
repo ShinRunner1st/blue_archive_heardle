@@ -4,7 +4,7 @@ import { songs } from "../constants";
 import { audioClips } from "../constants/audioClips";
 import { playTimes } from "../constants/playTimes";
 import { CLIP_SECONDS, clipFile, songFile } from "./audioFiles";
-import { clipInfo, getClipUrl, getSongUrl } from "./audioUrl";
+import { backupUrlFor, clipInfo, getClipUrl, getSongUrl } from "./audioUrl";
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -47,6 +47,32 @@ describe("audio URLs", () => {
     ]);
 
     expect(new Set(names).size).toBe(songs.length * 2);
+  });
+});
+
+describe("backup URLs", () => {
+  it("point at the same file on the backup", () => {
+    vi.stubEnv("VITE_AUDIO_BASE_URL", "https://worker.example.com");
+    vi.stubEnv("VITE_AUDIO_BACKUP_URL", "https://backup.example.com");
+
+    const url = getSongUrl("10");
+    expect(backupUrlFor(url)).toBe(
+      url.replace("https://worker.example.com", "https://backup.example.com")
+    );
+  });
+
+  it("are missing when there is no backup, as in development", () => {
+    vi.stubEnv("VITE_AUDIO_BASE_URL", "");
+    vi.stubEnv("VITE_AUDIO_BACKUP_URL", "");
+
+    expect(backupUrlFor(getClipUrl("10"))).toBeNull();
+  });
+
+  it("are missing for files the Worker doesn't serve", () => {
+    vi.stubEnv("VITE_AUDIO_BASE_URL", "https://worker.example.com");
+    vi.stubEnv("VITE_AUDIO_BACKUP_URL", "https://backup.example.com");
+
+    expect(backupUrlFor("https://elsewhere.example.com/a.ogg")).toBeNull();
   });
 });
 
