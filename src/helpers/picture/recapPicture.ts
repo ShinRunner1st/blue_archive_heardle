@@ -54,6 +54,14 @@ export function asOf(now: Date): string {
 }
 
 /**
+ * Under a recap's title, which names the game and mode: the Schale report
+ * it plays at being, and when.
+ */
+export function reportDate(now: Date): string {
+  return `Schale activity report · ${asOf(now)}`;
+}
+
+/**
  * What the recap shows. Only counts, never a song, so a daily recap can't
  * spoil a puzzle either.
  */
@@ -68,14 +76,12 @@ export function recapPictureContent(
   const isDaily = mode === "daily";
   const isChoice = mode === "choice";
 
+  const name = isDaily ? "Daily" : isChoice ? "4-Choice" : "Classic";
+
   return {
-    tag: isDaily
-      ? "DAILY RECAP"
-      : isChoice
-      ? "4-CHOICE RECAP"
-      : "ENDLESS RECAP",
-    title: "Schale activity report",
-    subtitle: asOf(now),
+    tag: `OST · ${name.toUpperCase()} RECAP`,
+    title: `OST ${name} report`,
+    subtitle: reportDate(now),
     tiles: [
       { label: isDaily ? "Puzzles" : "Rounds", value: String(played) },
       { label: "Win rate", value: `${rate}%` },
@@ -111,9 +117,9 @@ export function timeAttackRecapContent(
     stats.answered > 0 ? Math.round((stats.right / stats.answered) * 100) : 0;
 
   return {
-    tag: "TIME ATTACK RECAP",
-    title: "Schale activity report",
-    subtitle: asOf(now),
+    tag: "OST · TIME ATTACK RECAP",
+    title: "OST Time Attack report",
+    subtitle: reportDate(now),
     tiles: [
       { label: "Runs", value: String(stats.runs) },
       { label: "Right", value: `${rate}%` },
@@ -132,7 +138,11 @@ export function timeAttackRecapContent(
   };
 }
 
-const TOP = 336;
+/**
+ * Where the tiles and bars begin: far enough under the date line that the
+ * bars' heading doesn't crowd it, and still clear of the footer.
+ */
+const TOP = 356;
 const TILE_WIDTH = 216;
 const TILE_HEIGHT = 88;
 const TILE_GAP = 12;
@@ -152,8 +162,7 @@ export function drawRecapPicture(
   fitText(ctx, content.title, LEFT, 262, RIGHT - LEFT, "800", 52);
 
   ctx.fillStyle = COLORS.muted;
-  ctx.font = `600 28px ${FONT}`;
-  ctx.fillText(content.subtitle, LEFT, 308);
+  fitText(ctx, content.subtitle, LEFT, 306, RIGHT - LEFT, "600", 26);
 
   // Four tiles, two by two, on the left.
   content.tiles.forEach(({ label, value }, index) => {

@@ -33,6 +33,7 @@ export function VolumeControl() {
         <Icon aria-hidden="true" />
       </Styled.MuteButton>
       <Styled.Slider
+        name="volume"
         type="range"
         min={0}
         max={100}

@@ -65,20 +65,23 @@ export function resultPictureContent({
   const isChoice = round.choices !== undefined;
   const tries = Math.min(round.currentTry, MAX_TRIES);
 
+  const clip = round.clip !== undefined ? ` · ${round.clip}s clip` : "";
+
   return {
+    // The game and the mode, so a picture says where it came from.
     tag:
       isDaily && typeof round.day === "number"
-        ? `DAILY #${round.day}`
+        ? `OST · DAILY #${round.day}`
         : isChoice
-        ? "4-CHOICE"
-        : "ENDLESS",
+        ? "OST · 4-CHOICE"
+        : "OST · CLASSIC",
     title: withoutEmoji(
       resultTitle(round.didGuess, round.currentTry, round.tries)
     ),
     subtitle: isChoice
       ? round.didGuess
-        ? "Picked out of four answers"
-        : "Missed out of four answers"
+        ? `Picked out of four answers${clip}`
+        : `Missed out of four answers${clip}`
       : round.didGuess
       ? `Guessed in ${tries} of ${MAX_TRIES} ${tries === 1 ? "try" : "tries"}`
       : `Not guessed in ${MAX_TRIES} tries`,

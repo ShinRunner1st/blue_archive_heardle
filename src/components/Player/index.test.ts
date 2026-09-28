@@ -8,6 +8,7 @@ import { getClipUrl } from "../../helpers/audioUrl";
 import { clearUnplayable, isUnplayable } from "../../helpers/unplayable";
 import { setVolume } from "../../helpers/volume";
 import { loadAudio } from "../../helpers/audioSource";
+import { SLOW_LOAD_MS } from "../../hooks/useSlowLoad";
 
 // jsdom can't download, so the whole-file loader hands back a stand-in URL.
 vi.mock("../../helpers/audioSource", () => ({
@@ -538,10 +539,25 @@ describe("Player when the file cannot be played", () => {
 });
 
 describe("Player when the file never arrives", () => {
-  it("gives up waiting and says so", () => {
+  it("holds the controls for a moment, then shows it's loading", () => {
     mount(0, 0, true, true, false);
 
+    // A cached clip loads within the moment, so no bar flashes by.
+    expect(container.textContent).not.toContain("Loading player");
+    expect(
+      container.querySelector<HTMLButtonElement>(
+        'button[aria-label="Play clip"]'
+      )?.disabled
+    ).toBe(true);
+
+    act(() => {
+      vi.advanceTimersByTime(SLOW_LOAD_MS);
+    });
     expect(container.textContent).toContain("Loading player");
+  });
+
+  it("gives up waiting and says so", () => {
+    mount(0, 0, true, true, false);
 
     act(() => {
       vi.advanceTimersByTime(12_000);

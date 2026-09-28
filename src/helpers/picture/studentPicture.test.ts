@@ -27,7 +27,7 @@ describe("studentPictureContent", () => {
   it("shows how each guess went, and never the student in daily", () => {
     const content = studentPictureContent(daily);
 
-    expect(content.tag).toBe("GAMEPLAY #3");
+    expect(content.tag).toBe("STUDENTS · GAMEPLAY · DAILY #3");
     expect(content.subtitle).toBe("Found in 2 guesses");
     expect(content.rows).toHaveLength(2);
     expect(content.rows[1]).toEqual(Array(7).fill("right"));
@@ -60,7 +60,7 @@ describe("studentPictureContent", () => {
       score: "3/5",
     });
 
-    expect(content.tag).toBe("LORE ENDLESS");
+    expect(content.tag).toBe("STUDENTS · LORE · ENDLESS");
     expect(content.subtitle).toBe("Gave up after 1 guess");
     expect(content.rows[0]).toHaveLength(8);
 
@@ -105,8 +105,11 @@ describe("studentRecapContent", () => {
       new Date(2026, 8, 28)
     );
 
-    expect(content.tag).toBe("LORE DAILY RECAP");
-    expect(content.subtitle).toBe("As of 28 September 2026");
+    expect(content.tag).toBe("STUDENTS · LORE · DAILY RECAP");
+    expect(content.title).toBe("Students Lore Daily report");
+    expect(content.subtitle).toBe(
+      "Schale activity report · As of 28 September 2026"
+    );
     expect(content.bars.map(({ label, count }) => [label, count])).toEqual([
       ["1", 1],
       ["2", 1],
@@ -122,7 +125,7 @@ describe("studentRecapContent", () => {
 
     const { ctx, texts } = fakeContext();
     drawRecapPicture(ctx, content, { backdrop: null, logo: null });
-    expect(texts).toContain("Schale activity report");
+    expect(texts).toContain("Students Lore Daily report");
   });
 
   it("adds the fastest find to the footer once there is one", () => {

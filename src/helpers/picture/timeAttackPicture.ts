@@ -75,7 +75,7 @@ export function drawTimeAttackPicture(
   content: TimeAttackPictureContent,
   images: PictureImages
 ): void {
-  drawFrame(ctx, images, content.tag ?? "TIME ATTACK");
+  drawFrame(ctx, images, content.tag ?? "OST · TIME ATTACK");
 
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";

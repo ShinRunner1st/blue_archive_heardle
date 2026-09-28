@@ -173,7 +173,8 @@ in the README's Student data. Choices made while building it:
   kept in Cache Storage (the 30 played last).
 - **After the release** (branches `fix/icon-sheet`, then `feat/solve-timer`):
   the icon sheet keeps its transparency; a solve clock times each find,
-  from the first letter typed, as a second score beside the guesses. A
+  from the first guess (the first letter typed, at first), as a second
+  score beside the guesses. A
   student Time Attack was turned down for the clue game (a find takes too
   many guesses for a 3-minute run); students get one with Voice line mode.
 - **New students:** rerun `npm run students` after each Global update.
@@ -250,6 +251,24 @@ Decided with the user on 2026-09-28, when building it:
   - The game switch reads OST, Voice, Students.
   - Arona's face for a win on try 5 (a find in five guesses in Students)
     was gloomy; it's a happy one now.
+- **Second feedback** (same branch):
+  - Every share picture and recap names its game and mode in the tag
+    ("OST · 4-CHOICE", "VOICE · DAILY #3", "STUDENTS · LORE · ENDLESS"),
+    and a recap's title does too ("Voice No hints report"), with "Schale
+    activity report" and the date under it. A 4-Choice picture gives its
+    clip length.
+  - Students' clock starts with the first guess sent, not the first letter
+    typed; a find on the first guess stays untimed.
+  - Every form field has a name, which Chrome asked for, and the player
+    name box no longer asks for autofill ("nickname" drew a warning).
+  - A recap's tiles and bars sit lower, so the bars' heading doesn't crowd
+    the date line.
+  - Song lists (Jukebox, All OST) draw their first 30 rows with the pop-up
+    and the rest straight after, so opening doesn't stall.
+  - Arona's faces after a miss on try 3 and 4 looked pleased; they're
+    worried ones now (07, then 06).
+  - A player shows its loading bar only when a load takes longer than
+    0.4 s, so a cached clip doesn't flash it on a mode switch.
 
 ### Multiplayer: private rooms, played like AMQ
 

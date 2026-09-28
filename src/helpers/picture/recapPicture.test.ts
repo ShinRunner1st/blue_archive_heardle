@@ -30,9 +30,9 @@ describe("the recap picture", () => {
     const content = recapPictureContent(recap(), new Date(2026, 8, 28));
 
     expect(content).toEqual({
-      tag: "DAILY RECAP",
-      title: "Schale activity report",
-      subtitle: "As of 28 September 2026",
+      tag: "OST · DAILY RECAP",
+      title: "OST Daily report",
+      subtitle: "Schale activity report · As of 28 September 2026",
       tiles: [
         { label: "Puzzles", value: "25" },
         { label: "Win rate", value: "88%" },
@@ -55,7 +55,8 @@ describe("the recap picture", () => {
   it("speaks of rounds and wins in a row on endless", () => {
     const content = recapPictureContent(recap({ mode: "endless" }));
 
-    expect(content.tag).toBe("ENDLESS RECAP");
+    expect(content.tag).toBe("OST · CLASSIC RECAP");
+    expect(content.title).toBe("OST Classic report");
     expect(content.tiles.map((tile) => tile.label)).toEqual([
       "Rounds",
       "Win rate",
@@ -80,8 +81,8 @@ describe("the recap picture", () => {
 
     expect(texts).toEqual(
       expect.arrayContaining([
-        "DAILY RECAP",
-        "Schale activity report",
+        "OST · DAILY RECAP",
+        "OST Daily report",
         "88%",
         "BEST STREAK",
         "X",
@@ -115,8 +116,11 @@ describe("the time attack recap", () => {
   it("counts runs and the best of each way to answer", () => {
     const content = timeAttackRecapContent(stats, runs, new Date(2026, 8, 28));
 
-    expect(content.tag).toBe("TIME ATTACK RECAP");
-    expect(content.subtitle).toBe("As of 28 September 2026");
+    expect(content.tag).toBe("OST · TIME ATTACK RECAP");
+    expect(content.title).toBe("OST Time Attack report");
+    expect(content.subtitle).toBe(
+      "Schale activity report · As of 28 September 2026"
+    );
     expect(content.tiles).toEqual([
       { label: "Runs", value: "3" },
       { label: "Right", value: "68%" },

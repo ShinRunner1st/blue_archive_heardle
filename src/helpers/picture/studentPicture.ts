@@ -37,7 +37,11 @@ import {
   roundedRect,
   withoutEmoji,
 } from "./canvas";
-import { asOf, drawRecapPicture, RecapPictureContent } from "./recapPicture";
+import {
+  drawRecapPicture,
+  RecapPictureContent,
+  reportDate,
+} from "./recapPicture";
 
 const GAME_NAMES: Record<StudentGame, string> = {
   gameplay: "Gameplay",
@@ -106,10 +110,11 @@ export function studentPictureContent({
       : all;
 
   return {
+    // The game, the way to play and the mode.
     tag:
       isDaily && typeof round.day === "number"
-        ? `${GAME_NAMES[game].toUpperCase()} #${round.day}`
-        : `${GAME_NAMES[game].toUpperCase()} ENDLESS`,
+        ? `STUDENTS · ${GAME_NAMES[game].toUpperCase()} · DAILY #${round.day}`
+        : `STUDENTS · ${GAME_NAMES[game].toUpperCase()} · ENDLESS`,
     title: withoutEmoji(studentResultTitle(won, count)),
     subtitle:
       (won
@@ -325,12 +330,13 @@ export function studentRecapContent(
   const isDaily = stats.mode === "daily";
   const sum = (from: number, to: number) =>
     tally.slice(from, to + 1).reduce((total, count) => total + count, 0);
-  const name = GAME_NAMES[stats.game].toUpperCase();
+  const name = GAME_NAMES[stats.game];
+  const mode = isDaily ? "Daily" : "Endless";
 
   return {
-    tag: isDaily ? `${name} DAILY RECAP` : `${name} RECAP`,
-    title: "Schale activity report",
-    subtitle: asOf(now),
+    tag: `STUDENTS · ${name.toUpperCase()} · ${mode.toUpperCase()} RECAP`,
+    title: `Students ${name} ${mode} report`,
+    subtitle: reportDate(now),
     tiles: [
       { label: isDaily ? "Puzzles" : "Rounds", value: String(played) },
       { label: "Found", value: `${rate}%` },

@@ -555,7 +555,6 @@ function App() {
             round={studentRound}
             score={`${students.wins}/${students.played}`}
             streak={students.streak}
-            onStart={students.start}
             onGuess={students.guess}
             onGiveUp={students.giveUp}
             onNext={students.next}

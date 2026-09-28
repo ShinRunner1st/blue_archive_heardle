@@ -145,6 +145,7 @@ export function Jukebox({
             <Styled.FilterIcon aria-hidden="true" />
             <Styled.FilterInput
               ref={filterRef}
+              name="jukebox-search"
               type="text"
               enterKeyHint="search"
               value={filter}

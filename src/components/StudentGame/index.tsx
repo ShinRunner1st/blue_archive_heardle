@@ -31,8 +31,7 @@ interface Props {
   /** Found out of played, for endless. */
   score: string;
   streak: WinStreak;
-  /** Starts the round's clock, when the player starts looking. */
-  onStart: () => void;
+  /** Guesses a student; the first guess starts the round's clock. */
   onGuess: (id: number) => void;
   onGiveUp: () => void;
   onNext: () => void;
@@ -75,7 +74,6 @@ export function StudentGame({
   round,
   score,
   streak,
-  onStart,
   onGuess,
   onGiveUp,
   onNext,
@@ -120,9 +118,8 @@ export function StudentGame({
       (student) => student.id !== round.answer && !guessed.has(student.id)
     );
     if (others.length === 0) return;
-    onStart();
     setSelected(others[Math.floor(Math.random() * others.length)]);
-  }, [game, round.answer, guessed, onStart]);
+  }, [game, round.answer, guessed]);
 
   // A misclick shouldn't end a hunt: the first press asks, the second gives up.
   const [confirming, setConfirming] = React.useState(false);
@@ -167,16 +164,12 @@ export function StudentGame({
               selected={selected}
               onSelect={setSelected}
               guessButton
-              onType={onStart}
               // The list has the keys while it's open.
               keyboardEnabled={keyboardEnabled && !listOpen}
             />
             <Styled.BrowseButton
               type="button"
-              onClick={() => {
-                onStart();
-                setListOpen(true);
-              }}
+              onClick={() => setListOpen(true)}
               aria-label="Browse all students"
               title="All students"
             >

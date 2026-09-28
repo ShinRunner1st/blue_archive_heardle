@@ -215,6 +215,7 @@ export function JukeboxPlayer({
 
       <Styled.PlayerTimeline>
         <Styled.Seek
+          name="jukebox-seek"
           type="range"
           min={0}
           max={duration || 1}

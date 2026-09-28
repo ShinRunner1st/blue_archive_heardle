@@ -103,7 +103,9 @@ describe("VoiceGame", () => {
 
   it("picks a name first, and guesses it on Enter or Guess", () => {
     mount({ answer: hoshino.id, line: 0, guesses: [] });
-    const input = harness.container.querySelector("input")!;
+    const input = harness.container.querySelector<HTMLInputElement>(
+      'input[aria-label="Search for a student"]'
+    )!;
     const type = (value: string) =>
       act(() => {
         Object.getOwnPropertyDescriptor(

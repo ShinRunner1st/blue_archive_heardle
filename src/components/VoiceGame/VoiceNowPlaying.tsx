@@ -177,6 +177,7 @@ export function VoiceNowPlaying({
 
             <NowStyled.Timeline>
               <NowStyled.Seek
+                name="line-seek"
                 type="range"
                 min={0}
                 max={duration}

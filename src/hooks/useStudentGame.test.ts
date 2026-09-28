@@ -65,20 +65,20 @@ describe("useStudentGame", () => {
     expect(game.tally[2]).toBe(1);
   });
 
-  it("starts the clock once, and stops it on the find", () => {
+  it("starts the clock on the first guess, and stops it on the find", () => {
     vi.useFakeTimers({ now: 1_000_000, toFake: ["Date"] });
     try {
       render();
       expect(game.round.startedAt).toBeUndefined();
 
-      act(() => game.start());
-      vi.setSystemTime(1_010_000);
-      // A second start doesn't reset the clock.
-      act(() => game.start());
-      expect(game.round.startedAt).toBe(1_000_000);
-
       act(() => game.guess(wrongId()));
+      expect(game.round.startedAt).toBe(1_000_000);
       expect(game.round.time).toBeUndefined();
+
+      // A second guess doesn't reset the clock.
+      vi.setSystemTime(1_010_000);
+      act(() => game.guess(wrongId()));
+      expect(game.round.startedAt).toBe(1_000_000);
 
       vi.setSystemTime(1_048_000);
       act(() => game.guess(game.round.answer));
@@ -99,7 +99,6 @@ describe("useStudentGame", () => {
     vi.useFakeTimers({ now: 5_000, toFake: ["Date"] });
     try {
       render();
-      act(() => game.start());
       act(() => game.guess(wrongId()));
       vi.setSystemTime(65_000);
       act(() => game.giveUp());
@@ -111,7 +110,7 @@ describe("useStudentGame", () => {
     }
   });
 
-  it("leaves a round found without starting untimed", () => {
+  it("leaves a find on the first guess untimed", () => {
     render();
     act(() => game.guess(game.round.answer));
     expect(game.round.time).toBeUndefined();

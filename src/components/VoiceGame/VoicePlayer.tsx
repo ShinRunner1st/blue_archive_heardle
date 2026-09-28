@@ -2,6 +2,7 @@ import React from "react";
 
 import { hideTrackFromMediaSession } from "../../helpers/mediaSession";
 import { useAudioSource } from "../../hooks/useAudioSource";
+import { useSlowLoad } from "../../hooks/useSlowLoad";
 import { useAudioVolume } from "../../hooks/useVolume";
 
 import { Button } from "../Button";
@@ -72,6 +73,10 @@ export function VoicePlayer({
     setPlay(false);
     setCurrentTime(0);
   }
+
+  // The loading bar only once a load is slow, as in the OST's player.
+  const slow = useSlowLoad(status === "loading", session);
+  const holdControls = steady || !slow;
 
   React.useEffect(() => {
     if (status !== "loading") return;
@@ -176,7 +181,7 @@ export function VoicePlayer({
         onEnded={stop}
       />
 
-      {(isReady || (steady && status === "loading")) && (
+      {(isReady || (holdControls && status === "loading")) && (
         <>
           <PlayerStyled.ProgressBackground aria-hidden="true">
             <PlayerStyled.Progress $value={currentTime} $max={duration} />
@@ -202,7 +207,7 @@ export function VoicePlayer({
         </>
       )}
 
-      {status === "loading" && !steady && (
+      {status === "loading" && !holdControls && (
         <PlayerStyled.LoadingState>
           <PlayerStyled.LoadingBar />
           <PlayerStyled.LoadingLabel>

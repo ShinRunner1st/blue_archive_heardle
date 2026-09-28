@@ -26,19 +26,27 @@ import {
   roundedRect,
   withoutEmoji,
 } from "./canvas";
-import { asOf, drawRecapPicture, RecapPictureContent } from "./recapPicture";
+import {
+  drawRecapPicture,
+  RecapPictureContent,
+  reportDate,
+} from "./recapPicture";
 import { drawStudentIcon, loadSheetImage } from "./studentPicture";
 import {
   drawTimeAttackPicture,
   TimeAttackPictureContent,
 } from "./timeAttackPicture";
 
-const MODE_TAGS: Record<VoiceRoundMode, string> = {
-  daily: "VOICE",
-  endless: "VOICE ENDLESS",
-  nohint: "VOICE NO HINTS",
-  choice: "VOICE 4-CHOICE",
+/** Each mode's name, as the tag and a recap's title give it. */
+const MODE_NAMES: Record<VoiceRoundMode, string> = {
+  daily: "Daily",
+  endless: "Classic",
+  nohint: "No hints",
+  choice: "4-Choice",
 };
+
+const tagOf = (mode: VoiceRoundMode) =>
+  `VOICE · ${MODE_NAMES[mode].toUpperCase()}`;
 
 export interface VoicePictureInput {
   mode: VoiceRoundMode;
@@ -82,8 +90,8 @@ export function voicePictureContent({
   return {
     tag:
       isDaily && typeof round.day === "number"
-        ? `VOICE #${round.day}`
-        : MODE_TAGS[mode],
+        ? `VOICE · DAILY #${round.day}`
+        : tagOf(mode),
     title: withoutEmoji(resultTitle(won, count, tries)),
     subtitle: !won
       ? "The voice got away this time"
@@ -248,9 +256,9 @@ export function voiceRecapContent(
   const onePick = tally.length === 2;
 
   return {
-    tag: isDaily ? "VOICE DAILY RECAP" : `${MODE_TAGS[stats.mode]} RECAP`,
-    title: "Schale activity report",
-    subtitle: asOf(now),
+    tag: `${tagOf(stats.mode)} RECAP`,
+    title: `Voice ${MODE_NAMES[stats.mode]} report`,
+    subtitle: reportDate(now),
     tiles: [
       { label: isDaily ? "Puzzles" : "Rounds", value: String(played) },
       { label: "Named", value: `${rate}%` },
@@ -306,7 +314,7 @@ export function voiceTimeAttackPictureContent({
 }: VoiceTimeAttackPictureInput): TimeAttackPictureContent {
   const score = rounds.filter(isWon).length;
   return {
-    tag: "VOICE TIME ATTACK",
+    tag: "VOICE · TIME ATTACK",
     title: `${score} ${score === 1 ? "voice" : "voices"} in ${formatClock(
       TIME_ATTACK_MS
     )}`,
@@ -356,9 +364,9 @@ export function voiceTimeAttackRecapContent(
     );
 
   return {
-    tag: "VOICE TIME ATTACK RECAP",
-    title: "Schale activity report",
-    subtitle: asOf(now),
+    tag: "VOICE · TIME ATTACK RECAP",
+    title: "Voice Time Attack report",
+    subtitle: reportDate(now),
     tiles: [
       { label: "Runs", value: String(stats.runs) },
       { label: "Right", value: `${rate}%` },

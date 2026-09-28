@@ -7,6 +7,9 @@ import App from "./app";
 import { DAILY_STORAGE_KEY, MODE_KEY, STORAGE_KEY } from "./constants/game";
 import { LATEST_UPDATE_ID } from "./constants/whatsNew";
 
+/** The search boxes, not the players' volume and seek sliders. */
+const TEXT_INPUT = "input:not([type=range])";
+
 let harness: ReturnType<typeof createHarness>;
 let container: HTMLDivElement;
 
@@ -29,7 +32,7 @@ describe("App", () => {
     mount();
 
     expect(container.textContent).toContain("Guess");
-    expect(container.querySelectorAll("input")).toHaveLength(1);
+    expect(container.querySelectorAll(TEXT_INPUT)).toHaveLength(1);
   });
 
   it("shows the welcome pop-up on a first visit only", () => {
@@ -83,7 +86,7 @@ describe("App", () => {
           ?.click();
       });
     const search = () =>
-      container.querySelector("input")?.getAttribute("aria-label");
+      container.querySelector(TEXT_INPUT)?.getAttribute("aria-label");
 
     click("Students");
     expect(search()).toBe("Search for a student");
@@ -165,7 +168,7 @@ describe("App mode switch", () => {
     expect(localStorage.getItem(MODE_KEY)).toBe("choice");
     expect(container.querySelector('[aria-label="Answers"]')).not.toBeNull();
     // No search box: the answer is picked from four.
-    expect(container.querySelectorAll("input")).toHaveLength(0);
+    expect(container.querySelectorAll(TEXT_INPUT)).toHaveLength(0);
 
     act(() => {
       modeButton("Daily")!.click();

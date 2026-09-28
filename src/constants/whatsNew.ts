@@ -58,7 +58,7 @@ export const WHATS_NEW: NewsUpdate[] = [
       {
         icon: IoPeople,
         title: "Pick, then guess",
-        text: "In Voice and Students, picking a name from the list or the grid puts it in the search box; press Enter or Guess to send it, as in the OST. Students has a Random first guess to get you started.",
+        text: "In Voice and Students, picking a name from the list or the grid puts it in the search box; press Enter or Guess to send it, as in the OST. Students has a Random first guess to get you started, and its clock now starts with your first guess, not your first letter.",
       },
     ],
   },

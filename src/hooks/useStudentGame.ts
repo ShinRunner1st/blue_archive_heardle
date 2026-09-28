@@ -133,18 +133,9 @@ export function useStudentGame(game: StudentGame, mode: StudentMode) {
   );
 
   /**
-   * Starts the round's clock, if it hasn't started: on the first letter
-   * typed or the grid opened, so an unplayed puzzle left open costs nothing.
+   * Guesses a student. The first guess sent starts the round's clock, so
+   * time spent choosing where to begin, or a puzzle left open, costs nothing.
    */
-  const start = React.useCallback(() => {
-    const now = Date.now();
-    updateCurrent((current) =>
-      isOver(current) || typeof current.startedAt === "number"
-        ? current
-        : { ...current, startedAt: now }
-    );
-  }, [updateCurrent]);
-
   const guess = React.useCallback(
     (id: number) => {
       const now = Date.now();
@@ -157,7 +148,10 @@ export function useStudentGame(game: StudentGame, mode: StudentMode) {
           return current;
         }
         const next = { ...current, guesses: [...current.guesses, id] };
-        return isWon(next) ? stopClock(next, now) : next;
+        // A find on the first guess never started the clock: it stays
+        // untimed, rather than a 0:00 no search could beat.
+        if (isWon(next)) return stopClock(next, now);
+        return { ...next, startedAt: current.startedAt ?? now };
       });
     },
     [updateCurrent]
@@ -272,7 +266,6 @@ export function useStudentGame(game: StudentGame, mode: StudentMode) {
     best,
     dailyResults,
     hasHistory: played > 0,
-    start,
     guess,
     giveUp,
     next,

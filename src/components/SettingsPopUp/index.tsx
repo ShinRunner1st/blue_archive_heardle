@@ -120,13 +120,14 @@ export function SettingsPopUp({ onClose }: Props) {
               </PopUpCardText>
             </PopUpCardBody>
             <Styled.NameInput
+              name="player-name"
               type="text"
               value={playerName}
               onChange={(e) => setPlayerName(e.currentTarget.value)}
               maxLength={MAX_PLAYER_NAME}
               placeholder="Your name"
               aria-labelledby={nameLabel}
-              autoComplete="nickname"
+              autoComplete="off"
               spellCheck={false}
             />
             <Styled.NameToggle

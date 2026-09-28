@@ -72,6 +72,12 @@ const Row = React.memo(function Row({
   );
 });
 
+/**
+ * Rows drawn with the pop-up's first frame. The rest follow straight after,
+ * so opening doesn't wait on all 345 and the pop-up's entrance stays smooth.
+ */
+const FIRST_ROWS = 30;
+
 /** The rows of All OST and the Jukebox. */
 export function SongRows({
   songs,
@@ -87,9 +93,14 @@ export function SongRows({
   pickRef.current = onPick;
   const pick = React.useCallback((song: Song) => pickRef.current(song), []);
 
+  // The first rows at once, the full list in the background. It also keeps
+  // typing in the search box quick while a long list redraws.
+  const first = React.useMemo(() => songs.slice(0, FIRST_ROWS), [songs]);
+  const shown = React.useDeferredValue(songs, first);
+
   return (
     <Styled.Rows>
-      {songs.map((song) => {
+      {shown.map((song) => {
         const isGuessed = guessed?.has(song.themeNo) ?? false;
         const isBright = bright?.has(song.themeNo) ?? false;
 

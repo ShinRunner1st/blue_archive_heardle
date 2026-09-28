@@ -226,6 +226,7 @@ export function NowPlaying({
 
             <Styled.Timeline>
               <Styled.Seek
+                name="song-seek"
                 type="range"
                 min={0}
                 max={duration}

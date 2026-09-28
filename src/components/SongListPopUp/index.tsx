@@ -73,6 +73,7 @@ export function SongListPopUp({
         <Styled.FilterIcon aria-hidden="true" />
         <Styled.FilterInput
           ref={filterRef}
+          name="ost-search"
           type="text"
           enterKeyHint="search"
           value={filter}

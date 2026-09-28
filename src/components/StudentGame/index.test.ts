@@ -19,7 +19,6 @@ const hoshino = byName("Hoshino");
 const aru = byName("Aru");
 const hina = byName("Hina");
 
-const onStart = vi.fn();
 const onGuess = vi.fn();
 const onGiveUp = vi.fn();
 const onNext = vi.fn();
@@ -35,7 +34,6 @@ function mount(
       round,
       score: "3/4",
       streak: { current: 0, before: 0 },
-      onStart,
       onGuess,
       onGiveUp,
       onNext,
@@ -81,7 +79,6 @@ function button(label: string) {
 beforeEach(() => {
   harness = createHarness();
   container = harness.container;
-  onStart.mockReset();
   onGuess.mockReset();
   onGiveUp.mockReset();
   onNext.mockReset();
@@ -148,7 +145,6 @@ describe("StudentGame search", () => {
       expect(input().value).not.toBe("");
       expect(input().value).not.toBe("Hoshino");
     }
-    expect(onStart).toHaveBeenCalled();
     expect(onGuess).not.toHaveBeenCalled();
   });
 
@@ -173,22 +169,6 @@ describe("StudentGame search", () => {
 });
 
 describe("StudentGame clock", () => {
-  it("starts when a name is typed or the grid opens", () => {
-    mount({ answer: hoshino.id, guesses: [] });
-    expect(onStart).not.toHaveBeenCalled();
-
-    type("Ar");
-    expect(onStart).toHaveBeenCalled();
-
-    onStart.mockReset();
-    act(() =>
-      container
-        .querySelector<HTMLButtonElement>('[aria-label="Browse all students"]')
-        ?.click()
-    );
-    expect(onStart).toHaveBeenCalledTimes(1);
-  });
-
   it("shows the time so far once started, and on the result", () => {
     mount({ answer: hoshino.id, guesses: [] });
     expect(container.querySelector('[role="timer"]')).toBeNull();

@@ -5,6 +5,7 @@ import { getClipUrl } from "../../helpers/audioUrl";
 import { hideTrackFromMediaSession } from "../../helpers/mediaSession";
 import { markUnplayable } from "../../helpers/unplayable";
 import { useAudioSource } from "../../hooks/useAudioSource";
+import { useSlowLoad } from "../../hooks/useSlowLoad";
 import { useAudioVolume } from "../../hooks/useVolume";
 
 import { Button } from "../Button";
@@ -107,6 +108,11 @@ export function Player({
     // The progress bar starts again with the new song.
     setCurrentTime(offset ?? startTime ?? 0);
   }
+
+  // The loading bar only once a load is slow: until then the controls stand
+  // greyed out, so a cached clip doesn't flash the bar on a mode switch.
+  const slow = useSlowLoad(status === "loading", session);
+  const holdControls = steady || !slow;
 
   /**
    * Without this the controls never appear: they are gated on the metadata,
@@ -265,7 +271,7 @@ export function Player({
         onEnded={pausePlayback}
       />
 
-      {(isReady || (steady && status === "loading")) && (
+      {(isReady || (holdControls && status === "loading")) && (
         <>
           <Styled.ProgressBackground>
             <Styled.Progress
@@ -321,7 +327,7 @@ export function Player({
         </>
       )}
 
-      {status === "loading" && !steady && (
+      {status === "loading" && !holdControls && (
         <Styled.LoadingState>
           <Styled.LoadingBar />
           <Styled.LoadingLabel>Loading player…</Styled.LoadingLabel>

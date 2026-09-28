@@ -27,7 +27,7 @@ describe("voicePictureContent", () => {
       score: "",
       streak: 3,
     });
-    expect(content.tag).toBe("VOICE #12");
+    expect(content.tag).toBe("VOICE · DAILY #12");
     expect(content.tries).toEqual(["wrong", "skipped", "right", "unused"]);
     expect(content.answer).toBeNull();
     expect(content.stats).toEqual([
@@ -50,7 +50,7 @@ describe("voicePictureContent", () => {
       score: "4/7",
       streak: 0,
     });
-    expect(content.tag).toBe("VOICE 4-CHOICE");
+    expect(content.tag).toBe("VOICE · 4-CHOICE");
     expect(content.tries).toEqual(["wrong"]);
     expect(content.answer?.id).toBe(hoshino.id);
     expect(content.stats[0]).toEqual({ label: "Score", value: "4/7" });

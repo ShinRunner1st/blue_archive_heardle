@@ -192,6 +192,7 @@ export function Search({
             <IoSearch size={20} aria-hidden="true" />
             <Styled.Input
               ref={inputRef}
+              name="song-search"
               onChange={handleChange}
               onKeyDown={handleKeyDown}
               placeholder="Search"

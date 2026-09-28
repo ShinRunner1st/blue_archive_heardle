@@ -155,7 +155,12 @@ export function SaveFile() {
             </Styled.Action>
             <Styled.FileAction>
               Import
-              <input type="file" accept=".txt,text/plain" onChange={pickFile} />
+              <input
+                type="file"
+                name="save-file"
+                accept=".txt,text/plain"
+                onChange={pickFile}
+              />
             </Styled.FileAction>
           </Styled.Actions>
         )}

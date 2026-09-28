@@ -40,7 +40,7 @@ describe("the result picture", () => {
     });
 
     expect(content).toEqual({
-      tag: "DAILY #12",
+      tag: "OST · DAILY #12",
       title: "Mission complete, Sensei~",
       subtitle: "Guessed in 3 of 6 tries",
       tries: ["wrong", "skipped", "correct", "unused", "unused", "unused"],
@@ -55,7 +55,7 @@ describe("the result picture", () => {
     const { ctx, texts } = fakeContext();
     drawResultPicture(ctx, content, { backdrop: null, logo: null });
     const drawn = texts.join("\n");
-    expect(drawn).toContain("DAILY #12");
+    expect(drawn).toContain("OST · DAILY #12");
     expect(drawn).not.toContain("Constant Moderato");
     expect(drawn).not.toContain("Mitsukiyo");
   });
@@ -69,7 +69,7 @@ describe("the result picture", () => {
       streak: 0,
     });
 
-    expect(content.tag).toBe("ENDLESS");
+    expect(content.tag).toBe("OST · CLASSIC");
     expect(content.title).toBe("Tactical retreat, Sensei…");
     expect(content.subtitle).toBe("Not guessed in 6 tries");
     expect(content.stats[0]).toEqual({ label: "Score", value: "124/156" });

@@ -31,8 +31,6 @@ interface Props {
    * do, for a box low on the page, whose list would stretch it.
    */
   direction?: "down" | "up";
-  /** Called as letters are typed: the first starts the round's clock. */
-  onType?: () => void;
   /** False while a dialog is open, which gets the keys instead. */
   keyboardEnabled: boolean;
 }
@@ -52,7 +50,6 @@ export function StudentSearch({
   onSelect,
   guessButton = false,
   direction = "down",
-  onType,
   keyboardEnabled,
 }: Props) {
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -167,12 +164,12 @@ export function StudentSearch({
         )}
         <Styled.Input
           ref={inputRef}
+          name="student-search"
           value={value}
           onChange={(e) => {
             setValue(e.currentTarget.value);
             setFocused(-1);
             if (selected) onSelect?.(undefined);
-            if (e.currentTarget.value.trim()) onType?.();
           }}
           onKeyDown={handleKeyDown}
           placeholder="Type a student's name"
