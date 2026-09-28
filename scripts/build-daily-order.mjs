@@ -17,6 +17,7 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 
 import { obscure, reveal } from "../src/helpers/obscure.ts";
+import { shuffled } from "./lib/shuffle.mjs";
 import { loadSongs } from "./lib/songs.mjs";
 
 const OUTPUT_PATH = "src/constants/dailyOrder.ts";
@@ -27,31 +28,6 @@ const OUTPUT_PATH = "src/constants/dailyOrder.ts";
  * to change it either.
  */
 const SEED = 20260921;
-
-/** Small deterministic PRNG, so a given batch always shuffles the same way. */
-function mulberry32(seed) {
-  let state = seed >>> 0;
-
-  return () => {
-    state = (state + 0x6d2b79f5) >>> 0;
-    let t = state;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-function shuffled(items, seed) {
-  const random = mulberry32(seed);
-  const out = [...items];
-
-  for (let i = out.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(random() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
-  }
-
-  return out;
-}
 
 /**
  * Reads the schedule already checked in, or an empty one on first run. It is

@@ -1,0 +1,33 @@
+/**
+ * How the student icon sheet is laid out, shared by the game and
+ * scripts/build-students.mjs, which draws it.
+ *
+ * Every icon sits in one picture on the Worker, a cell each in the student
+ * table's order, left to right: one request for all of them, and no file name
+ * per student to give the answer away in DevTools. Each cell leaves a few
+ * pixels empty round its icon, so a neighbour can't bleed in when the browser
+ * scales the sheet.
+ *
+ * No imports: the build script loads this file directly with Node.
+ */
+
+/** The sheet's key in pictureFiles. */
+export const ICON_SHEET_KEY = "students/icons";
+
+/** Each cell's size in pixels: a multiple of 16. */
+export const ICON_CELL = 80;
+
+/**
+ * The icon inside it: twice the largest it shows (36 px, in the guess
+ * table), for phone screens.
+ */
+export const ICON_SIZE = 72;
+
+/**
+ * The icons are cut-outs; the sheet sets them on this colour, like the
+ * cards in the game's student list. Without the transparency the sheet is
+ * less than half the size.
+ */
+export const ICON_BACKGROUND = "#DCE6F0";
+
+export const ICON_COLUMNS = 16;

@@ -33,3 +33,6 @@ bun.lockb
 
 # built audio: made by `npm run build:audio`, served from Cloudflare
 /audio-dist
+
+# student icons downloaded by `npm run build:students`, drawn into one sheet
+/.cache
