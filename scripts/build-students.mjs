@@ -79,7 +79,7 @@ const PORTRAIT_DIR = "pictures/portraits";
 /** About 10 KB a portrait, 200x226 as SchaleDB has them. */
 const PORTRAIT_QUALITY = 75;
 /**
- * WebP quality for the sheet: about 380 KB for 262 students, where their
+ * WebP quality for the sheet: about 325 KB for 262 students, where their
  * separate icons on SchaleDB come to 2 MB.
  */
 const SHEET_QUALITY = 70;
@@ -201,7 +201,11 @@ for (const { id, name } of missing) {
 }
 console.log(`${missing.length} new icon(s) downloaded.`);
 
-// The sheet: each icon scaled into its cell, set on the background, tiled.
+// The sheet: each icon set on the background, then scaled into its cell, and
+// tiled. The icons' see-through pixels are black underneath, so the
+// background is painted solid (`replace`: drawbox otherwise keeps the icon's
+// transparency) and the icon is scaled after: either way round, that black
+// showed as specks around the edges.
 const rows = Math.ceil(students.length / ICON_COLUMNS);
 const margin = (ICON_CELL - ICON_SIZE) / 2;
 const work = mkdtempSync(join(tmpdir(), "student-icons-"));
@@ -215,11 +219,12 @@ try {
   mkdirSync(join("pictures", ICON_SHEET_KEY, ".."), { recursive: true });
   const background = `0x${ICON_BACKGROUND.slice(1)}`;
   const filters = [
-    `format=rgba,scale=${ICON_SIZE}:${ICON_SIZE}:flags=lanczos`,
-    `pad=${ICON_CELL}:${ICON_CELL}:${margin}:${margin}:color=black@0`,
+    "format=rgba",
     "split[icon][under];",
-    `[under]drawbox=c=${background}:t=fill[card];`,
+    `[under]drawbox=c=${background}:t=fill:replace=1[card];`,
     "[card][icon]overlay=format=auto,format=rgb24",
+    `scale=${ICON_SIZE}:${ICON_SIZE}:flags=lanczos`,
+    `pad=${ICON_CELL}:${ICON_CELL}:${margin}:${margin}:color=${background}`,
     `tile=${ICON_COLUMNS}x${rows}:color=${background}`,
   ]
     .join(",")

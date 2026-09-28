@@ -132,7 +132,7 @@ in the README's Student data. Choices made while building it:
 - **Daily** uses the OST's day numbers (`DAILY_EPOCH`), with its own schedule
   for each way to play.
 - **Icon sheet**: 80 px cells with 72 px icons (shown at up to 36 px), set on a
-  flat colour: the icons' transparency more than doubled the file. 378 KB for
+  flat colour: the icons' transparency more than doubled the file. 324 KB for
   262 students, where SchaleDB's separate icons come to 2 MB. It falls back
   to R2 if the Worker fails, like the audio.
 - **Bundle**: the student table (9.6 KB gzipped) and its UI ship in the main
