@@ -86,7 +86,7 @@ export const Small = styled.button`
   }
 `;
 
-/** The album cover, or a note, before the play button. */
+/** The album cover, or a note, after the play button. */
 export const Art = styled.div`
   display: flex;
   align-items: center;

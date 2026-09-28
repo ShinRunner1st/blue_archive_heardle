@@ -146,7 +146,7 @@ What the project cares about:
   switch or reload.
 - **Settings**: volume (remembered, 20% default), dark mode, Blue Archive
   cursor with tap and drag effects (can be turned off), character choice,
-  player name (drawn as "Sensei …" on every share picture by `makePicture`
+  player name (drawn as "… Sensei" on every share picture by `makePicture`
   and on the Sensei card, used for nothing else; a switch leaves the "Sensei"
   off; `pictureName` in `src/helpers/playerName.ts`).
 - **Save file**: export all modes to one scrambled file and import it on

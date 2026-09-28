@@ -31,9 +31,6 @@ export function MiniPlayer({ song, audio, onNext, onOpen, onStop }: Props) {
       {/* Room at the end of the page, so nothing stays hidden under it. */}
       <Styled.Room aria-hidden="true" />
       <Styled.Mini aria-label="Jukebox">
-        <Styled.Art aria-hidden="true">
-          <AlbumArt song={song} />
-        </Styled.Art>
         <Styled.Button
           type="button"
           onClick={audio.toggle}
@@ -46,6 +43,9 @@ export function MiniPlayer({ song, audio, onNext, onOpen, onStop }: Props) {
             <Styled.PlayIcon aria-hidden="true" />
           )}
         </Styled.Button>
+        <Styled.Art aria-hidden="true">
+          <AlbumArt song={song} />
+        </Styled.Art>
         <Styled.Meta>
           <Styled.Name title={song.name}>{song.name}</Styled.Name>
           <Styled.Artist>

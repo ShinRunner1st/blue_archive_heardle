@@ -136,10 +136,10 @@ export function SettingsPopUp({ onClose }: Props) {
               onClick={() => setSenseiTitle(!senseiTitle)}
             >
               <span>
-                &ldquo;Sensei&rdquo; before my name
+                &ldquo;Sensei&rdquo; after my name
                 <Styled.NameExample>
-                  {senseiTitle ? "Sensei " : ""}
                   {playerName.trim() || "Arona"}
+                  {senseiTitle ? " Sensei" : ""}
                 </Styled.NameExample>
               </span>
               <Switch $on={senseiTitle} aria-hidden="true" />

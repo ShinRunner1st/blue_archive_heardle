@@ -97,7 +97,7 @@ alone, so it never downloads the icons).
   the same style: rounds, win rate, streaks, the guess spread, songs guessed
   and badges. Time Attack's has runs, its best scores and the best run at
   each clip length. It names no songs.
-- **Player name** - ☰ → Settings takes a name, drawn as "Sensei …" on every
+- **Player name** - ☰ → Settings takes a name, drawn as "… Sensei" on every
   picture you share and the Sensei card; a switch under it leaves the
   "Sensei" off. It's used for nothing else and stays in your browser; leave
   it empty to share without one.

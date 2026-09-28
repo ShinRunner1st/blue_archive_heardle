@@ -24,9 +24,15 @@ describe("drawPlayerName", () => {
 
     drawPlayerName(ctx, pictureName("  Hoshino ", true));
     drawPlayerName(ctx, pictureName("Sensei Yuuka", true));
+    drawPlayerName(ctx, pictureName("Noa-sensei", true));
     drawPlayerName(ctx, pictureName("Aris", false));
 
-    expect(texts).toEqual(["Sensei Hoshino", "Sensei Yuuka", "Aris"]);
+    expect(texts).toEqual([
+      "Hoshino Sensei",
+      "Sensei Yuuka",
+      "Noa-sensei",
+      "Aris",
+    ]);
   });
 
   it("draws nothing without a name", () => {

@@ -53,17 +53,18 @@ export function setSenseiTitle(on: boolean): void {
 }
 
 /**
- * The name as pictures show it: "Sensei Arona", or the name alone with the
- * title turned off. A name that says Sensei already keeps its own. Empty for
- * no name.
+ * The name as pictures show it: "Arona Sensei", the title after the name as
+ * students say it in the game, or the name alone with the title turned off.
+ * A name that says Sensei already, anywhere, keeps its own. Empty for no
+ * name.
  */
 export function pictureName(
   playerName: string = getPlayerName(),
   withTitle: boolean = getSenseiTitle()
 ): string {
   const shown = playerName.trim();
-  if (!shown || !withTitle || /^sensei(\s|$)/i.test(shown)) return shown;
-  return `Sensei ${shown}`;
+  if (!shown || !withTitle || /\bsensei\b/i.test(shown)) return shown;
+  return `${shown} Sensei`;
 }
 
 export function subscribePlayerName(listener: () => void): () => void {

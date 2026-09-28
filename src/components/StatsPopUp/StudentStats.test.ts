@@ -64,3 +64,22 @@ describe("StudentStats", () => {
     expect(text()).toContain("7+");
   });
 });
+
+describe("StudentStats recap", () => {
+  const recapButton = () =>
+    Array.from(document.querySelectorAll("button")).find(
+      (button) => button.textContent === "Share recap"
+    );
+
+  it("has Share recap for each daily, once a puzzle is finished", () => {
+    for (const game of ["gameplay", "lore"] as const) {
+      mount({ game, mode: "daily" });
+      expect(recapButton()).toBeDefined();
+    }
+  });
+
+  it("waits for a finished puzzle", () => {
+    mount({ mode: "daily", played: 0, tally: Array(11).fill(0) });
+    expect(recapButton()).toBeUndefined();
+  });
+});

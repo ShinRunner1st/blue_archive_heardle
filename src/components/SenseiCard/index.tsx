@@ -167,7 +167,7 @@ export default function SenseiCard({ onClose, streak }: Props) {
         <Styled.Note role="status" aria-live="polite">
           {status ||
             (name
-              ? "Your name, and the Sensei before it, come from Settings."
+              ? "Your name, and the Sensei after it, come from Settings."
               : "Add your name in Settings to put it on the card.")}
         </Styled.Note>
       </PopUpBody>

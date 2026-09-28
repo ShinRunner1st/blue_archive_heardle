@@ -27,12 +27,12 @@ describe("senseiCardContent", () => {
   it("puts the player's record on the card", () => {
     const content = senseiCardContent({
       stats,
-      name: "Sensei Arona",
+      name: "Arona Sensei",
       favourite: students[5],
       issued: new Date(2026, 8, 28),
     });
 
-    expect(content.name).toBe("Sensei Arona");
+    expect(content.name).toBe("Arona Sensei");
     expect(content.favourite).toBe(students[5].name);
     expect(content.issued).toBe("28 Sept 2026");
     expect(content.since).toBe("27 Sept 2026");
@@ -52,7 +52,7 @@ describe("senseiCardContent", () => {
       logo: null,
       portrait: null,
     });
-    expect(texts).toContain("Sensei Arona");
+    expect(texts).toContain("Arona Sensei");
     expect(texts).toContain("baheardle.com");
   });
 
