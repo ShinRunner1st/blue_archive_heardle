@@ -31,9 +31,12 @@ name, when it's built.
    in "Dates to remember" in `CLAUDE.md` is still to do after 2026-12-10, on
    its own.
 
-6. **Group 6: dream plan. Next up.** Make its branch off `main`. The user
-   messages SchaleDB first, then Voice line mode. The user checks the Durable
-   Objects and PartyServer free-tier limits, then Multiplayer.
+6. **Group 6: dream plan. Next up.** Its branch is off `main`. The user
+   messaged SchaleDB first, then Voice line mode: **built** on
+   `feat/voice-lines` (2026-09-28), not merged; its 1,305 lines and the
+   silhouette sheet go on the Worker and R2 with `npm run songs` before the
+   merge. The user checks the Durable Objects and PartyServer free-tier
+   limits, then Multiplayer.
 
 Any time: `npm run songs` when new OSTs come out.
 
@@ -199,6 +202,35 @@ Build after Badle: it reuses the student table and the sprite sheet.
 - **Getting the files:** tell SchaleDB first, then download the chosen clips
   once, slowly (they are on r2.schaledb.com). Convert them to Ogg with hashed
   names, like the OST.
+
+Decided with the user on 2026-09-28, when building it:
+
+- **One line per round**, dealt from the title call and up to four lobby
+  lines, replayable. Daily is the same line for everyone.
+- **Four tries** in Daily and Classic: the voice alone, then school, club and
+  silhouette, one per miss or skip, each with a try to use it.
+- **No hints is a way to play under Endless**, so there is one daily puzzle
+  to share; Daily has hints. It keeps its own rounds and stats. A fourth pill
+  (Classic, No hints, 4-Choice, Time Attack) didn't fit beside the game
+  switch, so the switch keeps the OST's three and a Hints On/Off row above
+  Classic picks it, as 4-Choice's clip length is picked in the OST.
+- **The switch row** is now as wide as the play area (632 px with its
+  padding), and the game switch shows icons only up to 600 px wide screens:
+  with three games, the OST's own ways to play were squeezed too.
+- **Lines:** idle lines before greetings, no seasonal ones. Newer students'
+  lines come cut into parts, each its own clip and text; the longest part
+  with 20 to 140 characters of text is taken from each line, so no joining.
+  1,305 lines: 257 students have five, five have four (Hatsune Miku has no
+  title call), about 50 MB as mono Vorbis, committed in `voices/` like
+  `audio/`.
+- **The lines' text** (official English) shows on the result, from one JSON
+  file on the Worker read once a round is over: in the bundle it would be
+  about 35 KB gzipped for everyone, and searchable during a round.
+- **4-Choice:** two from the answer's school where there are; never the
+  answer's other costumes, or two costumes of one student.
+- **Silhouettes** are the icons as white shapes, 120 px in 128 px cells,
+  shown at 60 px.
+- Not in this first build: share pictures and recaps for Voice.
 
 ### Multiplayer: private rooms, played like AMQ
 

@@ -81,6 +81,36 @@ the student). Stats has Share recap, like the OST's. On a student's birthday a n
 happy one (with their icon in the student game; the OST game shows the name
 alone, so it never downloads the icons).
 
+### Voice
+
+The third game on the switch under the header: hear a student's line and
+name them. Each round plays one line, whole: the student's title call ("Blue
+Archive!", about a second, and the same words for everyone) or one of four
+lobby lines, replayable as often as you like. Every costume is its own answer,
+since each has its own recording, and there's no "close" for the right
+student in the wrong costume. Type a name (the student search, picking is the
+guess) or pick from the grid of every student. You get four tries, and each
+miss or skip opens a hint: the student's school, then their club, then their
+silhouette. The hints aren't in the page until they open.
+
+- **Daily** - one line a day, the same for everyone, from a schedule in
+  `src/constants/voiceDailyOrder.ts` that is only ever added to. Hints on.
+- **Endless**, with its own switch:
+  - **Classic** - four tries with hints, as above. A Hints switch above
+    the game turns them off: four tries and nothing but the voice, with its
+    own score and stats (No hints). It sits there, as 4-Choice's clip length
+    does in the OST, because a fourth pill didn't fit beside the game switch.
+  - **4-Choice** - one pick from four students: two from the answer's school
+    where there are, and never another costume of the answer or two of one
+    student, since the same voice twice would leave a guess between outfits.
+  - **Time Attack** - as many students as you can in three minutes, one try
+    each, typed or from four, played like the OST's.
+
+Each mode keeps its own score, streak and stats, and daily has a calendar.
+The result shows who it was and what they said, in the official English
+(read from the Worker once the round is over, so the words can't be looked up
+while playing). The share text is squares only.
+
 ### Finding a song
 
 - Type a **name**, an **artist** or a **theme number** in the search box.
@@ -122,8 +152,9 @@ alone, so it never downloads the icons).
   and off-screen rows skipped, so they open and refilter quickly. In the
   student game, which has no audio of its own, the music plays on after the
   Jukebox closes, in a small player at the bottom right (play or pause, next
-  song, back to the Jukebox, stop). In the OST game closing it stops the
-  music, so it can't play over a round, and so does going back to the OST.
+  song, back to the Jukebox, stop). In the OST and Voice games closing it
+  stops the music, so it can't play over a round, and so does going back to
+  either.
 - **Volume** - set it once; it's remembered. New players start at 20%.
 - **Dark mode** - in the ☰ menu. Follows your device until you pick one.
 - **Blue Archive cursor** - the game's cursor, with its flash on every click
@@ -217,8 +248,11 @@ npm run dev           # http://localhost:3000
 | `npm run typecheck`         | `tsc --noEmit`                                        |
 | `npm run format`            | Rewrite files with Prettier                           |
 | `npm run songs`             | After adding songs: everything below, in order        |
-| `npm run students`          | After a Global update: the student data, then `songs` |
+| `npm run students`          | After a Global update: students, voices, then `songs` |
+| `npm run voices`            | The voice lines and silhouettes, then `songs`         |
 | `npm run build:students`    | Copy the student data and draw the icon sheet         |
+| `npm run build:voices`      | Pick and download new voice lines, draw silhouettes   |
+| `npm run build:voice-audio` | Put the voice lines in beside the audio               |
 | `npm run build:daily-order` | Extend the daily schedule                             |
 | `npm run build:audio`       | Build the served audio from `audio/`                  |
 | `npm run build:pictures`    | Copy `pictures/` in beside the audio                  |
@@ -403,6 +437,37 @@ Needs ffmpeg built with libwebp, like `build:audio`. A student's favourite gift
 is the SSR gift sharing the most tags with them, as the game rates gifts; two
 gifts tie now and then, and a few guests from other series have none.
 
+### Voice lines
+
+Voice mode's lines come from SchaleDB too (SchaleDB was told before they
+were first downloaded). `npm run students` runs `build:voices` after
+`build:students`; on its own, `npm run voices` runs it and then `npm run
+songs`. `build:voices`:
+
+- downloads `voice.json` and picks each student's lines
+  (`src/helpers/voiceData.ts`): the title call and up to four lobby lines,
+  idle lines before greetings, no seasonal ones, and none where the student
+  says their own name. Newer students' lines are cut into parts, each with
+  its own text; the longest part that fits (20 to 140 characters of text) is
+  taken from each line.
+- downloads the lines it doesn't have yet, one at a time with a pause, and
+  converts each once to mono Ogg Vorbis in `voices/<student id>/`, which is
+  committed like `audio/` (about 50 MB for 1,305 lines). The MP3s stay in
+  `.cache/`. `voices/lines.json` lists each student's lines and their text.
+- appends new students to the daily schedule.
+- draws every student's icon as a white shape into
+  `pictures/voices/silhouettes.webp`, in a shuffled order of its own
+  (`src/constants/silhouettes.ts`, scrambled), so a silhouette's place in its
+  sheet doesn't match the icon sheet's.
+
+`npm run songs` then runs `build:voice-audio`, which copies the lines into
+`audio-dist/voices/` under hashed names (`voiceFile` in
+`src/helpers/audioFiles.ts`; the version is a fingerprint of all of a
+student's lines), writes their text to one `texts.<hash>.json` beside them,
+and records each student's line count and version in
+`src/constants/voiceLines.ts`. `check:audio` checks that file against
+`voices/`.
+
 ### Characters
 
 The character is a Spine skeleton, drawn with the official Spine 4.2 runtime
@@ -438,25 +503,30 @@ src/
   helpers/      Search, stats, song picking, daily puzzle, storage, volume,
                 colour scheme, audio URLs
   hooks/        useGame (the round-by-round modes), useTimeAttack,
-                useStudentGame, useVolume, useColorScheme
+                useStudentGame, useVoiceGame, useVoiceTimeAttack,
+                useVolume, useColorScheme
   image/        Logo and the day and night backgrounds
 public/spine/   The characters, made by build-spine
   test/         Render harness and shared setup for the tests
   types/        Shared TypeScript types
 audio/          The OST originals, one Ogg file per theme number
-pictures/       Pictures served from the Worker: the seasonal backdrops and the
-                student icon sheet
+voices/         Voice mode's lines, a folder per student, and lines.json
+pictures/       Pictures served from the Worker: the seasonal backdrops, the
+                student icon sheets and the silhouettes
 audio-worker/   The Cloudflare Worker that serves the built audio and pictures
 scripts/        build-audio, check-audio, build-pictures, check-pictures,
                 upload-backup, make-backdrop, build-daily-order, build-spine,
-                build-students, and the helpers they share
+                build-students, build-voices, build-voice-audio, and the
+                helpers they share
 docs/           README screenshots
 ```
 
 Game state lives in `useGame`, which keeps Daily, Classic and 4-Choice and
 saves each to its own `localStorage` key; `useTimeAttack` saves the songs of
 each Time Attack run the same way, tagged with the run, and `useStudentGame`
-keeps the student game's four (Gameplay and Lore, daily and endless). Everything read back from storage is validated, so a
+keeps the student game's four (Gameplay and Lore, daily and endless).
+`useVoiceGame` keeps Voice mode's Daily, Classic, No hints and 4-Choice, and
+`useVoiceTimeAttack` its runs. Everything read back from storage is validated, so a
 corrupted or outdated save starts a fresh game instead of breaking the page.
 Save files (`src/helpers/saveFile.ts`) go through the same checks.
 
@@ -499,8 +569,8 @@ sent anywhere; the clipboard is only written when a player presses Share.
 Result pictures are drawn in the browser and go only where the player sends
 them from the share sheet, or to their downloads; the player name in Settings
 is only ever drawn on those pictures.
-Like any website, the hosts - Vercel for the site, Cloudflare for the audio and
-pictures -
+Like any website, the hosts - Vercel for the site, Cloudflare for the audio,
+voice lines and pictures -
 see standard connection details such as IP addresses to serve the files.
 Players see the same in About this game.
 
@@ -520,7 +590,8 @@ interrupts play.
 [Blue Archive](https://bluearchive.nexon.com/) is developed by NEXON Games and
 published by NEXON and Yostar. Its music, characters and artwork belong to
 their rights holders. The soundtrack is by KARUT, Mitsukiyo, Nor, EmoCosine and
-others. The student data and icons are from [SchaleDB](https://schaledb.com/).
+others. The student data, icons and voice lines are from
+[SchaleDB](https://schaledb.com/).
 
 This is an unofficial fan game, not affiliated with or endorsed by NEXON Games,
 NEXON or Yostar.
