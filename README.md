@@ -60,7 +60,10 @@ pointing higher or lower. Schools, roles, gifts and damage and defense types
 show their icon (a type is the sword or the shield on a circle of the game's
 colour for it), with the name under it when it's short. The grid button
 beside the search box opens every student in the pool as icons, sorted by
-name so the list says nothing about release order; picking one guesses it.
+name so the list says nothing about release order. Picking a name, from the
+list or the grid, puts it in the box, and Enter or the Guess button in the box
+sends it, as a song is picked and then guessed in the OST. Before the first
+guess, Random first guess picks someone to start with (never the answer).
 There's no limit on guesses; Give up (pressed twice, and set apart from the
 grid button) counts as a loss. A second switch picks how to play:
 
@@ -88,8 +91,9 @@ name them. Each round plays one line, whole: the student's title call ("Blue
 Archive!", about a second, and the same words for everyone) or one of four
 lobby lines, replayable as often as you like. Every costume is its own answer,
 since each has its own recording, and there's no "close" for the right
-student in the wrong costume. Type a name (the student search, picking is the
-guess) or pick from the grid of every student. You get four tries, and each
+student in the wrong costume. Type a name or pick from the grid of every
+student, then press Enter or Guess, as in the OST; the search results open
+upwards, as the OST's do. You get four tries, and each
 miss or skip opens a hint: the student's school, then their club, then their
 silhouette. The hints aren't in the page until they open.
 
@@ -104,12 +108,17 @@ silhouette. The hints aren't in the page until they open.
     where there are, and never another costume of the answer or two of one
     student, since the same voice twice would leave a guess between outfits.
   - **Time Attack** - as many students as you can in three minutes, one try
-    each, typed or from four, played like the OST's.
+    each, typed (with the grid too) or from four, played like the OST's. It
+    can play every line or title calls only ("Blue Archive!" from everyone,
+    so only the voice tells them apart); each keeps its own best.
 
 Each mode keeps its own score, streak and stats, and daily has a calendar.
-The result shows who it was and what they said, in the official English
-(read from the Worker once the round is over, so the words can't be looked up
-while playing). The share text is squares only.
+The result has a card like the OST's now-playing one: who it was, your record
+with their voice, what they said in the official English (read from the
+Worker once the round is over, so the words can't be looked up while
+playing), and the line to play again and seek in. The share text is squares
+only; Share picture draws the round (a daily one names nobody) or the Time
+Attack run, and Stats has Share recap for every mode.
 
 ### Finding a song
 
@@ -465,7 +474,8 @@ songs`. `build:voices`:
 `src/helpers/audioFiles.ts`; the version is a fingerprint of all of a
 student's lines), writes their text to one `texts.<hash>.json` beside them,
 and records each student's line count and version in
-`src/constants/voiceLines.ts`. `check:audio` checks that file against
+`src/constants/voiceLines.ts`, with the few students who have no title call
+(their line 0 is a lobby line), for Time Attack's title calls only. `check:audio` checks that file against
 `voices/`.
 
 ### Characters

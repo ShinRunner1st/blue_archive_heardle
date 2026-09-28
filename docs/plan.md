@@ -33,7 +33,8 @@ name, when it's built.
 
 6. **Group 6: dream plan. Next up.** Its branch is off `main`. The user
    messaged SchaleDB first, then Voice line mode: **built** on
-   `feat/voice-lines` (2026-09-28), not merged; its 1,305 lines and the
+   `feat/voice-lines` (2026-09-28), and the user's first feedback on
+   `feat/voice-feedback`, stacked on it; not merged. Its 1,305 lines and the
    silhouette sheet go on the Worker and R2 with `npm run songs` before the
    merge. The user checks the Durable Objects and PartyServer free-tier
    limits, then Multiplayer.
@@ -230,7 +231,25 @@ Decided with the user on 2026-09-28, when building it:
   answer's other costumes, or two costumes of one student.
 - **Silhouettes** are the icons as white shapes, 120 px in 128 px cells,
   shown at 60 px.
-- Not in this first build: share pictures and recaps for Voice.
+- **First feedback** (`feat/voice-feedback`):
+  - The result has a card like the OST's now-playing one: the speaker's
+    icon, name, school and club, the record with their voice, the line's
+    words, and a player to seek in. It plays by itself only when the round
+    ended on screen.
+  - Share pictures (the round, the Time Attack run) and Share recap in
+    Stats for every Voice mode; daily pictures name nobody.
+  - Time Attack can play title calls only; runs keep which, and each kind
+    has its own best. The typed answers get the grid of every student.
+  - In Voice and Students, picking a name (list, grid, or Students' Random
+    first guess, never the answer) fills the box, and Enter or Guess sends
+    it, as in the OST. Voice's Skip and Guess sit under the box as the
+    OST's do, and its results open upwards. Students' Guess is inside the
+    box (a tick on a phone), as the row has no room.
+  - On a 4-Choice result (OST and Voice), the answer's card is above the
+    four, as the player was during the round.
+  - The game switch reads OST, Voice, Students.
+  - Arona's face for a win on try 5 (a find in five guesses in Students)
+    was gloomy; it's a happy one now.
 
 ### Multiplayer: private rooms, played like AMQ
 
