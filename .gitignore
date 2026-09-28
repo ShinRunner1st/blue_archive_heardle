@@ -36,3 +36,6 @@ bun.lockb
 
 # student icons downloaded by `npm run build:students`, drawn into one sheet
 /.cache
+
+# Wrangler's local cache, made by `npm run songs`
+/.wrangler

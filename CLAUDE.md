@@ -36,7 +36,10 @@ What the project cares about:
 - A static single-page app: React 19 + Vite + TypeScript, styled-components,
   Vitest (jsdom). Node 24 (`.nvmrc`). No backend.
 - **Site** on Vercel Hobby (project "ba-ost-guess"), deploying from `main` only.
-  Long cache headers in `vercel.json` to spare requests.
+  Long cache headers in `vercel.json` to spare requests. It also sends
+  security headers: a Content-Security-Policy allowing only the site, the
+  Worker and R2 (a new outside address must be added there, or it's
+  blocked), no framing by other sites, nosniff, no-referrer.
 - **Audio** on a Cloudflare Worker
   (`https://ba-heardle-audio.shinrunner1st.workers.dev`, set in
   `.env.production`). Originals in `audio/`; `npm run build:audio` makes a
@@ -85,7 +88,8 @@ What the project cares about:
   `CLIP_OPTIONS`) and one pick from four answers
   that sound close (same composer or nearby theme numbers,
   `src/helpers/choices.ts`), saved with the round. Own bag, stats and win
-  streak; no badges, no song record.
+  streak; no badges, no song record. The result shows the song's card above
+  the four, as the player was during the round.
 - **Time Attack** (in Endless): as many songs as possible in 3 minutes, one
   try each; the player picks clip length, random start (inside the 16-second
   clip) and typed or four-choice answers. The next clip loads during the
@@ -116,18 +120,37 @@ What the project cares about:
   own daily and endless stats and streak, and the streak moves the
   background. Squares-only share text; a share picture (daily ones name
   nobody) and a Share recap in stats (`src/helpers/picture/studentPicture.ts`).
-  Gameplay also compares the defense type. A clock starts at the first
-  letter typed or the grid opened (not on load) and stops on the find or
-  give-up, the wall clock, saved with the round (`startedAt`, `time`); it
+  Gameplay also compares the defense type. A clock starts with the first
+  guess sent (a find on the first guess stays untimed) and stops on the find
+  or give-up, the wall clock, saved with the round (`startedAt`, `time`); it
   shows while playing, on the result, share text and picture, and Stats
   has the fastest and average find. Guesses stay the score. The search box stays at the top
   (the play area is top-aligned here), with a grid button beside it (every
-  student in the pool as icons, sorted by name, picking one guesses it) and
-  Give up set apart from it. School, role, type and gift cells show icons
+  student in the pool as icons, sorted by name) and Give up set apart from
+  it. Picking a name, from the list, the grid or Random first guess (before
+  the first guess; never the answer), fills the box; Enter or the Guess
+  button inside it sends it, as in the OST. School, role, type and gift cells show icons
   from a second sheet (`pictures/students/clues.webp`), names under them up
   to 9 letters; types are the sword or shield on the type's colour
   (`scripts/lib/typeColors.mjs`, by SchaleDB code; a new type comes in grey
   with a warning); Sakugawa has ETC's icon, Schale's emblem.
+- **Voice** (the switch reads OST, Voice, Students): hear a student's line
+  and name them. One line a round, whole and replayable: the title call or
+  one of four lobby lines (`voices/`, 1,305 in all, from SchaleDB; on the
+  Worker under hashed names). Each costume is its own answer. Daily and
+  Classic give four tries, each miss or skip opening a hint: school, club,
+  then a silhouette (its own sheet in a shuffled order; nothing of the
+  answer is in the page before its hint). A Hints On/Off row above Classic
+  picks No hints, with its own stats. 4-Choice deals its wrong three from the
+  eight voices that sound most like the answer's (pitch and timbre measured
+  at build time, `src/constants/voiceTones.ts`). Time Attack as the OST's,
+  typed or four answers, every line or title calls only. Pick a name, then
+  Enter or Guess, as in the OST; the results open upwards. The result has a
+  now-playing card with the line's official English text (one JSON on the
+  Worker, read after the round). Share text, share pictures and recaps for
+  every mode; each picture's tag names its game and mode. State in
+  `src/hooks/useVoiceGame.ts` and `useVoiceTimeAttack.ts`, a key per mode,
+  in the save file.
 - **Sensei card** (☰ menu): the record across every mode
   (`src/helpers/senseiStats.ts`, read from the saves) drawn on a Schale
   licence with a favourite student's portrait (`FAV_STUDENT_KEY`, a setting,
@@ -208,6 +231,14 @@ What the project cares about:
   Worker and R2 first), our own clear button in the All OST and Jukebox
   search boxes (the browser's ignored the custom cursor), and a solve clock
   for each student find.
+- **28 Sep 2026, Group 6 released** (fast-forward of `feat/voice-feedback`,
+  stacked on `feat/voice-lines`): Voice line mode, with three rounds of the
+  user's feedback (result card, share pictures for every mode, pick then
+  guess in Voice and Students, 4-Choice by voice tone, faster lists, Arona's
+  faces) and security headers. `npm run songs` put its 1,305 lines, their
+  text and the silhouette sheet on the Worker and R2 first. It added about
+  20 KB gzipped to the first load, no first-load requests, and 64 KB to the
+  Vercel deployment.
 
 ## Commands
 

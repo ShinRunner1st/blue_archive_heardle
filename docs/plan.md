@@ -31,13 +31,18 @@ name, when it's built.
    in "Dates to remember" in `CLAUDE.md` is still to do after 2026-12-10, on
    its own.
 
-6. **Group 6: dream plan. Next up.** Its branch is off `main`. The user
-   messaged SchaleDB first, then Voice line mode: **built** on
-   `feat/voice-lines` (2026-09-28), and the user's first feedback on
-   `feat/voice-feedback`, stacked on it; not merged. Its 1,305 lines and the
-   silhouette sheet go on the Worker and R2 with `npm run songs` before the
-   merge. The user checks the Durable Objects and PartyServer free-tier
-   limits, then Multiplayer.
+6. **Group 6: Voice line mode.** Built on `feat/voice-lines`, with three
+   rounds of the user's feedback on `feat/voice-feedback` stacked on it.
+
+   _Released on 2026-09-28 (fast-forward of `feat/voice-feedback`), after
+   `npm run songs` put its 1,305 lines, their text and the silhouette sheet
+   on the Worker and R2._
+
+   **6.1. Next up: more ways to guess a student**, on a branch off `main`
+   (see "Halo and weapon guess" below).
+
+7. **Group 7: Multiplayer.** The user checks the Durable Objects and
+   PartyServer free-tier limits first (see "Multiplayer" below).
 
 Any time: `npm run songs` when new OSTs come out.
 
@@ -179,33 +184,15 @@ in the README's Student data. Choices made while building it:
   many guesses for a 3-minute run); students get one with Voice line mode.
 - **New students:** rerun `npm run students` after each Global update.
 
-## Dream plan (big, after the plan above)
+## Phase 4: Voice line mode
 
-### Voice line mode: guess the student from their voice
-
-Build after Badle: it reuses the student table and the sprite sheet.
-
-- The same modes as the OST: daily, endless, endless four-choice, time attack,
-  time attack four-choice.
-- **Hints:** a title call is about 1 second and every student says the same
-  words, so a longer clip doesn't help. Each miss gives a hint instead: school,
-  then club, then silhouette. There is also a no-hint mode, with its own stats.
-  - Make silhouettes at build time, in their own sheet in a different order
-    from the icons. Never darken the real icon with CSS: DevTools could undo it.
-- **Answers:** the student's picture and name. Each costume is its own answer
-  (each has its own recording), with no "partly right" colour for the right
-  student in the wrong costume.
-- **Global only.** 261 of the 263 Global entries have a title call ("Blue
-  Archive!"); Hoshino (Armed)'s second form and Hatsune Miku don't.
-- **Which lines:** the title call plus a few chosen lines per student, so it
-  fits on the Worker (about 4 Lobby lines each is about 1,300 files). SchaleDB
-  has 17,291 clips for Global (about 750 MB), far too many. Skip lines where
-  the student says their own name.
-- **Getting the files:** tell SchaleDB first, then download the chosen clips
-  once, slowly (they are on r2.schaledb.com). Convert them to Ogg with hashed
-  names, like the OST.
-
-Decided with the user on 2026-09-28, when building it:
+All of it is released (2026-09-28). What was agreed is now in "What the game
+has" in `CLAUDE.md`, and the lines' details in the README's Voice lines. The
+first brief: the same modes as the OST, a hint for each miss (school, club,
+silhouette) since a title call is a second long, each costume its own answer,
+Global only, the title call and a few lobby lines per student so it fits on
+the Worker, skipping lines where the student says their name, and SchaleDB
+told before the one slow download. Choices made while building it:
 
 - **One line per round**, dealt from the title call and up to four lobby
   lines, replayable. Daily is the same line for everyone.
@@ -282,7 +269,23 @@ Decided with the user on 2026-09-28, when building it:
   - A player shows its loading bar only when a load takes longer than
     0.4 s, so a cached clip doesn't flash it on a mode switch.
 
-### Multiplayer: private rooms, played like AMQ
+## Dream plan (big, after the plan above)
+
+### Halo and weapon guess (6.1)
+
+Asked for on 2026-09-28, to plan with the user before building:
+
+- **Halo guess:** name the student from their halo.
+- **Weapon guess:** name the student from their weapon.
+- Each with a **normal** way to play (the picture as it is) and a
+  **silhouette** one (its shape only, drawn at build time in its own sheet,
+  as Voice's silhouettes are, never darkened with CSS).
+- To settle when planning: where the halo and weapon pictures come from
+  (SchaleDB, copied at build time like the icons), whether they join the
+  Students switch or are a game of their own, and which modes they get
+  (daily, endless, 4-Choice, time attack).
+
+### Multiplayer (Group 7): private rooms, played like AMQ
 
 - **Rooms and settings:** the host picks the settings, creates the room and
   shares a short code, like Among Us or Kahoot. Settings: number of songs, OST
