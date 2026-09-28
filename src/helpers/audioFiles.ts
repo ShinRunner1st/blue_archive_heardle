@@ -49,6 +49,15 @@ export function songFile(themeNo: string, version: string): string {
 }
 
 /**
+ * A Voice mode line, by student id and which of their lines it is (0 is the
+ * title call), in the voices folder on the Worker. The version is a
+ * fingerprint of all the student's lines, so a changed pick renames them.
+ */
+export function voiceFile(id: number, line: number, version: string): string {
+  return `voices/${hash(`voice/${id}/${line}/${version}`)}.ogg`;
+}
+
+/**
  * Where in the song its clip is cut, as a fraction (0-1) of the room there is.
  * Fixed per song, so everyone hears the same clip and rebuilding never moves
  * one.

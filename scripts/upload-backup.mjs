@@ -22,7 +22,11 @@ import {
   loadAudioBackupUrl,
 } from "./lib/audio.mjs";
 
-const TYPES = { ".ogg": "audio/ogg", ".webp": "image/webp" };
+const TYPES = {
+  ".ogg": "audio/ogg",
+  ".webp": "image/webp",
+  ".json": "application/json",
+};
 
 const backup = loadAudioBackupUrl();
 if (!backup) {

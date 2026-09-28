@@ -1,0 +1,5746 @@
+{
+ "10000": [
+  {
+   "file": "aru_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "aru_lobby_1.ogg",
+   "text": "Ha. I'm looking forward to working with you."
+  },
+  {
+   "file": "aru_lobby_2.ogg",
+   "text": "Hahaha! You wanna see what I can do, right?"
+  },
+  {
+   "file": "aru_lobby_5.ogg",
+   "text": "Y-You don't recall making such a promise? Ahaha! I guess we never did agree on that, did we?"
+  },
+  {
+   "file": "aru_login_1.ogg",
+   "text": "Welcome, Sensei! I'll be your bodyguard again today!"
+  }
+ ],
+ "10001": [
+  {
+   "file": "eimi_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "eimi_lobby_3.ogg",
+   "text": "Isn't it kind of hot in here?"
+  },
+  {
+   "file": "eimi_lobby_4.ogg",
+   "text": "I often hear that I lack emotion, but I don't really understand what that means."
+  },
+  {
+   "file": "eimi_lobby_5.ogg",
+   "text": "It won't affect my graduation, will it...?"
+  },
+  {
+   "file": "eimi_login_1.ogg",
+   "text": "I've been waiting for you, Sensei."
+  }
+ ],
+ "10002": [
+  {
+   "file": "haruna_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "haruna_lobby_6.ogg",
+   "text": "Taiyaki? It's my favorite food. Heehee."
+  },
+  {
+   "file": "haruna_lobby_3.ogg",
+   "text": "Do I enjoy going to gourmet restaurants? Heehee. I suppose I don't mind them."
+  },
+  {
+   "file": "haruna_lobby_2.ogg",
+   "text": "Pretty...? Wh-What are you talking about?"
+  },
+  {
+   "file": "haruna_login_2.ogg",
+   "text": "Oh, that was a compliment. You should take it. Heehee..."
+  }
+ ],
+ "10003": [
+  {
+   "file": "hihumi_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "hihumi_lobby_2.ogg",
+   "text": "This? This is Peroro.\nIsn't he cute?"
+  },
+  {
+   "file": "hihumi_lobby_3.ogg",
+   "text": "What do I worry about? Being too average, I guess..."
+  },
+  {
+   "file": "hihumi_lobby_4.ogg",
+   "text": "Is there anything you need my help with?"
+  },
+  {
+   "file": "hihumi_lobby_5.ogg",
+   "text": "Ahaha... Nothing's going to come out no matter how hard you shake it..."
+  }
+ ],
+ "10004": [
+  {
+   "file": "hina_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "hina_lobby_2.ogg",
+   "text": "As long as I'm here, I'm like every other club member."
+  },
+  {
+   "file": "hina_lobby_5.ogg",
+   "text": "What do you mean it's okay if we're seen?! Wh-What has gotten into you?!"
+  },
+  {
+   "file": "hina_lobby_6.ogg",
+   "text": "No cutting corners! Do your job properly!"
+  },
+  {
+   "file": "hina_lobby_7.ogg",
+   "text": "I will aid you to the best of my ability. Call on me if need be."
+  }
+ ],
+ "10005": [
+  {
+   "file": "hoshino_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "hoshino_lobby_1.ogg",
+   "text": "This place is cool. I like it."
+  },
+  {
+   "file": "hoshino_lobby_2.ogg",
+   "text": "I imagine you have it rough, Sensei."
+  },
+  {
+   "file": "hoshino_lobby_4.ogg",
+   "text": "Huh? You actually mean it? Oh, o-okay... Th-Thanks."
+  },
+  {
+   "file": "hoshino_lobby_5.ogg",
+   "text": "There's no shame in pacing yourself. It's important to take your time."
+  }
+ ],
+ "10006": [
+  {
+   "file": "iori_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "iori_lobby_1.ogg",
+   "text": "I'm free for a while, so I can help you out a little bit."
+  },
+  {
+   "file": "iori_lobby_2.ogg",
+   "text": "Why are there so many troublemakers in the world?"
+  },
+  {
+   "file": "iori_lobby_3.ogg",
+   "text": "Well, I don't mean that you need to follow the rules all the time.\nBut remember, I'll hold you accountable when you don't follow them."
+  },
+  {
+   "file": "iori_lobby_4.ogg",
+   "text": "There's no such thing as a rule that makes sense to everyone.\nThat's why the rules have to be enforced."
+  }
+ ],
+ "10007": [
+  {
+   "file": "maki_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "maki_lobby_1.ogg",
+   "text": "Is there something on my face?\n...Huh? Paint?"
+  },
+  {
+   "file": "maki_lobby_2.ogg",
+   "text": "Isn't this design cool? I did it myself!"
+  },
+  {
+   "file": "maki_lobby_3.ogg",
+   "text": "What would be the point?\nEvery hacker needs to leave behind a calling card. Heh heh..."
+  },
+  {
+   "file": "maki_lobby_5.ogg",
+   "text": "I have a cool idea.\nSanctum Tower is at the heart of Kivotos, so what if we tagged it with graffiti?"
+  }
+ ],
+ "10008": [
+  {
+   "file": "neru_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "neru_lobby_1.ogg",
+   "text": "God. Did you really make me wait? Unbelievable."
+  },
+  {
+   "file": "neru_lobby_2.ogg",
+   "text": "All right! Wanna get this cleanup duty thing going or not?"
+  },
+  {
+   "file": "neru_lobby_3.ogg",
+   "text": "Now you know what it's like to work with the best, right?"
+  },
+  {
+   "file": "neru_lobby_4.ogg",
+   "text": "I always get the job done."
+  }
+ ],
+ "10009": [
+  {
+   "file": "izumi_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "izumi_lobby_1.ogg",
+   "text": "Are there any missions where we punish naughty restaurants by eating all their food?"
+  },
+  {
+   "file": "izumi_lobby_2.ogg",
+   "text": "I wonder if there are any good places near Schale.\nI did raid a restaurant near Trinity...\nOh! Should I not have said that...?"
+  },
+  {
+   "file": "izumi_lobby_3.ogg",
+   "text": "Huh? Are you giving me this cracker?\nThanks, Sensei! You're so sweet!"
+  },
+  {
+   "file": "izumi_lobby_4.ogg",
+   "text": "(That octopus pancake from before looked pretty good...)"
+  }
+ ],
+ "10010": [
+  {
+   "file": "shiroko_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "shiroko_lobby_1.ogg",
+   "text": "I'm here to help, Sensei."
+  },
+  {
+   "file": "shiroko_lobby_2.ogg",
+   "text": "(Why is Sensei staring at me like that?)"
+  },
+  {
+   "file": "shiroko_lobby_5.ogg",
+   "text": "Being together like this isn't so bad."
+  },
+  {
+   "file": "shiroko_login_1.ogg",
+   "text": "If there's something you need done, you can always let me know."
+  }
+ ],
+ "10011": [
+  {
+   "file": "shun_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "shun_lobby_1.ogg",
+   "text": "Come on, Sensei! You can't act like a child when you're with me.\nIf it's only every once in a while... I'll let it slide."
+  },
+  {
+   "file": "shun_lobby_2.ogg",
+   "text": "Heehee. I'm excited for today!"
+  },
+  {
+   "file": "shun_lobby_5.ogg",
+   "text": "If you keep doing that...\n...I'm gonna yell at you!"
+  },
+  {
+   "file": "shun_login_1.ogg",
+   "text": "Welcome back, Sensei. What would you like to do first? Eat or take a bath?\nOr...would you rather have class first?"
+  }
+ ],
+ "10012": [
+  {
+   "file": "sumire_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "sumire_lobby_2.ogg",
+   "text": "Let's start off with a nice run."
+  },
+  {
+   "file": "sumire_lobby_3.ogg",
+   "text": "Huh? Why don't I wear my school uniform?\nTraining in it is uncomfortable."
+  },
+  {
+   "file": "sumire_lobby_4.ogg",
+   "text": "Weight training is all the rage among the students these days.\n...Yeah, I know. I wish that were the truth."
+  },
+  {
+   "file": "sumire_lobby_5.ogg",
+   "text": "Think of you calves like another heart. You have to train them."
+  }
+ ],
+ "10013": [
+  {
+   "file": "tsurugi_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "tsurugi_lobby_1.ogg",
+   "text": "T-Today is another great daaaay!\nWait! No, that's not it! What was I supposed to say?!"
+  },
+  {
+   "file": "tsurugi_lobby_2.ogg",
+   "text": "Keeheehee. Heeheehee...!\n...Huh? W-Were you watching?"
+  },
+  {
+   "file": "tsurugi_lobby_3.ogg",
+   "text": "Ah... P-Please say something."
+  },
+  {
+   "file": "tsurugi_lobby_4.ogg",
+   "text": "I d-don't know much about grown-up stuff!\nSo I'll do whatever you tell me to do!"
+  }
+ ],
+ "10014": [
+  {
+   "file": "izuna_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "izuna_lobby_2.ogg",
+   "text": "What will today's mission be, my lord? Scouting the enemy camp? Rear infiltration?!\nHuh? Studying for tomorrow's test?"
+  },
+  {
+   "file": "izuna_lobby_3.ogg",
+   "text": "Are you going out on a patrol today, my lord?\nI'll stick by you as though I were your shadow! Nin nin!"
+  },
+  {
+   "file": "izuna_lobby_4.ogg",
+   "text": "I may be a ninja, but I can also play the role of the femme fatale!\nEspecially with you, my lord!"
+  },
+  {
+   "file": "izuna_lobby_5.ogg",
+   "text": "What? I'm not supposed to use my skills on you?\nThen...I'll have no one else to use it on..."
+  }
+ ],
+ "10015": [
+  {
+   "file": "aris_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "aris_lobby_1.ogg",
+   "text": "A new game is coming out soon! You will play it with me, correct?"
+  },
+  {
+   "file": "aris_lobby_2.ogg",
+   "text": "Mmm. I am hungry. Huh...?\nNo! I do not eat batteries!"
+  },
+  {
+   "file": "aris_lobby_3.ogg",
+   "text": "It has been many a millennium since humans last set foot here...\nI have always wanted to say that."
+  },
+  {
+   "file": "aris_lobby_4.ogg",
+   "text": "I do not know why, but I can shed tears.\nThey must be to wash my ocular lenses."
+  }
+ ],
+ "10016": [
+  {
+   "file": "midori_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "midori_lobby_1.ogg",
+   "text": "I'm worried about the Game Development Department.\nI know I'll be okay as long as I'm with you..."
+  },
+  {
+   "file": "midori_lobby_2.ogg",
+   "text": "You played our game too, right? Which part was your favorite?"
+  },
+  {
+   "file": "midori_lobby_3.ogg",
+   "text": "I want to draw even more beautiful things... But I need to practice.\nCan you help me?"
+  },
+  {
+   "file": "midori_lobby_4.ogg",
+   "text": "I don't want my art to just be about moe, I want it to convey \"love\" too."
+  }
+ ],
+ "10017": [
+  {
+   "file": "cherino_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "cherino_lobby_1.ogg",
+   "text": "Did you call me, Comrade?"
+  },
+  {
+   "file": "cherino_lobby_2.ogg",
+   "text": "You're with me today. It's time to partake in revolution, Comrade!"
+  },
+  {
+   "file": "cherino_lobby_3.ogg",
+   "text": "Can't you feel my authority?\nWorry not, Comrade. You have nothing to fear. I am quite merciful."
+  },
+  {
+   "file": "cherino_lobby_4.ogg",
+   "text": "Huh? My mustache fell off?\nHuh...? Nooooo! My authority...\nWhat the heck? It's right where it's supposed to be! Is this a joke to you?!"
+  }
+ ],
+ "10018": [
+  {
+   "file": "yuzu_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "yuzu_lobby_1.ogg",
+   "text": "A favor for you? Anytime."
+  },
+  {
+   "file": "yuzu_lobby_2.ogg",
+   "text": "Yes, you can ask me anything.\nI'll... I'll do my best!"
+  },
+  {
+   "file": "yuzu_lobby_3.ogg",
+   "text": "Oh... I really want a pet cat.\nGames and cats... That's all I need to be happy in life."
+  },
+  {
+   "file": "yuzu_lobby_4.ogg",
+   "text": "Yes, Sensei. I'm going to become stronger.\nJust like how you and everyone else protected me... I want to help everyone too."
+  }
+ ],
+ "10019": [
+  {
+   "file": "azusa_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "azusa_lobby_1.ogg",
+   "text": "If life has no intrinsic meaning, then why do we live at all?\nHuh? Oh, it's nothing."
+  },
+  {
+   "file": "azusa_lobby_2.ogg",
+   "text": "Missions. Objectives. Achievements.\nI've never really thought about much else...\n...until now, anyway."
+  },
+  {
+   "file": "azusa_lobby_3.ogg",
+   "text": "I wonder if I'm being helpful...\nI am?\nI-I see..."
+  },
+  {
+   "file": "azusa_lobby_4.ogg",
+   "text": "It's okay. I know I'm no fun. Sorry to disappoint you."
+  }
+ ],
+ "10020": [
+  {
+   "file": "koharu_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "koharu_lobby_1.ogg",
+   "text": "I-I won't forgive anyone being naughty where I can see!"
+  },
+  {
+   "file": "koharu_lobby_2.ogg",
+   "text": "Quiet about my grades...! I'm trying my best."
+  },
+  {
+   "file": "koharu_lobby_3.ogg",
+   "text": "I'm gonna do my best to quickly graduate from the Make-Up Work Club."
+  },
+  {
+   "file": "koharu_lobby_4.ogg",
+   "text": "N-Naughty things...?\nNo such thing allowed! I'm gonna confiscate everything and burn it into ashes!"
+  }
+ ],
+ "10021": [
+  {
+   "file": "azusaswimsuit_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "azusaswimsuit_lobby_1.ogg",
+   "text": "Wh-Why are you staring at me?\nI knew it. Is my outfit too flashy?"
+  },
+  {
+   "file": "azusaswimsuit_lobby_3.ogg",
+   "text": "Hmm? What am I doing?\nNothing in particular, really.\nAnd that's how I like it."
+  },
+  {
+   "file": "azusaswimsuit_lobby_4.ogg",
+   "text": "I get to experience a lot of new things when I'm with you.\nI never could have imagined this in the past."
+  },
+  {
+   "file": "azusaswimsuit_lobby_5.ogg",
+   "text": "These clothes offer no particular defense to my midsection.\nHmm? You think it makes it more powerful? What is that supposed to mean?"
+  }
+ ],
+ "10022": [
+  {
+   "file": "ch0063_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0063_lobby_1.ogg",
+   "text": "This swimsuit? I thought it'd be perfect for my summer training."
+  },
+  {
+   "file": "ch0063_lobby_2.ogg",
+   "text": "No, I didn't hold particularly high hopes for this summer.\n...Maybe a tiny bit."
+  },
+  {
+   "file": "ch0063_lobby_3.ogg",
+   "text": "Resting is just as important as training?\nI suppose, but I can't just neglect training."
+  },
+  {
+   "file": "ch0063_lobby_4.ogg",
+   "text": "You want me to ask for help when I need it?\nThank you, Sensei. Just hearing that makes me happy."
+  }
+ ],
+ "10023": [
+  {
+   "file": "ch0064_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0064_lobby_1.ogg",
+   "text": "No eating while walking! No exceptions just because it's a resort."
+  },
+  {
+   "file": "ch0064_lobby_2.ogg",
+   "text": "What's that smile on your face? Surely you're not excited about the ocean, right?"
+  },
+  {
+   "file": "ch0064_lobby_3.ogg",
+   "text": "What? You can't stop smiling after seeing my swimsuit?"
+  },
+  {
+   "file": "ch0064_lobby_5.ogg",
+   "text": "Heehee. Lemonade tastes so much better at the beach."
+  }
+ ],
+ "10024": [
+  {
+   "file": "shirokoridingsuit_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "shirokoridingsuit_lobby_1.ogg",
+   "text": "I've been working on improving my cadence when cycling.\nI heard pedaling faster while at a lower gear makes for good practice."
+  },
+  {
+   "file": "shirokoridingsuit_lobby_2.ogg",
+   "text": "I haven't had as much time to cycle lately due to task force work.\nThat's why I'd like to go the distance today."
+  },
+  {
+   "file": "shirokoridingsuit_lobby_4.ogg",
+   "text": "There's lots of parts I want to buy, but I need to hold off.\nBicycle parts are expensive."
+  },
+  {
+   "file": "shirokoridingsuit_lobby_5.ogg",
+   "text": "Actually, I made several of these jerseys hoping to go cycling as a group.\nBut the others refused, so it's just me."
+  }
+ ],
+ "10025": [
+  {
+   "file": "ch0066_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0066_lobby_1.ogg",
+   "text": "I'll be a good kid and wait patiently!"
+  },
+  {
+   "file": "ch0066_lobby_3.ogg",
+   "text": "Sensei, Sensei! Someone gifted us Roy's rum raisin chocolate!\nCan I try one right now?"
+  },
+  {
+   "file": "ch0066_lobby_4.ogg",
+   "text": "I can't have a snack because it'll spoil my appetite?\nBut they look so good..."
+  },
+  {
+   "file": "ch0066_lobby_5.ogg",
+   "text": "Can't I have just one?"
+  }
+ ],
+ "10026": [
+  {
+   "file": "ch0101_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0101_lobby_1.ogg",
+   "text": "Why are you looking at me like that? Is it that weird?"
+  },
+  {
+   "file": "ch0101_lobby_2.ogg",
+   "text": "Huh? My bomber jacket?\nGive it up. Wherever I go, it goes."
+  },
+  {
+   "file": "ch0101_lobby_3.ogg",
+   "text": "Things are pretty slow today. How about you give me something to do instead?\nI'm not really a fan of standing around and doing nothing."
+  },
+  {
+   "file": "ch0101_lobby_4.ogg",
+   "text": "Do you need anything?\nIf there is...maybe I can help you."
+  }
+ ],
+ "10027": [
+  {
+   "file": "ch0100_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0100_lobby_1.ogg",
+   "text": "My outfit? Is there something strange about it?"
+  },
+  {
+   "file": "ch0100_lobby_2.ogg",
+   "text": "Who I am doesn't change just because of an outfit.\nI'm still me."
+  },
+  {
+   "file": "ch0100_lobby_3.ogg",
+   "text": "Sensei? Do you have something to say?\nHuh? You want to touch my ears?"
+  },
+  {
+   "file": "ch0100_lobby_5.ogg",
+   "text": "When I wore the maid uniform, I worked with a sense of dutiful service, but...\n...I don't know how to feel in this outfit."
+  }
+ ],
+ "10028": [
+  {
+   "file": "ch0098_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0098_lobby_1.ogg",
+   "text": "Hmm? What's wrong? I thought you liked it. Do you want to try it on for yourself?"
+  },
+  {
+   "file": "ch0098_lobby_2.ogg",
+   "text": "It's natural for bunnies to seek attention.\nThat's why you have to pet them, Master!"
+  },
+  {
+   "file": "ch0098_lobby_3.ogg",
+   "text": "Hahahahaha! It tickles, Master!"
+  },
+  {
+   "file": "ch0098_lobby_4.ogg",
+   "text": "Hmm. I'm kinda bored.\nBut you know, I'm happy as long as you're here, Master!"
+  }
+ ],
+ "10029": [
+  {
+   "file": "ch0155_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0155_lobby_1.ogg",
+   "text": "What's wrong, Sensei? Is your tummy hungry? Should I get you something to eat?"
+  },
+  {
+   "file": "ch0155_lobby_2.ogg",
+   "text": "I'm curious, Sensei. What do you usually like to munch on?"
+  },
+  {
+   "file": "ch0155_lobby_3.ogg",
+   "text": "I don't only talk about snacks!"
+  },
+  {
+   "file": "ch0155_lobby_4.ogg",
+   "text": "Sensei. Don't you know there's always room for dessert?"
+  }
+ ],
+ "10030": [
+  {
+   "file": "ch0163_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0163_lobby_1.ogg",
+   "text": "During breaks, I try to forget about work.\nBut the more I do that, the more my mind wanders."
+  },
+  {
+   "file": "ch0163_lobby_2.ogg",
+   "text": "I don't know why, but since I'm wearing something like this here, I'm...\nI'm a bit nervous."
+  },
+  {
+   "file": "ch0163_lobby_3.ogg",
+   "text": "Sometimes you need a break... You say it so much that I've always wanted to say it back to you."
+  },
+  {
+   "file": "ch0163_lobby_4.ogg",
+   "text": "A hot spring... I never thought I'd find myself in such a place."
+  }
+ ],
+ "10031": [
+  {
+   "file": "arunewyear_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "arunewyear_lobby_1.ogg",
+   "text": "Sensei, you've made an excellent choice continuing your contract with us this year. ♪"
+  },
+  {
+   "file": "arunewyear_lobby_2.ogg",
+   "text": "Are you asking if it's hard to tie my hair back this high?"
+  },
+  {
+   "file": "arunewyear_lobby_3.ogg",
+   "text": "Not really. To be honest, my wallet's the one having a hard time...\nHuh? I-It's nothing...!"
+  },
+  {
+   "file": "arunewyear_lobby_4.ogg",
+   "text": "This kimono is pretty, don't you think? Isn't it beautiful?"
+  }
+ ],
+ "10032": [
+  {
+   "file": "mutsukinewyear_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "mutsukinewyear_lobby_1.ogg",
+   "text": "Sensei, what should we play today?\nRock, paper, scissors? Kick the can? Or...\nHide. And. Seek?"
+  },
+  {
+   "file": "mutsukinewyear_lobby_2.ogg",
+   "text": "Oh, right. You're an adult, Sensei. You can just play all day, yeah?\nI've got an idea...\nI can help!"
+  },
+  {
+   "file": "mutsukinewyear_lobby_3.ogg",
+   "text": "Maybe it's because I'm wearing this, but I feel like I have more energy than usual!"
+  },
+  {
+   "file": "mutsukinewyear_lobby_4.ogg",
+   "text": "Come on, Sensei, you can do this! Let's finish work quickly and have lots of fun!"
+  }
+ ],
+ "10033": [
+  {
+   "file": "wakamo_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "wakamo_lobby_1.ogg",
+   "text": "What would you like?\nI'm ready to do anything, no matter what."
+  },
+  {
+   "file": "wakamo_lobby_2.ogg",
+   "text": "Now, just give me the word, and I'll see that it's done."
+  },
+  {
+   "file": "wakamo_lobby_3.ogg",
+   "text": "Everything is yours. My heart, my soul, everything."
+  },
+  {
+   "file": "wakamo_lobby_4.ogg",
+   "text": "Just tell me if there's something, anything you want.\nYes, anything and everything. ♥"
+  }
+ ],
+ "10034": [
+  {
+   "file": "mimori_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "mimori_lobby_1.ogg",
+   "text": "Did you wash your face this morning? You didn't skip breakfast, did you?\nHeehee. Yes. Good Job. Then how about a nice cup of black tea?"
+  },
+  {
+   "file": "mimori_lobby_2.ogg",
+   "text": "If there is anything you need, whatever it may be...\nYes, you can ask me anything."
+  },
+  {
+   "file": "mimori_lobby_3.ogg",
+   "text": "You're always so busy, Sensei.\nThe time I spend alone with you like this is precious.\nO-Oh. I-I just let that slip out, didn't I?"
+  },
+  {
+   "file": "mimori_lobby_4.ogg",
+   "text": "I've dreamed of becoming a proper bride ever since I was young.\nLike the ones I read about in mangas and novels."
+  }
+ ],
+ "10035": [
+  {
+   "file": "ch0169_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0169_lobby_1_2.ogg",
+   "text": "This place is somehow different. Maybe it's your presence."
+  },
+  {
+   "file": "ch0169_lobby_2.ogg",
+   "text": "Oh, um... No. It's nothing..."
+  },
+  {
+   "file": "ch0169_lobby_3.ogg",
+   "text": "You always seem busy, Sensei."
+  },
+  {
+   "file": "ch0169_lobby_4.ogg",
+   "text": "I-Is there anything I can do to help?\nI-If there's something I can do, please let me know!"
+  }
+ ],
+ "10036": [
+  {
+   "file": "hinata_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "hinata_lobby_1_2.ogg",
+   "text": "I-I just wonder...if I'm helpful to you in any way."
+  },
+  {
+   "file": "hinata_lobby_2.ogg",
+   "text": "Even though I'm supposed to be a manager...\n...I'm always making mistakes... Is that really okay?"
+  },
+  {
+   "file": "hinata_lobby_3.ogg",
+   "text": "J-Just tell me what to do! I'll do my best no matter what!"
+  },
+  {
+   "file": "hinata_lobby_4.ogg",
+   "text": "I heard there are a lot of rumors going around about me. I wonder what they're about.\nNo one in the Sisterhood will tell me..."
+  }
+ ],
+ "10037": [
+  {
+   "file": "marina_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "marina_lobby_1.ogg",
+   "text": "We, the fearless Red Winter bears, will begin the hunt!"
+  },
+  {
+   "file": "marina_lobby_2.ogg",
+   "text": "I'll report you to the Secretariat for sabotage if you slack off!"
+  },
+  {
+   "file": "marina_lobby_3.ogg",
+   "text": "Wh-What are you touching? I'll send you to the Spec Ops!"
+  },
+  {
+   "file": "marina_lobby_4.ogg",
+   "text": "Who's Medvezi?\nMedvezi is a loyal teddy bear that sleeps on my bed.\nThere's no guarantee of good sleep without him."
+  }
+ ],
+ "10038": [
+  {
+   "file": "miyako_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "miyako_lobby_1.ogg",
+   "text": "RABBIT Squad is ready to mobilize at any time."
+  },
+  {
+   "file": "miyako_lobby_2.ogg",
+   "text": "I suddenly got curious...\nWhat kind of sound does a rabbit make?"
+  },
+  {
+   "file": "miyako_lobby_4.ogg",
+   "text": "If you encounter an enemy you can't handle alone, make sure to call us."
+  },
+  {
+   "file": "miyako_lobby_5.ogg",
+   "text": "The RABBIT Squad emblem...\nIsn't it cute?"
+  }
+ ],
+ "10039": [
+  {
+   "file": "ch0145_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0145_lobby_1.ogg",
+   "text": "Um, Sensei... D-Do you remember me?"
+  },
+  {
+   "file": "ch0145_lobby_2.ogg",
+   "text": "It's always h-hard for me to make new f-friends..."
+  },
+  {
+   "file": "ch0145_lobby_3.ogg",
+   "text": "I wish the RABBIT Squad members got along b-better..."
+  },
+  {
+   "file": "ch0145_lobby_4.ogg",
+   "text": "I w-wish I was stronger...like th-the others..."
+  }
+ ],
+ "10040": [
+  {
+   "file": "ch0114_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0114_lobby_1.ogg",
+   "text": "Did you...call me by any chance?"
+  },
+  {
+   "file": "ch0114_lobby_2.ogg",
+   "text": "N-No. I'm not trying to run away..."
+  },
+  {
+   "file": "ch0114_lobby_3.ogg",
+   "text": "Um, am I in your way? Can you see behind me...?"
+  },
+  {
+   "file": "ch0114_lobby_4.ogg",
+   "text": "If you can't, I can crouch a little..."
+  }
+ ],
+ "10041": [
+  {
+   "file": "misaki_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "misaki_lobby_1.ogg",
+   "text": "What's going on? I can help you...if you want."
+  },
+  {
+   "file": "misaki_lobby_2.ogg",
+   "text": "I'll do what you ask. Just say the word."
+  },
+  {
+   "file": "misaki_lobby_3.ogg",
+   "text": "If there's anything you want, tell me."
+  },
+  {
+   "file": "misaki_lobby_4.ogg",
+   "text": "I'm not very good at making small talk.\nIf that's your order, I'll follow it."
+  }
+ ],
+ "10042": [
+  {
+   "file": "atsuko_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "atsuko_lobby_1.ogg",
+   "text": "Please inform me if I can assist you."
+  },
+  {
+   "file": "atsuko_lobby_2.ogg",
+   "text": "Can I decorate this with flowers too?"
+  },
+  {
+   "file": "atsuko_lobby_3.ogg",
+   "text": "Tell me anything you need or want."
+  },
+  {
+   "file": "atsuko_lobby_5.ogg",
+   "text": "So this is what being on the roster means. I've always wanted to try this."
+  }
+ ],
+ "10043": [
+  {
+   "file": "ch0175_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0175_lobby_1.ogg",
+   "text": "You can tell me anything.\nYes, \"anything.\" ♥"
+  },
+  {
+   "file": "ch0175_lobby_2.ogg",
+   "text": "During summer, everyone lets their guard down and gets excited...\nSo, it's not an exaggeration to say that anything can happen!\nHeehee..."
+  },
+  {
+   "file": "ch0175_lobby_3_1.ogg",
+   "text": "Can I move just a little closer to you? ...Huh? That close?\nO-Oh...?!"
+  },
+  {
+   "file": "ch0175_lobby_4.ogg",
+   "text": "I've been wanting to take a walk with you, but...\nIt's too hot today, so it'd be best to wait until the sun goes down."
+  }
+ ],
+ "10044": [
+  {
+   "file": "ch0092_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0092_lobby_1.ogg",
+   "text": "Summer is hot...but it's also full of exciting things!"
+  },
+  {
+   "file": "ch0092_lobby_2.ogg",
+   "text": "Don't you feel excited just hearing the word \"beach\" for some reason?"
+  },
+  {
+   "file": "ch0092_lobby_3.ogg",
+   "text": "...Hmm? Sensei! What is it?\nIs there something wrong with my swimsuit...?"
+  },
+  {
+   "file": "ch0092_lobby_4.ogg",
+   "text": "By the way, Sensei. Do you know how to swim?"
+  }
+ ],
+ "10045": [
+  {
+   "file": "hoshinoswimsuit_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "hoshinoswimsuit_lobby_1.ogg",
+   "text": "Are you really gonna make me work while I'm wearing something like this? Heh~"
+  },
+  {
+   "file": "hoshinoswimsuit_lobby_2.ogg",
+   "text": "You're busy as usual, Sensei.\n...Can I help you with this?"
+  },
+  {
+   "file": "hoshinoswimsuit_lobby_3.ogg",
+   "text": "...Huh? Do I want to rest? I mean, yeah, but...\nIt's awkward to just watch you work."
+  },
+  {
+   "file": "hoshinoswimsuit_lobby_4.ogg",
+   "text": "Let me know anytime you're tired, Sensei.\nInstead of a pillow, how about this tube?"
+  }
+ ],
+ "10046": [
+  {
+   "file": "ch0179_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0179_lobby_1.ogg",
+   "text": "You're working so hard, even on such a hot day, my lord...!\nThough I'm unworthy, I'll support you!"
+  },
+  {
+   "file": "ch0179_lobby_4_2.ogg",
+   "text": "So, my lord, can you help me learn CPR?\n...Oh, are you not available right now?\nOkay! Then I'll wait for you right here!"
+  },
+  {
+   "file": "ch0179_lobby_5.ogg",
+   "text": "When we have a chance next time, I'd love to play at the beach with the president, Tsukuyo, and you, my lord!"
+  },
+  {
+   "file": "ch0179_login_1.ogg",
+   "text": "Heeheehee! Welcome, my lord!\nThis summer, I'll protect you as I always do, my lord! Nin nin!"
+  }
+ ],
+ "10047": [
+  {
+   "file": "ch0178_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0178_lobby_1.ogg",
+   "text": "This summer, I want to write better haiku..."
+  },
+  {
+   "file": "ch0178_lobby_2.ogg",
+   "text": "I wrote a new haiku. Wanna hear it?\nOkay."
+  },
+  {
+   "file": "ch0178_lobby_3.ogg",
+   "text": "Ice in midsummer The cold feels so delicious Underneath the sun"
+  },
+  {
+   "file": "ch0178_lobby_4.ogg",
+   "text": "Waiting for summer Exploring for something more The sparkling of...\nHuh? What am I looking for?\n...What do you think?"
+  }
+ ],
+ "10048": [
+  {
+   "file": "saori_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "saori_lobby_1.ogg",
+   "text": "Is this helping?\n...Okay. That's all I needed."
+  },
+  {
+   "file": "saori_lobby_2.ogg",
+   "text": "What is the point of life when it has no inherent meaning?\nI can't seem to figure it out."
+  },
+  {
+   "file": "saori_lobby_3.ogg",
+   "text": "So... I'll continue to struggle."
+  },
+  {
+   "file": "saori_lobby_4.ogg",
+   "text": "Your orders, Sensei. That's my purpose."
+  }
+ ],
+ "10049": [
+  {
+   "file": "kazusa_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "kazusa_lobby_1.ogg",
+   "text": "Let me know anytime you have something going on.\nOh, but I'm not good at reading complex sentences...so I'll pass on that."
+  },
+  {
+   "file": "kazusa_lobby_2.ogg",
+   "text": "It's comfortable here... It makes me kinda sleepy."
+  },
+  {
+   "file": "kazusa_lobby_3.ogg",
+   "text": "Sensei. Let's eat something, okay? Should we go out and get something?"
+  },
+  {
+   "file": "kazusa_lobby_4.ogg",
+   "text": "...Huh? Don't mind me. I'm watching you work."
+  }
+ ],
+ "10050": [
+  {
+   "file": "ch0137_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0137_lobby_1.ogg",
+   "text": "Yes, I'm looking forward to working with you today."
+  },
+  {
+   "file": "ch0137_lobby_2.ogg",
+   "text": "I know how to teach a class. Do you wanna take my class?"
+  },
+  {
+   "file": "ch0137_lobby_4.ogg",
+   "text": "What's going on?\nYou called me just because? What the..."
+  },
+  {
+   "file": "ch0137_lobby_5.ogg",
+   "text": "Ack! D-Don't poke me! Hmph! I'm not a little kid."
+  }
+ ],
+ "10051": [
+  {
+   "file": "ch0182_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0182_lobby_1.ogg",
+   "text": "Whether you're healthy or sick, energy is the best medicine.\nEspecially if you need to kick-start your creativity."
+  },
+  {
+   "file": "ch0182_lobby_2.ogg",
+   "text": "Feeling down? I see that frown. Your mood'll rebound, just hear my cheer resound! ...I'll try again later."
+  },
+  {
+   "file": "ch0182_lobby_3.ogg",
+   "text": "As long as you're here, Sensei...\nI feel like I can do anything."
+  },
+  {
+   "file": "ch0182_lobby_5.ogg",
+   "text": "I'm glad I get to see this side of you, Sensei.\nWhat do you think? Do you like it?"
+  }
+ ],
+ "10052": [
+  {
+   "file": "ch0095_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0095_lobby_1_2.ogg",
+   "text": "Oh, don't mind me. I'm just...observing."
+  },
+  {
+   "file": "ch0095_lobby_2.ogg",
+   "text": "Anything interesting on your mind?\nPlease let me know so I can record it immediately."
+  },
+  {
+   "file": "ch0095_lobby_3_2.ogg",
+   "text": "Everyone read it,\nbut no one gave me their feedback.\nStrange, isn't it?"
+  },
+  {
+   "file": "ch0095_lobby_4.ogg",
+   "text": "Yuuka is so expressive. It's never boring when she's around."
+  }
+ ],
+ "10053": [
+  {
+   "file": "ch0184_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0184_lobby_2.ogg",
+   "text": "As a treasurer, and as an athlete...\n...all I can do is my best."
+  },
+  {
+   "file": "ch0184_lobby_3.ogg",
+   "text": "This outfit...is a refreshing look?\nWh-Where did that come from?!\nWell, um... Thank you..."
+  },
+  {
+   "file": "ch0184_lobby_4.ogg",
+   "text": "You like my ponytail?\nY-You're always just...saying things like that!\n...Doesn't mean I don't appreciate hearing it, though..."
+  },
+  {
+   "file": "ch0184_login_1.ogg",
+   "text": "Welcome, Sensei. I've been waiting for you.\nCome now! There's a mountain of work that needs doing!"
+  }
+ ],
+ "10054": [
+  {
+   "file": "ch0186_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0186_lobby_1.ogg",
+   "text": "Today, I won't be acting as a Sister...\nRather, I will be acting as an athlete."
+  },
+  {
+   "file": "ch0186_lobby_2.ogg",
+   "text": "Maybe it's because I'm not wearing my Sister's habit...\nBut I can't help but feel a bit awkward."
+  },
+  {
+   "file": "ch0186_lobby_3.ogg",
+   "text": "Sensei...\nIf it's okay with you, could I stay with you a while?"
+  },
+  {
+   "file": "ch0186_lobby_4.ogg",
+   "text": "Blessings be upon you, Sensei...\nYou can always pray regardless of your outfit!"
+  }
+ ],
+ "10055": [
+  {
+   "file": "shigure_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "shigure_lobby_1_2.ogg",
+   "text": "If I space out like this, I might fall asleep..."
+  },
+  {
+   "file": "shigure_lobby_3.ogg",
+   "text": "Maybe I'll invite you next time!"
+  },
+  {
+   "file": "shigure_lobby_5_3.ogg",
+   "text": "It was such a long time ago. I don't remember. Heehee."
+  },
+  {
+   "file": "shigure_login_1.ogg",
+   "text": "Welcome, Sensei. I have a minute for you, yeah.\nDo you want to talk?"
+  }
+ ],
+ "10056": [
+  {
+   "file": "ch0194_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0194_lobby_1.ogg",
+   "text": "Have you thought about what to get the children this year?\nWe can figure it out together. Heehee."
+  },
+  {
+   "file": "ch0194_lobby_2.ogg",
+   "text": "Santa is an important tradition, for the children's sake."
+  },
+  {
+   "file": "ch0194_lobby_3.ogg",
+   "text": "If... If I was the real Santa...\nPerhaps I could be more helpful to you."
+  },
+  {
+   "file": "ch0194_lobby_5.ogg",
+   "text": "Let me know anytime.\nI'm always ready..."
+  }
+ ],
+ "10057": [
+  {
+   "file": "ch0191_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0191_lobby_1.ogg",
+   "text": "Sensei, do you like furisodes? ...Huh? You think I look good in one? Heh... O-Of course I do!"
+  },
+  {
+   "file": "ch0191_lobby_2.ogg",
+   "text": "Hm... Suddenly, I'm craving something warm and soft to eat. Could it be because I'm talking to you?"
+  },
+  {
+   "file": "ch0191_lobby_3.ogg",
+   "text": "Osechi are typically all boiled foods.\nHowever, it seems these days that's not always the case.\nMy opinion? I think either way is delicious."
+  },
+  {
+   "file": "ch0191_lobby_4.ogg",
+   "text": "What's more appetizing than seasonal food? For the New Year, we could have osechi, ozoni, oshiruko...\nOh... Now I'm hungry!"
+  }
+ ],
+ "10058": [
+  {
+   "file": "ch0152_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0152_lobby_1.ogg",
+   "text": "Does anything hurt? Please call on me any time you need help."
+  },
+  {
+   "file": "ch0152_lobby_2.ogg",
+   "text": "You certainly seem busy. I can help with anything you need."
+  },
+  {
+   "file": "ch0152_lobby_4.ogg",
+   "text": "The ideal situation is one in which the Remedial Knights aren't needed at all.\nI hope we'll continue to see such peaceful days."
+  },
+  {
+   "file": "ch0152_login_1.ogg",
+   "text": "Welcome, Sensei. Let's work together towards peace in Kivotos, as always."
+  }
+ ],
+ "10059": [
+  {
+   "file": "ch0069_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0069_lobby_2.ogg",
+   "text": "Is this how student duty is supposed to be?\nI mean, I didn't really know what to expect, but..."
+  },
+  {
+   "file": "ch0069_lobby_3.ogg",
+   "text": "Well... I'm not really bored or anything!"
+  },
+  {
+   "file": "ch0069_lobby_4.ogg",
+   "text": "If you need help, I'm at your service! You can count on me to do my very best."
+  },
+  {
+   "file": "ch0069_lobby_5.ogg",
+   "text": "Oh... I see. That's how you look when you're working."
+  }
+ ],
+ "10060": [
+  {
+   "file": "ch0088_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0088_lobby_1.ogg",
+   "text": "Hmm... What should I do here?\nDo you need to be warmed up? Or..."
+  },
+  {
+   "file": "ch0088_lobby_2.ogg",
+   "text": "What do I do in my free time? Uh... I dunno...\nOh! You were looking for work!"
+  },
+  {
+   "file": "ch0088_lobby_3.ogg",
+   "text": "I hate when things get complicated. You can't just ignore the problem, either...\nThat's why I like to get rid of things and start all over!"
+  },
+  {
+   "file": "ch0088_lobby_4.ogg",
+   "text": "Are you hungry? Do you want me to make you some ramen?\nHuh? Tools?\nI'll use this! ♪"
+  }
+ ],
+ "10061": [
+  {
+   "file": "sakurako_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "sakurako_lobby_1.ogg",
+   "text": "I'm supposed to assist you at Schale...\nIt's different from my usual work, so I'm a bit nervous."
+  },
+  {
+   "file": "sakurako_lobby_2.ogg",
+   "text": "Work at the cathedral?\nIt's okay. I've been organizing my schedule."
+  },
+  {
+   "file": "sakurako_lobby_3.ogg",
+   "text": "Yes, Sensei. If there's anything I might be able to do..."
+  },
+  {
+   "file": "sakurako_lobby_4.ogg",
+   "text": "Anything regarding the cathedral, or any other work...please let me know."
+  }
+ ],
+ "10062": [
+  {
+   "file": "ch0187_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0187_lobby_1.ogg",
+   "text": "Report for duty? At your command.\n...Please give me a reward when I'm done."
+  },
+  {
+   "file": "ch0187_lobby_2.ogg",
+   "text": "You rarely give orders, Sensei.\nDoes that mean I can do as I please?"
+  },
+  {
+   "file": "ch0187_lobby_3.ogg",
+   "text": "Do I need a break?\nI've been taking enough breaks, thanks to you."
+  },
+  {
+   "file": "ch0187_lobby_4.ogg",
+   "text": "I have a little bunny rabbit impression I can do.\nBoing.\n...Please hurry and compliment me."
+  }
+ ],
+ "10063": [
+  {
+   "file": "ch0198_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0198_lobby_1.ogg",
+   "text": "Can I help you with anything?\nOr should I just help you by not doing anything?"
+  },
+  {
+   "file": "ch0198_lobby_2.ogg",
+   "text": "Calculations?\nThey're easy! Not that I like doing them, though."
+  },
+  {
+   "file": "ch0198_lobby_3.ogg",
+   "text": "Did you call me to find a password, by any chance?\nI'm not your notepad!"
+  },
+  {
+   "file": "ch0198_lobby_4.ogg",
+   "text": "Oh, did you tell my upperclassmen that I'm here?\nIf I don't let them know, they'll scold me later..."
+  }
+ ],
+ "10064": [
+  {
+   "file": "ch0086_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0086_lobby_1.ogg",
+   "text": "You think I'm...even cuter in a kimono?\nHmph. Don't say stuff you don't mean."
+  },
+  {
+   "file": "ch0086_lobby_2.ogg",
+   "text": "Hah. That's more than enough teasing out of you, Sensei.\nWait, you...you mean it? E-Even so, that's enough!"
+  },
+  {
+   "file": "ch0086_lobby_3.ogg",
+   "text": "About Problem Solver... Don't worry. It's nothing big.\nI hope there aren't any...incidents...this year."
+  },
+  {
+   "file": "ch0086_lobby_4.ogg",
+   "text": "What's wrong, Sensei? I can help you with whatever."
+  }
+ ],
+ "10065": [
+  {
+   "file": "ch0107_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0107_lobby_1.ogg",
+   "text": "You called for me, yes?"
+  },
+  {
+   "file": "ch0107_lobby_2_2.ogg",
+   "text": "...Oh? You say I've always been a help to you?\nHeehee. Thank you. That is a relief."
+  },
+  {
+   "file": "ch0107_lobby_3.ogg",
+   "text": "When things are tough, I draw strength from my collection of Chise merchandise.\n...Shall I give you a piece, Sensei?"
+  },
+  {
+   "file": "ch0107_lobby_4_1.ogg",
+   "text": "Schale is certainly admirable.\nTo think that you'd be able to host advantageous exchanges with so many students..."
+  }
+ ],
+ "10066": [
+  {
+   "file": "ch0200_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0200_lobby_2.ogg",
+   "text": "When I wear a maid uniform, I feel as if my cleaning skill level has increased!\nSensei, do you need me to clean somewhere?"
+  },
+  {
+   "file": "ch0200_lobby_3.ogg",
+   "text": "I have heard that a maid has many duties!\nCooking, cleaning, laundry, destruction, ambushes, security and even world peace! ♪"
+  },
+  {
+   "file": "ch0200_lobby_4_1.ogg",
+   "text": "I have heard that a calm mind is very important for a sniper.\nUm, S-Sensei? When you pat my head like that..."
+  },
+  {
+   "file": "ch0200_lobby_5_1.ogg",
+   "text": "Sensei, what is on your task list for the day?\nOh, you are going to spend all day vegging out? And you want me to join you?"
+  }
+ ],
+ "10067": [
+  {
+   "file": "ch0211_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0211_lobby_1.ogg",
+   "text": "I am a rabbit, and not a puppy...\nBut if you make me to wait like this...\nI might make a mess."
+  },
+  {
+   "file": "ch0211_lobby_2.ogg",
+   "text": "What was it you called me for?\nIs there an operation? Is it security? Combat? Destruction? Justice?\nHuh? There wasn't a reason you called?"
+  },
+  {
+   "file": "ch0211_lobby_3.ogg",
+   "text": "Schale duty is certainly interesting.\nYou seem busy, and yet you're not working..."
+  },
+  {
+   "file": "ch0211_lobby_4.ogg",
+   "text": "It's not that I'm always eager for work.\nI, too, enjoy killing time.\nHowever... I'd like to be someone you can rely on, Sensei."
+  }
+ ],
+ "10068": [
+  {
+   "file": "ch0167_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0167_lobby_1.ogg",
+   "text": "You called me, Sensei? What did you wanna talk about?"
+  },
+  {
+   "file": "ch0167_lobby_2.ogg",
+   "text": "Ah, was my voice...too loud?\nYour head was ringing? Oh no! Sorry!"
+  },
+  {
+   "file": "ch0167_lobby_3.ogg",
+   "text": "Hmm. Interesting!\nI've noticed that when I come here, some of my tension just goes away!"
+  },
+  {
+   "file": "ch0167_lobby_4.ogg",
+   "text": "Um, do you have an errand for me to run, maybe?\nIt feels a bit weird to just stand here..."
+  }
+ ],
+ "10069": [
+  {
+   "file": "ch0135_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0135_lobby_1.ogg",
+   "text": "This is Schale... Ah, sorry.\nI rarely spent so much time away from the kitchen. It's not what I expected."
+  },
+  {
+   "file": "ch0135_lobby_2.ogg",
+   "text": "To a chef, the kitchen is a battlefield...\nDoes that mean this is Sensei's battlefield?"
+  },
+  {
+   "file": "ch0135_lobby_3.ogg",
+   "text": "Sure you have something I can use to cook here...\nI was thinking about making something."
+  },
+  {
+   "file": "ch0135_lobby_4.ogg",
+   "text": "Food is important, isn't it, Sensei?\nDon't skip meals, and don't eat just anything. Got it?"
+  }
+ ],
+ "10070": [
+  {
+   "file": "ch0138_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0138_lobby_1.ogg",
+   "text": "No person can live alone...\nIt's a cliché, but I don't hate it."
+  },
+  {
+   "file": "ch0138_lobby_2.ogg",
+   "text": "Humans should be wary of other humans... But humans must also trust their fellow humans.\nShould I trust you, Sensei? Or..."
+  },
+  {
+   "file": "ch0138_lobby_3.ogg",
+   "text": "Don't worry so much, Sensei. Everything will be okay by tomorrow."
+  },
+  {
+   "file": "ch0138_login_2.ogg",
+   "text": "I've been waiting for you, Sensei.\nWhat does the world have in store for us today? I'm excited."
+  }
+ ],
+ "10071": [
+  {
+   "file": "ch0215_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0215_lobby_1_2.ogg",
+   "text": "I've only ever worn SRT Academy's standard-issue swimsuits before, so...\n...this cute design feels a bit unnatural to me."
+  },
+  {
+   "file": "ch0215_lobby_2.ogg",
+   "text": "I'm pretty good at swimming, although Saki can still beat me..."
+  },
+  {
+   "file": "ch0215_lobby_3.ogg",
+   "text": "Since I'm off-duty right now... I can help you with non-mission related things."
+  },
+  {
+   "file": "ch0215_lobby_4_2.ogg",
+   "text": "Maybe that means cows are good swimmers, since cow print suits are pretty popular.\nA rabbit pattern would be really nice though..."
+  }
+ ],
+ "10072": [
+  {
+   "file": "ch0217_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0217_lobby_1_2.ogg",
+   "text": "We need to be careful about dehydration. Drinking water is very important.\nIt's also important to get enough sodium."
+  },
+  {
+   "file": "ch0217_lobby_2_1.ogg",
+   "text": "I really don't like the ocean much.\nFirearms malfunction more easily in that environment."
+  },
+  {
+   "file": "ch0217_lobby_3_1.ogg",
+   "text": "I'm using a waterproof tactical map, meant to be used at sea."
+  },
+  {
+   "file": "ch0217_lobby_4.ogg",
+   "text": "(It would have been nice to come to the sea with everyone for a reason other than a mission...)"
+  }
+ ],
+ "10073": [
+  {
+   "file": "ch0204_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0204_lobby_1.ogg",
+   "text": "Indoors is better. I feel so much calmer indoors..."
+  },
+  {
+   "file": "ch0204_lobby_2.ogg",
+   "text": "When it's just the two of us, it's so quiet and peaceful...\nOh, never mind. Forget I said anything."
+  },
+  {
+   "file": "ch0204_lobby_3.ogg",
+   "text": "I can help you organize files,\nbut I'm not so good with computers..."
+  },
+  {
+   "file": "ch0204_lobby_4.ogg",
+   "text": "Maybe next time...we can try working in the old library?"
+  }
+ ],
+ "10074": [
+  {
+   "file": "ch0209_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0209_lobby_1.ogg",
+   "text": "I think I've become more mischievous than I used to be.\nEspecially when it comes to you, Sensei."
+  },
+  {
+   "file": "ch0209_lobby_2.ogg",
+   "text": "If there's anything I can do for you, just let me know."
+  },
+  {
+   "file": "ch0209_lobby_3.ogg",
+   "text": "Aah, if you touch me there... Heehee. ♡"
+  },
+  {
+   "file": "ch0209_lobby_4.ogg",
+   "text": "Heehee, I'm sorry. I didn't mean to give you a hard time, Sensei."
+  }
+ ],
+ "10075": [
+  {
+   "file": "ch0124_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0124_lobby_2.ogg",
+   "text": "I know it's a bit off task, but...I've got a lot to do..."
+  },
+  {
+   "file": "ch0124_lobby_3.ogg",
+   "text": "Art and knowledge both come from freedom.\nSo starting now...I'm going to start freely drawing you!"
+  },
+  {
+   "file": "ch0124_lobby_4.ogg",
+   "text": "This is your battlefield, Sensei...!\nI feel it... I can feel it. The energy! The chaos!"
+  },
+  {
+   "file": "ch0124_lobby_5.ogg",
+   "text": "The greatest fan book authors start with a blank page...\nIn other words, I also have what it takes to become a great fan book author!"
+  }
+ ],
+ "10076": [
+  {
+   "file": "ch0185_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0185_lobby_1.ogg",
+   "text": "Oh, this outfit?\nWhat do you think? Isn't it pretty?"
+  },
+  {
+   "file": "ch0185_lobby_2.ogg",
+   "text": "Uh, umm... I'm not sure why, but...\nI feel little embarrassed..."
+  },
+  {
+   "file": "ch0185_lobby_3.ogg",
+   "text": "D-Don't just look at me like that. Please say something!"
+  },
+  {
+   "file": "ch0185_lobby_4.ogg",
+   "text": "Schale needs cheerleaders too, so this cheer is just for you!"
+  }
+ ],
+ "10077": [
+  {
+   "file": "ch0071_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0071_lobby_1.ogg",
+   "text": "My, working here is quite comfortable!\nAh. I'm not saying that it's easy, of course. It's just very pleasant."
+  },
+  {
+   "file": "ch0071_lobby_2.ogg",
+   "text": "My most difficult work... I'd say it's breaking up fights.\nOh, you too, Sensei? We're the same."
+  },
+  {
+   "file": "ch0071_lobby_3.ogg",
+   "text": "I wish that everyone would simply relax and not get so worked up..."
+  },
+  {
+   "file": "ch0071_lobby_4.ogg",
+   "text": "If I'm given a great responsibility, like Sensei has been... Will I be able to immerse myself in it completely?"
+  }
+ ],
+ "10078": [
+  {
+   "file": "ch0089_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0089_lobby_1.ogg",
+   "text": "It's not like I'm just digging wherever I want, you know?\nI have a little more sense than that."
+  },
+  {
+   "file": "ch0089_lobby_2.ogg",
+   "text": "Hm? There's more to developing a hot spring than digging around in the dirt?\nI like building things too, of course!"
+  },
+  {
+   "file": "ch0089_lobby_3.ogg",
+   "text": "We just never get to that stage, is all!\nWahaha! It's just one of the things I love about my job!"
+  },
+  {
+   "file": "ch0089_lobby_4.ogg",
+   "text": "When I'm with you, Sensei, I'm just as happy as when I'm digging up hot springs.\nHahaha! Don't be so guarded!"
+  }
+ ],
+ "10079": [
+  {
+   "file": "ch9998_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch9998_lobby_1.ogg",
+   "text": "Going outside by myself is still a tall order..."
+  },
+  {
+   "file": "ch9998_lobby_2.ogg",
+   "text": "You want me to help out during power outages...? You're kidding, right?\n...I guess I could help if you really need me to."
+  },
+  {
+   "file": "ch9998_lobby_3.ogg",
+   "text": "Sometimes I think this place is just like my Academy City."
+  },
+  {
+   "file": "ch9998_lobby_4.ogg",
+   "text": "Sensei, do you want to get some fresh air?"
+  }
+ ],
+ "10080": [
+  {
+   "file": "ch9997_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch9997_lobby_1.ogg",
+   "text": "A teacher's job in this city is both similar and different to what I know."
+  },
+  {
+   "file": "ch9997_lobby_2.ogg",
+   "text": "Your work looks terribly difficult... Can I help you in some way? Within reason, of course."
+  },
+  {
+   "file": "ch9997_lobby_3.ogg",
+   "text": "To be perfectly honest, my head still hurts a bit."
+  },
+  {
+   "file": "ch9997_lobby_4.ogg",
+   "text": "My remote control? It's important, but... It's not special in and of itself."
+  }
+ ],
+ "10081": [
+  {
+   "file": "ch0161_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0161_lobby_1.ogg",
+   "text": "Hm, hmm. I see. This is a typical work day at Schale. I'm learning so much!"
+  },
+  {
+   "file": "ch0161_lobby_2_2.ogg",
+   "text": "It's all going to work out perfectly! Yes! Because I'm an elite member of the Hyakkaryouran!"
+  },
+  {
+   "file": "ch0161_lobby_4.ogg",
+   "text": "Yes, Sensei! Please don't hesitate to ask me for anything you need!"
+  },
+  {
+   "file": "ch0161_login_1.ogg",
+   "text": "Heehee. Welcome, Sensei! Time to work!\nHere, this way! Please sit down!"
+  }
+ ],
+ "10082": [
+  {
+   "file": "ch0224_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0224_lobby_1.ogg",
+   "text": "It seems we have similar struggles, Sensei.\nWork is just an endless chore wheel, isn't it?\nThat's an experience I can relate to!"
+  },
+  {
+   "file": "ch0224_lobby_2_1.ogg",
+   "text": "I oversee all training for Hyakkaryouran members. There's not enough hours in the day sometimes!"
+  },
+  {
+   "file": "ch0224_lobby_4_1.ogg",
+   "text": "Our relationship is that of youth teacher and student! Mentor!\nIt's time to enjoy my youth! And in that spirit..."
+  },
+  {
+   "file": "ch0224_lobby_5.ogg",
+   "text": "I'm always indebted to you, Sensei... No, Mentor.\nPlease tell me everything and anything, Mentor!\nI'll do whatever is within my power."
+  }
+ ],
+ "10083": [
+  {
+   "file": "ch0225_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0225_lobby_1_1.ogg",
+   "text": "...You're thanking me? For...helping with Schale's work?\nHah. You are misguided if you believe my motives are to assist you, Sensei."
+  },
+  {
+   "file": "ch0225_lobby_2.ogg",
+   "text": "Conducting Schale duty is disappointingly simple.\nI'd expected somewhat of a challenge."
+  },
+  {
+   "file": "ch0225_lobby_3.ogg",
+   "text": "My current directive is to follow your orders. You may speak what you wish.\n...Is that not my purpose here?"
+  },
+  {
+   "file": "ch0225_lobby_4_1.ogg",
+   "text": "You toil for Kivotos' sake, no?\nSo, naturally, the Hyakkaryouran falls under your protection."
+  }
+ ],
+ "10084": [
+  {
+   "file": "ch0232_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0232_lobby_1_1.ogg",
+   "text": "I recommend you dress for the weather when you go out this weekend.\nTemperatures are calculated to drop off quite a bit."
+  },
+  {
+   "file": "ch0232_lobby_2_2.ogg",
+   "text": "Which means you should be careful talking about secrets on a snowy mountain.\nSounds carry further than you would think in that environment."
+  },
+  {
+   "file": "ch0232_lobby_3_2.ogg",
+   "text": "Not that I don't understand the science behind it...\nBut they're so difficult to get to! How am I supposed to install my wire tap?"
+  },
+  {
+   "file": "ch0232_lobby_4_2.ogg",
+   "text": "There's less radio wave interference around this time of year.\nThat school has some terrifying propaganda."
+  }
+ ],
+ "10085": [
+  {
+   "file": "ch0233_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0233_lobby_1_1.ogg",
+   "text": "They make some pretty high-quality camping beds these days."
+  },
+  {
+   "file": "ch0233_lobby_2_1.ogg",
+   "text": "Most of this camping equipment is meant to be easy to install.\nI think it'd be good for homebodies who're trying to get outdoors more."
+  },
+  {
+   "file": "ch0233_lobby_3_2.ogg",
+   "text": "The next time we're camping, I'll bring a bunch of different Frenzy MAX flavors and do a taste test."
+  },
+  {
+   "file": "ch0233_lobby_4.ogg",
+   "text": "Coding with a bunch of distractions around me...\n...it almost makes me miss the quiet of the campgrounds."
+  }
+ ],
+ "10086": [
+  {
+   "file": "ch0230_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0230_lobby_1_1.ogg",
+   "text": "This is the dress that you recommended.\nIt's really pretty, but it probably doesn't suit—"
+  },
+  {
+   "file": "ch0230_lobby_3.ogg",
+   "text": "Something about this dress makes me want to sit up straight.\nMy heart's pounding more than usual. I wonder if that's why?"
+  },
+  {
+   "file": "ch0230_lobby_4.ogg",
+   "text": "Even in a dress, it's still me. I will continue to serve at your side, Sensei.\nSo... Don't run away."
+  },
+  {
+   "file": "ch0230_login_1.ogg",
+   "text": "Hello, Sensei. Is there anything I can help you with?"
+  }
+ ],
+ "10087": [
+  {
+   "file": "ch0231_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0231_lobby_1.ogg",
+   "text": "A great senior administrator is one who puts themselves out in the field.\nYes... That's me."
+  },
+  {
+   "file": "ch0231_lobby_2_2.ogg",
+   "text": "To be more specific... I'm like the heroine in a spy film.\nI have that kind of determination."
+  },
+  {
+   "file": "ch0231_lobby_4_1.ogg",
+   "text": "Huh? I sound more excited than usual?\n...Are you sure you're not mistaken? Even with a change of clothes, I'm still me."
+  }
+ ],
+ "10088": [
+  {
+   "file": "ch0239_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0239_lobby_1.ogg",
+   "text": "This dress suits me?\n...Thank you... Happy to hear it."
+  },
+  {
+   "file": "ch0239_lobby_2.ogg",
+   "text": "If you like it, maybe I should wear it more often.\nOh... I mean, once in a while."
+  },
+  {
+   "file": "ch0239_lobby_3.ogg",
+   "text": "Something feels different today for some reason.\nI don't feel like my usual self... I wonder why..."
+  },
+  {
+   "file": "ch0239_lobby_4.ogg",
+   "text": "Then again, I don't really mind. Heehee."
+  }
+ ],
+ "10089": [
+  {
+   "file": "ch0240_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0240_lobby_1.ogg",
+   "text": "Whatever you need, just let me know.\nToday's pretty special..."
+  },
+  {
+   "file": "ch0240_lobby_2.ogg",
+   "text": "Because we're all dressed up!\nHey, Sensei, wanna go paint the town?"
+  },
+  {
+   "file": "ch0240_lobby_3.ogg",
+   "text": "You think my dress is very fashionable?!\nO-Of course it is! To be the boss, you have to dress like one!\n...Heehee."
+  },
+  {
+   "file": "ch0240_lobby_4.ogg",
+   "text": "Ugh... Cleaning this dress is gonna be expensive... I know it.\nH-Huh?! I didn't say anything!"
+  }
+ ],
+ "10090": [
+  {
+   "file": "ch0110_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0110_lobby_1.ogg",
+   "text": "Schale is quite intriguing... There's just something so...exhilarating about it.\nIt feels like a festival!"
+  },
+  {
+   "file": "ch0110_lobby_2.ogg",
+   "text": "I like seeing new and exciting things. That kind of atmosphere makes me come alive.\nHanging out with Sensei... Yes, I think I like it."
+  },
+  {
+   "file": "ch0110_lobby_3.ogg",
+   "text": "Since coming to Hyakkiyako, I've learned a lot. And so many things have changed.\nBut even so, I've never stopped loving festivals."
+  },
+  {
+   "file": "ch0110_lobby_4.ogg",
+   "text": "I'm eager to learn more and excel.\nSo please, Sensei. Teach me all you can!"
+  }
+ ],
+ "10091": [
+  {
+   "file": "ch0250_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0250_lobby_1.ogg",
+   "text": "Considering the occasion... Want me to sing something?"
+  },
+  {
+   "file": "ch0250_lobby_2.ogg",
+   "text": "G-Gotcha... It was just a joke, okay?"
+  },
+  {
+   "file": "ch0250_lobby_3.ogg",
+   "text": "Hm? This mask?\n...Ah, it's not what you think, Sensei."
+  },
+  {
+   "file": "ch0250_lobby_4.ogg",
+   "text": "This is actually more comfortable than I expected.\nMaybe I'll start wearing it as one of my casual outfits too..."
+  }
+ ],
+ "10092": [
+  {
+   "file": "ch0220_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0220_lobby_1.ogg",
+   "text": "For some reason, I'm feeling more confident than usual about this."
+  },
+  {
+   "file": "ch0220_lobby_2.ogg",
+   "text": "Wh-What's wrong?! Why are you staring at me like that...?\nIf there's something you want, then say it!"
+  },
+  {
+   "file": "ch0220_lobby_3.ogg",
+   "text": "Maybe I should've brought something to eat...\nSensei, is there anything you've been craving?"
+  },
+  {
+   "file": "ch0220_lobby_4.ogg",
+   "text": "I thought practice would be better than class...\n...but it's pretty hard, if you're serious about it."
+  }
+ ],
+ "10093": [
+  {
+   "file": "kirara_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "kirara_lobby_1.ogg",
+   "text": "The cafe I went to with some of my friends yesterday was totally amazing! Next time, let's go together!"
+  },
+  {
+   "file": "kirara_lobby_2.ogg",
+   "text": "You're not tired, are you, Teach? You wanna take a li'l nap?"
+  },
+  {
+   "file": "kirara_lobby_3.ogg",
+   "text": "Whoa... I'd have given up already if I had this kinda workload! You're pretty capable, huh, Teach?"
+  },
+  {
+   "file": "kirara_lobby_4_1.ogg",
+   "text": "Teach! Wanna see a selfie I took yesterday? What do you think? Cute, right?"
+  }
+ ],
+ "10094": [
+  {
+   "file": "ch0201_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0201_lobby_1_1.ogg",
+   "text": "What should I do to escape from my maid duties?"
+  },
+  {
+   "file": "ch0201_lobby_2_1.ogg",
+   "text": "If people did the chores regularly, there'd be less work to get done!"
+  },
+  {
+   "file": "ch0201_lobby_3_1.ogg",
+   "text": "Sensei! I'm bored. Let's play games together!"
+  },
+  {
+   "file": "ch0201_lobby_4_1.ogg",
+   "text": "Writing game scenarios isn't easy at all... Specifically, the thing that's hard about it is...!"
+  }
+ ],
+ "10095": [
+  {
+   "file": "ch0202_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0202_lobby_1.ogg",
+   "text": "While I'm in this maid uniform, I'll become the perfect maid.\nAnd what any good maid needs...is a \"master\"!"
+  },
+  {
+   "file": "ch0202_lobby_2.ogg",
+   "text": "Um... Does it suit me?\n...Cute, you said?\nHearing that makes me...happy. Heehee."
+  },
+  {
+   "file": "ch0202_lobby_3.ogg",
+   "text": "There were lots of different reasons that led to me putting on a maid uniform...\nBut I don't regret it. Since you're looking at me now."
+  },
+  {
+   "file": "ch0202_lobby_4_1.ogg",
+   "text": "If it's organizing Schale's office, I'll put in my all! I'll be at least ten times more meticulous than I am with our club room!"
+  }
+ ],
+ "10096": [
+  {
+   "file": "ch0260_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0260_lobby_1.ogg",
+   "text": "I'm not used to wearing swimsuits... Apologies if it's any sort of bother."
+  },
+  {
+   "file": "ch0260_lobby_2.ogg",
+   "text": "Incidents happen when you're unprepared.\nI'm always on alert, so I can respond right away."
+  },
+  {
+   "file": "ch0260_lobby_3.ogg",
+   "text": "Coffee? It gets in my way, so I only had one cup."
+  },
+  {
+   "file": "ch0260_lobby_4.ogg",
+   "text": "Sure I can rescue people, but I don't know about welcoming or helping guests."
+  }
+ ],
+ "10097": [
+  {
+   "file": "ch0216_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0216_lobby_1_1.ogg",
+   "text": "This swimsuit is a bit too small, and it's so tight it actually hurts."
+  },
+  {
+   "file": "ch0216_lobby_2_2.ogg",
+   "text": "I might be an operator, but I'm an SRT member first."
+  },
+  {
+   "file": "ch0216_lobby_3_2.ogg",
+   "text": "If I were to fall into that bottomless abyss...\n...how overwhelming would the feeling of doom be...? Hah. Haaa..."
+  },
+  {
+   "file": "ch0216_lobby_4.ogg",
+   "text": "Ugh, I'm hungry... You got any sweets, Sensei?"
+  }
+ ],
+ "10098": [
+  {
+   "file": "ch0258_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0258_lobby_1.ogg",
+   "text": "Hmm... Does Sensei like this kind of outfit?\nHmm... I'm not sure..."
+  },
+  {
+   "file": "ch0258_lobby_2.ogg",
+   "text": "I always carry candy around with me. Sugar levels matter! Sensei, do you need one too?"
+  },
+  {
+   "file": "ch0258_lobby_3_1.ogg",
+   "text": "Ugh... Argh.\nExcuse me, Sensei. Could you massage my shoulders?"
+  },
+  {
+   "file": "ch0258_lobby_4_1.ogg",
+   "text": "Standing with your back to the wall is fundamental in indoor warfare!"
+  }
+ ],
+ "10100": [
+  {
+   "file": "ch0263_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0263_lobby_1_1.ogg",
+   "text": "Sensei, I finished some of the documents.\nHmm? How did I do it when you didn't tell me how?"
+  },
+  {
+   "file": "ch0263_lobby_2_1.ogg",
+   "text": "About the snacks in the lounge...\nI'm sorry, I ate a few."
+  },
+  {
+   "file": "ch0263_lobby_3.ogg",
+   "text": "Sensei, are you still working?\nI'll stay with you."
+  },
+  {
+   "file": "ch0263_lobby_4.ogg",
+   "text": "Why are you staring at me...?\nA staring contest? Game on."
+  }
+ ],
+ "10101": [
+  {
+   "file": "ch0266_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0266_lobby_1_2.ogg",
+   "text": "I always do my best at whatever I'm given."
+  },
+  {
+   "file": "ch0266_lobby_2.ogg",
+   "text": "I should buy a present for Misaki with my next paycheck."
+  },
+  {
+   "file": "ch0266_lobby_3_1.ogg",
+   "text": "I'm only wearing this outfit because I need it for my part-time job..."
+  },
+  {
+   "file": "ch0266_lobby_4.ogg",
+   "text": "The beach, the festival...\nI'd like to go with Azusa one day."
+  }
+ ],
+ "10102": [
+  {
+   "file": "ch0269_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0269_lobby_1_2.ogg",
+   "text": "What?! You already got one for me...?\nThank you! I knew it, Sensei...!"
+  },
+  {
+   "file": "ch0269_lobby_2.ogg",
+   "text": "The magazines at Schale are two months old!\nI knew it. Life is hard..."
+  },
+  {
+   "file": "ch0269_lobby_3_2.ogg",
+   "text": "The lounge refrigerator is out of ice cubes.\nI knew life was a pain... Even more so in summer."
+  },
+  {
+   "file": "ch0269_lobby_4.ogg",
+   "text": "Heehee... Wh-What? This? Um, it's a picture I took at the beach...\nWould you like to see it, Sensei?"
+  }
+ ],
+ "10103": [
+  {
+   "file": "ch0270_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0270_lobby_1_2.ogg",
+   "text": "If you learned that technique...just think of the power it would add to a charge!"
+  },
+  {
+   "file": "ch0270_lobby_2_1.ogg",
+   "text": "I've heard there's a decent restaurant in the Black Tortoise Promenade...\n...Sensei, will you go with me?"
+  },
+  {
+   "file": "ch0270_lobby_3_2.ogg",
+   "text": "So they must have gentle personalities, and nice, soft fur...\nI'd like to touch one, just once..."
+  },
+  {
+   "file": "ch0270_lobby_4_1.ogg",
+   "text": "(The deep slit in this skirt...is part of the design, right...?)"
+  }
+ ],
+ "10104": [
+  {
+   "file": "reizyo_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "reizyo_lobby_1_1.ogg",
+   "text": "I'm used to managing elite customers and high-value transactions. I can handle escort and security, too."
+  },
+  {
+   "file": "reizyo_lobby_2_1.ogg",
+   "text": "I feel like being active for a while. So I'll be going to kung fu training now..."
+  },
+  {
+   "file": "reizyo_lobby_3_1.ogg",
+   "text": "Honestly, I'm not a very good shot.\nPeople have even told me I might be better off fighting with my fists..."
+  },
+  {
+   "file": "reizyo_lobby_4_2.ogg",
+   "text": "No, Sensei! Time is short! We're always losing time!"
+  }
+ ],
+ "10105": [
+  {
+   "file": "ch0273_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0273_lobby_1.ogg",
+   "text": "If you'd like, Sensei...I'll sing this song for you...whether it's on stage or not."
+  },
+  {
+   "file": "ch0273_lobby_2.ogg",
+   "text": "If my song can make you happy... There's nothing more I can ask for."
+  },
+  {
+   "file": "ch0273_lobby_3.ogg",
+   "text": "Hm? A handshake? Anytime!"
+  },
+  {
+   "file": "ch0273_lobby_4.ogg",
+   "text": "A-Aha, ahaha...! S-Sensei! I-It tickles...!"
+  }
+ ],
+ "10106": [
+  {
+   "file": "ch0274_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0274_lobby_1.ogg",
+   "text": "Many things happen in life...\n...but I never expected to be wearing a costume like this."
+  },
+  {
+   "file": "ch0274_lobby_2.ogg",
+   "text": "It feels like you've seen me in this costume quite often as of late."
+  },
+  {
+   "file": "ch0274_lobby_3.ogg",
+   "text": "Um... If you're okay with it, Sensei...\n...could we...continue meeting like this?"
+  },
+  {
+   "file": "ch0274_lobby_4.ogg",
+   "text": "Is this what one would call...a songstress?"
+  }
+ ],
+ "10107": [
+  {
+   "file": "ch0238_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0238_lobby_2.ogg",
+   "text": "Did you read the new edition of \"Weekly Pandemonium Society\" yet?\nThe special addendum \"Cute Ibuki Bromide\" is a total hit!"
+  },
+  {
+   "file": "ch0238_lobby_3.ogg",
+   "text": "It's a picture of Makoto that'll be in the next issue of \"Weekly Pandemonium Society\"!\nWhat? It's too small to see?"
+  },
+  {
+   "file": "ch0238_lobby_4_1.ogg",
+   "text": "Sensei at work! Now, look over here!"
+  },
+  {
+   "file": "ch0238_lobby_5.ogg",
+   "text": "As a secretary and student rep, I can do anything!\nLet me know if there's anything you need, Sensei!"
+  }
+ ],
+ "10108": [
+  {
+   "file": "ch0284_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0284_lobby_1_1.ogg",
+   "text": "By the way, what kind of pajamas do you wear to sleep, Sensei?"
+  },
+  {
+   "file": "ch0284_lobby_2_1.ogg",
+   "text": "A proper schedule, nutritional intake, sleep. They're all important."
+  },
+  {
+   "file": "ch0284_lobby_3_1.ogg",
+   "text": "Lack of sleep disrupts logic and causes you to make frequent errors."
+  },
+  {
+   "file": "ch0284_lobby_4_2.ogg",
+   "text": "Looking at your face and skin, it seems like you may not be getting enough rest..."
+  }
+ ],
+ "10109": [
+  {
+   "file": "ch0285_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0285_lobby_1_2.ogg",
+   "text": "If you work in more comfortable attire, it could increase your productivity."
+  },
+  {
+   "file": "ch0285_lobby_2.ogg",
+   "text": "I write in my diary every day.\nIt's an important record that allows me to reflect on the day."
+  },
+  {
+   "file": "ch0285_lobby_3.ogg",
+   "text": "No, I can't show my diary, not even to you, Sensei.\nIt's a girl's secret."
+  },
+  {
+   "file": "ch0285_lobby_4_2.ogg",
+   "text": "Have I unintentionally been putting too much pressure on her...?"
+  }
+ ],
+ "10110": [
+  {
+   "file": "ch0070_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0070_lobby_1.ogg",
+   "text": "Since I'm almost always in my room...\nJust being here is a whole new experience."
+  },
+  {
+   "file": "ch0070_lobby_2.ogg",
+   "text": "Of course, if you keep reaching out to me, the experience will go from \"new\" to \"familiar.\""
+  },
+  {
+   "file": "ch0070_lobby_3.ogg",
+   "text": "If that's any trouble, you could come to..."
+  },
+  {
+   "file": "ch0070_lobby_4.ogg",
+   "text": "...my room instead. Just saying."
+  }
+ ],
+ "10111": [
+  {
+   "file": "ch0280_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0280_lobby_1_1.ogg",
+   "text": "For some reason, I've been antsy...\nI guess it's 'cause I'm not used to this."
+  },
+  {
+   "file": "ch0280_lobby_2_1.ogg",
+   "text": "Haah? You think I seem calmer in my school uniform?"
+  },
+  {
+   "file": "ch0280_lobby_3.ogg",
+   "text": "What...?! The school uniform suits me...?!\nFlattery will get you nowhere, Sensei!"
+  },
+  {
+   "file": "ch0280_lobby_4.ogg",
+   "text": "Is there anything I can do for you?\nWell...it feels like I ought to sit at a desk, since I'm wearing a school uniform."
+  }
+ ],
+ "10112": [
+  {
+   "file": "ch0281_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0281_lobby_1.ogg",
+   "text": "What do you think of the school uniform? I want to hear Mast—\nI mean Sensei's opinion of it!"
+  },
+  {
+   "file": "ch0281_lobby_2.ogg",
+   "text": "It's nice to go on a mission outside...\n...but I also enjoy being with you like this, Sensei!"
+  },
+  {
+   "file": "ch0281_lobby_3.ogg",
+   "text": "Sensei! Want to go for a puppy walk? I can be the puppy this time...\nHuh? You don't want to? Aw, how come? Come onnn, Sensei!"
+  },
+  {
+   "file": "ch0281_lobby_4.ogg",
+   "text": "What kind of work do you typically do, Sensei?\nIs it something I can help with? I do know a thing or two about cleaning!"
+  }
+ ],
+ "10113": [
+  {
+   "file": "ch0082_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0082_lobby_1_1.ogg",
+   "text": "My hobbies are organizing medicine and being on standby."
+  },
+  {
+   "file": "ch0082_lobby_2.ogg",
+   "text": "Being on standby at Schale is a fun experience.\nEspecially when you're here, Sensei."
+  },
+  {
+   "file": "ch0082_lobby_3_1.ogg",
+   "text": "I'm not making you uncomfortable being here, am I, Sensei?"
+  },
+  {
+   "file": "ch0082_lobby_4_2.ogg",
+   "text": "I'm not really sure, honestly.\nI'm not too familiar with the ocean."
+  }
+ ],
+ "10114": [
+  {
+   "file": "ch0286_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0286_lobby_1_2.ogg",
+   "text": "Is it all my hard work and experimentation paying off?\nOr is it thanks to Sensei?"
+  },
+  {
+   "file": "ch0286_lobby_2_1.ogg",
+   "text": "...but if I can get someone to taste something delicious...\n...if they enjoy my dish..."
+  },
+  {
+   "file": "ch0286_lobby_3_3.ogg",
+   "text": "Since it's a dessert, the important thing is to stack the ingredients nicely..."
+  },
+  {
+   "file": "ch0286_lobby_4_1.ogg",
+   "text": "A lot of people ask me if working part time is hard..."
+  }
+ ],
+ "10115": [
+  {
+   "file": "ch0245_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0245_lobby_1_1.ogg",
+   "text": "Is there anything else you'd like me to do? I'm actually really good with paperwork and organizing statistics!"
+  },
+  {
+   "file": "ch0245_lobby_2_1.ogg",
+   "text": "If I had to choose, I'd say I'm more of an outdoor person, you know?"
+  },
+  {
+   "file": "ch0245_lobby_3_1.ogg",
+   "text": "Schale student rep work is nice. It's like having an official excuse to take a break."
+  },
+  {
+   "file": "ch0245_lobby_4_2.ogg",
+   "text": "They started selling exclusive sports cards in this one stadium I go to!"
+  }
+ ],
+ "10116": [
+  {
+   "file": "ch0259_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0259_lobby_1.ogg",
+   "text": "I've heard that dresses are meant to be worn for special occasions."
+  },
+  {
+   "file": "ch0259_lobby_2.ogg",
+   "text": "I was unaware of this when I put this on to meet with you."
+  },
+  {
+   "file": "ch0259_lobby_3.ogg",
+   "text": "There was no deeper meaning. I simply...wanted to be presentable for you, Sensei."
+  },
+  {
+   "file": "ch0259_lobby_4.ogg",
+   "text": "...The next time the opportunity arises to wear this dress, would it be okay to come see you again?"
+  }
+ ],
+ "10117": [
+  {
+   "file": "ch0242_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0242_lobby_1_3.ogg",
+   "text": "Boo. Suuuper boring."
+  },
+  {
+   "file": "ch0242_lobby_2_1.ogg",
+   "text": "Sensei. You want snacks?"
+  },
+  {
+   "file": "ch0242_lobby_3_2.ogg",
+   "text": "It's fine. Student rep, after all."
+  },
+  {
+   "file": "ch0242_lobby_4_1.ogg",
+   "text": "Sensei... Your lap... I wanna get in it..."
+  }
+ ],
+ "10118": [
+  {
+   "file": "ch0243_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0243_lobby_1_1.ogg",
+   "text": "So, what we doin'? You can assign me anything!"
+  },
+  {
+   "file": "ch0243_lobby_2_2.ogg",
+   "text": "I'll feed you snacks then.\nSay, \"Ahhh!\"\nPahyahya!"
+  },
+  {
+   "file": "ch0243_lobby_3_3.ogg",
+   "text": "There's no way I'd tell you! Pahyahya!"
+  },
+  {
+   "file": "ch0243_lobby_4_3.ogg",
+   "text": "Since you provoked me, you're ready for the consequences, right?"
+  }
+ ],
+ "10119": [
+  {
+   "file": "ch0222_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0222_lobby_1_2.ogg",
+   "text": "The Hyakkaryouran has its own administrative work...\n...but I find Schale is more professional in its processes."
+  },
+  {
+   "file": "ch0222_lobby_2_2.ogg",
+   "text": "Naturally, I find them delicious, however...\nSchale's office is hardly suitable for grilling chicken."
+  },
+  {
+   "file": "ch0222_lobby_3_1.ogg",
+   "text": "Is my face marred in some way? Why do you gaze upon me so intently?"
+  },
+  {
+   "file": "ch0222_lobby_4_2.ogg",
+   "text": "Although entirely different temperatures, it is reminiscent of the steel heating process."
+  }
+ ],
+ "10120": [
+  {
+   "file": "ch0221_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0221_lobby_1.ogg",
+   "text": "You're here, Sensei! Would you like some candy?"
+  },
+  {
+   "file": "ch0221_lobby_2.ogg",
+   "text": "I like hard candy. I can savor it while I practice."
+  },
+  {
+   "file": "ch0221_lobby_3.ogg",
+   "text": "Can I keep Sensei awake if I drum right next to them?"
+  },
+  {
+   "file": "ch0221_lobby_4.ogg",
+   "text": "Though music is aural, I feel like I can taste it."
+  }
+ ],
+ "10121": [
+  {
+   "file": "ch0301_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0301_lobby_1_1.ogg",
+   "text": "As expected of you, Sensei! You retain your composure even before the great ocean..."
+  },
+  {
+   "file": "ch0301_lobby_2_1.ogg",
+   "text": "Time slips through my fingers so very quickly while at the beach."
+  },
+  {
+   "file": "ch0301_lobby_3_2.ogg",
+   "text": "Hm? I seem to be having fun, even while working?"
+  },
+  {
+   "file": "ch0301_lobby_4_2.ogg",
+   "text": "Aaah! I am so filled with merriment that focus is beyond me!"
+  }
+ ],
+ "10122": [
+  {
+   "file": "ch0294_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0294_lobby_1_2.ogg",
+   "text": "I can't guarantee I'll do a good job, though! ☆"
+  },
+  {
+   "file": "ch0294_lobby_2_2.ogg",
+   "text": "You work so hard...on super-boring stuff..."
+  },
+  {
+   "file": "ch0294_lobby_3_2.ogg",
+   "text": "Uhm... Now that you're asking, it's embarrassing..."
+  },
+  {
+   "file": "ch0294_lobby_4_2.ogg",
+   "text": "Eh? I'm actually not bored at all, though.\nIt must be because I'm with you, Sensei! ♪"
+  }
+ ],
+ "10123": [
+  {
+   "file": "ch0295_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0295_lobby_1.ogg",
+   "text": "What are you...\n...staring at so intently?"
+  },
+  {
+   "file": "ch0295_lobby_2_2.ogg",
+   "text": "No, I can't remove them.\nIt's part of my outfit right now."
+  },
+  {
+   "file": "ch0295_lobby_3_2.ogg",
+   "text": "I can show you where I purchased them."
+  },
+  {
+   "file": "ch0295_lobby_4.ogg",
+   "text": "Do you intend to stay indoors on such a beautiful day?"
+  }
+ ],
+ "10124": [
+  {
+   "file": "ch0291_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0291_lobby_1_2.ogg",
+   "text": "...That's a difficult request."
+  },
+  {
+   "file": "ch0291_lobby_2_2.ogg",
+   "text": "It's not something I boast about, but I do have a knack for brewing tea."
+  },
+  {
+   "file": "ch0291_lobby_3_3.ogg",
+   "text": "What? It's cute on me...? \nYou're flattering me..."
+  },
+  {
+   "file": "ch0291_lobby_4_2.ogg",
+   "text": "It's easy to burn calories here, making you hungrier as well..."
+  }
+ ],
+ "10125": [
+  {
+   "file": "ch0304_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0304_lobby_1.ogg",
+   "text": "It's a magical day, Master!"
+  },
+  {
+   "file": "ch0304_lobby_2_2.ogg",
+   "text": "Nyuhuhu, you want to know more? I knew you were one of us, Master!"
+  },
+  {
+   "file": "ch0304_lobby_3_1.ogg",
+   "text": "Ah, Master! I was drawing a magic circle on the office floor."
+  },
+  {
+   "file": "ch0304_lobby_4_2.ogg",
+   "text": "If you chant an enhancement spell while shooting...\nYour gun will have more firepower!"
+  }
+ ],
+ "10126": [
+  {
+   "file": "ch0306_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0306_lobby_1_2.ogg",
+   "text": "I need someone to help me warm up... Heehee..."
+  },
+  {
+   "file": "ch0306_lobby_2_1.ogg",
+   "text": "Thanks to this hair tie...\nI can see \"them.\""
+  },
+  {
+   "file": "ch0306_lobby_3_1.ogg",
+   "text": "This potion I made...\nWould you like to try it?"
+  },
+  {
+   "file": "ch0306_lobby_4_2.ogg",
+   "text": "Our meeting...is proof of that."
+  }
+ ],
+ "10127": [
+  {
+   "file": "ch0317_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0317_lobby_1.ogg",
+   "text": "Um, is there anything I can help you with?\nAs long as it's not a crime, I'll do anything..."
+  },
+  {
+   "file": "ch0317_lobby_2.ogg",
+   "text": "I can just sit back and write? Th-That's what a writer should do...?"
+  },
+  {
+   "file": "ch0317_lobby_3.ogg",
+   "text": "Can I look at you while I write, Sensei?\nWhy? D-Do I need a reason to want to look at you?"
+  },
+  {
+   "file": "ch0317_lobby_4.ogg",
+   "text": "When I write a novel, everything that happens around me feels like foreshadowing.\n...What would me coming here be foreshadowing?"
+  }
+ ],
+ "10128": [
+  {
+   "file": "ch0318_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0318_lobby_1.ogg",
+   "text": "Hmm, so this is what office work is like..."
+  },
+  {
+   "file": "ch0318_lobby_2.ogg",
+   "text": "Oh? Have you finally decided to become the Free Trade Cartel's advisor?"
+  },
+  {
+   "file": "ch0318_lobby_3.ogg",
+   "text": "What a nice office.\nWe can't...use it as the Free Trade Cartel's base, can we?"
+  },
+  {
+   "file": "ch0318_lobby_4.ogg",
+   "text": "How comfortable...\nMaybe I can relax here...\n*yawn*"
+  }
+ ],
+ "10129": [
+  {
+   "file": "ch0325_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0325_lobby_1_1.ogg",
+   "text": "H-How is it?\nMy outfit... It doesn't look weird, right?"
+  },
+  {
+   "file": "ch0325_lobby_2_1.ogg",
+   "text": "You're wondering how the Vigilante Crew has been lately?\nFortunately, pretty well."
+  },
+  {
+   "file": "ch0325_lobby_3_2.ogg",
+   "text": "S-Sensei?! Since when were you there?!"
+  },
+  {
+   "file": "ch0325_lobby_4_2.ogg",
+   "text": "And it's interesting to me when they say \"sufficient firepower is magic.\""
+  }
+ ],
+ "10130": [
+  {
+   "file": "ch0309_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0309_lobby_1_2.ogg",
+   "text": "I-I can't! Even if I am the Student Rep!"
+  },
+  {
+   "file": "ch0309_lobby_2_3.ogg",
+   "text": "Calling it \"satellite school\" makes it feel like it's under the main school... It gives off an impression of being isolated."
+  },
+  {
+   "file": "ch0309_lobby_3_1.ogg",
+   "text": "...I'm sorry, I was thinking of everyone back in Arius."
+  },
+  {
+   "file": "ch0309_lobby_4_3.ogg",
+   "text": "\"You might not understand it now, but you'll find it useful one day\" ...you say."
+  }
+ ],
+ "10131": [
+  {
+   "file": "ch0229_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0229_lobby_1_2.ogg",
+   "text": "If there's one forbidden rule, it's hiding a rock in the snowball!"
+  },
+  {
+   "file": "ch0229_lobby_2_1.ogg",
+   "text": "What? You want to hear \"that laugh\"...? Wh-Why?! But I..."
+  },
+  {
+   "file": "ch0229_lobby_3_4.ogg",
+   "text": "And even results that make no sense and the ensuing revolt from the crowd!"
+  },
+  {
+   "file": "ch0229_lobby_4_1.ogg",
+   "text": "Critique is the act of capturing a moment and using your own words to share your impressions."
+  }
+ ],
+ "10132": [
+  {
+   "file": "ch0297_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0297_lobby_1.ogg",
+   "text": "Rather than a model, I want to become a ninja first."
+  },
+  {
+   "file": "ch0297_lobby_2_2.ogg",
+   "text": "It's more complicated than it looks... It's interesting!"
+  },
+  {
+   "file": "ch0297_lobby_3.ogg",
+   "text": "Wh-Why is there a magazine with my pictorial here at Schale...?!"
+  },
+  {
+   "file": "ch0297_lobby_4.ogg",
+   "text": "A m-meal?\nI-I'm okay with anything as long as it's not salad..."
+  }
+ ],
+ "10133": [
+  {
+   "file": "ch0331_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0331_lobby_1_3.ogg",
+   "text": "Based on that theory...\nEven now, we're still experiencing the day of that incident."
+  },
+  {
+   "file": "ch0331_lobby_2_3.ogg",
+   "text": "...Rest assured. I prefer not to employ...such methods."
+  },
+  {
+   "file": "ch0331_lobby_3_1.ogg",
+   "text": "I wonder what lies beyond the observable realm."
+  },
+  {
+   "file": "ch0331_lobby_4_2.ogg",
+   "text": "Then you and I could've enjoyed conceptual space, together."
+  }
+ ],
+ "10134": [
+  {
+   "file": "ch0334_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0334_lobby_1_1.ogg",
+   "text": "This suit's flight mechanics are very similar to a game I played before."
+  },
+  {
+   "file": "ch0334_lobby_2_4.ogg",
+   "text": "...Eh? It is dangerous, and I should still use the door like normal?"
+  },
+  {
+   "file": "ch0334_lobby_3_2.ogg",
+   "text": "However, there is no cause for concern!\nHimari, Rio, and even Utaha...\nThey all said I could bring it to them anytime!"
+  },
+  {
+   "file": "ch0334_lobby_4_1.ogg",
+   "text": "Uwaaah... These wings are so big that they bump into everything."
+  }
+ ],
+ "10135": [
+  {
+   "file": "ch0335_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0335_lobby_1_2.ogg",
+   "text": "D-Do I hate it? I-It's more of...!"
+  },
+  {
+   "file": "ch0335_lobby_2_4.ogg",
+   "text": "Things are such a mess, isn't it almost stranger to NOT be furious?"
+  },
+  {
+   "file": "ch0335_lobby_3_2.ogg",
+   "text": "You're eating properly, right? And you'd best be exercising well."
+  },
+  {
+   "file": "ch0335_lobby_4_1.ogg",
+   "text": "Ugh, seriously! Stop treating me like I'm some obedient child!"
+  }
+ ],
+ "10136": [
+  {
+   "file": "ch0337_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0337_lobby_1_2.ogg",
+   "text": "But even if it's hot, as long as I can stay with Sensei..."
+  },
+  {
+   "file": "ch0337_lobby_2_3.ogg",
+   "text": "Mm, my studying isn't progressing just by being at Schale..."
+  },
+  {
+   "file": "ch0337_lobby_3_3.ogg",
+   "text": "You won't find an excellent student like me anywhere else... Right? What do you think, Sensei?"
+  },
+  {
+   "file": "ch0337_lobby_4_1.ogg",
+   "text": "You know how people say I should speak with other people's feelings in mind?"
+  }
+ ],
+ "10137": [
+  {
+   "file": "ch0264_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0264_lobby_1_1.ogg",
+   "text": "Valkyrie's perfectly fine without me."
+  },
+  {
+   "file": "ch0264_lobby_2_2.ogg",
+   "text": "But I'm still the best when it comes to apologies!\nI'll help you if you need to write one later!"
+  },
+  {
+   "file": "ch0264_lobby_3_2.ogg",
+   "text": "...I should replace the tea bag.\nIt starts to taste like plain water after thirty uses..."
+  },
+  {
+   "file": "ch0264_lobby_4_1.ogg",
+   "text": "ARREST! ARREST! ARREST!\nIt's kind of funny when you hear it over and over again, right?"
+  }
+ ],
+ "10138": [
+  {
+   "file": "ch0305_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0305_lobby_1_3.ogg",
+   "text": "*sigh* It's because my seniors are always bringing weird stuff back..."
+  },
+  {
+   "file": "ch0305_lobby_2_2.ogg",
+   "text": "Dormitory 4, Unit 404... Isn't that pretty ominous, even if you don't believe in the occult?"
+  },
+  {
+   "file": "ch0305_lobby_3_2.ogg",
+   "text": "Everything can be explained with science. ...Don't you think so too, Sensei?"
+  },
+  {
+   "file": "ch0305_lobby_4_2.ogg",
+   "text": "Me? I guess I make all sorts of things.\nWould you ever want to join me?"
+  }
+ ],
+ "10139": [
+  {
+   "file": "ch0172_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0172_lobby_1.ogg",
+   "text": "Oh dear, are you in the mood to be pampered today?\nIt's fine. Please come here."
+  },
+  {
+   "file": "ch0172_lobby_3_1.ogg",
+   "text": "I try to wake up a little earlier on mission days to pack lunch for everyone."
+  },
+  {
+   "file": "ch0172_lobby_4.ogg",
+   "text": "A bento...\nShould I prepare one for you too next time?"
+  },
+  {
+   "file": "ch0172_lobby_5.ogg",
+   "text": "To atone for our mistakes...\nI hope I can be your strength from here on out."
+  }
+ ],
+ "10140": [
+  {
+   "file": "ch0173_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0173_lobby_1.ogg",
+   "text": "Fufu, you can rely on me more.\nI'm an elite member of SRT, so I can do anything!"
+  },
+  {
+   "file": "ch0173_lobby_2_2.ogg",
+   "text": "No, there's really nothing wrong...\nIt's just... I was just thinking hardworking adults are cool."
+  },
+  {
+   "file": "ch0173_lobby_3.ogg",
+   "text": "The weather is nice today...\nMaybe I'll go see my juniors at the park after I'm done."
+  },
+  {
+   "file": "ch0173_lobby_4_1.ogg",
+   "text": "When FOX 4 Otogi gets engrossed in something, she completely tunnel visions.\nShe might not even notice if a bomb went off in the area."
+  }
+ ],
+ "10141": [
+  {
+   "file": "ch0247_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0247_lobby_1.ogg",
+   "text": "Just give me your orders...! I have plenty of bombs!"
+  },
+  {
+   "file": "ch0247_lobby_2.ogg",
+   "text": "I-Is there anything you'd like to ask me?"
+  },
+  {
+   "file": "ch0247_lobby_3_2.ogg",
+   "text": "B-But this is also part of a mission..."
+  },
+  {
+   "file": "ch0247_lobby_4.ogg",
+   "text": "I-If you keep staring at me like that...\nI'm going to get embarrassed..."
+  }
+ ],
+ "13000": [
+  {
+   "file": "akane_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "akane_lobby_1.ogg",
+   "text": "Yes. I've already sorted the documents. You can entrust this to me."
+  },
+  {
+   "file": "akane_lobby_2.ogg",
+   "text": "You can tell me any wish you may have. I will serve you to the best of my ability."
+  },
+  {
+   "file": "akane_lobby_4.ogg",
+   "text": "There's a letter for you.\nOh, my. What lovely handwriting.\nShould. I. Read. It. For. You?"
+  },
+  {
+   "file": "akane_login_1.ogg",
+   "text": "Welcome, Master. You did well today."
+  }
+ ],
+ "13001": [
+  {
+   "file": "chise_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "chise_lobby_2.ogg",
+   "text": "Evil spirits, begone, evil spirits, begone..."
+  },
+  {
+   "file": "chise_lobby_3.ogg",
+   "text": "Sensei...aren't you going home?"
+  },
+  {
+   "file": "chise_lobby_5.ogg",
+   "text": "For my lunch today I ate some good fried chicken made in Nagoya."
+  },
+  {
+   "file": "chise_login_1.ogg",
+   "text": "Sensei, you're here. Mm... Sit anywhere you like."
+  }
+ ],
+ "13002": [
+  {
+   "file": "akari_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "akari_lobby_1.ogg",
+   "text": "You're asking me where the cookies went?\nMy, I have no clue at all!"
+  },
+  {
+   "file": "akari_lobby_2.ogg",
+   "text": "Isn't daydreaming fun, Sensei? Heehee."
+  },
+  {
+   "file": "akari_lobby_3.ogg",
+   "text": "Is there anything you want me to do?"
+  },
+  {
+   "file": "akari_lobby_4.ogg",
+   "text": "I may eat a lot, but I'm still a gourmet.\nI'm simply a gourmet that enjoys eating a lot of gourmet food."
+  }
+ ],
+ "13003": [
+  {
+   "file": "hasumi_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "hasumi_lobby_1.ogg",
+   "text": "What kind of mission should we carry out today?"
+  },
+  {
+   "file": "hasumi_lobby_2.ogg",
+   "text": "A sure way to win? Well, I do know of one. Endless training."
+  },
+  {
+   "file": "hasumi_lobby_3.ogg",
+   "text": "People tell me I don't laugh very often. Do you think that too, Sensei?"
+  },
+  {
+   "file": "hasumi_lobby_4.ogg",
+   "text": "The Justice Task Force is made of love and peace.\nWhat? No, I wasn't joking."
+  }
+ ],
+ "13004": [
+  {
+   "file": "nonomi_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "nonomi_lobby_1.ogg",
+   "text": "You've got this like always. ☆"
+  },
+  {
+   "file": "nonomi_lobby_2.ogg",
+   "text": "Hmm? You wanna lay your head in my lap?\nMaybe when it gets a little darker..."
+  },
+  {
+   "file": "nonomi_lobby_4.ogg",
+   "text": "Um...Sensei. Why don't I give you a shoulder massage?"
+  },
+  {
+   "file": "nonomi_lobby_5.ogg",
+   "text": "I feel at ease when I have you with me."
+  }
+ ],
+ "13005": [
+  {
+   "file": "kayoko_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "kayoko_lobby_1.ogg",
+   "text": "Do you need something? I can handle whatever you need, you know."
+  },
+  {
+   "file": "kayoko_lobby_2.ogg",
+   "text": "...I get it. My face scares people. They get the wrong idea sometimes."
+  },
+  {
+   "file": "kayoko_lobby_4.ogg",
+   "text": "I'm here to help you. That's what we agreed on."
+  },
+  {
+   "file": "kayoko_lobby_5.ogg",
+   "text": "I'll put all I have into knocking out requests.\nThat's what being professional is all about."
+  }
+ ],
+ "13006": [
+  {
+   "file": "mutsuki_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "mutsuki_lobby_2.ogg",
+   "text": "What? You're busy? Can't you do work stuff some other time?"
+  },
+  {
+   "file": "mutsuki_lobby_3.ogg",
+   "text": "Should we pick up where we left off last time?\nThat was fun...wasn't it?"
+  },
+  {
+   "file": "mutsuki_lobby_5.ogg",
+   "text": "Huh? Was I teasing you too much? I hope I don't get in trouble..."
+  },
+  {
+   "file": "mutsuki_login_1.ogg",
+   "text": "Hello, Sensei! I'm here to give YOU a lesson!"
+  }
+ ],
+ "13007": [
+  {
+   "file": "zunko_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "zunko_lobby_1.ogg",
+   "text": "You want to know what my hobby is? Reading books, of course.\n...Hey, why are you making that face?!"
+  },
+  {
+   "file": "zunko_lobby_2.ogg",
+   "text": "Don't tell me you see me as a little kid who only wants to fill her belly.\nYou should learn to rely on me a little more."
+  },
+  {
+   "file": "zunko_lobby_3.ogg",
+   "text": "Do I like dango?\nN-No! I mean, not that much. I'm just eating it because it's cheap!"
+  },
+  {
+   "file": "zunko_lobby_4.ogg",
+   "text": "(It's just me and Sensei? Oh...)"
+  }
+ ],
+ "13008": [
+  {
+   "file": "serika_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "serika_lobby_1.ogg",
+   "text": "Shouldn't you be doing something instead of sitting around?"
+  },
+  {
+   "file": "serika_lobby_2.ogg",
+   "text": "I get slacking off can be fun sometimes, but don't you have work to be doing?"
+  },
+  {
+   "file": "serika_lobby_3.ogg",
+   "text": "(I'm right next to you. Throw me a bone, will you...?)"
+  },
+  {
+   "file": "serika_lobby_4.ogg",
+   "text": "Overworking isn't healthy, so you can lean on me if you need to."
+  }
+ ],
+ "13009": [
+  {
+   "file": "tsubaki_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "tsubaki_lobby_1.ogg",
+   "text": "*yawn* Huh? When did you get here, Sensei?"
+  },
+  {
+   "file": "tsubaki_lobby_2.ogg",
+   "text": "Now's the perfect time for a nap...\nI think we'd both be more productive...after a good nap."
+  },
+  {
+   "file": "tsubaki_lobby_3.ogg",
+   "text": "What am I never able to get a good night's rest?\nHeh heh. Should I tell you, Sensei?"
+  },
+  {
+   "file": "tsubaki_lobby_4.ogg",
+   "text": "Well...\nIt's hard to sleep when I know that I get to see you when I wake up.\nI'm so happy."
+  }
+ ],
+ "13010": [
+  {
+   "file": "yuuka_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "yuuka_lobby_1.ogg",
+   "text": "Sensei! I need you to work harder!"
+  },
+  {
+   "file": "yuuka_lobby_2.ogg",
+   "text": "Sensei. I have approximately 34 tips on how to improve your behavior."
+  },
+  {
+   "file": "yuuka_lobby_4.ogg",
+   "text": "You have been striking me as more teacherly of late.\nHuh? You think it's because of me?!\nI mean... O-Of course it is!"
+  },
+  {
+   "file": "yuuka_lobby_5.ogg",
+   "text": "Sensei. Please plan an objective and course of action before you proceed."
+  }
+ ],
+ "13011": [
+  {
+   "file": "momoi_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "momoi_lobby_1.ogg",
+   "text": "There's a difference between pro gamers and game lovers.\nWhich one are you?"
+  },
+  {
+   "file": "momoi_lobby_2.ogg",
+   "text": "Oh! That new game is coming out today."
+  },
+  {
+   "file": "momoi_lobby_3.ogg",
+   "text": "I was supposed to go on a raid today! But I'm on the roster instead!\n...I guess this isn't so bad, either."
+  },
+  {
+   "file": "momoi_lobby_4.ogg",
+   "text": "The mission can wait, Sensei. Let's play a game first!"
+  }
+ ],
+ "13012": [
+  {
+   "file": "kirino_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "kirino_lobby_1.ogg",
+   "text": "Was there an issue you wanted to bring up with me?"
+  },
+  {
+   "file": "kirino_lobby_2.ogg",
+   "text": "All I want is to help Kivotos' students."
+  },
+  {
+   "file": "kirino_lobby_3.ogg",
+   "text": "I love doing the rounds in this neighborhood because there are so many delicious places to eat."
+  },
+  {
+   "file": "kirino_lobby_4.ogg",
+   "text": "B-But that doesn't mean that I'm slacking on my patrols!"
+  }
+ ],
+ "13013": [
+  {
+   "file": "momiji_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "momiji_lobby_1.ogg",
+   "text": "I like pretty books. Just looking at them makes me happy.\nI like old and battered books too. They show the history the books have endured."
+  },
+  {
+   "file": "momiji_lobby_2.ogg",
+   "text": "What do I like more, reading books or collecting them?\nHmm... Do I have to choose just one...?"
+  },
+  {
+   "file": "momiji_lobby_3.ogg",
+   "text": "I requested a book from the Secretariat, but I was rejected...\nBut I won't give up...!"
+  },
+  {
+   "file": "momiji_lobby_4.ogg",
+   "text": "What an unexpected twist... Hmm...\nOh, Sensei?!\nI-I'm sorry! I didn't notice you..."
+  }
+ ],
+ "13014": [
+  {
+   "file": "ch0302_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0302_lobby_1_1.ogg",
+   "text": "My uniform? I took it off because it was way too hot."
+  },
+  {
+   "file": "ch0302_lobby_2_2.ogg",
+   "text": "That way, you don't have to change when you're outside! It's super convenient!\n...Huh? Underwear for when I go back?"
+  },
+  {
+   "file": "ch0302_lobby_3.ogg",
+   "text": "I picked this swimsuit with the other Hyakkaryouran members.\nI wasn't expecting it to be so easy to move around in!"
+  },
+  {
+   "file": "ch0302_lobby_4_2.ogg",
+   "text": "Ah... I mean what kind would you like to wear, not look at!"
+  }
+ ],
+ "16000": [
+  {
+   "file": "haruka_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "haruka_lobby_1.ogg",
+   "text": "What? You really need me?\nUh, uh, th-that's..."
+  },
+  {
+   "file": "haruka_lobby_2.ogg",
+   "text": "I'll do my best to be useful to you, Sensei..."
+  },
+  {
+   "file": "haruka_lobby_3.ogg",
+   "text": "...Thank you, Sensei."
+  },
+  {
+   "file": "haruka_lobby_5.ogg",
+   "text": "(I wanna die, I wanna die, I wanna die, I wanna die.)"
+  }
+ ],
+ "16001": [
+  {
+   "file": "asuna_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "asuna_lobby_1.ogg",
+   "text": "Hey, Master! I'm here to serve you with everything I have, just like always!"
+  },
+  {
+   "file": "asuna_lobby_2.ogg",
+   "text": "You came to see me, right?\nI knew I was Master's favorite!"
+  },
+  {
+   "file": "asuna_lobby_3.ogg",
+   "text": "Leave cleaning and washing to me!\nThere's no stain I can't get out!"
+  },
+  {
+   "file": "asuna_login_1.ogg",
+   "text": "Sensei! I mean, Master! Welcome! Let's give today our all!"
+  }
+ ],
+ "16002": [
+  {
+   "file": "kotori_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "kotori_lobby_1.ogg",
+   "text": "If you have any questions, give a shout!\nYell my name, and I'll come running! Okay?"
+  },
+  {
+   "file": "kotori_lobby_2.ogg",
+   "text": "Great question, Sensei! Let me give you the answer!"
+  },
+  {
+   "file": "kotori_lobby_3.ogg",
+   "text": "Aren't these glasses cool?! Would you like to try them on?"
+  },
+  {
+   "file": "kotori_lobby_4.ogg",
+   "text": "Facts are the light that dispels the darkness of ignorance.\n...But I agree that no one likes explanations that are too flashy."
+  }
+ ],
+ "16003": [
+  {
+   "file": "suzumi_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "suzumi_lobby_1.ogg",
+   "text": "Am I really that standoffish...?"
+  },
+  {
+   "file": "suzumi_lobby_2.ogg",
+   "text": "You mean the Vigilante Crew? It's a tough job, but someone has to do it."
+  },
+  {
+   "file": "suzumi_lobby_3.ogg",
+   "text": "There's no time to rest."
+  },
+  {
+   "file": "suzumi_lobby_4.ogg",
+   "text": "The best way to serve justice is one step at a time."
+  }
+ ],
+ "16004": [
+  {
+   "file": "pina_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "pina_lobby_1.ogg",
+   "text": "Summer in Hyakkiyako is always exciting. That's when the festivals begin!"
+  },
+  {
+   "file": "pina_lobby_2.ogg",
+   "text": "Everyone knows kimonos are the best. The best of the best!"
+  },
+  {
+   "file": "pina_lobby_3.ogg",
+   "text": "Don't worry. I only hit you with the back of my sword.\nWait... Actually, it was the gun stock!"
+  },
+  {
+   "file": "pina_lobby_4.ogg",
+   "text": "Here she comes! The blonde beauty that fights injustice!"
+  }
+ ],
+ "16005": [
+  {
+   "file": "ch0060_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0060_lobby_1.ogg",
+   "text": "Kehee....heeheehee... Keheehee!!"
+  },
+  {
+   "file": "ch0060_lobby_2.ogg",
+   "text": "Ke-hahaha\nHahahaha!!! Kekekeke!!!"
+  },
+  {
+   "file": "ch0060_lobby_3.ogg",
+   "text": "Yes? S-Sensei...?\nHow long have you been standing there...?"
+  },
+  {
+   "file": "ch0060_lobby_4.ogg",
+   "text": "Hmm? The whole time?! Then...?!"
+  }
+ ],
+ "16006": [
+  {
+   "file": "izumiswimsuit_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "izumiswimsuit_lobby_1.ogg",
+   "text": "Summer calls for the Beach Shack! We have to go, Sensei!"
+  },
+  {
+   "file": "izumiswimsuit_lobby_2.ogg",
+   "text": "Red, yellow, green...and blue.\nWhich is your favorite, Sensei?"
+  },
+  {
+   "file": "izumiswimsuit_lobby_3.ogg",
+   "text": "Hmm? What am I talking about? Shaved ice syrup flavors, obviously!"
+  },
+  {
+   "file": "izumiswimsuit_lobby_4.ogg",
+   "text": "Sensei, you know how swimming in the ocean makes you hungry?\nI tried to think of a solution."
+  }
+ ],
+ "16007": [
+  {
+   "file": "tomoe_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "tomoe_lobby_1.ogg",
+   "text": "President Cherino's every move is recorded in this notebook."
+  },
+  {
+   "file": "tomoe_lobby_2.ogg",
+   "text": "Do you want to maybe...read it?"
+  },
+  {
+   "file": "tomoe_lobby_3.ogg",
+   "text": "No. It's a girl's secret."
+  },
+  {
+   "file": "tomoe_lobby_4.ogg",
+   "text": "In preparation for the day Red Winter Academy takes over Kivotos...\n...we need to diligently prepare our speeches."
+  }
+ ],
+ "16008": [
+  {
+   "file": "ch0141_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0141_lobby_2.ogg",
+   "text": "I don't know why Kirino goes to such lengths."
+  },
+  {
+   "file": "ch0141_lobby_3_2.ogg",
+   "text": "That's why, for a peaceful city, the police should be lazy!"
+  },
+  {
+   "file": "ch0141_lobby_4.ogg",
+   "text": "Old-fashioned donuts. The name is corny...\n...but the taste is undefeated."
+  },
+  {
+   "file": "ch0141_lobby_5_1.ogg",
+   "text": "A donut without a hole isn't a donut..."
+  }
+ ],
+ "16009": [
+  {
+   "file": "ch0113_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0113_lobby_1.ogg",
+   "text": "Although the Ninjutsu Research Club hasn't been officially recognized...\n...I won't give up! One day, ninjas will be official too!"
+  },
+  {
+   "file": "ch0113_lobby_2.ogg",
+   "text": "What if, for some reason, everyone becomes a ninja like in the zombie movies?"
+  },
+  {
+   "file": "ch0113_lobby_3.ogg",
+   "text": "The underclassmen are working hard to promote our ninja way.\nIzuna and Tsukuyo... They're so great!"
+  },
+  {
+   "file": "ch0113_lobby_4.ogg",
+   "text": "Ugh... I can't seem to increase my subscriber count for Michiruchi, a Girl's Ninja Scroll. What am I doing wrong?\n...A deduction?"
+  }
+ ],
+ "16010": [
+  {
+   "file": "ch0181_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0181_lobby_1.ogg",
+   "text": "Sensei... You look worn out. Do you need a cheer? You definitely need a cheer!"
+  },
+  {
+   "file": "ch0181_lobby_2.ogg",
+   "text": "I want you to rely on me, Sensei. Not just with engineering, but with other things too."
+  },
+  {
+   "file": "ch0181_lobby_3.ogg",
+   "text": "This isn't a sports field, so this outfit... It's a bit..."
+  },
+  {
+   "file": "ch0181_lobby_4.ogg",
+   "text": "It's so strange.\nI usually don't mind revealing outfits..."
+  }
+ ],
+ "16011": [
+  {
+   "file": "ch0190_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0190_lobby_1.ogg",
+   "text": "Maybe because this outfit is much more comfortable compared to what I usually wear...\nPutting this on uplifts my spirits a little."
+  },
+  {
+   "file": "ch0190_lobby_2.ogg",
+   "text": "I shouldn't let myself get too excited... But maybe a little bit is okay..."
+  },
+  {
+   "file": "ch0190_lobby_3.ogg",
+   "text": "Maybe it's because I've been moving around so much today. I'm a bit hungry..."
+  },
+  {
+   "file": "ch0190_lobby_4.ogg",
+   "text": "Exercise is good for more than just your body. You can't have a sound mind without a sound body."
+  }
+ ],
+ "16012": [
+  {
+   "file": "ch0192_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0192_lobby_1.ogg",
+   "text": "Did you fall in love with me because of my kimono?\nO-Of course. Do you think I'm just a glutton?"
+  },
+  {
+   "file": "ch0192_lobby_2.ogg",
+   "text": "My favorite osechi dish? Hmm... It's hard to pick just one, because they're all so good!"
+  },
+  {
+   "file": "ch0192_lobby_3.ogg",
+   "text": "Hey~ How long are you going to be working?\nHurry! Hurry! Let's go somewhere!"
+  },
+  {
+   "file": "ch0192_lobby_4.ogg",
+   "text": "*sigh* I wish I knew how to cook. Then we could make something at home."
+  }
+ ],
+ "16013": [
+  {
+   "file": "ch0205_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0205_lobby_1.ogg",
+   "text": "Huh? My outfit...?\nWh-Why are you asking about it? No lewdness allowed! Death penalty!"
+  },
+  {
+   "file": "ch0205_lobby_2.ogg",
+   "text": "You want me to do paperwork? I-I'm not sure about that...\nI-I'll stand guard instead!"
+  },
+  {
+   "file": "ch0205_lobby_3.ogg",
+   "text": "So this is what your work is like. Seems exhausting..."
+  },
+  {
+   "file": "ch0205_lobby_4.ogg",
+   "text": "Don't you get sick of this place? Wouldn't you rather go to the beach instead? Or the mountains?"
+  }
+ ],
+ "16014": [
+  {
+   "file": "ibuki_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ibuki_lobby_2.ogg",
+   "text": "Business Expense Settlement Statement... What's that supposed to mean?"
+  },
+  {
+   "file": "ibuki_lobby_3.ogg",
+   "text": "Kihehe. Is there something you want to say?"
+  },
+  {
+   "file": "ibuki_login_1.ogg",
+   "text": "Ah! Sensei! Welcome back!"
+  }
+ ],
+ "16015": [
+  {
+   "file": "ch0251_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0251_lobby_1.ogg",
+   "text": "Although I'm not quite at a professional level...\nI can play proficiently now!"
+  },
+  {
+   "file": "ch0251_lobby_2.ogg",
+   "text": "Hm? It feels as if I have an entirely different aesthetic now?\nUm... Which one seems better...?"
+  },
+  {
+   "file": "ch0251_lobby_3.ogg",
+   "text": "Now that I think about it, the mint candy I bought...\nHeehee. Would you like to try it?"
+  },
+  {
+   "file": "ch0251_lobby_4.ogg",
+   "text": "Heeheeheeheehee...\nHm? ...Heehee. Nothing."
+  }
+ ],
+ "16016": [
+  {
+   "file": "ch0275_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0275_lobby_1.ogg",
+   "text": "This place, in a costume like this... It feels odd."
+  },
+  {
+   "file": "ch0275_lobby_2.ogg",
+   "text": "You seem tired... Would a song relieve that fatigue?"
+  },
+  {
+   "file": "ch0275_lobby_3.ogg",
+   "text": "I am always learning one lesson or another from you."
+  },
+  {
+   "file": "ch0275_lobby_4.ogg",
+   "text": "However, in the realm of song and dance, I am the one qualified to teach you."
+  }
+ ],
+ "16017": [
+  {
+   "file": "ch0288_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0288_lobby_1.ogg",
+   "text": "Please call me if there's anything you need at all..."
+  },
+  {
+   "file": "ch0288_lobby_2.ogg",
+   "text": "I-Is there anything I can repair...?\nThat's the only thing I'm confident about..."
+  },
+  {
+   "file": "ch0288_lobby_3_1.ogg",
+   "text": "Um... The snacks in the lounge...\n...can I eat them? I saw r-rice crackers..."
+  },
+  {
+   "file": "ch0288_lobby_4_2.ogg",
+   "text": "...but at the very least, I can do basic calculations..."
+  }
+ ],
+ "16018": [
+  {
+   "file": "ch0166_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0166_lobby_1_1.ogg",
+   "text": "Sensei, you ever think about wearing a helmet?"
+  },
+  {
+   "file": "ch0166_lobby_2_2.ogg",
+   "text": "It protects your skull, AND it looks cool. Isn't that the best?"
+  },
+  {
+   "file": "ch0166_lobby_3_1.ogg",
+   "text": "(Looks like most people here at Schale don't wear helmets...)"
+  },
+  {
+   "file": "ch0166_lobby_4_2.ogg",
+   "text": "You always come running, anytime, anywhere, so I thought you didn't do much."
+  }
+ ],
+ "16019": [
+  {
+   "file": "ch0333_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0333_lobby_1_2.ogg",
+   "text": "I've come to the conclusion that I should do whatever entertains me."
+  },
+  {
+   "file": "ch0333_lobby_2_1.ogg",
+   "text": "I have revamped my armament and outfit to pursue reduced weight and increased speed."
+  },
+  {
+   "file": "ch0333_lobby_3_1.ogg",
+   "text": "While I was watching a streamer's live stream the other day...\nI left a comment about infinite magazine and dual pistols."
+  },
+  {
+   "file": "ch0333_lobby_4_4.ogg",
+   "text": "What would you do, Sensei?\nI... have already decided on my course of action.\n...But I'm not going to tell you."
+  }
+ ],
+ "16020": [
+  {
+   "file": "ch0174_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0174_lobby_1_1.ogg",
+   "text": "Since I'm a sniper, I pride myself on my sharp observation skills.\nYeah, for example..."
+  },
+  {
+   "file": "ch0174_lobby_2_1.ogg",
+   "text": "Ugh, my shoulders... Sensei, can you rub my shoulders?"
+  },
+  {
+   "file": "ch0174_lobby_3_1.ogg",
+   "text": "Before I joined SRT, I was thinking of enrolling in the academy from the district I lived in and joining its disciplinary committee..."
+  },
+  {
+   "file": "ch0174_lobby_4_1.ogg",
+   "text": "FOX 3... Kurumi's our point woman, but she's always worrying."
+  }
+ ],
+ "20000": [
+  {
+   "file": "hibiki_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "hibiki_lobby_1.ogg",
+   "text": "I have fun hanging out with you. Heh heh..."
+  },
+  {
+   "file": "hibiki_lobby_2.ogg",
+   "text": "What did you think, Sensei? Was my equipment helpful?"
+  },
+  {
+   "file": "hibiki_lobby_3.ogg",
+   "text": "Do I enjoy making useful things? Sure, but...\nThis isn't a hobby. It's a way of life."
+  },
+  {
+   "file": "hibiki_lobby_5.ogg",
+   "text": "(And seeing you smile is the best motivation for me.)"
+  }
+ ],
+ "20001": [
+  {
+   "file": "karin_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "karin_lobby_1.ogg",
+   "text": "Target confirmed. Proceeding with elimination.\n...Only kidding. You don't have to hide."
+  },
+  {
+   "file": "karin_lobby_2.ogg",
+   "text": "No problem, Sensei. That issue has already been taken care of."
+  },
+  {
+   "file": "karin_lobby_4.ogg",
+   "text": "What mission will you see to today? I'll be there to help no matter what."
+  },
+  {
+   "file": "karin_login_1.ogg",
+   "text": "There you are, Sensei. I've...been waiting."
+  }
+ ],
+ "20002": [
+  {
+   "file": "saya_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "saya_lobby_1.ogg",
+   "text": "I! Am! The greatest!"
+  },
+  {
+   "file": "saya_lobby_2.ogg",
+   "text": "Is Nezusuke is a hamster or a guinea pig? We'll find out...with our next experiment!"
+  },
+  {
+   "file": "saya_lobby_3.ogg",
+   "text": "Everyone knows that mice make the most beloved characters in human storytelling!"
+  },
+  {
+   "file": "saya_lobby_4.ogg",
+   "text": "Medicine and poison aren't all that different. Both are double-edged swords depending on their usage!"
+  }
+ ],
+ "20003": [
+  {
+   "file": "mashiro_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "mashiro_lobby_1.ogg",
+   "text": "Oh, are we mobilizing?"
+  },
+  {
+   "file": "mashiro_lobby_2.ogg",
+   "text": "You called for me, Sensei?"
+  },
+  {
+   "file": "mashiro_lobby_3.ogg",
+   "text": "The goal of the Justice Task Force...\n...is to vanquish evil and establish justice.\nJustice—in this academy."
+  },
+  {
+   "file": "mashiro_lobby_5.ogg",
+   "text": "But I'm only saying this just in case...\nWhat you're touching right now is not the operational console."
+  }
+ ],
+ "20004": [
+  {
+   "file": "ch0061_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0061_lobby_2.ogg",
+   "text": "Justice is never out of season!"
+  },
+  {
+   "file": "ch0061_lobby_3.ogg",
+   "text": "Cute swimsuits are justice...?\nI'll keep that in mind."
+  },
+  {
+   "file": "ch0061_lobby_4.ogg",
+   "text": "You mean this? It's a normal popsicle."
+  },
+  {
+   "file": "ch0061_lobby_5.ogg",
+   "text": "Are you okay with eating something that I've been eating?"
+  }
+ ],
+ "20005": [
+  {
+   "file": "ch0058_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0058_lobby_1.ogg",
+   "text": "I heard we were going to the beach, so I put this on."
+  },
+  {
+   "file": "ch0058_lobby_2.ogg",
+   "text": "How does it look? Is it too plain?"
+  },
+  {
+   "file": "ch0058_lobby_3.ogg",
+   "text": "We can't leave out Peroro, even during a vacation on the beach!"
+  },
+  {
+   "file": "ch0058_lobby_4.ogg",
+   "text": "I thoroughly prepared waterproofing measures to prevent Peroro's soft feathers from getting wet!"
+  }
+ ],
+ "20006": [
+  {
+   "file": "sayacasual_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "sayacasual_lobby_1.ogg",
+   "text": "Hmm. The chewiness of the knife-cut noodles...\nAstounding. Truly amazing."
+  },
+  {
+   "file": "sayacasual_lobby_2.ogg",
+   "text": "What? Is me eating normal food weird? I'm not Nezusuke, you know!"
+  },
+  {
+   "file": "sayacasual_lobby_3.ogg",
+   "text": "This cool outfit suits me?\nHahaha! Of course. Everything I wear suits me!"
+  },
+  {
+   "file": "sayacasual_lobby_4.ogg",
+   "text": "I can get a ton of inspiration outside of the lab too.\nEither making fun of Kin, or bothering Mei..."
+  }
+ ],
+ "20007": [
+  {
+   "file": "ch9999_lobby_1_1.ogg",
+   "text": "I was originally a virtual idol, but I gained a physical body in Kivotos that I can use to sing with to my heart's content."
+  },
+  {
+   "file": "ch9999_lobby_2.ogg",
+   "text": "If it's for you, Sensei, I can sing all the time!"
+  },
+  {
+   "file": "ch9999_lobby_4.ogg",
+   "text": "If I wrap the leek around my neck, will I be able to sing better?"
+  },
+  {
+   "file": "ch9999_lobby_5.ogg",
+   "text": "I'm a virtual vocalist. I'm a singer who conveys the feelings of the music!"
+  }
+ ],
+ "20008": [
+  {
+   "file": "ako_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ako_lobby_1.ogg",
+   "text": "Sensei? Don't you think you should get to work?\nIt would be a shame if you have to put in overtime yet again. I don't want that either."
+  },
+  {
+   "file": "ako_lobby_2.ogg",
+   "text": "We've barely made progress.\n*sigh* It can't be helped I guess.\nI'll help as well."
+  },
+  {
+   "file": "ako_lobby_3.ogg",
+   "text": "Starting now, I will manage everything from your meal time to your bathroom breaks, so please do as I say.\nNo complaints, right?"
+  },
+  {
+   "file": "ako_lobby_4.ogg",
+   "text": "So, you can do it when it comes down to it!\nWait a sec. Sensei? Does that mean...\nWere you slacking off until now?!"
+  }
+ ],
+ "20009": [
+  {
+   "file": "ch0164_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0164_lobby_1.ogg",
+   "text": "Heehee, my authority still shines even on vacation!"
+  },
+  {
+   "file": "ch0164_lobby_2_1.ogg",
+   "text": "It'd be nice if Red Winter Academy had a bunch of great hot springs like Gehenna..."
+  },
+  {
+   "file": "ch0164_lobby_3.ogg",
+   "text": "The hot spring manju made by those former institute guys was pretty good..."
+  },
+  {
+   "file": "ch0164_lobby_4_2.ogg",
+   "text": "Isn't it common sense to wear a swimsuit in the bath?\nCome on, Comrade. You're asking such obvious things."
+  }
+ ],
+ "20010": [
+  {
+   "file": "ch0165_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0165_lobby_1_1.ogg",
+   "text": "What do you think of this kimono, Sensei?\nI paid a lot to rent it."
+  },
+  {
+   "file": "ch0165_lobby_2.ogg",
+   "text": "I will try my best not to bring shame to the name of the one and only hot springs resort at Red Winter Academy!"
+  },
+  {
+   "file": "ch0165_lobby_3_2.ogg",
+   "text": "I-I wasn't staring, okay?"
+  },
+  {
+   "file": "ch0165_lobby_4.ogg",
+   "text": "Sensei, if you're going to take a bath, please come to our hot springs. Don't take a bath anywhere else! Got it?"
+  }
+ ],
+ "20011": [
+  {
+   "file": "serikanewyear_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "serikanewyear_lobby_1.ogg",
+   "text": "I'm the miko, and my role is to help you.\nThen does that make you my spirit lord?"
+  },
+  {
+   "file": "serikanewyear_lobby_2.ogg",
+   "text": "Don't just sit there doing nothing. Work, Sensei. WORK."
+  },
+  {
+   "file": "serikanewyear_lobby_3.ogg",
+   "text": "Senseiii!\nI said no goofing off!"
+  },
+  {
+   "file": "serikanewyear_lobby_4.ogg",
+   "text": "Come on now. Get motivated. Motivated!\nWhat do you think? Will it be effective?\nCome on, Sensei. You can do this."
+  }
+ ],
+ "20012": [
+  {
+   "file": "ch0081_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0081_lobby_1.ogg",
+   "text": "You called for me?\nIt's fine if it's not anything big, even if it's just a personal matter."
+  },
+  {
+   "file": "ch0081_lobby_2.ogg",
+   "text": "My club's basic purpose is to respond to medical emergencies, including surgical ones.\nWe don't attend to common ailments such as colds."
+  },
+  {
+   "file": "ch0081_lobby_3.ogg",
+   "text": "I'm used to waiting.\nAnd I'm used to being called suddenly."
+  },
+  {
+   "file": "ch0081_lobby_4.ogg",
+   "text": "Being in this position...\n...means that you're trusted."
+  }
+ ],
+ "20013": [
+  {
+   "file": "ch0160_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0160_lobby_1.ogg",
+   "text": "Knowledge must be free... It's a profound but pleasant thought."
+  },
+  {
+   "file": "ch0160_lobby_2_1.ogg",
+   "text": "Veritas isn't just a playground for oddballs.\nIt's an association organized to fight Seminar's monopoly on information."
+  },
+  {
+   "file": "ch0160_lobby_3.ogg",
+   "text": "Please don't say \"Trackers\" in front of me..."
+  },
+  {
+   "file": "ch0160_lobby_4.ogg",
+   "text": "Even I don't know what President Himari is thinking."
+  }
+ ],
+ "20014": [
+  {
+   "file": "ch0144_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0144_lobby_1.ogg",
+   "text": "...If you have time to joke around, you should focus on our mission."
+  },
+  {
+   "file": "ch0144_lobby_2_1.ogg",
+   "text": "Guns are like good friends.\nAs long as you manage them well, they won't betray you."
+  },
+  {
+   "file": "ch0144_lobby_3_2.ogg",
+   "text": "No need to charge a battery, and there's no fear of hacking."
+  },
+  {
+   "file": "ch0144_lobby_4.ogg",
+   "text": "...No means no. Why would I take my helmet off during a mission?"
+  }
+ ],
+ "20015": [
+  {
+   "file": "kaede_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "kaede_lobby_1.ogg",
+   "text": "What should we do today?\nO-Of course, I'm gonna do my homework!"
+  },
+  {
+   "file": "kaede_lobby_2.ogg",
+   "text": "I need to train every day to become a proper lady!\nHuh? What kind of training?\nFirst, I'm gonna start with jumping rope a hundred times!"
+  },
+  {
+   "file": "kaede_lobby_3_1.ogg",
+   "text": "Did you know, Sensei? There are people called \"heroes of justice\" in Kivotos!\nI think they were called...Kaiten...something."
+  },
+  {
+   "file": "kaede_lobby_4.ogg",
+   "text": "Are you working today, too? Why do you like working so much?\n...Huh? Sensei? Why're you making that face?\nA-Are you okay...?! I'm sorry..."
+  }
+ ],
+ "20016": [
+  {
+   "file": "ch0156_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0156_lobby_1.ogg",
+   "text": "*sigh*\nDo you wanna slack off somewhere?"
+  },
+  {
+   "file": "ch0156_lobby_2.ogg",
+   "text": "...I'm hard at work."
+  },
+  {
+   "file": "ch0156_lobby_3.ogg",
+   "text": "How annoying... *sigh* Fine, then."
+  },
+  {
+   "file": "ch0156_lobby_4.ogg",
+   "text": "...What? I finished everything I was supposed to do."
+  }
+ ],
+ "20017": [
+  {
+   "file": "hiyori_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "hiyori_lobby_1.ogg",
+   "text": "Please tell me if I can help you...even I must be able to do something..."
+  },
+  {
+   "file": "hiyori_lobby_2_1.ogg",
+   "text": "Is there anything else I can do...? We've just kinda been hanging out...\nAnything harder I can do...?"
+  },
+  {
+   "file": "hiyori_lobby_4.ogg",
+   "text": "I've read up on all kinds of things in magazines...\nHeehee. Maybe I can be helpful..."
+  },
+  {
+   "file": "hiyori_lobby_5.ogg",
+   "text": "Work is hard, but...\nLife is supposed to be hard, so it's okay."
+  }
+ ],
+ "20018": [
+  {
+   "file": "moe_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "moe_lobby_1.ogg",
+   "text": "I've got to replenish supplies for the RABBIT Squad...."
+  },
+  {
+   "file": "moe_lobby_2.ogg",
+   "text": "Nom nom... Sugar is important. I can't give it up!"
+  },
+  {
+   "file": "moe_lobby_3.ogg",
+   "text": "Ah... I wanna eat the inarizushi she makes..."
+  },
+  {
+   "file": "moe_lobby_4.ogg",
+   "text": "Seriously... Why are candies not included in the basic supplies?\nSugar is like the fuel that keeps the operator going."
+  }
+ ],
+ "20019": [
+  {
+   "file": "ch0099_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0099_lobby_1.ogg",
+   "text": "Is it fun being...a rabbit? Heehee. I guess...\nDoes it look fun?"
+  },
+  {
+   "file": "ch0099_lobby_2.ogg",
+   "text": "If there's anything you need, never hesitate to ask. Don't leave me waiting."
+  },
+  {
+   "file": "ch0099_lobby_3.ogg",
+   "text": "The time I've spent with you is irreplaceable."
+  },
+  {
+   "file": "ch0099_lobby_4.ogg",
+   "text": "There is no better cleaning equipment than a bomb.\nKidding, kidding... Please don't stare at me like that, Master."
+  }
+ ],
+ "20020": [
+  {
+   "file": "ch0159_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0159_lobby_4.ogg",
+   "text": "When I assist you like this, I always learn something new.\nI had no idea you had such a wide range of responsibilities and tasks, Sensei."
+  },
+  {
+   "file": "ch0159_lobby_5_2.ogg",
+   "text": "...Yeah. In fact, I was actually immersing myself in liminal space between REM sleep and non-REM sleep. That's what it was, yep."
+  },
+  {
+   "file": "ch0159_login_1.ogg",
+   "text": "You're here, Sensei! I've been waiting for you!\nShall we dive into it?"
+  }
+ ],
+ "20021": [
+  {
+   "file": "ch0195_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0195_lobby_1.ogg",
+   "text": "I'm feeling really good today, Sensei! How about you?"
+  },
+  {
+   "file": "ch0195_lobby_2.ogg",
+   "text": "You can come see me whenever you're not feeling good!\nI'll gift you some surgeries and injections!"
+  },
+  {
+   "file": "ch0195_lobby_3.ogg",
+   "text": "You gotta be careful for frostbite in the winter...\nOtherwise, your affected limbs might have to be amputated!"
+  },
+  {
+   "file": "ch0195_lobby_4.ogg",
+   "text": "My heart's beating so fast in anticipation for Christmas!\nI hope you're just as excited as I am, Sensei."
+  }
+ ],
+ "20022": [
+  {
+   "file": "ch0177_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0177_lobby_1.ogg",
+   "text": "Wh-What do you think of my kimono?\nI hope you like it..."
+  },
+  {
+   "file": "ch0177_lobby_2.ogg",
+   "text": "I was nervous about wearing a kimono in front of you, but...\nNow I'm glad I did."
+  },
+  {
+   "file": "ch0177_lobby_3.ogg",
+   "text": "Did you know your hard work is very inspiring to the students?\nTo me as well, of course. Heeheehee."
+  },
+  {
+   "file": "ch0177_lobby_4.ogg",
+   "text": "Osechi is a lot of work to make.\nBut that's what makes it worth it in the end."
+  }
+ ],
+ "20023": [
+  {
+   "file": "ch0170_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0170_lobby_1_1.ogg",
+   "text": "A lot of documentation is needed for a Public Peace Bureau dispatch.\nI sometimes envy Schale's ability to execute quick responses."
+  },
+  {
+   "file": "ch0170_lobby_2.ogg",
+   "text": "I'm going to make some coffee. Would you like a cup?"
+  },
+  {
+   "file": "ch0170_lobby_3.ogg",
+   "text": "The students at the Public Safety Bureau make for good police, but...\nThey're too inexperienced to deal with the heavier crimes..."
+  },
+  {
+   "file": "ch0170_lobby_4.ogg",
+   "text": "I don't like donuts very much. They make my hands too messy."
+  }
+ ],
+ "20024": [
+  {
+   "file": "nagisa_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "nagisa_lobby_1.ogg",
+   "text": "Heehee. The weather is nice today as well.\nHow about we take a stroll after work?"
+  },
+  {
+   "file": "nagisa_lobby_2_3.ogg",
+   "text": "I'm so focused on the task that I keep forgetting this is the Schale office...\nExcuse me."
+  },
+  {
+   "file": "nagisa_lobby_3_1.ogg",
+   "text": "There aren't eyes everywhere in the Schale office like there are in the Tea Party office. I feel more comfortable here."
+  },
+  {
+   "file": "nagisa_lobby_4.ogg",
+   "text": "(For some reason...I feel calm...and my eyelids keep closing...)"
+  }
+ ],
+ "20025": [
+  {
+   "file": "ch0087_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0087_lobby_1.ogg",
+   "text": "To celebrate New Year's... Wh-What should I do? What sh-should I explode...?"
+  },
+  {
+   "file": "ch0087_lobby_2.ogg",
+   "text": "What can someone like me do here..."
+  },
+  {
+   "file": "ch0087_lobby_3.ogg",
+   "text": "Um...p-plans? For the year?\nOh no. S-Should I have thought about it?!"
+  },
+  {
+   "file": "ch0087_lobby_4.ogg",
+   "text": "I-I just want... This year...\nI want to l-listen to what you tell me... And learn f-from it... That's my goal..."
+  }
+ ],
+ "20026": [
+  {
+   "file": "ch0214_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0214_lobby_1.ogg",
+   "text": "Safety, check! Confirmation, check! Accident-free, check!"
+  },
+  {
+   "file": "ch0214_lobby_2_1.ogg",
+   "text": "When it comes to pudding, I love all flavors.\nCustard cream, chocolate, even fruit..."
+  },
+  {
+   "file": "ch0214_lobby_3.ogg",
+   "text": "(What would be a good justification for our next coup d'etat...?)"
+  },
+  {
+   "file": "ch0214_login_1.ogg",
+   "text": "Stay safe today!\nLet's aim for a new \"No Accident\" record in Schale!"
+  }
+ ],
+ "20027": [
+  {
+   "file": "ch0188_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0188_lobby_1.ogg",
+   "text": "We don't get this kind of opportunity often.\nLet's make the most of it."
+  },
+  {
+   "file": "ch0188_lobby_2.ogg",
+   "text": "Sensei, is there anything you want to do?\nShould we go out and do something? Or are you hungry?"
+  },
+  {
+   "file": "ch0188_lobby_3.ogg",
+   "text": "I wore this for you, Sensei.\nI'm going to catch a big one. Just wait."
+  },
+  {
+   "file": "ch0188_lobby_4.ogg",
+   "text": "Air conditioners and fans are great, but...\n...cooling off in the water is better."
+  }
+ ],
+ "20028": [
+  {
+   "file": "ch0210_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0210_lobby_1.ogg",
+   "text": "Please let me help you with your work, Sensei!"
+  },
+  {
+   "file": "ch0210_lobby_2.ogg",
+   "text": "Do I like summer...?\nYes, of course! I also like spring, autumn, and winter."
+  },
+  {
+   "file": "ch0210_lobby_3.ogg",
+   "text": "I wish to treasure the joy of summer and the joy of the seaside."
+  },
+  {
+   "file": "ch0210_lobby_4.ogg",
+   "text": "Hmm... To be honest, I find this outfit somewhat...embarrassing..."
+  }
+ ],
+ "20029": [
+  {
+   "file": "ch0183_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0183_lobby_1.ogg",
+   "text": "\"Summer.\" \"Beach.\" They're such magical words.\nSo magical they almost made me forget to train..."
+  },
+  {
+   "file": "ch0183_lobby_2.ogg",
+   "text": "Shall I attempt to read your mind, Sensei?\nYou...just want to spend some time with me, right?\nWell? Am I right?"
+  },
+  {
+   "file": "ch0183_lobby_3_2.ogg",
+   "text": "But, I keep thinking of...other things... I need more training..."
+  },
+  {
+   "file": "ch0183_lobby_4.ogg",
+   "text": "Would you like some lemonade? And perhaps a sandwich for a light snack...\nI made plenty, so please, enjoy."
+  }
+ ],
+ "20030": [
+  {
+   "file": "ch0193_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0193_lobby_1.ogg",
+   "text": "I'm already in my gym clothes, and part of me does want to compete, but..."
+  },
+  {
+   "file": "ch0193_lobby_2.ogg",
+   "text": "Going to the games, cheering for my friends, and eating something delicious...\nWhat a perfect order of events."
+  },
+  {
+   "file": "ch0193_lobby_3.ogg",
+   "text": "I feel somehow lighter dressed like this...\nGym clothes really are something special."
+  },
+  {
+   "file": "ch0193_lobby_4.ogg",
+   "text": "I feel more at peace than usual.\nCould it be because of this outfit? Or perhaps because of Sensei...?\nHeehee..."
+  }
+ ],
+ "20031": [
+  {
+   "file": "ch0123_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0123_lobby_1.ogg",
+   "text": "Mm... Maybe it's because I just got out of the bath, but I feel a bit hot..."
+  },
+  {
+   "file": "ch0123_lobby_2_2.ogg",
+   "text": "So, if I take some fruit milk and...\nDon't look at me like that. I won't actually do it."
+  },
+  {
+   "file": "ch0123_lobby_3.ogg",
+   "text": "Nodoka is amazing. I just don't have that kind of passion."
+  },
+  {
+   "file": "ch0123_lobby_4_1.ogg",
+   "text": "Don't pay it any mind if you run into a bear in the hot spring. They work here."
+  }
+ ],
+ "20032": [
+  {
+   "file": "ch0219_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0219_lobby_1.ogg",
+   "text": "...Why am I still wearing this?\n...Because I like it."
+  },
+  {
+   "file": "ch0219_lobby_2.ogg",
+   "text": "It's...hot... Please... Please lower the thermostat."
+  },
+  {
+   "file": "ch0219_lobby_3.ogg",
+   "text": "I will remove my jacket."
+  },
+  {
+   "file": "ch0219_lobby_4.ogg",
+   "text": "Underwear is not appropriate. But swimsuits are?\nHow are the two different? Does the material make one more acceptable?"
+  }
+ ],
+ "20033": [
+  {
+   "file": "ch0079_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0079_lobby_3_1.ogg",
+   "text": "Hmmm? There's an emergency right now, and you can't help me?\nKihehe, don't worry. I understand that you're quite busy."
+  },
+  {
+   "file": "ch0079_lobby_5_2.ogg",
+   "text": "Someday, surely, you shall stand by my side.\nPrepare yourself for that day. Kihehe!"
+  },
+  {
+   "file": "ch0079_login_2.ogg",
+   "text": "You're late, Sensei. I just came up with a brilliant scheme to conquer Kivotos.\nI'll share it with you. Come. Hurry up and take a seat."
+  }
+ ],
+ "20034": [
+  {
+   "file": "ch0196_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0196_lobby_1.ogg",
+   "text": "How do I look in my new kimono?\nAren't you going to say I'm cute? Or dazzling? Something like that?"
+  },
+  {
+   "file": "ch0196_lobby_3.ogg",
+   "text": "Heehee, when I'm with you, I feel light as a cloud. Why is that?"
+  },
+  {
+   "file": "ch0196_lobby_4.ogg",
+   "text": "Can I count on you, Sensei?\n...Oh dear. There's two different responses.\nMaybe I'm expecting something totally absurd, though? Heehee. ★"
+  },
+  {
+   "file": "ch0196_login_1.ogg",
+   "text": "Oh my! Sensei's here! ★\nAll right, here's what I'm thinking for lunch!"
+  }
+ ],
+ "20035": [
+  {
+   "file": "ch0255_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0255_lobby_1.ogg",
+   "text": "Mmm... No, I wasn't sleeping...\nI was only checking if Schale is a good place to rest..."
+  },
+  {
+   "file": "ch0255_lobby_2.ogg",
+   "text": "Sleep pillow, blanket, sleep mask, and earplugs... I've got all my tools.\nJust need you now, Sensei..."
+  },
+  {
+   "file": "ch0255_lobby_3.ogg",
+   "text": "Heehee. It would be nice if, someday, the two of us could go on a school trip together.\nLike to dreamland or something..."
+  },
+  {
+   "file": "ch0255_lobby_4.ogg",
+   "text": "The key to being a tour guide...is being able to explain things effectively...\nYou have to convey your knowledge well..."
+  }
+ ],
+ "20036": [
+  {
+   "file": "ch0189_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0189_lobby_1.ogg",
+   "text": "The ocean is refreshing, after all!"
+  },
+  {
+   "file": "ch0189_lobby_2.ogg",
+   "text": "I'm really happy... I get to come and play with everyone."
+  },
+  {
+   "file": "ch0189_lobby_3.ogg",
+   "text": "If I go all out on having fun, I won't have any more regrets!"
+  },
+  {
+   "file": "ch0189_lobby_4.ogg",
+   "text": "*sigh*... I'm tired...\nN-No! Even time spent resting is a waste!"
+  }
+ ],
+ "20037": [
+  {
+   "file": "ch0261_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0261_lobby_1.ogg",
+   "text": "Huh? My job? Isn't it a good thing if the lifeguard has nothing to do?"
+  },
+  {
+   "file": "ch0261_lobby_2_2.ogg",
+   "text": "Would eating donuts also become a pain if it was for work? ...Well, I don't plan on testing that one out, though."
+  },
+  {
+   "file": "ch0261_lobby_3_2.ogg",
+   "text": "Heehee, no need for repayment. A box of donuts will be enough."
+  },
+  {
+   "file": "ch0261_lobby_4.ogg",
+   "text": "I heard that donuts and mugs are the same... But I don't quite understand what it means..."
+  }
+ ],
+ "20038": [
+  {
+   "file": "ch0271_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0271_lobby_1.ogg",
+   "text": "Argh... It'll take me a while to get used to this heat."
+  },
+  {
+   "file": "ch0271_lobby_2_1.ogg",
+   "text": "There are a lot of kids around the district! Maybe it's because Shanhaijing prioritizes education."
+  },
+  {
+   "file": "ch0271_lobby_3_1.ogg",
+   "text": "I had a chance to think about the communication skills demonstrated in the Peking Opera Club's performances..."
+  },
+  {
+   "file": "ch0271_lobby_5_1.ogg",
+   "text": "Once, I gave the president of the Genryumon a wonderful mustache, but she politely declined it."
+  }
+ ],
+ "20039": [
+  {
+   "file": "ch0139_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0139_lobby_1.ogg",
+   "text": "People can't be led with brute force. You'll lose their hearts.\nBut I'm sure you already know that."
+  },
+  {
+   "file": "ch0139_lobby_2_2.ogg",
+   "text": "Fufu. So you jest? It's all right. I'm like that now and then, too."
+  },
+  {
+   "file": "ch0139_lobby_3_1.ogg",
+   "text": "I haven't left Shanhaijing in a while.\nAnd furthermore, this moment here in Schale is so special."
+  },
+  {
+   "file": "ch0139_lobby_4_1.ogg",
+   "text": "Have you ever wished a moment would last forever, Sensei?"
+  }
+ ],
+ "20040": [
+  {
+   "file": "ch0080_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0080_lobby_2.ogg",
+   "text": "Be careful not to stub your toe on the edge of the desk.\nI don't like when it hurts."
+  },
+  {
+   "file": "ch0080_lobby_3_2.ogg",
+   "text": "...It'd be unexpected, but perhaps in the break room?\nHeehee. Let's peruse their snack selection."
+  },
+  {
+   "file": "ch0080_lobby_4_1.ogg",
+   "text": "Sensei, are you, by chance, interested in the NK Ultra Project?"
+  },
+  {
+   "file": "ch0080_lobby_5_1.ogg",
+   "text": "Look at this coin closely... Now...\nYou want to clock out...\nYou feel the urge to play hooky..."
+  }
+ ],
+ "20041": [
+  {
+   "file": "ch0158_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0158_lobby_1.ogg",
+   "text": "I thought that being rational...\n...meant maximum efficiency.\nBut now, I don't think that's always the case."
+  },
+  {
+   "file": "ch0158_lobby_2_1.ogg",
+   "text": "Have you ever gazed at the stars, Sensei?\nThe stars' light comes from the past, farther back than you can imagine."
+  },
+  {
+   "file": "ch0158_lobby_3_1.ogg",
+   "text": "The future is like a cloud of uncertainty.\nWhether to be anxious about that...\n...or to celebrate its potential..."
+  },
+  {
+   "file": "ch0158_lobby_4_1.ogg",
+   "text": "If any of the Millennium students end up coming to Schale...\n...please share their schedule with me."
+  }
+ ],
+ "20042": [
+  {
+   "file": "ch0235_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0235_lobby_1_1.ogg",
+   "text": "I go up on tall buildings a lot when I'm graffiting...\n...but climbing a mountain feels a little different."
+  },
+  {
+   "file": "ch0235_lobby_2_1.ogg",
+   "text": "The mountain's scenery would feel more colorful if the fall foliage stayed throughout spring, summer, and winter..."
+  },
+  {
+   "file": "ch0235_lobby_3_2.ogg",
+   "text": "My usual dango hair takes a long time to do, so I'm too lazy to do it on my days off..."
+  },
+  {
+   "file": "ch0235_lobby_4_1.ogg",
+   "text": "How does Chihiro wake up and get to club room so early everyday?"
+  }
+ ],
+ "20043": [
+  {
+   "file": "ch0197_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0197_lobby_1_1.ogg",
+   "text": "Hey Sensei, after you finish work, let's go out for something delicious!"
+  },
+  {
+   "file": "ch0197_lobby_2_1.ogg",
+   "text": "You know, I think meeting you has changed me a lot."
+  },
+  {
+   "file": "ch0197_lobby_3_3.ogg",
+   "text": "It's oddly tasty! And also good for your throat!"
+  },
+  {
+   "file": "ch0197_lobby_4_2.ogg",
+   "text": "For me, all my special moments were about searching for something tasty, finding unique flavors, that kind of thing."
+  }
+ ],
+ "20044": [
+  {
+   "file": "ch0287_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0287_lobby_1.ogg",
+   "text": "Anytime you need hydration or protein, let me know."
+  },
+  {
+   "file": "ch0287_lobby_2_1.ogg",
+   "text": "I...like the type of people who don't give up.\nSomeone who forges their own path. Who tries over and over again."
+  },
+  {
+   "file": "ch0287_lobby_3_1.ogg",
+   "text": "Setting goals is very important. Putting in the proper effort to reach that goal is also important."
+  },
+  {
+   "file": "ch0287_lobby_4_1.ogg",
+   "text": "Strangely enough, when I'm working part-time in this outfit, people...ask me to cheer them on."
+  }
+ ],
+ "20045": [
+  {
+   "file": "ch0257_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0257_lobby_1.ogg",
+   "text": "Leading people around while wearing a black outfit..."
+  },
+  {
+   "file": "ch0257_lobby_2.ogg",
+   "text": "Is this not quite gangster?!"
+  },
+  {
+   "file": "ch0257_lobby_3.ogg",
+   "text": "Hyakkiyako is like my \"stomping grounds\"!\nLeave the guiding to me!"
+  },
+  {
+   "file": "ch0257_lobby_4.ogg",
+   "text": "This is how we greet people!\nBe prepared!"
+  }
+ ],
+ "20046": [
+  {
+   "file": "ch0109_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0109_lobby_1_2.ogg",
+   "text": "Why am I being forced to do things for Schale that I would never do for the Yin-Yang Club?!"
+  },
+  {
+   "file": "ch0109_lobby_2_3.ogg",
+   "text": "Eh, stop playing dumb!\nLet's slack off together!"
+  },
+  {
+   "file": "ch0109_lobby_3_1.ogg",
+   "text": "Yeap, yeap. I'm working hard."
+  },
+  {
+   "file": "ch0109_lobby_4_2.ogg",
+   "text": "We should go for a walk to enjoy this luxury!"
+  }
+ ],
+ "20047": [
+  {
+   "file": "ch0300_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0300_lobby_1_1.ogg",
+   "text": "You're well aware that I find submerging myself in the water distasteful.\nTherefore, I also find the beach distasteful. However..."
+  },
+  {
+   "file": "ch0300_lobby_2_1.ogg",
+   "text": "I chose this swimsuit with everyone from the Hyakkaryouran.\nThey praised me the moment I put it on."
+  },
+  {
+   "file": "ch0300_lobby_3_3.ogg",
+   "text": "Naturally, it will be one to my liking. I will not hear any objections."
+  },
+  {
+   "file": "ch0300_lobby_4_2.ogg",
+   "text": "Doggy paddle...? Fufu, are you TRYING to get scolded by me?"
+  }
+ ],
+ "20048": [
+  {
+   "file": "ch0293_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0293_lobby_1.ogg",
+   "text": "After a vacation, even the most routine of tasks feel more menial."
+  },
+  {
+   "file": "ch0293_lobby_2.ogg",
+   "text": "But hard work is what makes the break afterwards even sweeter."
+  },
+  {
+   "file": "ch0293_lobby_3.ogg",
+   "text": "Just as how bitter tea highlights the sweetness of your snacks."
+  },
+  {
+   "file": "ch0293_lobby_4.ogg",
+   "text": "Naturally, even I have days where I wish to eat snacks by the mouthful."
+  }
+ ],
+ "20049": [
+  {
+   "file": "ch0268_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0268_lobby_1_2.ogg",
+   "text": "...There's a lot of water. It's not drinkable, though."
+  },
+  {
+   "file": "ch0268_lobby_2_3.ogg",
+   "text": "You say things like that without batting an eye..."
+  },
+  {
+   "file": "ch0268_lobby_3_1.ogg",
+   "text": "...They're all meaningless, in my opinion. The beach, this swimsuit."
+  },
+  {
+   "file": "ch0268_lobby_4_1.ogg",
+   "text": "...I can drink as much clean water as I want here."
+  }
+ ],
+ "20050": [
+  {
+   "file": "ch0319_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0319_lobby_1.ogg",
+   "text": "I like our club! It brings other people joy!"
+  },
+  {
+   "file": "ch0319_lobby_2.ogg",
+   "text": "When you look at a rock or a clump of clay...\n...don't you feel the urge to bring out the shape it carries inside?"
+  },
+  {
+   "file": "ch0319_lobby_3.ogg",
+   "text": "I can't figure out your dimensions visually. \nSo would you mind if I hugged you, Sensei?"
+  },
+  {
+   "file": "ch0319_lobby_4.ogg",
+   "text": "Being at Schale feels just as comfortable as leaning on marble!"
+  }
+ ],
+ "20051": [
+  {
+   "file": "ch0326_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0326_lobby_1_1.ogg",
+   "text": "I've come to answer your call...!"
+  },
+  {
+   "file": "ch0326_lobby_2_1.ogg",
+   "text": "What if the Vigilante Crew had a uniform?"
+  },
+  {
+   "file": "ch0326_lobby_3_2.ogg",
+   "text": "Ah! Hello, Sensei! I was practicing my lines..."
+  },
+  {
+   "file": "ch0326_lobby_4_2.ogg",
+   "text": "They say, \"The hotter the friendship, the hotter the firepower!\" It's such a good quote!"
+  }
+ ],
+ "20052": [
+  {
+   "file": "ch0228_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0228_lobby_1_3.ogg",
+   "text": "But I like imagining the possibilities.\nWriting down your ideas is surprisingly fun, you know?"
+  },
+  {
+   "file": "ch0228_lobby_2_3.ogg",
+   "text": "We overcome any deficits with the Publishing Department's business capability!"
+  },
+  {
+   "file": "ch0228_lobby_3_1.ogg",
+   "text": "I rode multiple types of transportation to get to Schale."
+  },
+  {
+   "file": "ch0228_lobby_4_4.ogg",
+   "text": "The Publishing Department should also absorb various video platforms!"
+  }
+ ],
+ "20053": [
+  {
+   "file": "ch0296_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0296_lobby_1.ogg",
+   "text": "Why is it that as clothes get prettier, they get more uncomfortable...?"
+  },
+  {
+   "file": "ch0296_lobby_2.ogg",
+   "text": "It's uncomfortable, but there's lots of different places to hide my ninja gear!"
+  },
+  {
+   "file": "ch0296_lobby_3_2.ogg",
+   "text": "So even if I'm wearing a dress, I'm still a ninja!"
+  },
+  {
+   "file": "ch0296_lobby_4.ogg",
+   "text": "I want ramen...but I probably shouldn't while I'm wearing this..."
+  }
+ ],
+ "20054": [
+  {
+   "file": "ch0332_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0332_lobby_1_3.ogg",
+   "text": "I thought I'd change your monitor background to that color, Sensei."
+  },
+  {
+   "file": "ch0332_lobby_2_2.ogg",
+   "text": "...the general consensus is that AI can't completely replace people yet."
+  },
+  {
+   "file": "ch0332_lobby_3_1.ogg",
+   "text": "If there's anything that's burdening or bothering you..."
+  },
+  {
+   "file": "ch0332_lobby_4_3.ogg",
+   "text": "More precisely, I was studying the relationship between REM and non-REM sleep."
+  }
+ ],
+ "20055": [
+  {
+   "file": "ch0336_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0336_lobby_1.ogg",
+   "text": "This outfit is more comfortable than it looks...\nBut it's more embarrassing than how comfortable it is..."
+  },
+  {
+   "file": "ch0336_lobby_2.ogg",
+   "text": "Doesn't the texture of this suit seem strange? I feel like even a bullet would slide off."
+  },
+  {
+   "file": "ch0336_lobby_3.ogg",
+   "text": "I'm certain that everything is covered, but I feel naked... Augh..."
+  },
+  {
+   "file": "ch0336_lobby_4_1.ogg",
+   "text": "This suit... For some reason, it seems like it can be linked with a computer..."
+  }
+ ],
+ "20056": [
+  {
+   "file": "ch0310_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0310_lobby_1.ogg",
+   "text": "Student Rep duties?\nHold on, let me lay out a mat first!"
+  },
+  {
+   "file": "ch0310_lobby_2.ogg",
+   "text": "Now, now, let's go for an arcade trip first, Sensei."
+  },
+  {
+   "file": "ch0310_lobby_3.ogg",
+   "text": "Hurry, hurry up and come here, Sensei!\n...Please turn the lights off!"
+  },
+  {
+   "file": "ch0310_lobby_4.ogg",
+   "text": "Schale feels nice!\nNo tracking drones, no anti-entry shutters..."
+  }
+ ],
+ "20057": [
+  {
+   "file": "ch0307_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0307_lobby_1_1.ogg",
+   "text": "\"Sensei\" or \"Master,\" which do you prefer?"
+  },
+  {
+   "file": "ch0307_lobby_2_1.ogg",
+   "text": "Being with you as a regular student... It's a rather interesting feeling."
+  },
+  {
+   "file": "ch0307_lobby_3_1.ogg",
+   "text": "There are many different methods to cleaning... \n...but I have my own preferences."
+  },
+  {
+   "file": "ch0307_lobby_4_1.ogg",
+   "text": "Sensei, what do you think about becoming a teacher at Millennium?"
+  }
+ ],
+ "20058": [
+  {
+   "file": "erika_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "erika_lobby_1_1.ogg",
+   "text": "I'm Student Rep for the day! So just tell me where you need me!"
+  },
+  {
+   "file": "erika_lobby_2_2.ogg",
+   "text": "Fufu... I guess adults look pretty cool when they're focused...\n ...That was just a random thought I had."
+  },
+  {
+   "file": "erika_lobby_3_1.ogg",
+   "text": "Why are you a teacher, Sensei?\nI was just curious..."
+  },
+  {
+   "file": "erika_lobby_4_1.ogg",
+   "text": "Ah, all the documents over here are done.\nMan, that was tough!"
+  }
+ ],
+ "20059": [
+  {
+   "file": "ch0246_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0246_lobby_1_2.ogg",
+   "text": "Kufufu, you can be honest.\nBecause I AM more mature today."
+  },
+  {
+   "file": "ch0246_lobby_2_3.ogg",
+   "text": "If you're wrong...\nYour punishment will be to be my chair today! ♪"
+  },
+  {
+   "file": "ch0246_lobby_3_1.ogg",
+   "text": "Should we play even more like adults today?"
+  },
+  {
+   "file": "ch0246_lobby_4_2.ogg",
+   "text": "Kufufu, Sensei, you should call me a lady too. I want to hear it."
+  }
+ ],
+ "23000": [
+  {
+   "file": "airi_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "airi_lobby_1.ogg",
+   "text": "Yummm... Nothing beats sweets!"
+  },
+  {
+   "file": "airi_lobby_2.ogg",
+   "text": "You like ice cream too, right?"
+  },
+  {
+   "file": "airi_lobby_3.ogg",
+   "text": "After-school time is dessert time!"
+  },
+  {
+   "file": "airi_lobby_4.ogg",
+   "text": "Let's give it our all today and earn some tasty desserts for later!"
+  }
+ ],
+ "23001": [
+  {
+   "file": "fuuka_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "fuuka_lobby_1.ogg",
+   "text": "I hope you're not skipping meals! Do you want me to make something for you?"
+  },
+  {
+   "file": "fuuka_lobby_2.ogg",
+   "text": "Cooking for everyone is hard work, but I'll be okay."
+  },
+  {
+   "file": "fuuka_lobby_4.ogg",
+   "text": "I'm curious. What kind of food do you like?\nHuh? Why am I asking?\nThat's a secret!"
+  },
+  {
+   "file": "fuuka_lobby_5.ogg",
+   "text": "Hmm. I wonder what kind of foods would be the best for your health..."
+  }
+ ],
+ "23002": [
+  {
+   "file": "hanae_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "hanae_lobby_1.ogg",
+   "text": "*gasp* Sensei, your face is so pale! Do you need me to perform first aid?"
+  },
+  {
+   "file": "hanae_lobby_2.ogg",
+   "text": "I'm here to help you get better and put a smile on your face!"
+  },
+  {
+   "file": "hanae_lobby_3.ogg",
+   "text": "What type of girl do you like, Sensei?\nI bet you like the cute, bubbly types, don't you?"
+  },
+  {
+   "file": "hanae_lobby_4.ogg",
+   "text": "We have lots to do today, so no slacking off!"
+  }
+ ],
+ "23003": [
+  {
+   "file": "hare_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "hare_lobby_1.ogg",
+   "text": "Believe it or not, I'm pretty good at games.\nYou wanna test my skills, Sensei?"
+  },
+  {
+   "file": "hare_lobby_2.ogg",
+   "text": "Cheat...?\nI may be a hacker, sure, but that would take all the fun out."
+  },
+  {
+   "file": "hare_lobby_3.ogg",
+   "text": "Do people think hackers are just a bunch of cheaters or something?"
+  },
+  {
+   "file": "hare_lobby_4.ogg",
+   "text": "I hack because knowledge should be free.\nThat's what I believe."
+  }
+ ],
+ "23004": [
+  {
+   "file": "utaha_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "utaha_lobby_1.ogg",
+   "text": "(Hmm. Sensei can be...very hard to read.)"
+  },
+  {
+   "file": "utaha_lobby_2.ogg",
+   "text": "I thought it might come to this. I'm looking forward to the opportunity to finally work together."
+  },
+  {
+   "file": "utaha_lobby_3.ogg",
+   "text": "Millennium battles are decided by the abilities of the technicians around you."
+  },
+  {
+   "file": "utaha_lobby_5.ogg",
+   "text": "The true beauty of a machine can be found in its logic, precision, and simplicity."
+  }
+ ],
+ "23005": [
+  {
+   "file": "ayane_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ayane_lobby_1.ogg",
+   "text": "What kind of tasks are on your itinerary today?"
+  },
+  {
+   "file": "ayane_lobby_2.ogg",
+   "text": "I'll check the schedule too."
+  },
+  {
+   "file": "ayane_lobby_3.ogg",
+   "text": "Huh? We have to work all night? J-Just the two of us?"
+  },
+  {
+   "file": "ayane_login_1.ogg",
+   "text": "Welcome, Sensei. Allow me to go over your schedule."
+  }
+ ],
+ "23006": [
+  {
+   "file": "shizuko_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "shizuko_lobby_1.ogg",
+   "text": "Yes, Sensei? Which task can I help you with today? You can count on me!"
+  },
+  {
+   "file": "shizuko_lobby_2.ogg",
+   "text": "I don't know why I always let my guard down when I'm with you.\nIs it...just because of who you are, Sensei?"
+  },
+  {
+   "file": "shizuko_lobby_4.ogg",
+   "text": "What? You think I'm cute?\nD-Don't tease me like that! You know how I really am. I'm so...\nThat's what's cute about me? U-Ugh..."
+  },
+  {
+   "file": "shizuko_login_1.ogg",
+   "text": "Heehee, you're back, Sensei!\nHeehee. That was perfect."
+  }
+ ],
+ "23007": [
+  {
+   "file": "hanako_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "hanako_lobby_1.ogg",
+   "text": "Heehee, I guess it's kind of fun to be on duty like this."
+  },
+  {
+   "file": "hanako_lobby_2.ogg",
+   "text": "I think it's just the two of us here...\nMaybe I'm kind of excited?"
+  },
+  {
+   "file": "hanako_lobby_3.ogg",
+   "text": "Huh? What do I mean?\nI'm not sure... What DO I mean?"
+  },
+  {
+   "file": "hanako_lobby_4.ogg",
+   "text": "Do you need me to do anything, Sensei?"
+  }
+ ],
+ "23008": [
+  {
+   "file": "mari_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "mari_lobby_1.ogg",
+   "text": "Would you like to hear a verse?"
+  },
+  {
+   "file": "mari_lobby_2.ogg",
+   "text": "P-Please don't do anything unholy while I'm praying, okay?"
+  },
+  {
+   "file": "mari_lobby_3.ogg",
+   "text": "(May my prayers protect you, Sensei)"
+  },
+  {
+   "file": "mari_lobby_4.ogg",
+   "text": "You can confide in me when you're having a rough time."
+  }
+ ],
+ "26000": [
+  {
+   "file": "chinatsu_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "chinatsu_lobby_1.ogg",
+   "text": "I'll tell you a secret...\nI'm not a fan of needles either."
+  },
+  {
+   "file": "chinatsu_lobby_2.ogg",
+   "text": "I hope you know there's no cure for stupidity."
+  },
+  {
+   "file": "chinatsu_lobby_3.ogg",
+   "text": "Pardon? You want me to laugh?\n...Perhaps if we were alone together."
+  },
+  {
+   "file": "chinatsu_lobby_4.ogg",
+   "text": "(If I knock Sensei out and perform CPR...)\n(...would that count?)"
+  }
+ ],
+ "26001": [
+  {
+   "file": "kotama_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "kotama_lobby_1.ogg",
+   "text": "I see your call history is exclusively female students.\nI would like an explanation."
+  },
+  {
+   "file": "kotama_lobby_2.ogg",
+   "text": "...Crime? What do you mean? Wiretapping is not a crime."
+  },
+  {
+   "file": "kotama_lobby_3.ogg",
+   "text": "Would you care to explain the post that just went up on your private account?"
+  },
+  {
+   "file": "kotama_lobby_4.ogg",
+   "text": "Sensei, could I ask you to sing a song for me?\nPlease sing into this voice recorder."
+  }
+ ],
+ "26002": [
+  {
+   "file": "juri_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "juri_lobby_5.ogg",
+   "text": "Ugh...\nWhy does everything I cook end in failure?"
+  },
+  {
+   "file": "juri_lobby_2.ogg",
+   "text": "If the ingredients are still moving, that means it's fresh, right?"
+  },
+  {
+   "file": "juri_lobby_4.ogg",
+   "text": "Oh, silly me! I forgot about the pie in the oven!"
+  },
+  {
+   "file": "juri_lobby_1.ogg",
+   "text": "Which do you think will add more flavor? Sulfuric or hydrochloric acid?"
+  }
+ ],
+ "26003": [
+  {
+   "file": "serina_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "serina_lobby_2.ogg",
+   "text": "You look tired. Would you like me to massage your shoulders?"
+  },
+  {
+   "file": "serina_lobby_3.ogg",
+   "text": "Fatigue is the root of many illnesses, so don't push yourself too hard."
+  },
+  {
+   "file": "serina_lobby_4.ogg",
+   "text": "It always breaks my heart to think about the patients who are suffering."
+  },
+  {
+   "file": "serina_lobby_5.ogg",
+   "text": "I can't forgive those who would trample on the peace we have!"
+  }
+ ],
+ "26004": [
+  {
+   "file": "shimiko_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "shimiko_lobby_1.ogg",
+   "text": "Whenever I have spending money, I buy a book first. Clothes or food are secondary."
+  },
+  {
+   "file": "shimiko_lobby_2.ogg",
+   "text": "What kinds of books do I like? Hmm... I'm not choosy when it comes to reading."
+  },
+  {
+   "file": "shimiko_lobby_3.ogg",
+   "text": "Sensei, I wouldn't recommend that book. Four pages from where you are, the main character dies in vain.\n...Whoops Was that a spoiler?"
+  },
+  {
+   "file": "shimiko_lobby_4.ogg",
+   "text": "It'd be nice if there were more books here. Can I recommend a few?"
+  }
+ ],
+ "26005": [
+  {
+   "file": "yoshimi_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "yoshimi_lobby_1.ogg",
+   "text": "I've been chugging a liter of milk. Every! Single! Day!"
+  },
+  {
+   "file": "yoshimi_lobby_2.ogg",
+   "text": "I-If I'm on duty…that means I get to have snack time with you too, right, Sensei?"
+  },
+  {
+   "file": "yoshimi_lobby_3.ogg",
+   "text": "Do your best today! I'll help you however I can!"
+  },
+  {
+   "file": "yoshimi_lobby_4.ogg",
+   "text": "Sensei? You're not looking too good...\nSh-Should we try some dessert therapy?"
+  }
+ ],
+ "26006": [
+  {
+   "file": "nodoka_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "nodoka_lobby_1.ogg",
+   "text": "*pant* *pant* ...I have the most fun when I'm watching you, Sensei."
+  },
+  {
+   "file": "nodoka_lobby_2.ogg",
+   "text": "I never get sick of your face no matter how many times I look at it!"
+  },
+  {
+   "file": "nodoka_lobby_3.ogg",
+   "text": "Ugh... You're not supposed to be like that with other people."
+  },
+  {
+   "file": "nodoka_lobby_4.ogg",
+   "text": "When you're looking out at this big wide world...\n...you realize that we're all so insignificant."
+  }
+ ],
+ "26007": [
+  {
+   "file": "ch0176_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0176_lobby_1.ogg",
+   "text": "Hmm...? Wh-What's wrong?"
+  },
+  {
+   "file": "ch0176_lobby_2.ogg",
+   "text": "Hm? My appearance?\nU-Um...I wanted to get into the summer mood..."
+  },
+  {
+   "file": "ch0176_lobby_3.ogg",
+   "text": "How is it? D-Does it look okay...?"
+  },
+  {
+   "file": "ch0176_lobby_4.ogg",
+   "text": "I'm always thinking about what has to be done next...\nIt's an interesting feeling to be relaxing like this."
+  }
+ ],
+ "26008": [
+  {
+   "file": "ch0180_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0180_lobby_1.ogg",
+   "text": "When I'm at the Beach Shack, can you please come see me there?"
+  },
+  {
+   "file": "ch0180_lobby_2.ogg",
+   "text": "Momoyodou will always be with you!\nThat's a good phrase, right?"
+  },
+  {
+   "file": "ch0180_lobby_4.ogg",
+   "text": "Is it hard to manage multiple shops?\nUmm, well, yeah. I guess.\n...If I said it was hard, would you help me?"
+  },
+  {
+   "file": "ch0180_lobby_5.ogg",
+   "text": "When I'm with you, I feel like I'm at a summer festival.\n...Heehee, if you're not sure, you don't need to know yet."
+  }
+ ],
+ "26009": [
+  {
+   "file": "ch0203_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0203_lobby_1.ogg",
+   "text": "I'm not very good at cleaning, but...\nIf you ask me to, Sensei..."
+  },
+  {
+   "file": "ch0203_lobby_2.ogg",
+   "text": "What? You're saying I...look good?\nUm, I'd rather you didn't make fun of me...\nY-You're not? You mean it? Then...that's just..."
+  },
+  {
+   "file": "ch0203_lobby_3_2.ogg",
+   "text": "Cats don't seem like they'd make good maids... If anything, they're more the master type..."
+  },
+  {
+   "file": "ch0203_lobby_4.ogg",
+   "text": "This...may be a good reference for the game."
+  }
+ ],
+ "26010": [
+  {
+   "file": "ch0218_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0218_lobby_1.ogg",
+   "text": "M-Memories about the ocean...\nI don't think I have th-that many good m-memories..."
+  },
+  {
+   "file": "ch0218_lobby_2_1.ogg",
+   "text": "...Is there a-anything I can help you with?\nM-Maybe go out and buy some drinks...?"
+  },
+  {
+   "file": "ch0218_lobby_3_2.ogg",
+   "text": "I-I'm a little embarrassed b-by your c-compliment..."
+  },
+  {
+   "file": "ch0218_lobby_5.ogg",
+   "text": "I can swim...a-a little bit.\nI'm not very good at the b-butterfly stroke, though..."
+  }
+ ],
+ "26011": [
+  {
+   "file": "ch9996_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch9996_lobby_1.ogg",
+   "text": "This world is so similar to my world, but it's also so different... It's interesting."
+  },
+  {
+   "file": "ch9996_lobby_2.ogg",
+   "text": "Oh, you're going for a walk? ...I want to go too! Please take me along, Sensei!"
+  },
+  {
+   "file": "ch9996_lobby_3.ogg",
+   "text": "From top to bottom, it sure is a funny world you've got here!"
+  },
+  {
+   "file": "ch9996_lobby_4.ogg",
+   "text": "It may have been random chance, but I'm glad I'm here!"
+  }
+ ],
+ "26012": [
+  {
+   "file": "ch0262_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0262_lobby_1.ogg",
+   "text": "When entering the water, start by getting the parts furthest from your heart wet!"
+  },
+  {
+   "file": "ch0262_lobby_2.ogg",
+   "text": "Hm? Do you need my assistance?"
+  },
+  {
+   "file": "ch0262_lobby_3_1.ogg",
+   "text": "Check for reactions, call emergency services, check breathing...then..."
+  },
+  {
+   "file": "ch0262_lobby_4.ogg",
+   "text": "Don't worry if you fall into the water! I'll come save you!"
+  }
+ ],
+ "26013": [
+  {
+   "file": "ch0267_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0267_lobby_1.ogg",
+   "text": "I took a \"selfie\" with Misaki. Our expressions were both quite strange. Heehee. I'd like to take another one."
+  },
+  {
+   "file": "ch0267_lobby_2.ogg",
+   "text": "Uh... This might sound strange...but Sensei, could I take a picture of you?"
+  },
+  {
+   "file": "ch0267_lobby_3_1.ogg",
+   "text": "You even work on days like these, Sensei."
+  },
+  {
+   "file": "ch0267_lobby_4.ogg",
+   "text": "Sensei, what do you think of my swimsuit? I hope it doesn't seem strange."
+  }
+ ],
+ "26014": [
+  {
+   "file": "ch0282_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0282_lobby_1_1.ogg",
+   "text": "As you can see, I'm in my school uniform today. Why, you ask?"
+  },
+  {
+   "file": "ch0282_lobby_2.ogg",
+   "text": "Maybe it's just because I'm dressed differently, but I feel unusually alert today."
+  },
+  {
+   "file": "ch0282_lobby_3_1.ogg",
+   "text": "I don't usually wear my school uniform... Does everything look right?"
+  },
+  {
+   "file": "ch0282_lobby_4.ogg",
+   "text": "Ready and waiting. Any orders you have, just give them as usual."
+  }
+ ],
+ "26015": [
+  {
+   "file": "ch0292_title.ogg",
+   "text": ""
+  },
+  {
+   "file": "ch0292_lobby_1_2.ogg",
+   "text": "Even at the beach, my job doesn't change, huh?"
+  },
+  {
+   "file": "ch0292_lobby_2_2.ogg",
+   "text": "I wanted to try out some beach fashion... It's not my usual style, huh?"
+  },
+  {
+   "file": "ch0292_lobby_3_1.ogg",
+   "text": "Mmm... What needs to get done next?"
+  },
+  {
+   "file": "ch0292_lobby_4_3.ogg",
+   "text": "Ah, if you ever need a hand, just call me, okay?"
+  }
+ ]
+}

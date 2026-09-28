@@ -5,13 +5,13 @@ import { defineConfig, type Connect } from "vite";
 import react from "@vitejs/plugin-react";
 
 /**
- * Serves the built audio and pictures (audio-dist/, from `npm run build:audio`
- * and `npm run build:pictures`) at /audio while developing, the way Cloudflare
- * serves them once deployed. Production builds read them from
- * VITE_AUDIO_BASE_URL in .env.production instead.
+ * Serves the built audio, voice lines and pictures (audio-dist/, from `npm run
+ * build:audio`, `build:voice-audio` and `build:pictures`) at /audio while
+ * developing, the way Cloudflare serves them once deployed. Production builds
+ * read them from VITE_AUDIO_BASE_URL in .env.production instead.
  */
 const serveLocalAudio: Connect.NextHandleFunction = (req, res, next) => {
-  const match = req.url?.match(/^\/audio\/(pictures\/)?([\w.-]+)$/);
+  const match = req.url?.match(/^\/audio\/((?:pictures|voices)\/)?([\w.-]+)$/);
   if (!match) return next();
 
   const [, folder = "", name] = match;
@@ -23,7 +23,12 @@ const serveLocalAudio: Connect.NextHandleFunction = (req, res, next) => {
     return;
   }
 
-  res.setHeader("Content-Type", folder ? "image/webp" : "audio/ogg");
+  const type = name.endsWith(".webp")
+    ? "image/webp"
+    : name.endsWith(".json")
+    ? "application/json"
+    : "audio/ogg";
+  res.setHeader("Content-Type", type);
   createReadStream(file).pipe(res);
 };
 

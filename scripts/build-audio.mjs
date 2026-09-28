@@ -14,7 +14,7 @@
  * Run `npm run songs` after adding or replacing an original. Needs ffmpeg and
  * ffprobe on the PATH. A song whose original hasn't changed is skipped. The
  * cuts are byte-for-byte repeatable, and anything else in audio-dist/ (but the
- * pictures folder) is removed, so an old name can't linger there.
+ * pictures and voices folders) is removed, so an old name can't linger there.
  */
 import { execFile } from "node:child_process";
 import {
@@ -170,6 +170,7 @@ const entries = await inPool(songs, (song) =>
 const expected = new Set([
   "_headers",
   "pictures",
+  "voices",
   ...entries.flatMap(({ themeNo, v }) => [
     clipFile(themeNo, v),
     songFile(themeNo, v),

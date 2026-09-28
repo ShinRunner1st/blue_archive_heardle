@@ -2,7 +2,8 @@
  * Verifies the audio is complete and up to date.
  *
  * Fails when a song has no original in audio/, or when audioClips.ts doesn't
- * match the originals - a song added or replaced without `npm run songs`. CI
+ * match the originals - a song added or replaced without `npm run songs` -
+ * and likewise when voiceLines.ts doesn't match the Voice mode lines. CI
  * runs this on every push. Originals with no song entry only get a warning:
  * they may be waiting for their entry to be added.
  *
@@ -13,7 +14,12 @@
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 
-import { clipFile, songFile, sourceFile } from "../src/helpers/audioFiles.ts";
+import {
+  clipFile,
+  songFile,
+  sourceFile,
+  voiceFile,
+} from "../src/helpers/audioFiles.ts";
 import {
   SOURCE_DIR,
   checkServerFile,
@@ -22,6 +28,11 @@ import {
   versionOf,
 } from "./lib/audio.mjs";
 import { loadSongs } from "./lib/songs.mjs";
+import {
+  loadVoiceList,
+  loadVoiceManifest,
+  voiceVersions,
+} from "./lib/voices.mjs";
 
 const songs = loadSongs();
 const sources = new Set(readdirSync(SOURCE_DIR));
@@ -48,12 +59,37 @@ for (const themeNo of manifest.keys()) {
   }
 }
 
+// Voice mode's lines: each student's count and version as built.
+const voices = voiceVersions(loadVoiceList());
+const voiceManifest = loadVoiceManifest();
+problems.push(...voices.problems);
+for (const [id, { v, sources }] of voices.students) {
+  const entry = voiceManifest.lines.get(id);
+  if (!entry || entry.v !== v || entry.count !== sources.length) {
+    problems.push(`voice lines not built from their current files: ${id}`);
+  }
+}
+for (const id of voiceManifest.lines.keys()) {
+  if (!voices.students.has(id)) {
+    problems.push(`voice lines built, but not in voices/lines.json: ${id}`);
+  }
+}
+
 async function checkRemote() {
   for (const base of loadServers(problems)) {
-    const urls = [...manifest.values()].flatMap(({ themeNo, v }) => [
-      `${base}/${clipFile(themeNo, v)}`,
-      `${base}/${songFile(themeNo, v)}`,
-    ]);
+    const urls = [
+      ...[...manifest.values()].flatMap(({ themeNo, v }) => [
+        `${base}/${clipFile(themeNo, v)}`,
+        `${base}/${songFile(themeNo, v)}`,
+      ]),
+      ...[...voiceManifest.lines].flatMap(([id, { count, v }]) =>
+        Array.from(
+          { length: count },
+          (_, line) => `${base}/${voiceFile(id, line, v)}`
+        )
+      ),
+      ...(voiceManifest.texts ? [`${base}/${voiceManifest.texts}`] : []),
+    ];
     let next = 0;
     const asker = async () => {
       while (next < urls.length) {
@@ -73,7 +109,9 @@ const unused = [...sources].filter(
   (file) => file.endsWith(".ogg") && !expectedSources.has(file)
 );
 
-console.log(`Checked ${songs.length} songs.`);
+console.log(
+  `Checked ${songs.length} songs and ${voices.students.size} students' lines.`
+);
 
 if (unused.length > 0) {
   console.warn(`\n${unused.length} original(s) with no song entry:`);
