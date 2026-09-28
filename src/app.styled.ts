@@ -47,29 +47,35 @@ export const BG = styled.div`
 `;
 
 /**
- * Holds the game switch, and under it the ways to play, in one place under
- * the header. Each has a row of its own, so neither moves when the other
- * changes.
+ * Holds the game switch and the ways to play, in one row under the header.
+ * The row is as wide whatever it holds, so both stay put.
  */
-/**
- * The ways to play, as tall when there are none (OST daily), so the game
- * under it doesn't move either.
- */
-export const StyleRow = styled.div`
-  display: flex;
-  justify-content: center;
-  min-height: 32px;
-`;
-
 export const StyleBar = styled.div`
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 8px;
 
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto;
   padding: 16px 16px 0;
 
   @media (max-width: 768px) {
     padding-top: 12px;
+  }
+`;
+
+/**
+ * The ways to play, beside the game switch. It takes the rest of the row
+ * whatever is in it, even nothing (OST daily), so neither switch ever moves,
+ * and each way-to-play switch fills it, all the same width.
+ */
+export const StyleRow = styled.div`
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 32px;
+
+  & > * {
+    width: 100%;
   }
 `;

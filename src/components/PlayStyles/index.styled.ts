@@ -8,7 +8,7 @@ import "@fontsource-variable/nunito-sans";
 export const Styles = styled.div<{ $count: number }>`
   position: relative;
   display: grid;
-  grid-template-columns: repeat(${({ $count }) => $count}, 1fr);
+  grid-template-columns: repeat(${({ $count }) => $count}, minmax(0, 1fr));
 
   padding: 3px;
 
@@ -41,6 +41,12 @@ export const Style = styled.button<{ $active: boolean }>`
   position: relative;
   z-index: 1;
 
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 0;
+
   padding: 4px 14px;
 
   font-family: inherit;
@@ -71,7 +77,14 @@ export const Style = styled.button<{ $active: boolean }>`
     outline-offset: 2px;
   }
 
-  @media (max-width: 360px) {
-    padding: 4px 10px;
+  @media (max-width: 420px) {
+    padding: 4px 8px;
+  }
+`;
+
+/** A label with an icon beside it gives way to the icon on a narrow phone. */
+export const Label = styled.span<{ $hideable: boolean }>`
+  @media (max-width: 420px) {
+    display: ${({ $hideable }) => ($hideable ? "none" : "inline")};
   }
 `;

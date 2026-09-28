@@ -1,3 +1,6 @@
+import React from "react";
+import { IoMusicalNotes, IoPeople } from "react-icons/io5";
+
 import { Game, GameMode } from "../../types/mode";
 import { StudentGame } from "../../types/student";
 
@@ -7,6 +10,8 @@ interface Option<T extends string> {
   value: T;
   label: string;
   hint: string;
+  /** Shown beside the label, and in its place on a narrow phone. */
+  icon?: React.ReactNode;
 }
 
 interface PillsProps<T extends string> {
@@ -43,9 +48,13 @@ export function Pills<T extends string>({
           $active={option.value === value}
           aria-pressed={option.value === value}
           title={option.hint}
+          aria-label={option.icon ? option.label : undefined}
           onClick={() => onChange(option.value)}
         >
-          {option.label}
+          {option.icon}
+          <Styled.Label $hideable={Boolean(option.icon)}>
+            {option.label}
+          </Styled.Label>
         </Styled.Style>
       ))}
     </Styled.Styles>
@@ -90,11 +99,17 @@ export function PlayStyles({
 }
 
 const GAMES: Array<Option<Game>> = [
-  { value: "ost", label: "OST", hint: "Name the song from a clip" },
+  {
+    value: "ost",
+    label: "OST",
+    hint: "Name the song from a clip",
+    icon: <IoMusicalNotes aria-hidden="true" />,
+  },
   {
     value: "students",
     label: "Students",
     hint: "Name the student from how they compare",
+    icon: <IoPeople aria-hidden="true" />,
   },
 ];
 

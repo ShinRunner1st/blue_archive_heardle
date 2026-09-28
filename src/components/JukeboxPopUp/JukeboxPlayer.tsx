@@ -53,6 +53,19 @@ export function useJukeboxAudio(
 
   useAudioVolume(audioRef);
 
+  // Stopped: taking the source away doesn't stop a song already playing, so
+  // it is paused and unloaded by hand.
+  const hadSong = React.useRef(false);
+  React.useEffect(() => {
+    const audio = audioRef.current;
+    const stopped = hadSong.current && !themeNo;
+    hadSong.current = Boolean(themeNo);
+    if (!stopped || !audio) return;
+    audio.pause();
+    audio.removeAttribute("src");
+    audio.load();
+  }, [themeNo]);
+
   const handleReady = React.useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;

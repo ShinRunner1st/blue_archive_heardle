@@ -75,6 +75,9 @@ beforeEach(() => {
   vi.spyOn(window.HTMLMediaElement.prototype, "pause").mockImplementation(
     () => undefined
   );
+  vi.spyOn(window.HTMLMediaElement.prototype, "load").mockImplementation(
+    () => undefined
+  );
   harness = createHarness();
 });
 
@@ -255,9 +258,13 @@ describe("Jukebox, closed", () => {
   it("stops from the corner", async () => {
     await playOne(true);
     mountJukebox(false, true);
+    const pause = vi.mocked(window.HTMLMediaElement.prototype.pause);
+    pause.mockClear();
 
     click(miniButton("Stop the music"));
     expect(mini()).toBeNull();
+    // Paused, not only emptied: a playing song keeps on otherwise.
+    expect(pause).toHaveBeenCalled();
     expect(document.querySelector("audio")?.getAttribute("src")).toBeNull();
   });
 
@@ -269,7 +276,10 @@ describe("Jukebox, closed", () => {
     await playOne(true);
     mountJukebox(false, true);
     expect(mini()).not.toBeNull();
+    const pause = vi.mocked(window.HTMLMediaElement.prototype.pause);
+    pause.mockClear();
     mountJukebox(false, false);
     expect(mini()).toBeNull();
+    expect(pause).toHaveBeenCalled();
   });
 });
