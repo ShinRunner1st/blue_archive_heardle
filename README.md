@@ -56,7 +56,8 @@ Daily and Endless work for both. Type a student's name (either name, in either
 order: "armed hoshino" finds Hoshino (Armed)) and the guess goes straight into
 the table, newest on top, a column per attribute: green when it matches the
 answer, yellow when it's close, red when it doesn't, with an arrow for numbers
-pointing higher or lower. There's no limit on guesses; Give up (pressed twice)
+pointing higher or lower. Schools, roles and gifts show their icon, with the
+name under it when it's short. There's no limit on guesses; Give up (pressed twice)
 counts as a loss. A second switch picks how to play:
 
 - **Gameplay** - school, role, damage type, weapon type, EX skill cost (at
@@ -111,7 +112,11 @@ alone, so it never downloads the icons).
   play the next song → repeat this song → off. Starting a song pauses any
   other playing on the page. Both lists draw their rows from one shared
   component (`src/components/SongRows`) with plain elements, fixed columns
-  and off-screen rows skipped, so they open and refilter quickly.
+  and off-screen rows skipped, so they open and refilter quickly. In the
+  student game, which has no audio of its own, the music plays on after the
+  Jukebox closes, in a small player at the bottom right (play or pause, next
+  song, back to the Jukebox, stop). In the OST game closing it stops the
+  music, so it can't play over a round, and so does going back to the OST.
 - **Volume** - set it once; it's remembered. New players start at 20%.
 - **Dark mode** - in the ☰ menu. Follows your device until you pick one.
 - **Blue Archive cursor** - the game's cursor, with its flash on every click
@@ -132,8 +137,8 @@ alone, so it never downloads the icons).
   `src/constants/seasons.ts`; the pictures are served from the Worker (see
   [Pictures on the Worker](#pictures-on-the-worker)).
 - **OST badges** - one for each official soundtrack album, Vol.1 to Vol.8,
-  earned by guessing every song on it at least once, in Daily or Classic. The disc
-  in the header shows each album's progress; the result screen says when a
+  earned by guessing every song on it at least once, in Daily or Classic. ☰ → OST
+  badges shows each album's progress; the result screen says when a
   round adds to one. The albums' songs are in `src/constants/volumes.ts`, from their
   published tracklists.
 - **Character** - on wide screens, Arona (light mode) or Plana (dark mode)
@@ -361,6 +366,12 @@ and R2. `build:students`:
   (`src/constants/studentIcons.ts`). One file means one request, and no file
   name per student to give the answer away in DevTools. A new student changes
   the whole sheet, so players download it again after each update.
+
+It also draws a second, small sheet, `pictures/students/clues.webp` (about
+45 KB), of the school, role and gift icons for the table's cells, listed in
+`src/constants/clueIcons.ts`. These are white shapes drawn on the cells'
+colours, so this one keeps its transparency. A school SchaleDB has no icon for
+(Sakugawa) shows its name instead.
 
 Needs ffmpeg built with libwebp, like `build:audio`. A student's favourite gift
 is the SSR gift sharing the most tags with them, as the game rates gifts; two

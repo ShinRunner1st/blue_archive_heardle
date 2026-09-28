@@ -101,6 +101,9 @@ What the project cares about:
   Its player keeps one fixed layout; the repeat button cycles off / next
   song / this song, remembered. Rows come from `SongRows` (shared with All
   OST, kept light for speed) and chips from `FoldingChips`. Playing any audio pauses the rest (`src/helpers/onePlayer.ts`).
+  `Jukebox` stays mounted and holds the audio: in the student game the music
+  plays on after it closes, in a corner `MiniPlayer`; in the OST game closing
+  stops it.
 - **Students** (the switch under the header picks OST or Students; Daily and
   Endless work for both): guess a student and each guess shows how it
   compares with the answer, right, close or wrong, with arrows for numbers.
@@ -109,7 +112,10 @@ What the project cares about:
   every costume its own) or **Lore** (height, school, birthday, year, weapon,
   favourite SSR gift, club, release; 144 default costumes). Each keeps its
   own daily and endless stats and streak, and the streak moves the
-  background. Squares-only share text, no picture.
+  background. Squares-only share text, no picture. The search box stays at
+  the top (the play area is top-aligned here), with Give up always beside
+  it. School, role and gift cells show icons from a second sheet
+  (`pictures/students/clues.webp`), names under them up to 9 letters.
 - **Birthdays**: on a student's birthday a note under the switches wishes
   them a happy one, with their icon in the student game only (the OST game
   never loads the icon sheet); a cake by their name in the student game.
@@ -139,7 +145,8 @@ What the project cares about:
 - **Seasons**: the home background becomes a Christmas lodge (18-26 Dec) or a
   New Year shrine (31 Dec - 7 Jan), from the Worker (`src/constants/seasons.ts`).
   Streak places still win from 10 wins. `?season=<id>` previews one in dev.
-- **OST badges**: Vol.1-8, earned by guessing every song on an album.
+- **OST badges**: Vol.1-8, earned by guessing every song on an album. In the
+  ☰ menu.
 - **What's new** pop-up after updates, the welcome/How to play pop-up, About
   with a privacy notice and a Ko-fi card.
 - **Keyboard play**: type anywhere to search, Space plays, Enter picks/submits,
