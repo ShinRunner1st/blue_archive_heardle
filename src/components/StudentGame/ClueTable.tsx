@@ -10,7 +10,6 @@ import {
   Verdict,
 } from "../../helpers/studentClues";
 import { studentById } from "../../helpers/studentRounds";
-import { TYPE_COLORS } from "../../constants/typeColors";
 import { Student, StudentGame } from "../../types/student";
 
 import { ClueIcon, hasClueIcon, StudentIcon } from "../StudentIcon";
@@ -35,10 +34,15 @@ const LONG_TEXT = 16;
 /** Up to this, a name fits under its icon; past it, the icon shows alone. */
 const SHORT_TEXT = 9;
 
-/** The columns that have icons, and what their keys start with. */
+/**
+ * The columns that have icons, and what their keys start with. Attack and
+ * armour types are the sword and the shield, in the type's colour.
+ */
 const ICON_KINDS: Partial<Record<Clue["key"], string>> = {
   school: "school",
   role: "role",
+  damage: "damage",
+  defense: "defense",
   gifts: "gift",
 };
 
@@ -52,20 +56,6 @@ function iconsFor(clue: Clue): string[] | null {
 }
 
 function ClueContent({ clue }: { clue: Clue }) {
-  // Attack and armour types in their colours, as the game shows them.
-  const color =
-    clue.key === "damage" || clue.key === "defense"
-      ? TYPE_COLORS[clue.text]
-      : undefined;
-  if (color) {
-    return (
-      <Styled.ClueIcons aria-hidden="true">
-        <Styled.TypeDot style={{ backgroundColor: color }} />
-        <span>{clue.text}</span>
-      </Styled.ClueIcons>
-    );
-  }
-
   const icons = iconsFor(clue);
   if (icons) {
     return (

@@ -15,8 +15,9 @@
  *   at a time.
  * - pictures/students/clues.webp: the school, role and gift icons for the
  *   table's cells, with src/constants/clueIcons.ts saying which is where.
- *   A school SchaleDB has no icon for (Sakugawa) gets Schale's emblem,
- *   from the Blue Archive wiki, whitened to match.
+ *   A school SchaleDB has no icon for (Sakugawa) gets ETC's, which is
+ *   Schale's emblem. Attack and armour types are the sword and the shield on
+ *   a circle of the type's colour (scripts/lib/typeColors.mjs).
  * - pictures/portraits/<id>.webp: each student's portrait, for the photo on
  *   the Sensei card. A file each, since a card shows one; the game never
  *   asks for one during a round, so they give nothing away.
@@ -44,6 +45,7 @@ import { obscure, reveal } from "../src/helpers/obscure.ts";
 import {
   clueIconFiles,
   convertStudents,
+  FALLBACK_SCHOOL_ICON,
 } from "../src/helpers/studentData.ts";
 import {
   CLUE_CELL,
@@ -57,6 +59,7 @@ import {
   ICON_SIZE,
 } from "../src/constants/studentIcons.ts";
 import { shuffled } from "./lib/shuffle.mjs";
+import { TYPE_COLORS, UNKNOWN_TYPE_COLOR } from "./lib/typeColors.mjs";
 
 const run = promisify(execFile);
 
@@ -75,8 +78,6 @@ const PORTRAIT_CACHE = ".cache/student-portraits";
 const PORTRAIT_DIR = "pictures/portraits";
 /** About 10 KB a portrait, 200x226 as SchaleDB has them. */
 const PORTRAIT_QUALITY = 75;
-/** The stand-in for a school with no icon, from the wiki like the backdrops. */
-const SCHALE_EMBLEM = "File:Schale.png";
 /**
  * WebP quality for the sheet: about 380 KB for 262 students, where their
  * separate icons on SchaleDB come to 2 MB.
@@ -238,58 +239,74 @@ const kb = (statSync(SHEET_PATH).size / 1024).toFixed(1);
 console.log(`${students.length} students (${lore.length} in Lore).`);
 console.log(`${SHEET_PATH}: ${ICON_COLUMNS}x${rows} icons, ${kb} KB.`);
 
-/** Schale's emblem, navy on white, downloaded once from the wiki. */
-async function schaleEmblem() {
-  const file = join(CLUE_CACHE, "schale-emblem.png");
-  if (existsSync(file)) return file;
-  const api = new URL("https://bluearchive.wiki/w/api.php");
-  api.search = new URLSearchParams({
-    action: "query",
-    titles: SCHALE_EMBLEM,
-    prop: "imageinfo",
-    iiprop: "url",
-    format: "json",
-  });
-  const data = await (await fetch(api, { headers: HEADERS })).json();
-  const url = Object.values(data.query.pages)[0].imageinfo?.[0]?.url;
-  if (!url) throw new Error(`No ${SCHALE_EMBLEM} on the wiki`);
-  const image = await fetch(url, { headers: HEADERS });
-  if (!image.ok) throw new Error(`${url}: ${image.status}`);
-  writeFileSync(file, Buffer.from(await image.arrayBuffer()));
-  return file;
-}
-
 // The clue icons: each fitted into its cell, keeping its transparency.
 mkdirSync(CLUE_CACHE, { recursive: true });
+const cached = (path) => join(CLUE_CACHE, path.split("/").pop());
 const clues = [];
-for (const { key, path } of clueIconFiles(raw, localization, items, students)) {
-  const file = join(CLUE_CACHE, path.split("/").pop());
-  if (await downloadOnce(path, file)) {
-    clues.push({ key, file });
-  } else if (key.startsWith("school/")) {
-    console.log(`No icon for ${key}: it gets Schale's emblem.`);
-    clues.push({ key, file: await schaleEmblem(), whiten: true });
+for (const { key, path, type } of clueIconFiles(
+  raw,
+  localization,
+  items,
+  students
+)) {
+  if (await downloadOnce(path, cached(path))) {
+    clues.push({ key, file: cached(path), type });
+  } else if (
+    key.startsWith("school/") &&
+    (await downloadOnce(FALLBACK_SCHOOL_ICON, cached(FALLBACK_SCHOOL_ICON)))
+  ) {
+    console.log(`No icon for ${key}: it gets ETC's, Schale's emblem.`);
+    clues.push({ key, file: cached(FALLBACK_SCHOOL_ICON) });
   } else {
     console.log(`No icon for ${key}: it shows its name.`);
   }
+}
+
+/**
+ * A type's circle, in its colour with a white ring, so it stands out on a
+ * cell of the same colour, and the sword or shield on it.
+ */
+function typeFilter(type) {
+  const color = TYPE_COLORS[type];
+  if (!color) {
+    console.log(`No colour for the type ${type}: add it to typeColors.mjs.`);
+  }
+  const hex = (color ?? UNKNOWN_TYPE_COLOR).slice(1);
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16));
+  const middle = (CLUE_SIZE - 1) / 2;
+  const distance = `hypot(X-${middle},Y-${middle})`;
+  const ring = CLUE_SIZE / 2 - 4;
+  const inRing = `gt(${distance},${ring})`;
+  const circle =
+    `geq=r='if(${inRing},255,${r})':g='if(${inRing},255,${g})'` +
+    `:b='if(${inRing},255,${b})':a='if(lte(${distance},${CLUE_SIZE / 2}),255,0)'`;
+  const icon = Math.round(CLUE_SIZE * 0.58);
+  const offset = (CLUE_CELL - icon) / 2;
+  return [
+    `color=c=black:s=${CLUE_SIZE}x${CLUE_SIZE},format=rgba,${circle},` +
+      `pad=${CLUE_CELL}:${CLUE_CELL}:(ow-iw)/2:(oh-ih)/2:color=black@0[circle];`,
+    `[0]format=rgba,scale=${icon}:${icon}:flags=lanczos[icon];`,
+    `[circle][icon]overlay=${offset}:${offset}`,
+  ].join("");
 }
 
 const clueRows = Math.ceil(clues.length / CLUE_COLUMNS);
 const clueWork = mkdtempSync(join(tmpdir(), "clue-icons-"));
 try {
   // One at a time first: the icons come as PNG and WebP, in all sizes.
-  // A dark emblem on white becomes a white one on nothing, like the rest.
-  // The quotes keep the expression's commas from splitting the filters.
-  const whiten =
-    "geq=r=255:g=255:b=255:" +
-    "a='min(255,(255-(r(X,Y)+g(X,Y)+b(X,Y))/3)*1.5)*alpha(X,Y)/255',";
-  for (const [index, { file, whiten: dark }] of clues.entries()) {
+  for (const [index, { file, type }] of clues.entries()) {
+    const output = join(clueWork, `${String(index).padStart(4, "0")}.png`);
     await run("ffmpeg", [
-      ...["-v", "error", "-y", "-i", file, "-vf"],
-      `format=rgba,${dark ? whiten : ""}scale=${CLUE_SIZE}:${CLUE_SIZE}` +
-        ":force_original_aspect_ratio=decrease:flags=lanczos" +
-        `,pad=${CLUE_CELL}:${CLUE_CELL}:(ow-iw)/2:(oh-ih)/2:color=black@0`,
-      join(clueWork, `${String(index).padStart(4, "0")}.png`),
+      ...["-v", "error", "-y", "-i", file],
+      ...(type
+        ? ["-filter_complex", typeFilter(type), "-frames:v", "1"]
+        : [
+            "-vf",
+            `format=rgba,scale=${CLUE_SIZE}:${CLUE_SIZE}` +
+              ":force_original_aspect_ratio=decrease:flags=lanczos" +
+              `,pad=${CLUE_CELL}:${CLUE_CELL}:(ow-iw)/2:(oh-ih)/2:color=black@0`,
+          ]),
+      output,
     ]);
   }
   await run("ffmpeg", [

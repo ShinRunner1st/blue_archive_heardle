@@ -187,9 +187,15 @@ describe("convertStudents", () => {
 });
 
 describe("clueIconFiles", () => {
-  it("finds the icon for each school, role and gift the table uses", () => {
+  it("finds the icon for each school, role, type and gift the table uses", () => {
     const table = convertStudents([entry()], localization, items);
     expect(clueIconFiles([entry()], localization, items, table)).toEqual([
+      { key: "damage/Piercing", path: "ui/Type_Attack.png", type: "Pierce" },
+      {
+        key: "defense/Heavy",
+        path: "ui/Type_Defense.png",
+        type: "HeavyArmor",
+      },
       { key: "gift/Lace Pillow", path: "item/icon/item_icon_favor_lv2_0.webp" },
       { key: "role/Tank", path: "ui/Role_Tanker.png" },
       { key: "school/Abydos", path: "schoolicon/Abydos.png" },

@@ -2,8 +2,17 @@ import styled, { css, keyframes } from "styled-components";
 import "@fontsource-variable/nunito-sans";
 
 import { Verdict } from "../../helpers/studentClues";
+import { BrowseButton as SongsButton } from "../Search/index.styled";
 
 export { ClearButton, LiveRegion } from "../Search/index.styled";
+
+/** All OST's button, as tall as this search box on a phone. */
+export const BrowseButton = styled(SongsButton)`
+  @media (max-width: 768px) {
+    width: 38px;
+    height: 38px;
+  }
+`;
 
 /** Softer than the theme's pure red, so a table of misses isn't glaring. */
 const VERDICT_COLOURS: Record<Verdict, string> = {
@@ -31,9 +40,17 @@ export const SearchRow = styled.div`
   width: 100%;
 `;
 
-/** The same height as the search box beside it. */
+/**
+ * The same height as the search box beside it, and set well apart from the
+ * list button, so reaching for one doesn't press the other.
+ */
 export const GiveUp = styled.div`
   flex-shrink: 0;
+  margin-left: 16px;
+
+  @media (max-width: 768px) {
+    margin-left: 10px;
+  }
 
   & > button {
     height: 45px;
@@ -289,16 +306,6 @@ export const ClueIcons = styled.span`
     white-space: nowrap;
     overflow-wrap: normal;
   }
-`;
-
-/** A type's colour, ringed so it shows on a cell of the same colour. */
-export const TypeDot = styled.span`
-  width: 16px;
-  height: 16px;
-
-  border: 2px solid #fff;
-  border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 `;
 
 export const IconRow = styled.span`

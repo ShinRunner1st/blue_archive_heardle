@@ -255,3 +255,44 @@ describe("StudentGame icons", () => {
     expect(gift?.textContent).toBe("");
   });
 });
+
+describe("StudentGame student list", () => {
+  function openList() {
+    act(() =>
+      container
+        .querySelector<HTMLButtonElement>('[aria-label="Browse all students"]')
+        ?.click()
+    );
+  }
+  const tiles = () =>
+    Array.from(
+      document.querySelectorAll<HTMLButtonElement>(
+        '[role="dialog"] button[title]'
+      )
+    );
+
+  it("shows the pool by name, not release order", () => {
+    mount({ answer: hoshino.id, guesses: [] }, { game: "lore" });
+    openList();
+
+    const names = tiles().map((tile) => tile.title);
+    expect(names).toHaveLength(students.filter(({ lore }) => lore).length);
+    expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)));
+  });
+
+  it("guesses the student picked, and fades the ones guessed", () => {
+    mount({ answer: hoshino.id, guesses: [aru.id] });
+    openList();
+
+    const aruTile = tiles().find((tile) => tile.title === "Aru");
+    expect(aruTile?.disabled).toBe(true);
+
+    act(() =>
+      tiles()
+        .find((tile) => tile.title === "Hina")
+        ?.click()
+    );
+    expect(onGuess).toHaveBeenCalledWith(hina.id);
+    expect(document.querySelector('[role="dialog"]')).toBeNull();
+  });
+});

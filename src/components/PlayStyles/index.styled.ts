@@ -44,7 +44,6 @@ export const Style = styled.button<{ $active: boolean }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
   min-width: 0;
 
   padding: 4px 14px;
@@ -82,9 +81,21 @@ export const Style = styled.button<{ $active: boolean }>`
   }
 `;
 
-/** A label with an icon beside it gives way to the icon on a narrow phone. */
+/**
+ * A label with an icon beside it gives way to the icon on a narrow phone. It
+ * keeps its line, at no width, so the switch stays as tall as the others.
+ */
 export const Label = styled.span<{ $hideable: boolean }>`
+  margin-left: ${({ $hideable }) => ($hideable ? "5px" : "0")};
+
   @media (max-width: 420px) {
-    display: ${({ $hideable }) => ($hideable ? "none" : "inline")};
+    ${({ $hideable }) =>
+      $hideable &&
+      `
+      display: inline-block;
+      width: 0;
+      margin-left: 0;
+      overflow: hidden;
+    `}
   }
 `;

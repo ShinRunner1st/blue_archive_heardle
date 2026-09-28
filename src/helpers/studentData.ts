@@ -216,16 +216,27 @@ export function convertStudents(
   return table.sort((a, b) => a.order - b.order || a.id - b.id);
 }
 
-/** A clue icon: its key in clueIcons.ts and its path under SchaleDB's images. */
+/** A clue icon: its key in clueIcons.ts and where it comes from. */
 export interface ClueIconFile {
   key: string;
+  /** Its path under SchaleDB's images. */
   path: string;
+  /**
+   * For an attack or armour type: SchaleDB's code for it ("Explosion",
+   * "LightArmor"), which picks the colour of the circle it's drawn on.
+   */
+  type?: string;
 }
 
+/** Where SchaleDB keeps a school with no icon of its own: ETC, Schale's. */
+export const FALLBACK_SCHOOL_ICON = "schoolicon/ETC.png";
+
 /**
- * The icons for the table's cells, for every school, role and gift the
- * student table uses: "school/Red Winter" is SchaleDB's schoolicon/RedWinter.
- * Keyed by the name the table shows, so the game looks them up by value.
+ * The icons for the table's cells, for every school, role, attack type,
+ * armour type and gift the student table uses: "school/Red Winter" is
+ * SchaleDB's schoolicon/RedWinter. Keyed by the name the table shows, so the
+ * game looks them up by value. A type the game adds later comes in by
+ * itself, with the sword or the shield.
  */
 export function clueIconFiles(
   students: unknown,
@@ -236,34 +247,44 @@ export function clueIconFiles(
   if (!isObject(localization)) {
     throw new FormatError("localization.json is not an object");
   }
-  const files = new Map<string, string>();
-  const used = (key: string) =>
-    table.some((student) =>
-      [
-        `school/${student.school}`,
-        `role/${student.role}`,
-        ...student.gifts.map((gift) => `gift/${gift}`),
-      ].includes(key)
-    );
+  const files = new Map<string, ClueIconFile>();
+  const used = new Set(
+    table.flatMap((student) => [
+      `school/${student.school}`,
+      `role/${student.role}`,
+      `damage/${student.damage}`,
+      `defense/${student.defense}`,
+      ...student.gifts.map((gift) => `gift/${gift}`),
+    ])
+  );
+
+  const kinds = [
+    ["school", "School", (code: string) => `schoolicon/${code}.png`, false],
+    ["role", "TacticRole", (code: string) => `ui/Role_${code}.png`, false],
+    ["damage", "BulletType", () => "ui/Type_Attack.png", true],
+    ["defense", "ArmorType", () => "ui/Type_Defense.png", true],
+  ] as const;
 
   for (const entry of entriesOf(students, "students.json")) {
     const name = typeof entry.Name === "string" ? entry.Name : "an entry";
-    for (const [kind, names, folder] of [
-      ["school", "School", "schoolicon/"],
-      ["role", "TacticRole", "ui/Role_"],
-    ] as const) {
+    for (const [kind, names, pathOf, isType] of kinds) {
       const code = entry[names];
       if (!isString(code)) continue;
       const key = `${kind}/${localize(localization, names, code, name)}`;
-      if (used(key)) files.set(key, `${folder}${code}.png`);
+      if (!used.has(key)) continue;
+      files.set(key, {
+        key,
+        path: pathOf(code),
+        ...(isType ? { type: code } : {}),
+      });
     }
   }
   for (const gift of ssrGifts(items)) {
     const key = `gift/${gift.name}`;
-    if (used(key)) files.set(key, `item/icon/${gift.icon}.webp`);
+    if (used.has(key)) {
+      files.set(key, { key, path: `item/icon/${gift.icon}.webp` });
+    }
   }
 
-  return [...files]
-    .map(([key, path]) => ({ key, path }))
-    .sort((a, b) => a.key.localeCompare(b.key));
+  return [...files.values()].sort((a, b) => a.key.localeCompare(b.key));
 }

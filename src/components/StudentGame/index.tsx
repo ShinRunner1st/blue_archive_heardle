@@ -1,4 +1,5 @@
 import React from "react";
+import { IoGrid } from "react-icons/io5";
 
 import { isOver, poolOf, studentById } from "../../helpers/studentRounds";
 import { WinStreak } from "../../helpers/winStreak";
@@ -11,6 +12,7 @@ import {
 import { Button } from "../Button";
 
 import { ClueTable } from "./ClueTable";
+import { StudentListPopUp } from "./StudentListPopUp";
 import { StudentResult } from "./StudentResult";
 import { StudentSearch } from "./StudentSearch";
 
@@ -66,6 +68,15 @@ export function StudentGame({
     [onGuess]
   );
 
+  const [listOpen, setListOpen] = React.useState(false);
+  const pickFromList = React.useCallback(
+    (id: number) => {
+      setListOpen(false);
+      guess(id);
+    },
+    [guess]
+  );
+
   // A misclick shouldn't end a hunt: the first press asks, the second gives up.
   const [confirming, setConfirming] = React.useState(false);
   React.useEffect(() => {
@@ -106,8 +117,17 @@ export function StudentGame({
               pool={poolOf(game)}
               guessed={guessed}
               onGuess={guess}
-              keyboardEnabled={keyboardEnabled}
+              // The list has the keys while it's open.
+              keyboardEnabled={keyboardEnabled && !listOpen}
             />
+            <Styled.BrowseButton
+              type="button"
+              onClick={() => setListOpen(true)}
+              aria-label="Browse all students"
+              title="All students"
+            >
+              <IoGrid size={20} aria-hidden="true" />
+            </Styled.BrowseButton>
             {/* Always there, so the search box never changes width. */}
             <Styled.GiveUp>
               <Button
@@ -136,6 +156,14 @@ export function StudentGame({
             )}
           </Styled.Hint>
         </>
+      )}
+      {listOpen && (
+        <StudentListPopUp
+          pool={poolOf(game)}
+          guessed={guessed}
+          onPick={pickFromList}
+          onClose={() => setListOpen(false)}
+        />
       )}
       <ClueTable
         game={game}

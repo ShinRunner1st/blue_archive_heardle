@@ -5,6 +5,15 @@
  * GENERATED FILE - do not edit by hand. Run `npm run students`.
  */
 export const clueIcons: string[] = [
+  "damage/Explosive",
+  "damage/Mystic",
+  "damage/Piercing",
+  "damage/Sonic",
+  "defense/Composite",
+  "defense/Elastic",
+  "defense/Heavy",
+  "defense/Light",
+  "defense/Special",
   "gift/Airbook Rare",
   "gift/Antique Egg Handicraft",
   'gift/Board Game "The Life"',
