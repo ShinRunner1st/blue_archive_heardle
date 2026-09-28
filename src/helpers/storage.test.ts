@@ -7,7 +7,9 @@ import {
   MODE_KEY,
   STORAGE_KEY,
   STUDENT_STORAGE_KEYS,
+  VOICE_STORAGE_KEYS,
 } from "../constants/game";
+import { obscure } from "./obscure";
 import {
   emptyGuesses,
   hasSeenWhatsNew,
@@ -16,6 +18,8 @@ import {
   loadRounds,
   loadStudentGame,
   loadStudentRounds,
+  loadVoiceRounds,
+  loadVoiceStyle,
   markWhatsNewSeen,
   replaceAllRounds,
   saveGame,
@@ -23,6 +27,8 @@ import {
   saveRounds,
   saveStudentGame,
   saveStudentRounds,
+  saveVoiceRounds,
+  saveVoiceStyle,
 } from "./storage";
 import { Song } from "../types/song";
 
@@ -383,5 +389,68 @@ describe("game choice", () => {
 
     expect(loadGame()).toBe("students");
     expect(loadStudentGame()).toBe("lore");
+  });
+});
+
+describe("Voice rounds", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  const store = (value: unknown) =>
+    localStorage.setItem(
+      VOICE_STORAGE_KEYS.endless,
+      obscure(JSON.stringify(value))
+    );
+
+  it("come back as they were saved, scrambled", () => {
+    const rounds = [{ answer: 10005, line: 2, guesses: [0, 10000], day: 3 }];
+    saveVoiceRounds("endless", rounds);
+    expect(loadVoiceRounds("endless")).toEqual(rounds);
+    expect(localStorage.getItem(VOICE_STORAGE_KEYS.endless)).not.toContain(
+      "10005"
+    );
+  });
+
+  it("keep skips, but each student once and nothing after the answer", () => {
+    store([
+      { answer: 10005, line: -1, guesses: [0, 0, 10000, 10000, 10005, 10001] },
+    ]);
+    expect(loadVoiceRounds("endless")).toEqual([
+      { answer: 10005, line: 0, guesses: [0, 0, 10000, 10005] },
+    ]);
+  });
+
+  it("keep four answers only when whole, and one pick for them", () => {
+    store([
+      { answer: 1, line: 0, guesses: [2, 1], choices: [1, 2, 3, 4] },
+      { answer: 1, line: 0, guesses: [], choices: [2, 3, 4, 5] },
+      { answer: 1, line: 0, guesses: [2, 1], run: 5 },
+    ]);
+    expect(loadVoiceRounds("endless")).toEqual([
+      { answer: 1, line: 0, guesses: [2], choices: [1, 2, 3, 4] },
+      { answer: 1, line: 0, guesses: [] },
+      { answer: 1, line: 0, guesses: [2], run: 5 },
+    ]);
+  });
+
+  it("drop what can't be read, and never throw", () => {
+    store([{ answer: "x" }, null, { answer: 7, guesses: "no" }]);
+    expect(loadVoiceRounds("endless")).toEqual([
+      { answer: 7, line: 0, guesses: [] },
+    ]);
+    localStorage.setItem(VOICE_STORAGE_KEYS.endless, "garbage");
+    expect(loadVoiceRounds("endless")).toEqual([]);
+  });
+
+  it("remember the way to play, Classic to begin with", () => {
+    expect(loadVoiceStyle()).toBe("endless");
+    saveVoiceStyle("nohint");
+    expect(loadVoiceStyle()).toBe("nohint");
+  });
+
+  it("go with the game choice", () => {
+    saveGame("voice");
+    expect(loadGame()).toBe("voice");
   });
 });

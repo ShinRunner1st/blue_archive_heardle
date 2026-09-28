@@ -10,6 +10,7 @@ import {
   IoHeart,
   IoStopwatch,
   IoPeople,
+  IoMic,
 } from "react-icons/io5";
 
 import { Button } from "../Button";
@@ -62,6 +63,8 @@ export function InfoPopUp({
 }: Props) {
   const isDaily = mode === "daily";
   const isStudents = game === "students";
+  const isVoice = game === "voice";
+  const answer = isStudents || isVoice ? "student" : "song";
   const handleReset = React.useCallback(() => {
     onReset();
     onClose();
@@ -73,6 +76,8 @@ export function InfoPopUp({
       subtitle={
         isStudents
           ? "Guess the Blue Archive student from how they compare."
+          : isVoice
+          ? "Guess the Blue Archive student from their voice."
           : "Guess the Blue Archive OST from a few seconds of audio."
       }
       onClose={onClose}
@@ -101,6 +106,34 @@ export function InfoPopUp({
                 Each guess shows how its school, role, birthday and more compare
                 with the answer&apos;s. Arrows point higher or lower. Guess as
                 often as you like.
+              </PopUpCardText>
+            </PopUpCardBody>
+          </PopUpCard>
+        ) : isVoice ? (
+          <PopUpCard>
+            <PopUpCardIcon>
+              {mode === "timeattack" ? (
+                <IoStopwatch aria-hidden="true" />
+              ) : mode === "choice" ? (
+                <IoGrid aria-hidden="true" />
+              ) : (
+                <IoMic aria-hidden="true" />
+              )}
+            </PopUpCardIcon>
+            <PopUpCardBody>
+              <PopUpCardTitle>
+                {mode === "timeattack"
+                  ? "Three minutes, go"
+                  : mode === "choice"
+                  ? "One pick from four"
+                  : "Four tries, one voice"}
+              </PopUpCardTitle>
+              <PopUpCardText>
+                {mode === "timeattack"
+                  ? "Name as many students as you can by their voice, one try each. The clock stops while a line loads."
+                  : mode === "choice"
+                  ? "Hear a line, then pick who said it from four students."
+                  : "Hear a line, their title call or one from the lobby. Each miss shows a hint: their school, then their club, then their silhouette. In Endless you can turn the hints off."}
               </PopUpCardText>
             </PopUpCardBody>
           </PopUpCard>
@@ -157,15 +190,17 @@ export function InfoPopUp({
               {isDaily
                 ? isStudents
                   ? "One student a day"
+                  : isVoice
+                  ? "One voice a day"
                   : "One track a day"
                 : "No repeats"}
             </PopUpCardTitle>
             <PopUpCardText>
               {isDaily
                 ? `Every Sensei gets the same ${
-                    isStudents ? "student" : "song"
+                    isVoice ? "voice" : answer
                   } today. Switch to Endless in the header to keep playing.`
-                : isStudents
+                : isStudents || isVoice
                 ? "Every student comes up once before any comes round again."
                 : `All ${songs.length} tracks play once before any comes round again.`}
             </PopUpCardText>
@@ -197,8 +232,9 @@ export function InfoPopUp({
             </PopUpCardText>
             <PopUpCardText>
               Like any website, the services that deliver it — Vercel for the
-              game, Cloudflare for the music and pictures — see basic connection
-              details, such as your IP address, to send you the pages.
+              game, Cloudflare for the music, voices and pictures — see basic
+              connection details, such as your IP address, to send you the
+              pages.
             </PopUpCardText>
           </PopUpCardBody>
         </PopUpCard>
@@ -232,8 +268,8 @@ export function InfoPopUp({
               </a>{" "}
               is developed by NEXON Games and published by NEXON and Yostar. Its
               music, characters, artwork and cursor belong to their rights
-              holders. Soundtrack by {composerCredit}. Student data and icons
-              from{" "}
+              holders. Soundtrack by {composerCredit}. Student data, icons and
+              voice lines from{" "}
               <a href={SCHALEDB} target="_blank" rel="noopener noreferrer">
                 SchaleDB
               </a>

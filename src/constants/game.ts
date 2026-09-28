@@ -30,7 +30,28 @@ export const STUDENT_STORAGE_KEYS = {
   "lore-endless": "students.lore",
 } as const;
 
-/** localStorage key remembering which game was last played: OST or students. */
+/**
+ * localStorage keys holding Voice mode's rounds, one for each mode. Time
+ * attack's are the lines answered in its runs.
+ */
+export const VOICE_STORAGE_KEYS = {
+  daily: "voice.daily",
+  endless: "voice",
+  nohint: "voice.nohint",
+  choice: "voice.choice",
+  timeattack: "voice.timeattack",
+} as const;
+
+/** localStorage key remembering Voice mode's way to play Endless. */
+export const VOICE_STYLE_KEY = "voiceStyle";
+
+/** localStorage key holding the Voice time attack settings picked last. */
+export const VOICE_TIME_ATTACK_SETTINGS_KEY = "voiceTimeAttack";
+
+/**
+ * localStorage key remembering which game was last played: the OST, the
+ * students or their voices.
+ */
 export const GAME_KEY = "game";
 
 /** localStorage key remembering the student game's way to play. */

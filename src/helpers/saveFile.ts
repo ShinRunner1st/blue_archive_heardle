@@ -1,13 +1,16 @@
 import { GAME_MODES, GameMode } from "../types/mode";
 import { Round } from "../types/stats";
 import { STUDENT_SLOTS, StudentRound, StudentSlot } from "../types/student";
+import { VOICE_MODES, VoiceMode, VoiceRound } from "../types/voice";
 import { dateStamp } from "./daily";
 import { downloadBlob } from "./download";
 import {
   loadRounds,
   loadStudentRounds,
+  loadVoiceRounds,
   toRounds,
   toStudentRounds,
+  toVoiceRounds,
 } from "./storage";
 import { obscure, reveal } from "./obscure";
 
@@ -16,9 +19,9 @@ const SAVE_APP = "baheardle";
 
 /**
  * Raised when the file's shape changes. A file from a newer game is refused
- * rather than half read; older ones stay readable. The student game's rounds
- * came later, in a field of their own, so files without them are still
- * version 1.
+ * rather than half read; older ones stay readable. The student and Voice
+ * games' rounds came later, each in a field of their own, so files without
+ * them are still version 1.
  */
 const SAVE_VERSION = 1;
 
@@ -33,6 +36,7 @@ export interface SaveFile {
   exported: string;
   rounds: Record<GameMode, Round[]>;
   students: Record<StudentSlot, StudentRound[]>;
+  voices: Record<VoiceMode, VoiceRound[]>;
 }
 
 export type SaveFileResult =
@@ -40,8 +44,9 @@ export type SaveFileResult =
   | { ok: false; error: string };
 
 /**
- * Every mode's rounds in one file, the student game's too, scrambled like the saves themselves, so the
- * answer to a round in progress isn't readable in a text editor either.
+ * Every mode's rounds in one file, the student and Voice games' too,
+ * scrambled like the saves themselves, so the answer to a round in progress
+ * isn't readable in a text editor either.
  */
 export function buildSaveFile(now: Date = new Date()): string {
   const rounds = Object.fromEntries(
@@ -49,6 +54,9 @@ export function buildSaveFile(now: Date = new Date()): string {
   );
   const students = Object.fromEntries(
     STUDENT_SLOTS.map((slot) => [slot, loadStudentRounds(slot)])
+  );
+  const voices = Object.fromEntries(
+    VOICE_MODES.map((mode) => [mode, loadVoiceRounds(mode)])
   );
 
   return obscure(
@@ -58,6 +66,7 @@ export function buildSaveFile(now: Date = new Date()): string {
       exported: now.toISOString(),
       rounds,
       students,
+      voices,
     })
   );
 }
@@ -116,9 +125,18 @@ export function readSaveFile(text: string): SaveFileResult {
     STUDENT_SLOTS.map((slot) => [slot, toStudentRounds(savedStudents[slot])])
   ) as Record<StudentSlot, StudentRound[]>;
 
+  const savedVoices =
+    typeof file.voices === "object" && file.voices !== null
+      ? (file.voices as Record<string, unknown>)
+      : {};
+  const voices = Object.fromEntries(
+    VOICE_MODES.map((mode) => [mode, toVoiceRounds(savedVoices[mode])])
+  ) as Record<VoiceMode, VoiceRound[]>;
+
   if (
     GAME_MODES.every((mode) => rounds[mode].length === 0) &&
-    STUDENT_SLOTS.every((slot) => students[slot].length === 0)
+    STUDENT_SLOTS.every((slot) => students[slot].length === 0) &&
+    VOICE_MODES.every((mode) => voices[mode].length === 0)
   ) {
     return { ok: false, error: "That save has no rounds in it." };
   }
@@ -129,7 +147,7 @@ export function readSaveFile(text: string): SaveFileResult {
       ? file.exported
       : "";
 
-  return { ok: true, save: { exported, rounds, students } };
+  return { ok: true, save: { exported, rounds, students, voices } };
 }
 
 /** Downloads the save file. */

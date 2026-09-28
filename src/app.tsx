@@ -3,12 +3,17 @@ import React from "react";
 import { Game as GameName, GameMode, isEndlessStyle } from "./types/mode";
 import { Song } from "./types/song";
 import { StudentGame as StudentWay } from "./types/student";
+import { VoiceMode, VoiceStyle } from "./types/voice";
 
 import { useBirthdays } from "./hooks/useBirthdays";
 import { useGame } from "./hooks/useGame";
 import { useStudentGame } from "./hooks/useStudentGame";
 import { useTimeAttack } from "./hooks/useTimeAttack";
+import { useVoiceGame } from "./hooks/useVoiceGame";
+import { useVoiceTimeAttack } from "./hooks/useVoiceTimeAttack";
 import { guessesForCharacter, isWon } from "./helpers/studentRounds";
+import { asRound as voiceAsRound } from "./helpers/voiceRounds";
+import { voiceRunsOf } from "./helpers/voiceTimeAttack";
 import { runsOf } from "./helpers/timeAttack";
 import { LATEST_UPDATE_ID } from "./constants/whatsNew";
 import { placeFor } from "./helpers/winStreak";
@@ -18,11 +23,13 @@ import {
   loadGame,
   loadMode,
   loadStudentGame,
+  loadVoiceStyle,
   markFirstRunDone,
   markWhatsNewSeen,
   saveGame,
   saveMode,
   saveStudentGame,
+  saveVoiceStyle,
 } from "./helpers/storage";
 
 import {
@@ -40,12 +47,19 @@ import {
   WhatsNewPopUp,
   Jukebox,
 } from "./components";
-import { GameSwitch, PlayStyles, StudentStyles } from "./components/PlayStyles";
+import {
+  GameSwitch,
+  PlayStyles,
+  StudentStyles,
+  VoiceStyles,
+} from "./components/PlayStyles";
 import { BirthdayNote } from "./components/BirthdayNote";
 import { StudentGame } from "./components/StudentGame";
 import { TimeAttack } from "./components/TimeAttack";
+import { VoiceGame, VoiceTimeAttack } from "./components/VoiceGame";
 import { StudentStats } from "./components/StatsPopUp/StudentStats";
 import { TimeAttackStats } from "./components/StatsPopUp/TimeAttackStats";
+import { VoiceStats } from "./components/StatsPopUp/VoiceStats";
 
 import * as Styled from "./app.styled";
 
@@ -59,7 +73,18 @@ function App() {
   const [studentWay, setStudentWay] =
     React.useState<StudentWay>(loadStudentGame);
   const isStudents = gameName === "students";
-  const isTimeAttack = !isStudents && mode === "timeattack";
+  const isVoice = gameName === "voice";
+  const isTimeAttack = gameName === "ost" && mode === "timeattack";
+
+  // Voice mode's way to play Endless, remembered apart from the OST's: it
+  // has one more, No hints.
+  const [voiceStyle, setVoiceStyle] =
+    React.useState<VoiceStyle>(loadVoiceStyle);
+  const voiceMode: VoiceMode = mode === "daily" ? "daily" : voiceStyle;
+  const isVoiceTimeAttack = isVoice && voiceMode === "timeattack";
+  // How the header and the pop-ups see it: No hints is a kind of Classic.
+  const voiceHeaderMode: GameMode =
+    voiceMode === "nohint" ? "endless" : voiceMode;
 
   const {
     solution,
@@ -95,6 +120,16 @@ function App() {
 
   const studentMode = mode === "daily" ? "daily" : "endless";
   const students = useStudentGame(studentWay, studentMode);
+  // Time attack runs its own lines, and Classic waits behind it, unseen.
+  const voice = useVoiceGame(
+    voiceMode === "timeattack" ? "endless" : voiceMode
+  );
+  const voiceTimeAttack = useVoiceTimeAttack();
+  const { finish: finishVoiceRun } = voiceTimeAttack;
+
+  React.useEffect(() => {
+    if (!isVoiceTimeAttack) finishVoiceRun();
+  }, [isVoiceTimeAttack, finishVoiceRun]);
   const birthdays = useBirthdays();
 
   const timeAttack = useTimeAttack();
@@ -112,6 +147,10 @@ function App() {
   const streak = mode === "daily" ? dayStreak : winStreak;
   const run = isStudents
     ? students.streak.current
+    : isVoice
+    ? isVoiceTimeAttack
+      ? voiceTimeAttack.score
+      : voice.streak.current
     : isTimeAttack
     ? timeAttack.score
     : streak.current;
@@ -156,6 +195,32 @@ function App() {
   React.useEffect(() => {
     saveStudentGame(studentWay);
   }, [studentWay]);
+
+  React.useEffect(() => {
+    saveVoiceStyle(voiceStyle);
+  }, [voiceStyle]);
+
+  // Classic, with its hints on or off as they were last.
+  const voiceClassic = React.useRef<VoiceStyle>(
+    voiceStyle === "nohint" ? "nohint" : "endless"
+  );
+  const changeVoiceStyle = React.useCallback((next: VoiceStyle) => {
+    if (next === "endless" || next === "nohint") {
+      setVoiceStyle((was) =>
+        next === "endless" && (was === "endless" || was === "nohint")
+          ? was
+          : next === "endless"
+          ? voiceClassic.current
+          : next
+      );
+    } else {
+      setVoiceStyle(next);
+    }
+  }, []);
+  const setVoiceHints = React.useCallback((on: boolean) => {
+    voiceClassic.current = on ? "endless" : "nohint";
+    setVoiceStyle(voiceClassic.current);
+  }, []);
 
   const changeGame = React.useCallback((next: GameName) => {
     setGameName(next);
@@ -224,9 +289,14 @@ function App() {
   // Changes when a new round starts, in any mode: in time attack, with each
   // song answered.
   const taRun = timeAttack.run;
+  const voiceRun = voiceTimeAttack.run;
   const studentRound = students.round;
   const roundKey = isStudents
     ? `${students.slot}:${studentRound.day ?? ""}:${students.rounds.length}`
+    : isVoiceTimeAttack
+    ? `voice-ta:${voiceRun?.id ?? ""}:${voiceRun?.rounds.length ?? 0}`
+    : isVoice
+    ? `voice-${voiceMode}:${voice.round.day ?? ""}:${voice.rounds.length}`
     : isTimeAttack
     ? `${mode}:${taRun?.id ?? ""}:${taRun?.rounds.length ?? 0}`
     : `${mode}:${round.day ?? ""}:${solution.themeNo}`;
@@ -239,7 +309,19 @@ function App() {
     () => guessesForCharacter(studentRound),
     [studentRound]
   );
-  const reactTo = isStudents
+  const voiceRound = voice.round;
+  const voiceReaction = React.useMemo(() => {
+    if (isVoiceTimeAttack) {
+      const last = voiceRun?.rounds[voiceRun.rounds.length - 1];
+      return last
+        ? voiceAsRound(last)
+        : { guesses: [], currentTry: 0, didGuess: false, tries: 1 };
+    }
+    return voiceAsRound(voiceRound);
+  }, [isVoiceTimeAttack, voiceRun, voiceRound]);
+  const reactTo = isVoice
+    ? voiceReaction
+    : isStudents
     ? {
         guesses: studentGuesses,
         currentTry: studentRound.guesses.length,
@@ -264,6 +346,10 @@ function App() {
   const timeAttackRuns = React.useMemo(
     () => runsOf(timeAttack.history),
     [timeAttack.history]
+  );
+  const voiceRuns = React.useMemo(
+    () => voiceRunsOf(voiceTimeAttack.history),
+    [voiceTimeAttack.history]
   );
 
   const openSongList = React.useCallback(() => setIsSongListOpen(true), []);
@@ -327,12 +413,14 @@ function App() {
         openJukeboxPopUp={openJukebox}
         openSenseiCard={openCard}
         // The student game has Daily and Endless only.
-        mode={isStudents ? studentMode : mode}
+        mode={isStudents ? studentMode : isVoice ? voiceHeaderMode : mode}
         onModeChange={changeMode}
         streak={run}
         tagline={
           isStudents
             ? "Guess the Blue Archive student"
+            : isVoice
+            ? "Guess the Blue Archive student by voice"
             : "Guess the Blue Archive OST"
         }
       />
@@ -352,6 +440,27 @@ function App() {
           dailyResults={students.dailyResults}
         />
       )}
+      {isStatsPopUpOpen && isVoiceTimeAttack && (
+        <TimeAttackStats
+          onClose={closeStatsPopUp}
+          stats={voiceTimeAttack.stats}
+          runs={voiceRuns}
+          streak={voiceTimeAttack.score}
+          voice
+        />
+      )}
+      {isStatsPopUpOpen && isVoice && !isVoiceTimeAttack && (
+        <VoiceStats
+          onClose={closeStatsPopUp}
+          mode={voice.mode}
+          tally={voice.tally}
+          played={voice.played}
+          streak={voice.streak.current}
+          best={voice.best}
+          found={voice.found}
+          dailyResults={voice.dailyResults}
+        />
+      )}
       {isStatsPopUpOpen && isTimeAttack && (
         <TimeAttackStats
           onClose={closeStatsPopUp}
@@ -360,7 +469,7 @@ function App() {
           streak={timeAttack.score}
         />
       )}
-      {isStatsPopUpOpen && !isStudents && mode !== "timeattack" && (
+      {isStatsPopUpOpen && gameName === "ost" && mode !== "timeattack" && (
         <StatsPopUp
           onClose={closeStatsPopUp}
           score={score}
@@ -377,6 +486,10 @@ function App() {
           canReset={
             isStudents
               ? students.hasHistory
+              : isVoiceTimeAttack
+              ? voiceTimeAttack.stats.runs > 0
+              : isVoice
+              ? voice.hasHistory
               : isTimeAttack
               ? timeAttack.stats.runs > 0
               : hasHistory
@@ -384,11 +497,15 @@ function App() {
           onReset={
             isStudents
               ? students.reset
+              : isVoiceTimeAttack
+              ? voiceTimeAttack.resetHistory
+              : isVoice
+              ? voice.reset
               : isTimeAttack
               ? timeAttack.resetHistory
               : resetScore
           }
-          mode={isStudents ? studentMode : mode}
+          mode={isStudents ? studentMode : isVoice ? voiceHeaderMode : mode}
           game={gameName}
         />
       )}
@@ -416,6 +533,10 @@ function App() {
         <Styled.StyleRow>
           {isStudents ? (
             <StudentStyles game={studentWay} onChange={setStudentWay} />
+          ) : isVoice ? (
+            voiceMode !== "daily" && (
+              <VoiceStyles style={voiceStyle} onChange={changeVoiceStyle} />
+            )
           ) : (
             isEndlessStyle(mode) && (
               <PlayStyles mode={mode} onChange={changeStyle} />
@@ -423,7 +544,7 @@ function App() {
           )}
         </Styled.StyleRow>
       </Styled.StyleBar>
-      <BirthdayNote students={birthdays} withIcons={isStudents} />
+      <BirthdayNote students={birthdays} withIcons={isStudents || isVoice} />
       <Styled.Container $top={isStudents}>
         {isStudents ? (
           <StudentGame
@@ -439,6 +560,20 @@ function App() {
             onGiveUp={students.giveUp}
             onNext={students.next}
             onNewDay={students.refreshDay}
+            keyboardEnabled={!isPopUpOpen}
+          />
+        ) : isVoiceTimeAttack ? (
+          <VoiceTimeAttack
+            timeAttack={voiceTimeAttack}
+            keyboardEnabled={!isPopUpOpen}
+          />
+        ) : isVoice ? (
+          <VoiceGame
+            // A new screen for each mode, as for the OST.
+            key={voiceMode}
+            mode={voice.mode}
+            game={voice}
+            onHintsChange={setVoiceHints}
             keyboardEnabled={!isPopUpOpen}
           />
         ) : isTimeAttack ? (

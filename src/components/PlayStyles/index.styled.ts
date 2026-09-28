@@ -82,13 +82,14 @@ export const Style = styled.button<{ $active: boolean }>`
 `;
 
 /**
- * A label with an icon beside it gives way to the icon on a narrow phone. It
- * keeps its line, at no width, so the switch stays as tall as the others.
+ * A label with an icon beside it gives way to the icon on a narrow screen,
+ * where the three games' names leave the ways to play no room. It keeps its
+ * line, at no width, so the switch stays as tall as the others.
  */
 export const Label = styled.span<{ $hideable: boolean }>`
   margin-left: ${({ $hideable }) => ($hideable ? "5px" : "0")};
 
-  @media (max-width: 420px) {
+  @media (max-width: 600px) {
     ${({ $hideable }) =>
       $hideable &&
       `

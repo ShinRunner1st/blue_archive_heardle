@@ -91,7 +91,8 @@ export function StudentSearch({
       setFocused((previous) =>
         previous <= 0 ? results.length - 1 : previous - 1
       );
-    } else if (e.key === "Enter" && !e.repeat) {
+    } else if (e.key === "Enter" && !e.repeat && !e.shiftKey) {
+      // Shift+Enter is Voice mode's skip, left for the page to handle.
       e.preventDefault();
       e.stopPropagation();
       pick(results[Math.max(focused, 0)]);

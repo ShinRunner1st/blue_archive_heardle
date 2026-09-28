@@ -25,20 +25,33 @@ interface Props {
   runs: RunSummary[];
   /** The run's score now, which picks the backdrop, as on the page. */
   streak: number;
+  /**
+   * Voice mode's runs: students, not songs, and no clip length. Its recap
+   * picture isn't drawn yet, so there is no button for one.
+   */
+  voice?: boolean;
 }
 
 /** How many recent runs the list shows. */
 const RECENT = 5;
 
 function runLine(run: RunSummary): string {
-  return `${answersLabel(run.answers)} · ${run.clip}s clips`;
+  return run.clip > 0
+    ? `${answersLabel(run.answers)} · ${run.clip}s clips`
+    : answersLabel(run.answers);
 }
 
 /**
  * Time attack's own stats: runs, not rounds, so a pop-up of their own rather
  * than the guess spread of the other modes.
  */
-export function TimeAttackStats({ onClose, stats, runs, streak }: Props) {
+export function TimeAttackStats({
+  onClose,
+  stats,
+  runs,
+  streak,
+  voice = false,
+}: Props) {
   const recent = runs.slice(-RECENT).reverse();
   const rate =
     stats.answered > 0 ? Math.round((stats.right / stats.answered) * 100) : 0;
@@ -62,14 +75,14 @@ ${SITE_URL}`
       subtitle={
         stats.runs === 0
           ? "Finish a run and your history shows up here."
-          : `Across ${stats.runs} time attack run${
+          : `Across ${stats.runs} ${voice ? "Voice " : ""}time attack run${
               stats.runs === 1 ? "" : "s"
             }.`
       }
       onClose={onClose}
       actions={
         <>
-          {stats.runs > 0 && (
+          {stats.runs > 0 && !voice && (
             <Button variant="pink" onClick={picture.share}>
               {picture.text}
             </Button>
@@ -102,7 +115,9 @@ ${SITE_URL}`
           </Styled.Tile>
           <Styled.Tile>
             <Styled.TileValue>{stats.right}</Styled.TileValue>
-            <Styled.TileLabel>Songs right</Styled.TileLabel>
+            <Styled.TileLabel>
+              {voice ? "Voices right" : "Songs right"}
+            </Styled.TileLabel>
           </Styled.Tile>
           <Styled.Tile>
             <Styled.TileValue>{rate}%</Styled.TileValue>

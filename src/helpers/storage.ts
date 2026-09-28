@@ -22,6 +22,8 @@ import {
   STUDENT_STORAGE_KEYS,
   FAV_STUDENT_KEY,
   SENSEI_TITLE_KEY,
+  VOICE_STORAGE_KEYS,
+  VOICE_STYLE_KEY,
 } from "../constants/game";
 import { ColorScheme } from "../constants/theme";
 import { CharacterChoice, isCharacterChoice } from "../types/character";
@@ -35,6 +37,13 @@ import {
   StudentRound,
   StudentSlot,
 } from "../types/student";
+import {
+  isVoiceStyle,
+  SKIPPED,
+  VoiceMode,
+  VoiceRound,
+  VoiceStyle,
+} from "../types/voice";
 import { obscure, reveal } from "./obscure";
 
 /** Each mode keeps its own history, so stats and bags never mix. */
@@ -224,14 +233,15 @@ export function saveRounds(rounds: Round[], mode: GameMode = "endless"): void {
 }
 
 /**
- * Swaps the rounds of each mode given for the new ones, the student game's
- * too, as one change: if any write fails (storage full or blocked), the ones
- * already made are undone, so the player never ends up with half a save.
- * Returns whether it worked.
+ * Swaps the rounds of each mode given for the new ones, the student and
+ * Voice games' too, as one change: if any write fails (storage full or
+ * blocked), the ones already made are undone, so the player never ends up
+ * with half a save. Returns whether it worked.
  */
 export function replaceAllRounds(
   histories: Partial<Record<GameMode, Round[]>>,
-  studentHistories: Partial<Record<StudentSlot, StudentRound[]>> = {}
+  studentHistories: Partial<Record<StudentSlot, StudentRound[]>> = {},
+  voiceHistories: Partial<Record<VoiceMode, VoiceRound[]>> = {}
 ): boolean {
   const writes: Array<[key: string, rounds: unknown[]]> = [
     ...(Object.keys(histories) as GameMode[]).map(
@@ -241,6 +251,12 @@ export function replaceAllRounds(
       (slot): [string, unknown[]] => [
         STUDENT_STORAGE_KEYS[slot],
         studentHistories[slot] ?? [],
+      ]
+    ),
+    ...(Object.keys(voiceHistories) as VoiceMode[]).map(
+      (mode): [string, unknown[]] => [
+        VOICE_STORAGE_KEYS[mode],
+        voiceHistories[mode] ?? [],
       ]
     ),
   ];
@@ -336,9 +352,97 @@ export function clearStudentRounds(slot: StudentSlot): void {
   removeKey(STUDENT_STORAGE_KEYS[slot]);
 }
 
-/** Which game was played last: the OST, unless the students were. */
+/**
+ * Coerces a saved Voice round into a usable one, or null when it is too
+ * damaged to repair. Whether the student and line exist is checked where the
+ * lines are listed (see knownVoiceRounds), as for the student game.
+ */
+function toVoiceRound(value: unknown): VoiceRound | null {
+  if (typeof value !== "object" || value === null) return null;
+  const round = value as Record<string, unknown>;
+  if (!isId(round.answer)) return null;
+  const line =
+    typeof round.line === "number" &&
+    Number.isInteger(round.line) &&
+    round.line >= 0
+      ? round.line
+      : 0;
+
+  // Each student once, skips as often as they come, and nothing after the
+  // answer: the round ended there.
+  const guesses: number[] = [];
+  for (const id of Array.isArray(round.guesses) ? round.guesses : []) {
+    const skip = id === SKIPPED;
+    if (!skip && (!isId(id) || guesses.includes(id))) continue;
+    guesses.push(id);
+    if (id === round.answer) break;
+  }
+
+  // Kept only when whole: four different students, the answer among them.
+  const choices =
+    Array.isArray(round.choices) &&
+    round.choices.length === 4 &&
+    round.choices.every(isId) &&
+    new Set(round.choices).size === round.choices.length &&
+    round.choices.includes(round.answer)
+      ? (round.choices as number[])
+      : undefined;
+
+  const day =
+    typeof round.day === "number" && Number.isFinite(round.day)
+      ? Math.trunc(round.day)
+      : undefined;
+  const run = isTime(round.run) ? round.run : undefined;
+
+  // A round with one pick ends at its first answer.
+  const tries = choices || run !== undefined ? 1 : Infinity;
+
+  return {
+    answer: round.answer,
+    line,
+    guesses: guesses.slice(0, tries),
+    ...(day === undefined ? {} : { day }),
+    ...(choices === undefined ? {} : { choices }),
+    ...(run === undefined ? {} : { run }),
+  };
+}
+
+/** The usable Voice rounds in a parsed value; shared with save files. */
+export function toVoiceRounds(value: unknown): VoiceRound[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map(toVoiceRound)
+    .filter((round): round is VoiceRound => round !== null);
+}
+
+/** A Voice mode's saved rounds; never throws, like loadRounds. */
+export function loadVoiceRounds(mode: VoiceMode): VoiceRound[] {
+  return toVoiceRounds(readSaved(VOICE_STORAGE_KEYS[mode]));
+}
+
+/** Saved scrambled, like the others, so the answer isn't in DevTools. */
+export function saveVoiceRounds(mode: VoiceMode, rounds: VoiceRound[]): void {
+  writeKey(VOICE_STORAGE_KEYS[mode], obscure(JSON.stringify(rounds)));
+}
+
+export function clearVoiceRounds(mode: VoiceMode): void {
+  removeKey(VOICE_STORAGE_KEYS[mode]);
+}
+
+/** Voice mode's way to play Endless picked last; Classic to begin with. */
+export function loadVoiceStyle(): VoiceStyle {
+  const stored = readKey(VOICE_STYLE_KEY);
+  return isVoiceStyle(stored) ? stored : "endless";
+}
+
+export function saveVoiceStyle(style: VoiceStyle): void {
+  writeKey(VOICE_STYLE_KEY, style);
+}
+
+/** Which game was played last: the OST, unless another was. */
 export function loadGame(): Game {
-  return readKey(GAME_KEY) === "students" ? "students" : "ost";
+  const stored = readKey(GAME_KEY);
+  return stored === "students" || stored === "voice" ? stored : "ost";
 }
 
 export function saveGame(game: Game): void {

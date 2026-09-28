@@ -34,15 +34,23 @@ function describe(save: SaveFileData): string {
     (sum, rounds) => sum + rounds.length,
     0
   );
+  const voices = Object.values(save.voices).reduce(
+    (sum, rounds) => sum + rounds.length,
+    0
+  );
   const songs = `${plural(daily, "daily puzzle", "daily puzzles")} and ${plural(
     endless,
     "endless song",
     "endless songs"
   )}`;
+  const more = [
+    ...(students > 0
+      ? [plural(students, "student round", "student rounds")]
+      : []),
+    ...(voices > 0 ? [plural(voices, "voice round", "voice rounds")] : []),
+  ];
   const counts =
-    students > 0
-      ? `${songs}, and ${plural(students, "student round", "student rounds")}`
-      : songs;
+    more.length > 0 ? `${songs}, and ${more.join(" and ")}` : songs;
 
   if (!save.exported) return `It has ${counts}.`;
 
@@ -98,7 +106,7 @@ export function SaveFile() {
   const replace = () => {
     if (!pending) return;
 
-    if (!replaceAllRounds(pending.rounds, pending.students)) {
+    if (!replaceAllRounds(pending.rounds, pending.students, pending.voices)) {
       setPending(null);
       setError(
         "This browser wouldn't store the save. Check that site data is allowed."

@@ -4,7 +4,12 @@ import { DAILY_STORAGE_KEY, STORAGE_KEY } from "../constants/game";
 import { Song } from "../types/song";
 import { obscure } from "./obscure";
 import { buildSaveFile, readSaveFile, saveFileName } from "./saveFile";
-import { emptyGuesses, saveRounds, saveStudentRounds } from "./storage";
+import {
+  emptyGuesses,
+  saveRounds,
+  saveStudentRounds,
+  saveVoiceRounds,
+} from "./storage";
 
 const song: Song = {
   artist: "Mitsukiyo",
@@ -22,6 +27,14 @@ function round(overrides: Record<string, unknown> = {}) {
     ...overrides,
   };
 }
+
+const NO_VOICES = {
+  daily: [],
+  endless: [],
+  nohint: [],
+  choice: [],
+  timeattack: [],
+};
 
 function file(contents: Record<string, unknown>): string {
   return obscure(JSON.stringify({ app: "baheardle", version: 1, ...contents }));
@@ -55,6 +68,7 @@ describe("save files", () => {
           "lore-daily": [],
           "lore-endless": [],
         },
+        voices: NO_VOICES,
       },
     });
   });
@@ -66,6 +80,25 @@ describe("save files", () => {
     const result = readSaveFile(buildSaveFile());
     expect(result.ok && result.save.students["lore-daily"]).toEqual(rounds);
     expect(buildSaveFile()).not.toContain("10005");
+  });
+
+  it("carries Voice mode's rounds too", () => {
+    const rounds = [{ answer: 10005, line: 2, guesses: [0, 10000], day: 2 }];
+    saveVoiceRounds("daily", rounds);
+
+    const result = readSaveFile(buildSaveFile());
+    expect(result.ok && result.save.voices.daily).toEqual(rounds);
+    expect(buildSaveFile()).not.toContain("10005");
+  });
+
+  it("reads a save from before Voice mode, and one with only it", () => {
+    const old = readSaveFile(file({ rounds: { endless: [round()] } }));
+    expect(old.ok && old.save.voices).toEqual(NO_VOICES);
+
+    const voices = readSaveFile(
+      file({ voices: { nohint: [{ answer: 1, line: 0, guesses: [] }] } })
+    );
+    expect(voices.ok && voices.save.voices.nohint).toHaveLength(1);
   });
 
   it("reads a save from before the student game, and one with only it", () => {
@@ -132,6 +165,7 @@ describe("save files", () => {
           "lore-daily": [],
           "lore-endless": [],
         },
+        voices: NO_VOICES,
       },
     });
 

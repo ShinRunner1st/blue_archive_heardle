@@ -1,8 +1,9 @@
 import React from "react";
-import { IoMusicalNotes, IoPeople } from "react-icons/io5";
+import { IoMic, IoMusicalNotes, IoPeople } from "react-icons/io5";
 
 import { Game, GameMode } from "../../types/mode";
 import { StudentGame } from "../../types/student";
+import { VoiceStyle } from "../../types/voice";
 
 import * as Styled from "./index.styled";
 
@@ -111,9 +112,15 @@ const GAMES: Array<Option<Game>> = [
     hint: "Name the student from how they compare",
     icon: <IoPeople aria-hidden="true" />,
   },
+  {
+    value: "voice",
+    label: "Voice",
+    hint: "Name the student from their voice",
+    icon: <IoMic aria-hidden="true" />,
+  },
 ];
 
-/** Picks the game: the OST, or the students. */
+/** Picks the game: the OST, the students, or their voices. */
 export function GameSwitch({
   game,
   onChange,
@@ -152,6 +159,47 @@ export function StudentStyles({
       label="Way to play"
       options={STUDENT_GAMES}
       value={game}
+      onChange={onChange}
+    />
+  );
+}
+
+const VOICE_STYLES: Array<Option<Exclude<VoiceStyle, "nohint">>> = [
+  {
+    value: "endless",
+    label: "Classic",
+    hint: "Four tries, with a hint after each miss, or none",
+  },
+  {
+    value: "choice",
+    label: "4-Choice",
+    hint: "One pick from four students",
+  },
+  {
+    value: "timeattack",
+    label: "Time Attack",
+    hint: "As many voices as you can in three minutes",
+  },
+];
+
+/**
+ * Picks how to play Voice mode's Endless: the OST's three, so the row is the
+ * same as its. No hints is Classic with its hints turned off, picked above
+ * the game (see VoiceGame), as 4-Choice's clip length is: a fourth pill
+ * didn't fit beside the game switch.
+ */
+export function VoiceStyles({
+  style,
+  onChange,
+}: {
+  style: VoiceStyle;
+  onChange: (style: Exclude<VoiceStyle, "nohint">) => void;
+}) {
+  return (
+    <Pills
+      label="Way to play"
+      options={VOICE_STYLES}
+      value={style === "nohint" ? "endless" : style}
       onChange={onChange}
     />
   );

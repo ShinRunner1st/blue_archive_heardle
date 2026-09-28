@@ -1,6 +1,7 @@
 import React from "react";
 
 import { clueIcons } from "../../constants/clueIcons";
+import { silhouetteOrder } from "../../constants/silhouettes";
 import { students } from "../../constants/students";
 import {
   CLUE_CELL,
@@ -13,6 +14,12 @@ import {
   ICON_SHEET_KEY,
   ICON_SIZE,
 } from "../../constants/studentIcons";
+import {
+  SILHOUETTE_CELL,
+  SILHOUETTE_COLUMNS,
+  SILHOUETTE_SHEET_KEY,
+  SILHOUETTE_SIZE,
+} from "../../constants/voiceSheet";
 import { useIconSheet } from "../../hooks/useIconSheet";
 
 import * as Styled from "./index.styled";
@@ -23,6 +30,11 @@ const ROWS = Math.ceil(students.length / ICON_COLUMNS);
 
 const CLUE_CELLS = new Map(clueIcons.map((key, index) => [key, index]));
 const CLUE_ROWS = Math.ceil(clueIcons.length / CLUE_COLUMNS);
+
+const SILHOUETTE_CELLS = new Map(
+  silhouetteOrder.map((id, index) => [id, index])
+);
+const SILHOUETTE_ROWS = Math.ceil(silhouetteOrder.length / SILHOUETTE_COLUMNS);
 
 interface Layout {
   cell: number;
@@ -103,4 +115,30 @@ export function ClueIcon({ iconKey, size }: { iconKey: string; size: number }) {
     rows: CLUE_ROWS,
   });
   return <Styled.ClueIcon aria-hidden="true" style={style} />;
+}
+
+/**
+ * A student's silhouette, Voice mode's last hint: their icon as a plain
+ * shape, from a sheet drawn at build time (see voiceSheet.ts), on the same
+ * faint square as the icons.
+ */
+export function Silhouette({ id, size }: { id: number; size: number }) {
+  const sheet = useIconSheet(SILHOUETTE_SHEET_KEY);
+  const style: React.CSSProperties = {
+    backgroundColor: ICON_TILE,
+    ...sheetStyle(sheet, size, {
+      cell: SILHOUETTE_CELLS.get(id) ?? 0,
+      cellSize: SILHOUETTE_CELL,
+      iconSize: SILHOUETTE_SIZE,
+      columns: SILHOUETTE_COLUMNS,
+      rows: SILHOUETTE_ROWS,
+    }),
+  };
+  return (
+    <Styled.Icon
+      role="img"
+      aria-label="The student's silhouette"
+      style={style}
+    />
+  );
 }

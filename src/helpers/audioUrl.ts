@@ -1,5 +1,6 @@
 import { audioClips } from "../constants/audioClips";
-import { clipFile, songFile } from "./audioFiles";
+import { VOICE_TEXTS, voiceLines } from "../constants/voiceLines";
+import { clipFile, songFile, voiceFile } from "./audioFiles";
 
 /**
  * Where the audio, and the pictures served with it, live: the Worker in
@@ -51,4 +52,15 @@ export function getClipUrl(themeNo: string): string {
 /** The whole song, for the result screen. */
 export function getSongUrl(themeNo: string): string {
   return `${audioBaseUrl()}/${songFile(themeNo, clipInfo(themeNo).v)}`;
+}
+
+/** A Voice mode line: the student, and which of their lines (0 up). */
+export function getVoiceUrl(id: number, line: number): string {
+  const version = voiceLines[id]?.[1] ?? "";
+  return `${audioBaseUrl()}/${voiceFile(id, line, version)}`;
+}
+
+/** Every line's English text, in one file, read once a round is over. */
+export function getVoiceTextsUrl(): string {
+  return `${audioBaseUrl()}/${VOICE_TEXTS}`;
 }

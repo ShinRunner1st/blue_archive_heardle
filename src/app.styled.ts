@@ -48,7 +48,9 @@ export const BG = styled.div`
 
 /**
  * Holds the game switch and the ways to play, in one row under the header.
- * The row is as wide whatever it holds, so both stay put.
+ * The row is as wide whatever it holds, so both stay put. Inside its padding
+ * it is as wide as the play area, which three games and three ways to play
+ * need.
  */
 export const StyleBar = styled.div`
   display: flex;
@@ -56,7 +58,7 @@ export const StyleBar = styled.div`
   gap: 8px;
 
   width: 100%;
-  max-width: 540px;
+  max-width: 632px;
   margin: 0 auto;
   padding: 16px 16px 0;
 

@@ -13,6 +13,7 @@ import {
   IoSchool,
   IoKeypad,
   IoMap,
+  IoMic,
   IoMusicalNotes,
   IoNavigate,
   IoSave,
@@ -40,6 +41,22 @@ export interface NewsUpdate {
  * below it (see SHOWN_UPDATES) for anyone who missed them.
  */
 export const WHATS_NEW: NewsUpdate[] = [
+  {
+    id: "2026-09-voice",
+    name: "Guess the voice",
+    items: [
+      {
+        icon: IoMic,
+        title: "Voice",
+        text: "A third game beside the OST and Students: hear a student's line, their title call or one from the lobby, and name them. You get four tries, and each miss shows a hint: their school, then their club, then their silhouette. Every costume is its own answer.",
+      },
+      {
+        icon: IoGrid,
+        title: "Every way to play",
+        text: "Voice has a daily puzzle with its own streak and calendar, and in Endless: Classic (hints on or off, each with its own stats), 4-Choice and Time Attack. The result shows what the student said, in English.",
+      },
+    ],
+  },
   {
     id: "2026-09-solve-time",
     name: "Time your finds",
