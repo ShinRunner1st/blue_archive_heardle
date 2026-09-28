@@ -14,29 +14,26 @@ so far goes to `main` in one release. Mark a step done here, with its branch
 name, when it's built.
 
 1. **Group 1: small features.** Save export and import, per-song record, daily
-   calendar, result picture, recap card. _Built on `feat/save-export-import`,
-   not merged yet._
-2. **Group 2: seasonal, merged before 2026-12-25.** Christmas and New Year
-   backgrounds. _Built on `feat/seasonal-backgrounds` (stacked on Group 1), not
-   merged yet; its pictures went on the Worker and R2 on 2026-09-28._ After 2026-12-10, the old-domain cleanup in "Dates to remember" in
-   `CLAUDE.md` can ride along.
-3. **Group 3: new ways to play the OST.** Jukebox, then four-choice answers,
-   then time attack (it uses four-choice). _Done on `feat/ost-modes` (stacked
-   on Group 2), including the changes the user asked for after testing; not
-   merged yet. No new Worker files, so it adds nothing to `npm run songs`._
-4. **Group 4: storage.** _Built on `feat/storage` (stacked on Group 3), not
-   merged yet._ The R2 bucket `ba-heardle-audio` is served at
-   `audio.baheardle.com`; the game falls back to it when the Worker fails, and
-   `npm run songs` uploads new files to it. The dashboard setup (the
-   `Access-Control-Allow-Origin` header rule and the usage alerts) and the
-   first full upload were done on 2026-09-28, with the Group 2 pictures.
-5. **Group 5: Badle.** _Built on `feat/badle` (stacked on Group 4), not
-   merged yet._ Its pictures aren't on the Worker or R2 yet: they go up
-   with `npm run songs` before merging (264 new files, about 2.4 MB: the two
-   icon sheets and 262 portraits).
-6. **Group 6: dream plan. Next up.** Make its branch off `feat/badle`. The
-   user messages SchaleDB first, then Voice line mode. The user checks the
-   Durable Objects and PartyServer free-tier limits, then Multiplayer.
+   calendar, result picture, recap card.
+2. **Group 2: seasonal.** Christmas and New Year backgrounds, their pictures
+   on the Worker and R2.
+3. **Group 3: new ways to play the OST.** Jukebox, four-choice answers, time
+   attack.
+4. **Group 4: storage.** The R2 bucket `ba-heardle-audio`, served at
+   `audio.baheardle.com`: the game falls back to it when the Worker fails,
+   and `npm run songs` uploads new files to it. Its dashboard setup (the
+   `Access-Control-Allow-Origin` header rule and the usage alerts) was done
+   on 2026-09-28.
+5. **Group 5: Badle.** The student game, its pictures and the Sensei card.
+
+   _Groups 1 to 5 were released together on 2026-09-28, after `npm run songs`
+   put Group 5's 264 pictures on the Worker and R2._ The old-domain cleanup
+   in "Dates to remember" in `CLAUDE.md` is still to do after 2026-12-10, on
+   its own.
+
+6. **Group 6: dream plan. Next up.** Make its branch off `main`. The user
+   messages SchaleDB first, then Voice line mode. The user checks the Durable
+   Objects and PartyServer free-tier limits, then Multiplayer.
 
 Any time: `npm run songs` when new OSTs come out.
 
@@ -77,15 +74,13 @@ Any time: `npm run songs` when new OSTs come out.
 
 ## Phase 1: small, no new files to host
 
-All of Phase 1 (1 to 5) is built, on the branch `feat/save-export-import`
-until released. Each new mode's rounds go into the save file too
+All of Phase 1 (1 to 5) is released. Each new mode's rounds go into the save file too
 (`GAME_MODES` in `src/types/mode.ts`), and new share pictures reuse
 `src/helpers/picture/canvas.ts`.
 
 ## Phase 2: new ways to play the OST
 
-All of Phase 2 (6 to 8: Jukebox, four-choice answers, time attack) is built,
-on the branch `feat/ost-modes` until released. What was agreed is now in
+All of Phase 2 (6 to 8: Jukebox, four-choice answers, time attack) is released. What was agreed is now in
 "What the game has" in `CLAUDE.md`. Choices made while building it:
 
 - The header keeps Daily and Endless; a switch under the header, always in
@@ -115,7 +110,7 @@ on the branch `feat/ost-modes` until released. What was agreed is now in
 ## Phase 3: Badle (guess a student)
 
 All of Phase 3 (the data script, the icon sheet, Gameplay, Lore and the
-birthday note) is built, on the branch `feat/badle` until released. What was
+birthday note) is released. What was
 agreed is now in "What the game has" in `CLAUDE.md`, and the data's details
 in the README's Student data. Choices made while building it:
 

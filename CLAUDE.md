@@ -192,6 +192,13 @@ What the project cares about:
   2026-09-27). The old domain 301-redirects; Google Search Console Change of
   Address passed. Announced on X in English and Japanese. The X link preview
   was slow to appear because of X's card cache; the tags are correct.
+- **28 Sep 2026, Groups 1-5 released** (fast-forward of `feat/badle`): save
+  file, per-song record, daily calendar, share and recap pictures, seasonal
+  backgrounds, Jukebox, 4-Choice, Time Attack, the R2 backup, the student
+  game (Gameplay and Lore), birthdays, the Sensei card and the song cache.
+  Group 5's pictures (icon sheets and 262 portraits) went on the Worker and
+  R2 first. It added about 47 KB gzipped of JavaScript to the first load,
+  no first-load requests, and 0.2 MB to the Vercel deployment.
 
 ## Commands
 
