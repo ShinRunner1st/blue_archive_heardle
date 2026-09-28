@@ -131,10 +131,12 @@ in the README's Student data. Choices made while building it:
   picture.
 - **Daily** uses the OST's day numbers (`DAILY_EPOCH`), with its own schedule
   for each way to play.
-- **Icon sheet**: 80 px cells with 72 px icons (shown at up to 36 px), set on a
-  flat colour: the icons' transparency more than doubled the file. 324 KB for
-  262 students, where SchaleDB's separate icons come to 2 MB. It falls back
-  to R2 if the Worker fails, like the audio.
+- **Icon sheet**: 80 px cells with 72 px icons (shown at up to 36 px),
+  transparent round each student, on a faint square that suits day and
+  night. ffmpeg's WebP keeps transparency exactly, so it is rounded to six
+  steps: 447 KB for 262 students, where a flat colour made 324 KB and
+  SchaleDB's separate icons come to 2 MB. It falls back to R2 if the Worker
+  fails, like the audio.
 - **Bundle**: the student table (9.6 KB gzipped) and its UI ship in the main
   bundle, 63 to 84 KB gzipped, rather than a lazy chunk: that would be one
   more Vercel request, and the header, stats and character all need the

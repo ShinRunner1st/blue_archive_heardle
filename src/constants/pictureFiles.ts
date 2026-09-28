@@ -11,5 +11,5 @@ export const pictureFiles: Record<string, string> = {
   "seasons/new-year-day": "pictures/new-year-day.95478ce3.webp",
   "seasons/new-year-night": "pictures/new-year-night.87cb5914.webp",
   "students/clues": "pictures/clues.4cf96317.webp",
-  "students/icons": "pictures/icons.2ba1d808.webp",
+  "students/icons": "pictures/icons.b44ab9d0.webp",
 };

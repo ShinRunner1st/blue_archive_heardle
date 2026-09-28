@@ -379,7 +379,7 @@ and R2. `build:students`:
   themselves, so no day already played changes.
 - downloads the icons it doesn't have yet into `.cache/` (not committed), one
   at a time, and draws them all into one sheet, `pictures/students/icons.webp`
-  (80 px cells, set on a flat colour; about 325 KB), in the table's order
+  (80 px cells, transparent round each student; about 450 KB), in the table's order
   (`src/constants/studentIcons.ts`). One file means one request, and no file
   name per student to give the answer away in DevTools. A new student changes
   the whole sheet, so players download it again after each update.

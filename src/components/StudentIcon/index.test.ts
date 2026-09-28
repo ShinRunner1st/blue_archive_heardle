@@ -67,7 +67,7 @@ describe("StudentIcon", () => {
     );
   });
 
-  it("sets the icon on the sheet's colour", async () => {
+  it("keeps a square in place if the sheet fails", async () => {
     fakeImages(() => true);
     vi.stubEnv("VITE_AUDIO_BACKUP_URL", "");
     const icon = await mount(students[0].id, 24);

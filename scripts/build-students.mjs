@@ -52,7 +52,6 @@ import {
   CLUE_COLUMNS,
   CLUE_SHEET_KEY,
   CLUE_SIZE,
-  ICON_BACKGROUND,
   ICON_CELL,
   ICON_COLUMNS,
   ICON_SHEET_KEY,
@@ -79,10 +78,16 @@ const PORTRAIT_DIR = "pictures/portraits";
 /** About 10 KB a portrait, 200x226 as SchaleDB has them. */
 const PORTRAIT_QUALITY = 75;
 /**
- * WebP quality for the sheet: about 325 KB for 262 students, where their
+ * WebP quality for the sheet: about 450 KB for 262 students, where their
  * separate icons on SchaleDB come to 2 MB.
  */
 const SHEET_QUALITY = 70;
+/**
+ * The transparency is rounded to six steps (0, 51, ... 255). ffmpeg's WebP
+ * keeps it exactly, which cost about 270 KB more; six steps look the same
+ * at the sizes the icons show, and save half of that.
+ */
+const ALPHA_STEP = 51;
 
 /** Fixed seeds, like the OST's: only new students are ever shuffled. */
 const SEEDS = { gameplay: 20260928, lore: 20260929 };
@@ -201,11 +206,11 @@ for (const { id, name } of missing) {
 }
 console.log(`${missing.length} new icon(s) downloaded.`);
 
-// The sheet: each icon set on the background, then scaled into its cell, and
-// tiled. The icons' see-through pixels are black underneath, so the
-// background is painted solid (`replace`: drawbox otherwise keeps the icon's
-// transparency) and the icon is scaled after: either way round, that black
-// showed as specks around the edges.
+// The sheet: each icon scaled into its cell, keeping its transparency, and
+// tiled. The icons' see-through pixels are black underneath, and scaling
+// the colours as they are mixes that black into the edges as specks. So the
+// colours are scaled already weighted by the transparency (the icon on
+// black) and the transparency on its own, then divided back apart.
 const rows = Math.ceil(students.length / ICON_COLUMNS);
 const margin = (ICON_CELL - ICON_SIZE) / 2;
 const work = mkdtempSync(join(tmpdir(), "student-icons-"));
@@ -217,21 +222,23 @@ try {
     );
   });
   mkdirSync(join("pictures", ICON_SHEET_KEY, ".."), { recursive: true });
-  const background = `0x${ICON_BACKGROUND.slice(1)}`;
+  const scale = `scale=${ICON_SIZE}:${ICON_SIZE}:flags=lanczos`;
+  const unweight = (channel) =>
+    `${channel}='min(255,${channel}(X,Y)*255/max(alpha(X,Y),1))'`;
   const filters = [
-    "format=rgba",
-    "split[icon][under];",
-    `[under]drawbox=c=${background}:t=fill:replace=1[card];`,
-    "[card][icon]overlay=format=auto,format=rgb24",
-    `scale=${ICON_SIZE}:${ICON_SIZE}:flags=lanczos`,
-    `pad=${ICON_CELL}:${ICON_CELL}:${margin}:${margin}:color=${background}`,
-    `tile=${ICON_COLUMNS}x${rows}:color=${background}`,
-  ]
-    .join(",")
-    .replaceAll(";,", ";");
+    "format=rgba,split=3[icon][under][shape];",
+    // drawbox keeps the icon's transparency unless told to replace it.
+    "[under]drawbox=c=black:t=fill:replace=1[black];",
+    `[black][icon]overlay=format=auto,format=rgb24,${scale}[colour];`,
+    `[shape]alphaextract,${scale},lut=y='round(val/${ALPHA_STEP})*${ALPHA_STEP}'[alpha];`,
+    "[colour][alpha]alphamerge,",
+    `geq=${["r", "g", "b"].map(unweight).join(":")}:a='alpha(X,Y)',`,
+    `pad=${ICON_CELL}:${ICON_CELL}:${margin}:${margin}:color=black@0,`,
+    `tile=${ICON_COLUMNS}x${rows}:color=black@0`,
+  ].join("");
   await run("ffmpeg", [
     ...["-v", "error", "-y", "-i", join(work, "%04d.webp")],
-    ...["-vf", filters, "-frames:v", "1"],
+    ...["-filter_complex", filters, "-frames:v", "1"],
     ...["-c:v", "libwebp", "-quality", String(SHEET_QUALITY)],
     ...["-compression_level", "6"],
     ...["-map_metadata", "-1", SHEET_PATH],

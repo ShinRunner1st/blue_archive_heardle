@@ -24,11 +24,10 @@ export const ICON_CELL = 80;
 export const ICON_SIZE = 72;
 
 /**
- * The icons are cut-outs; the sheet sets them on this colour, like the
- * cards in the game's student list. Without the transparency the sheet is
- * less than half the size.
+ * The icons are cut-outs and the sheet keeps them so, on a faint square
+ * that takes the page's own colour, day or night.
  */
-export const ICON_BACKGROUND = "#DCE6F0";
+export const ICON_TILE = "rgba(255, 255, 255, 0.12)";
 
 export const ICON_COLUMNS = 16;
 

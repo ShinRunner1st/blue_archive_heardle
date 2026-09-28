@@ -7,9 +7,9 @@ import {
   CLUE_COLUMNS,
   CLUE_SHEET_KEY,
   CLUE_SIZE,
-  ICON_BACKGROUND,
   ICON_CELL,
   ICON_COLUMNS,
+  ICON_TILE,
   ICON_SHEET_KEY,
   ICON_SIZE,
 } from "../../constants/studentIcons";
@@ -61,13 +61,13 @@ interface Props {
 }
 
 /**
- * A student's icon, cut from the one sheet of every icon: the sheet's
- * colour until it has loaded, which happens once a visit.
+ * A student's icon, cut from the one sheet of every icon, on a faint square:
+ * all that shows until the sheet has loaded, once a visit, or if it fails.
  */
 export function StudentIcon({ id, size, alt = "" }: Props) {
   const sheet = useIconSheet(ICON_SHEET_KEY);
   const style: React.CSSProperties = {
-    backgroundColor: ICON_BACKGROUND,
+    backgroundColor: ICON_TILE,
     ...sheetStyle(sheet, size, {
       cell: CELLS.get(id) ?? 0,
       cellSize: ICON_CELL,
