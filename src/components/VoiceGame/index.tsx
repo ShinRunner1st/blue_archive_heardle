@@ -12,6 +12,7 @@ import {
   voicePool,
 } from "../../helpers/voiceRounds";
 import { VoiceGameState } from "../../hooks/useVoiceGame";
+import { Student } from "../../types/student";
 import { SKIPPED, VoiceRoundMode } from "../../types/voice";
 
 import { Button } from "../Button";
@@ -58,14 +59,23 @@ export function VoiceGame({
     [round.guesses]
   );
 
+  // The student picked in the box or the grid, guessed on Enter or Guess.
+  const [selected, setSelected] = React.useState<Student>();
   const [listOpen, setListOpen] = React.useState(false);
-  const pickFromList = React.useCallback(
+  const pickFromList = React.useCallback((id: number) => {
+    setListOpen(false);
+    setSelected(studentById.get(id));
+  }, []);
+  const guess = React.useCallback(
     (id: number) => {
-      setListOpen(false);
+      setSelected(undefined);
       game.guess(id);
     },
     [game]
   );
+  // A skip or a new line leaves nothing picked.
+  const tried = round.guesses.length;
+  React.useEffect(() => setSelected(undefined), [tried, round.answer]);
 
   // Shift+Enter skips, as in the OST, so a round can be played start to
   // finish from the keyboard. A held key doesn't skip every try.
@@ -83,6 +93,12 @@ export function VoiceGame({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [keyboardEnabled, over, round.choices, listOpen, skip]);
 
+  // Whether a round has been played on this screen: the answer only plays
+  // by itself when the round ended here, as in the OST, never on a mode
+  // switch or a reload.
+  const playedHere = React.useRef(false);
+  if (!over) playedHere.current = true;
+
   if (!answer) return null;
 
   const score = `${game.wins}/${game.played}`;
@@ -99,6 +115,8 @@ export function VoiceGame({
         streak={game.streak}
         onNext={game.next}
         onNewDay={game.refreshDay}
+        record={game.record}
+        autoPlay={playedHere.current}
         keyboardEnabled={keyboardEnabled}
       />
     );
@@ -163,8 +181,8 @@ export function VoiceGame({
         onSkipTrack={onSkipTrack}
         hint={
           <>
-            <kbd>Space</kbd> play · just type to guess · <kbd>Shift</kbd>+
-            <kbd>Enter</kbd> skip
+            <kbd>Space</kbd> play · type, then <kbd>Enter</kbd> to pick and
+            guess · <kbd>Shift</kbd>+<kbd>Enter</kbd> skip
           </>
         }
       />
@@ -172,7 +190,10 @@ export function VoiceGame({
         <StudentSearch
           pool={voicePool}
           guessed={guessed}
-          onGuess={game.guess}
+          onGuess={guess}
+          selected={selected}
+          onSelect={setSelected}
+          direction="up"
           keyboardEnabled={keyboardEnabled && !listOpen}
         />
         <Styled.BrowseButton
@@ -184,11 +205,19 @@ export function VoiceGame({
           <IoGrid size={20} aria-hidden="true" />
         </Styled.BrowseButton>
       </Styled.SearchRow>
-      <Styled.Buttons>
+      <GameStyled.Buttons>
         <Button stroke onClick={skip}>
           {isLastTry ? "Give up?" : nextHint ? "Skip for a hint" : "Skip"}
         </Button>
-      </Styled.Buttons>
+        <Button
+          stroke
+          variant="green"
+          onClick={() => selected && guess(selected.id)}
+          disabled={!selected}
+        >
+          Guess
+        </Button>
+      </GameStyled.Buttons>
       {listOpen && (
         <StudentListPopUp
           pool={voicePool}

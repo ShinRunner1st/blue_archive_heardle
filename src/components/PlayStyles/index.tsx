@@ -107,20 +107,20 @@ const GAMES: Array<Option<Game>> = [
     icon: <IoMusicalNotes aria-hidden="true" />,
   },
   {
-    value: "students",
-    label: "Students",
-    hint: "Name the student from how they compare",
-    icon: <IoPeople aria-hidden="true" />,
-  },
-  {
     value: "voice",
     label: "Voice",
     hint: "Name the student from their voice",
     icon: <IoMic aria-hidden="true" />,
   },
+  {
+    value: "students",
+    label: "Students",
+    hint: "Name the student from how they compare",
+    icon: <IoPeople aria-hidden="true" />,
+  },
 ];
 
-/** Picks the game: the OST, the students, or their voices. */
+/** Picks the game: the OST, the students' voices, or the students. */
 export function GameSwitch({
   game,
   onChange,

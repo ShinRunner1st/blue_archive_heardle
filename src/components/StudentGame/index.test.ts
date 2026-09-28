@@ -92,23 +92,42 @@ afterEach(() => {
 });
 
 describe("StudentGame search", () => {
-  it("finds students by name and guesses the one clicked", () => {
+  it("picks the student clicked, and guesses them on Guess", () => {
     mount({ answer: hoshino.id, guesses: [] });
+    expect(button("Guess")?.disabled).toBe(true);
     type("hoshino");
 
     const first = options()[0];
     expect(first.textContent).toContain("Hoshino");
     act(() => (first as HTMLElement).click());
 
+    // Picked, not guessed: the box holds the name until it's confirmed.
+    expect(onGuess).not.toHaveBeenCalled();
+    expect(input().value).toBe("Hoshino");
+    expect(options()).toHaveLength(0);
+
+    act(() => button("Guess")?.click());
     expect(onGuess).toHaveBeenCalledWith(hoshino.id);
     expect(input().value).toBe("");
   });
 
-  it("guesses the top name on Enter", () => {
+  it("picks the top name on Enter, and guesses it on the next", () => {
     mount({ answer: hoshino.id, guesses: [] });
     type("aru");
     press("Enter");
+    expect(onGuess).not.toHaveBeenCalled();
+    expect(input().value).toBe("Aru");
+    press("Enter");
     expect(onGuess).toHaveBeenCalledWith(aru.id);
+  });
+
+  it("drops the pick when the name is typed over", () => {
+    mount({ answer: hoshino.id, guesses: [] });
+    type("aru");
+    press("Enter");
+    type("hin");
+    expect(button("Guess")?.disabled).toBe(true);
+    expect(options().length).toBeGreaterThan(0);
   });
 
   it("moves through the names with the arrow keys", () => {
@@ -117,8 +136,20 @@ describe("StudentGame search", () => {
     press("ArrowDown");
     press("ArrowDown");
     press("Enter");
+    press("Enter");
     const second = students.filter(({ name }) => name.startsWith("Hoshino"))[1];
     expect(onGuess).toHaveBeenCalledWith(second.id);
+  });
+
+  it("picks a random first guess, never the answer", () => {
+    mount({ answer: hoshino.id, guesses: [] });
+    for (let i = 0; i < 20; i++) {
+      act(() => button("Random first guess")?.click());
+      expect(input().value).not.toBe("");
+      expect(input().value).not.toBe("Hoshino");
+    }
+    expect(onStart).toHaveBeenCalled();
+    expect(onGuess).not.toHaveBeenCalled();
   });
 
   it("leaves out students already guessed", () => {
@@ -319,7 +350,7 @@ describe("StudentGame student list", () => {
     expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)));
   });
 
-  it("guesses the student picked, and fades the ones guessed", () => {
+  it("picks the student chosen, and fades the ones guessed", () => {
     mount({ answer: hoshino.id, guesses: [aru.id] });
     openList();
 
@@ -331,7 +362,9 @@ describe("StudentGame student list", () => {
         .find((tile) => tile.title === "Hina")
         ?.click()
     );
-    expect(onGuess).toHaveBeenCalledWith(hina.id);
     expect(document.querySelector('[role="dialog"]')).toBeNull();
+    expect(input().value).toBe("Hina");
+    act(() => button("Guess")?.click());
+    expect(onGuess).toHaveBeenCalledWith(hina.id);
   });
 });

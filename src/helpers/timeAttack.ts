@@ -145,6 +145,8 @@ export interface RunSummary {
   answered: number;
   answers: Answers;
   clip: number;
+  /** A Voice run of title calls only. */
+  titles?: boolean;
 }
 
 /** The saved rounds, as runs in the order they were played. */

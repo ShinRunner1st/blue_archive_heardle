@@ -19,6 +19,7 @@ import {
   pickVoice,
   triesOf,
   VOICE_TRIES,
+  voiceRecordText,
   voiceTally,
 } from "../helpers/voiceRounds";
 import {
@@ -216,10 +217,21 @@ export function useVoiceGame(mode: VoiceRoundMode) {
     [rounds]
   );
 
+  // The player's history with this voice, across every mode.
+  const record = React.useMemo(
+    () =>
+      voiceRecordText(
+        [...daily, ...endless, ...nohint, ...choice],
+        round.answer
+      ),
+    [daily, endless, nohint, choice, round.answer]
+  );
+
   return {
     mode,
     round,
     rounds,
+    record,
     tally,
     played,
     wins: played - tally[0],

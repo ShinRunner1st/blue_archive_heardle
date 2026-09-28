@@ -126,6 +126,23 @@ export function HowToPopUp({ onClose }: Props) {
         </PopUpCard>
         <PopUpCard>
           <PopUpCardIcon>
+            <IoMic aria-hidden="true" />
+          </PopUpCardIcon>
+          <PopUpCardBody>
+            <PopUpCardTitle>Voice</PopUpCardTitle>
+            <PopUpCardText>
+              Switch to Voice under the header and name the student from a line
+              they say: their title call or one from the lobby. Each costume is
+              its own answer. You get four tries, and each miss or skip shows a
+              hint: their school, then their club, then their silhouette. Pick a
+              name, then press Enter or Guess. In Endless, Classic can turn its
+              hints off, 4-Choice is one pick from four, and Time Attack is as
+              many as you can in three minutes, every line or title calls only.
+            </PopUpCardText>
+          </PopUpCardBody>
+        </PopUpCard>
+        <PopUpCard>
+          <PopUpCardIcon>
             <IoPeople aria-hidden="true" />
           </PopUpCardIcon>
           <PopUpCardBody>
@@ -136,23 +153,9 @@ export function HowToPopUp({ onClose }: Props) {
               is right, yellow is close, red is wrong, and arrows point higher
               or lower. Gameplay compares school, role, damage, defense, weapon,
               EX cost and release; each costume is its own answer. Lore compares
-              height, birthday, school year, club, favourite gift and more.
-            </PopUpCardText>
-          </PopUpCardBody>
-        </PopUpCard>
-        <PopUpCard>
-          <PopUpCardIcon>
-            <IoMic aria-hidden="true" />
-          </PopUpCardIcon>
-          <PopUpCardBody>
-            <PopUpCardTitle>Voice</PopUpCardTitle>
-            <PopUpCardText>
-              Switch to Voice under the header and name the student from a line
-              they say: their title call or one from the lobby. Each costume is
-              its own answer. You get four tries, and each miss or skip shows a
-              hint: their school, then their club, then their silhouette. In
-              Endless, Classic can turn its hints off, 4-Choice is one pick from
-              four, and Time Attack is as many as you can in three minutes.
+              height, birthday, school year, club, favourite gift and more. Pick
+              a name, then press Enter or Guess; Random first guess picks one to
+              start with.
             </PopUpCardText>
           </PopUpCardBody>
         </PopUpCard>

@@ -59,4 +59,6 @@ export interface VoiceRound {
   choices?: number[];
   /** Which time attack run the round was part of: when the run started. */
   run?: number;
+  /** A time attack run of title calls only, the same words from everyone. */
+  titles?: true;
 }

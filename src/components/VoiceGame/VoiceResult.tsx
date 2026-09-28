@@ -2,22 +2,27 @@ import React from "react";
 
 import { LOSS_TEXT, resultTitle } from "../../constants/resultText";
 import { getVoiceUrl } from "../../helpers/audioUrl";
-import { isBirthday } from "../../helpers/birthdays";
+import {
+  makeVoicePicture,
+  voicePictureName,
+} from "../../helpers/picture/voicePicture";
 import { homeName } from "../../helpers/season";
 import { buildVoiceShareText, isWon, triesOf } from "../../helpers/voiceRounds";
 import { loadVoiceText } from "../../helpers/voiceTexts";
 import { streakNews, WinStreak } from "../../helpers/winStreak";
+import { useBackdropSrc } from "../../hooks/useBackdropSrc";
 import { useSeason } from "../../hooks/useSeason";
+import { useSharePicture } from "../../hooks/useSharePicture";
+import logo from "../../image/BlueArchive-Heardle.png";
 import { Student } from "../../types/student";
 import { VoiceRound, VoiceRoundMode } from "../../types/voice";
 
 import { Button } from "../Button";
 import { DailyCountdown } from "../Result";
 import * as ResultStyled from "../Result/index.styled";
-import { StudentIcon } from "../StudentIcon";
 
+import { VoiceNowPlaying } from "./VoiceNowPlaying";
 import { VoiceChoices } from "./VoiceParts";
-import { VoicePlayer } from "./VoicePlayer";
 
 import * as Styled from "./index.styled";
 
@@ -30,6 +35,10 @@ interface Props {
   streak: WinStreak;
   onNext: () => void;
   onNewDay: () => void;
+  /** The player's history with this voice, for the card. */
+  record?: string;
+  /** Plays the line as soon as it loads: the round just ended here. */
+  autoPlay?: boolean;
   keyboardEnabled: boolean;
 }
 
@@ -67,6 +76,8 @@ export function VoiceResult({
   streak,
   onNext,
   onNewDay,
+  record,
+  autoPlay = false,
   keyboardEnabled,
 }: Props) {
   const [shareLabel, setShareLabel] = React.useState(SHARE_LABEL);
@@ -76,6 +87,24 @@ export function VoiceResult({
   const count = round.guesses.length;
   const isDaily = mode === "daily";
   const text = useLineText(answer.id, round.line);
+
+  // The picture sits on the same backdrop as the page behind it.
+  const wins = streak.current;
+  const backdrop = useBackdropSrc(wins);
+  const makePicture = React.useCallback(
+    () =>
+      makeVoicePicture(
+        { mode, round, answer, score, streak: wins },
+        { backdrop, logo }
+      ),
+    [mode, round, answer, score, wins, backdrop]
+  );
+  const picture = useSharePicture(
+    "Share picture",
+    makePicture,
+    voicePictureName({ mode, round }),
+    buildVoiceShareText(mode, round, score)
+  );
 
   const copy = React.useCallback(() => {
     navigator.clipboard
@@ -133,52 +162,33 @@ export function VoiceResult({
       </ResultStyled.Score>
       {news && <ResultStyled.Note>{news}</ResultStyled.Note>}
 
-      {round.choices && (
-        <VoiceChoices
-          choices={round.choices}
-          answer={round.answer}
-          picked={round.guesses[0]}
-        />
-      )}
-
-      <Styled.AnswerCard style={{ marginTop: 16 }}>
-        <StudentIcon id={answer.id} size={64} />
-        <Styled.AnswerText>
-          <Styled.AnswerName>
-            {answer.name}
-            {isBirthday(answer) && " 🎂"}
-          </Styled.AnswerName>
-          <Styled.AnswerMeta>
-            {answer.school} · {answer.club}
-          </Styled.AnswerMeta>
-        </Styled.AnswerText>
-      </Styled.AnswerCard>
-
-      <Styled.Quote>
-        {text === undefined
-          ? "…"
-          : text === null
-          ? "The line's words didn't load."
-          : text === ""
-          ? "“Blue Archive!”"
-          : `“${text}”`}
-        {text === "" && (
-          <Styled.QuoteNote>
-            The title call, the same for everyone
-          </Styled.QuoteNote>
-        )}
-      </Styled.Quote>
-
-      <VoicePlayer
+      {/* The answer first, as the player was above the four during the round. */}
+      <VoiceNowPlaying
+        answer={answer}
         url={getVoiceUrl(answer.id, round.line)}
+        text={text}
+        record={record}
         keyboardEnabled={keyboardEnabled}
-        compact
+        autoPlay={autoPlay}
       />
+
+      {round.choices && (
+        <ResultStyled.ResultChoices>
+          <VoiceChoices
+            choices={round.choices}
+            answer={round.answer}
+            picked={round.guesses[0]}
+          />
+        </ResultStyled.ResultChoices>
+      )}
 
       {isDaily && <DailyCountdown onNewDay={onNewDay} what="voice" />}
       <ResultStyled.Buttons>
         <Button stroke onClick={copy} variant="blue">
           {shareLabel}
+        </Button>
+        <Button stroke onClick={picture.share} variant="pink">
+          {picture.text}
         </Button>
         {!isDaily && (
           <Button stroke onClick={onNext} variant="green">

@@ -1,15 +1,10 @@
 import styled, { keyframes } from "styled-components";
 import "@fontsource-variable/nunito-sans";
 
+import { Heading as NowHeading } from "../NowPlaying/index.styled";
 import { SongRow } from "../TimeAttack/index.styled";
 
-export {
-  AnswerCard,
-  AnswerMeta,
-  AnswerName,
-  AnswerText,
-  BrowseButton,
-} from "../StudentGame/index.styled";
+export { BrowseButton } from "../StudentGame/index.styled";
 
 export const Wrapper = styled.div`
   font-family: "Nunito Sans Variable";
@@ -21,9 +16,10 @@ export const Wrapper = styled.div`
   width: 100%;
 `;
 
-export const PlayerBox = styled.div<{ $compact?: boolean }>`
+/** Centred, as the OST's player is, keyboard tip and all. */
+export const PlayerBox = styled.div`
   width: 100%;
-  max-width: ${({ $compact }) => ($compact ? "320px" : "none")};
+  text-align: center;
 `;
 
 /** A try: the student guessed with their icon, a skip, or still to come. */
@@ -163,15 +159,6 @@ export const SearchRow = styled.div`
   }
 `;
 
-export const Buttons = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-
-  width: 100%;
-  margin-top: 12px;
-`;
-
 /** The four answers of a one-pick round. */
 export const ChoiceSub = styled.span`
   margin-top: 2px;
@@ -213,4 +200,52 @@ export const QuoteNote = styled.span`
 /** A line of the run just played: the mark, the student's icon and name. */
 export const RunRow = styled(SongRow)`
   grid-template-columns: 1.5em 28px minmax(0, 1fr) auto;
+`;
+
+/**
+ * The card's heading, as the OST's, but a school and club are longer than an
+ * artist: on a phone the volume drops to its own line rather than squeeze
+ * them into a column.
+ */
+export const CardHeading = styled(NowHeading)`
+  flex-wrap: wrap;
+  row-gap: 10px;
+
+  & > :nth-child(2) {
+    flex: 1 1 200px;
+  }
+
+  & > :nth-child(3) {
+    margin-left: auto;
+  }
+`;
+
+/** The speaker's icon, where the OST's card has its album art. */
+export const CardIcon = styled.div`
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 56px;
+  height: 56px;
+
+  background-color: ${({ theme }) => theme.background100};
+  border-radius: 8px;
+
+  @media (max-width: 768px) {
+    width: 46px;
+    height: 46px;
+
+    & > * {
+      transform: scale(0.82);
+    }
+  }
+`;
+
+/** What the line says, the card's full width. */
+export const CardQuote = styled(Quote)`
+  max-width: none;
+  margin-top: 14px;
 `;

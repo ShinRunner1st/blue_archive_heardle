@@ -202,13 +202,7 @@ export function Result({
       {badgeLines.map((line) => (
         <Styled.Note key={line}>{line}</Styled.Note>
       ))}
-      {round.choices && (
-        <Choices
-          choices={round.choices}
-          answer={solution.themeNo}
-          picked={round.guesses[0]?.song?.themeNo}
-        />
-      )}
+      {/* The song first, as the player was above the four during the round. */}
       <NowPlaying
         song={solution}
         // The round's start is within the clip; the song player needs it
@@ -219,6 +213,15 @@ export function Result({
         record={record}
         autoPlay={autoPlay}
       />
+      {round.choices && (
+        <Styled.ResultChoices>
+          <Choices
+            choices={round.choices}
+            answer={solution.themeNo}
+            picked={round.guesses[0]?.song?.themeNo}
+          />
+        </Styled.ResultChoices>
+      )}
       {isDaily && <DailyCountdown onNewDay={onNewDay} />}
       <Styled.Buttons>
         <Button stroke onClick={copyResult} variant="blue">

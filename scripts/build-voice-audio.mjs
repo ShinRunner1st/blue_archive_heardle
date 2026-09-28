@@ -68,6 +68,11 @@ const stale = readdirSync(VOICE_OUTPUT_DIR).filter(
 );
 for (const file of stale) rmSync(join(VOICE_OUTPUT_DIR, file));
 
+// Line 0 is the title call, which has no text, for all but a few.
+const noTitle = Object.entries(list)
+  .filter(([, lines]) => lines[0]?.text !== "")
+  .map(([id]) => Number(id));
+
 const entries = [...versions.students].map(
   ([id, { v, sources }]) => `  ${id}: [${sources.length}, "${v}"],`
 );
@@ -84,6 +89,9 @@ writeFileSync(
 export const voiceLines: Record<number, [count: number, version: string]> = {
 ${entries.join("\n")}
 };
+
+/** Students whose line 0 is a lobby line: they have no title call. */
+export const NO_TITLE_CALL: number[] = [${noTitle.join(", ")}];
 
 export const VOICE_TEXTS = "${textsFile}";
 `

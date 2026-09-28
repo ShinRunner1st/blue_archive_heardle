@@ -1,6 +1,11 @@
 import React from "react";
+import { IoGrid } from "react-icons/io5";
 
 import { getVoiceUrl } from "../../helpers/audioUrl";
+import {
+  makeVoiceTimeAttackPicture,
+  voiceTimeAttackPictureName,
+} from "../../helpers/picture/voicePicture";
 import { studentById } from "../../helpers/studentRounds";
 import {
   answersLabel,
@@ -10,6 +15,7 @@ import {
 } from "../../helpers/timeAttack";
 import { isWon, voicePool } from "../../helpers/voiceRounds";
 import {
+  linesLabel,
   voiceRunsOf,
   voiceTimeAttackShareText,
 } from "../../helpers/voiceTimeAttack";
@@ -18,10 +24,15 @@ import {
   VoiceRun,
   VoiceTimeAttack as VoiceTimeAttackState,
 } from "../../hooks/useVoiceTimeAttack";
+import { Student } from "../../types/student";
 import { SKIPPED, VoiceRound } from "../../types/voice";
+import { useBackdropSrc } from "../../hooks/useBackdropSrc";
+import { useSharePicture } from "../../hooks/useSharePicture";
+import logo from "../../image/BlueArchive-Heardle.png";
 
 import { Button } from "../Button";
 import { PlayerStatus } from "../Player";
+import { StudentListPopUp } from "../StudentGame/StudentListPopUp";
 import { StudentSearch } from "../StudentGame/StudentSearch";
 import { Chip } from "../SongListPopUp/index.styled";
 import { StudentIcon } from "../StudentIcon";
@@ -43,7 +54,8 @@ const DRAW_MS = 250;
 
 /**
  * Voice time attack: the start screen, the run, then how it went, as the
- * OST's. A line plays whole each time, so the one setting is how to answer.
+ * OST's. A line plays whole each time, so the settings are how to answer
+ * and which lines.
  */
 export function VoiceTimeAttack({ timeAttack, keyboardEnabled }: Props) {
   const { run } = timeAttack;
@@ -99,9 +111,28 @@ function Start({ timeAttack, keyboardEnabled }: Props) {
                 type="button"
                 $active={settings.answers === answers}
                 aria-pressed={settings.answers === answers}
-                onClick={() => setSettings({ answers })}
+                onClick={() => setSettings({ ...settings, answers })}
               >
                 {answersLabel(answers)}
+              </Chip>
+            ))}
+          </TA.Options>
+        </TA.Setting>
+        <TA.Setting>
+          <TA.SettingText>
+            <TA.SettingName>Lines</TA.SettingName>
+            <TA.SettingHint>Any line, or only “Blue Archive!”</TA.SettingHint>
+          </TA.SettingText>
+          <TA.Options role="group" aria-label="Lines">
+            {(["all", "titles"] as const).map((lines) => (
+              <Chip
+                key={lines}
+                type="button"
+                $active={settings.lines === lines}
+                aria-pressed={settings.lines === lines}
+                onClick={() => setSettings({ ...settings, lines })}
+              >
+                {linesLabel(lines)}
               </Chip>
             ))}
           </TA.Options>
@@ -186,9 +217,20 @@ function Playing({
     [answer, current]
   );
 
+  // The student picked in the box or the grid, answered on Enter or Answer.
+  // Each line starts with nothing picked.
+  const [selected, setSelected] = React.useState<Student>();
+  const [listOpen, setListOpen] = React.useState(false);
+  const lineNumber = run.rounds.length;
+  React.useEffect(() => setSelected(undefined), [lineNumber]);
+  const pickFromList = React.useCallback((id: number) => {
+    setListOpen(false);
+    setSelected(studentById.get(id));
+  }, []);
+
   // Shift+Enter passes; Enter in the search box answers with the top name.
   React.useEffect(() => {
-    if (!keyboardEnabled || current.choices || waiting) return;
+    if (!keyboardEnabled || current.choices || waiting || listOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "Enter" || !e.shiftKey || e.repeat) return;
@@ -198,7 +240,7 @@ function Playing({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [keyboardEnabled, current.choices, waiting, pass]);
+  }, [keyboardEnabled, current.choices, waiting, listOpen, pass]);
 
   const feedback = feedbackFor(run.rounds);
   const none = React.useMemo(() => new Set<number>(), []);
@@ -244,7 +286,7 @@ function Playing({
             </>
           ) : (
             <>
-              <kbd>Space</kbd> replay · <kbd>Enter</kbd> answer ·{" "}
+              <kbd>Space</kbd> replay · <kbd>Enter</kbd> pick, then answer ·{" "}
               <kbd>Shift</kbd>+<kbd>Enter</kbd> pass
             </>
           )
@@ -269,14 +311,42 @@ function Playing({
               pool={voicePool}
               guessed={none}
               onGuess={pick}
-              keyboardEnabled={keyboardEnabled && !waiting}
+              selected={selected}
+              onSelect={setSelected}
+              direction="up"
+              keyboardEnabled={keyboardEnabled && !waiting && !listOpen}
             />
+            <Styled.BrowseButton
+              type="button"
+              onClick={() => setListOpen(true)}
+              disabled={waiting}
+              aria-label="Browse all students"
+              title="All students"
+            >
+              <IoGrid size={20} aria-hidden="true" />
+            </Styled.BrowseButton>
           </Styled.SearchRow>
           <TA.PlayButtons>
             <Button stroke onClick={pass} disabled={waiting}>
               Pass
             </Button>
+            <Button
+              stroke
+              variant="green"
+              onClick={() => selected && pick(selected.id)}
+              disabled={waiting || !selected}
+            >
+              Answer
+            </Button>
           </TA.PlayButtons>
+          {listOpen && (
+            <StudentListPopUp
+              pool={voicePool}
+              guessed={none}
+              onPick={pickFromList}
+              onClose={() => setListOpen(false)}
+            />
+          )}
         </>
       )}
     </>
@@ -297,7 +367,10 @@ function Over({
     0,
     ...voiceRunsOf(history)
       .filter(
-        (other) => other.id !== run.id && other.answers === run.settings.answers
+        (other) =>
+          other.id !== run.id &&
+          other.answers === run.settings.answers &&
+          other.titles === (run.settings.lines === "titles")
       )
       .map((other) => other.score)
   );
@@ -318,15 +391,36 @@ function Over({
     return () => window.clearTimeout(timer);
   }, [copied]);
 
+  // On the backdrop the run reached, like the page behind it.
+  const backdrop = useBackdropSrc(score);
+  const best = Math.max(score, bestBefore);
+  const makePicture = React.useCallback(
+    () =>
+      makeVoiceTimeAttackPicture(
+        { rounds: run.rounds, settings: run.settings, best },
+        { backdrop, logo }
+      ),
+    [run, best, backdrop]
+  );
+  const picture = useSharePicture(
+    "Share picture",
+    makePicture,
+    voiceTimeAttackPictureName(),
+    shareText
+  );
+
   return (
     <>
       <TA.Title>Time&apos;s up, Sensei! ⏱</TA.Title>
       <TA.Lead>
         {score} right out of {run.rounds.length} ·{" "}
-        {answersLabel(run.settings.answers)}
+        {answersLabel(run.settings.answers)} · {linesLabel(run.settings.lines)}
       </TA.Lead>
       {isBest && (
-        <TA.Note>🏆 New best for {answersLabel(run.settings.answers)}!</TA.Note>
+        <TA.Note>
+          🏆 New best for {answersLabel(run.settings.answers)},{" "}
+          {linesLabel(run.settings.lines).toLowerCase()}!
+        </TA.Note>
       )}
       {place && <TA.Note>📍 This run reached {place.name}.</TA.Note>}
 
@@ -354,6 +448,9 @@ function Over({
       <TA.Buttons>
         <Button stroke variant="blue" onClick={copyResult}>
           {copied}
+        </Button>
+        <Button stroke variant="pink" onClick={picture.share}>
+          {picture.text}
         </Button>
         <Button stroke variant="orange" onClick={leave}>
           Settings

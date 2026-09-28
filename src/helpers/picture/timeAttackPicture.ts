@@ -28,6 +28,8 @@ export interface TimeAttackPictureInput {
 }
 
 export interface TimeAttackPictureContent {
+  /** The tag at the top: the OST's or Voice mode's time attack. */
+  tag?: string;
   title: string;
   subtitle: string;
   /** One square a song, right or not, as many as fit. */
@@ -73,7 +75,7 @@ export function drawTimeAttackPicture(
   content: TimeAttackPictureContent,
   images: PictureImages
 ): void {
-  drawFrame(ctx, images, "TIME ATTACK");
+  drawFrame(ctx, images, content.tag ?? "TIME ATTACK");
 
   ctx.textAlign = "left";
   ctx.textBaseline = "alphabetic";

@@ -5,6 +5,10 @@ import {
   makeTimeAttackRecap,
   recapPictureName,
 } from "../../helpers/picture/recapPicture";
+import {
+  makeVoiceTimeAttackRecap,
+  voiceRecapName,
+} from "../../helpers/picture/voicePicture";
 import { useBackdropSrc } from "../../hooks/useBackdropSrc";
 import { useSharePicture } from "../../hooks/useSharePicture";
 import logo from "../../image/BlueArchive-Heardle.png";
@@ -26,8 +30,8 @@ interface Props {
   /** The run's score now, which picks the backdrop, as on the page. */
   streak: number;
   /**
-   * Voice mode's runs: students, not songs, and no clip length. Its recap
-   * picture isn't drawn yet, so there is no button for one.
+   * Voice mode's runs: students, not songs, no clip length, and a recap of
+   * its own.
    */
   voice?: boolean;
 }
@@ -36,8 +40,9 @@ interface Props {
 const RECENT = 5;
 
 function runLine(run: RunSummary): string {
-  return run.clip > 0
-    ? `${answersLabel(run.answers)} · ${run.clip}s clips`
+  if (run.clip > 0) return `${answersLabel(run.answers)} · ${run.clip}s clips`;
+  return run.titles
+    ? `${answersLabel(run.answers)} · title calls`
     : answersLabel(run.answers);
 }
 
@@ -58,14 +63,18 @@ export function TimeAttackStats({
 
   const backdrop = useBackdropSrc(streak);
   const makeRecap = React.useCallback(
-    () => makeTimeAttackRecap(stats, runs, { backdrop, logo }),
-    [stats, runs, backdrop]
+    () =>
+      (voice ? makeVoiceTimeAttackRecap : makeTimeAttackRecap)(stats, runs, {
+        backdrop,
+        logo,
+      }),
+    [voice, stats, runs, backdrop]
   );
   const picture = useSharePicture(
     "Share recap",
     makeRecap,
-    recapPictureName("timeattack"),
-    `My Blue Archive Heardle time attack recap
+    voice ? voiceRecapName("timeattack") : recapPictureName("timeattack"),
+    `My Blue Archive Heardle ${voice ? "Voice " : ""}time attack recap
 ${SITE_URL}`
   );
 
@@ -82,7 +91,7 @@ ${SITE_URL}`
       onClose={onClose}
       actions={
         <>
-          {stats.runs > 0 && !voice && (
+          {stats.runs > 0 && (
             <Button variant="pink" onClick={picture.share}>
               {picture.text}
             </Button>

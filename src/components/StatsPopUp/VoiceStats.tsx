@@ -1,5 +1,13 @@
 import React from "react";
 
+import { SITE_URL } from "../../constants/game";
+import {
+  makeVoiceRecap,
+  voiceRecapName,
+} from "../../helpers/picture/voicePicture";
+import { useBackdropSrc } from "../../hooks/useBackdropSrc";
+import { useSharePicture } from "../../hooks/useSharePicture";
+import logo from "../../image/BlueArchive-Heardle.png";
 import { Button } from "../Button";
 import { PopUp, PopUpBody, PopUpGroupLabel, PopUpSpacer } from "../PopUp";
 import { DayOutcome } from "../../helpers/dailyCalendar";
@@ -66,15 +74,40 @@ export function VoiceStats({
   const winRate = played > 0 ? Math.round((wins / played) * 100) : 0;
   const onePick = tally.length === 2;
 
+  // On the backdrop the page has, like the OST's recap.
+  const backdrop = useBackdropSrc(streak);
+  const makeRecap = React.useCallback(
+    () =>
+      makeVoiceRecap(
+        { mode, tally, played, streak, best, found },
+        { backdrop, logo }
+      ),
+    [mode, tally, played, streak, best, found, backdrop]
+  );
+  const picture = useSharePicture(
+    "Share recap",
+    makeRecap,
+    voiceRecapName(mode),
+    `My Blue Archive Heardle Voice recap
+${SITE_URL}`
+  );
+
   return (
     <PopUp
       title="Your stats 📊"
       subtitle={subtitleFor(mode, played)}
       onClose={onClose}
       actions={
-        <Button variant="green" onClick={onClose}>
-          Close
-        </Button>
+        <>
+          {played > 0 && (
+            <Button variant="pink" onClick={picture.share}>
+              {picture.text}
+            </Button>
+          )}
+          <Button variant="green" onClick={onClose}>
+            Close
+          </Button>
+        </>
       }
     >
       <PopUpBody>

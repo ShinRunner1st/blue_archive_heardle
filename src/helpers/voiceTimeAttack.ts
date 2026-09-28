@@ -12,24 +12,39 @@ import {
 import { isWon, makeVoiceChoices, pickVoice } from "./voiceRounds";
 
 /**
- * Voice time attack has one setting: typed answers or four. A line plays
- * whole, so there is no clip length or start to pick.
+ * Every line, or title calls only: "Blue Archive!" from everyone, so only
+ * the voice tells them apart.
+ */
+export type VoiceLines = "all" | "titles";
+
+/**
+ * Voice time attack's settings: typed answers or four, and which lines. A
+ * line plays whole, so there is no clip length or start to pick.
  */
 export interface VoiceTimeAttackSettings {
   answers: Answers;
+  lines: VoiceLines;
 }
 
 export const DEFAULT_VOICE_SETTINGS: VoiceTimeAttackSettings = {
   answers: "choice",
+  lines: "all",
 };
+
+export function linesLabel(lines: VoiceLines): string {
+  return lines === "titles" ? "Title calls" : "All lines";
+}
 
 /** The settings picked last, or the defaults. */
 export function loadVoiceSettings(): VoiceTimeAttackSettings {
   try {
     const raw = localStorage.getItem(VOICE_TIME_ATTACK_SETTINGS_KEY);
     const value: unknown = raw ? JSON.parse(raw) : null;
-    const answers = (value as Record<string, unknown> | null)?.answers;
-    if (answers === "typed" || answers === "choice") return { answers };
+    const saved = value as Record<string, unknown> | null;
+    const answers = saved?.answers;
+    if (answers === "typed" || answers === "choice") {
+      return { answers, lines: saved?.lines === "titles" ? "titles" : "all" };
+    }
   } catch {
     // Unreadable or blocked: the defaults will do.
   }
@@ -57,13 +72,15 @@ export function dealVoiceRound(
   played: VoiceRound[],
   random: () => number = Math.random
 ): VoiceRound {
-  const { answer, line } = pickVoice(played, random);
+  const titles = settings.lines === "titles";
+  const { answer, line } = pickVoice(played, random, titles);
   const student = studentById.get(answer);
   return {
     answer,
     line,
     guesses: [],
     run,
+    ...(titles ? { titles: true as const } : {}),
     ...(settings.answers === "choice" && student
       ? { choices: makeVoiceChoices(student, random) }
       : {}),
@@ -97,6 +114,7 @@ export function voiceRunsOf(rounds: VoiceRound[]): RunSummary[] {
       answered: list.length,
       answers: list[0].choices ? "choice" : "typed",
       clip: 0,
+      titles: list[0].titles === true,
     }));
 }
 
@@ -136,7 +154,7 @@ export function voiceTimeAttackShareText(
     "Blue Archive Heardle 🔊 Voice Time Attack",
     `${score} right in ${formatClock(TIME_ATTACK_MS)} · ${answersLabel(
       settings.answers
-    )}`,
+    )} · ${linesLabel(settings.lines)}`,
     `${squares}${more}`,
     SITE_URL,
   ].join("\n");

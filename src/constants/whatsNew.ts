@@ -53,7 +53,12 @@ export const WHATS_NEW: NewsUpdate[] = [
       {
         icon: IoGrid,
         title: "Every way to play",
-        text: "Voice has a daily puzzle with its own streak and calendar, and in Endless: Classic (hints on or off, each with its own stats), 4-Choice and Time Attack. The result shows what the student said, in English.",
+        text: "Voice has a daily puzzle with its own streak and calendar, and in Endless: Classic (hints on or off, each with its own stats), 4-Choice and Time Attack, with every line or title calls only. The result plays the line again and shows what the student said, in English. Share a picture of your round or run, or a recap from Stats.",
+      },
+      {
+        icon: IoPeople,
+        title: "Pick, then guess",
+        text: "In Voice and Students, picking a name from the list or the grid puts it in the search box; press Enter or Guess to send it, as in the OST. Students has a Random first guess to get you started.",
       },
     ],
   },

@@ -32,8 +32,6 @@ interface Props {
   onStatusChange?: (status: PlayerStatus) => void;
   /** The keyboard hint under the controls. */
   hint?: React.ReactNode;
-  /** Smaller, for the result screen. */
-  compact?: boolean;
 }
 
 const POLL_INTERVAL_MS = 100;
@@ -53,7 +51,6 @@ export function VoicePlayer({
   steady = false,
   onStatusChange,
   hint,
-  compact = false,
 }: Props) {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const [play, setPlay] = React.useState(false);
@@ -113,12 +110,16 @@ export function VoicePlayer({
   }, []);
 
   // Space plays or stops, unless a name is being typed: names have spaces.
+  // Once a student is picked, it plays again (the search box says which).
   React.useEffect(() => {
     if (!keyboardEnabled || !isReady) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.code !== "Space" || e.repeat) return;
-      if (isTextField(e.target) && (e.target as HTMLInputElement).value) {
+      if (
+        isTextField(e.target) &&
+        (e.target as HTMLElement).dataset.typing === "true"
+      ) {
         return;
       }
       e.preventDefault();
@@ -160,7 +161,7 @@ export function VoicePlayer({
   const retry = React.useCallback(() => setAttempt((n) => n + 1), []);
 
   return (
-    <Styled.PlayerBox $compact={compact}>
+    <Styled.PlayerBox>
       {/* A voice line to name: a caption would be the answer. */}
       {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <audio

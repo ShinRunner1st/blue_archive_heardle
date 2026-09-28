@@ -1,5 +1,5 @@
 import React from "react";
-import { IoCloseCircleOutline, IoSearch } from "react-icons/io5";
+import { IoCheckmark, IoCloseCircleOutline, IoSearch } from "react-icons/io5";
 
 import { isBirthday } from "../../helpers/birthdays";
 import { searchStudents } from "../../helpers/searchStudent";
@@ -14,7 +14,23 @@ interface Props {
   pool: Student[];
   /** Students already guessed this round, left out of the results. */
   guessed: ReadonlySet<number>;
+  /** Guesses a student: at once, or once a picked one is confirmed. */
   onGuess: (id: number) => void;
+  /**
+   * The student picked and waiting to be guessed, held by the game so its
+   * grid, random pick and Guess button share it. With it, picking only fills
+   * the box, as in the OST, and Enter or Guess confirms; without it (the
+   * Sensei card's picker), picking is the choice.
+   */
+  selected?: Student;
+  onSelect?: (student: Student | undefined) => void;
+  /** A Guess button inside the box, for a game with no room under it. */
+  guessButton?: boolean;
+  /**
+   * Which way the results open: down over what follows, or up, as the OST's
+   * do, for a box low on the page, whose list would stretch it.
+   */
+  direction?: "down" | "up";
   /** Called as letters are typed: the first starts the round's clock. */
   onType?: () => void;
   /** False while a dialog is open, which gets the keys instead. */
@@ -25,32 +41,45 @@ const LISTBOX_ID = "student-search-results";
 const optionId = (index: number) => `${LISTBOX_ID}-option-${index}`;
 
 /**
- * Finds a student by name and guesses them at once: picking from the list is
- * the guess, as there is nothing to listen to first. Typing anywhere on the
- * page types here, and Enter guesses the highlighted name, or the first.
+ * Finds a student by name. Typing anywhere on the page types here; Enter
+ * picks the highlighted name, or the first, and Enter again guesses it.
  */
 export function StudentSearch({
   pool,
   guessed,
   onGuess,
+  selected,
+  onSelect,
+  guessButton = false,
+  direction = "down",
   onType,
   keyboardEnabled,
 }: Props) {
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [value, setValue] = React.useState("");
   const [focused, setFocused] = React.useState(-1);
+  const confirms = onSelect !== undefined;
+
+  // A student picked from the grid, or at random, shows in the box as if
+  // picked from the list.
+  React.useEffect(() => {
+    if (!selected) return;
+    setValue(selected.name);
+    setFocused(-1);
+  }, [selected]);
 
   const results = React.useMemo(
-    () => searchStudents(value, pool, guessed),
-    [value, pool, guessed]
+    () => (selected ? [] : searchStudents(value, pool, guessed)),
+    [selected, value, pool, guessed]
   );
 
   const clear = React.useCallback(() => {
     setValue("");
     setFocused(-1);
-  }, []);
+    onSelect?.(undefined);
+  }, [onSelect]);
 
-  const pick = React.useCallback(
+  const guess = React.useCallback(
     (student: Student) => {
       onGuess(student.id);
       clear();
@@ -59,12 +88,33 @@ export function StudentSearch({
     [onGuess, clear]
   );
 
+  const pick = React.useCallback(
+    (student: Student) => {
+      if (!onSelect) {
+        guess(student);
+        return;
+      }
+      onSelect(student);
+      inputRef.current?.focus();
+    },
+    [onSelect, guess]
+  );
+
   // Start typing anywhere on the page and it goes into the box, as in the
-  // OST's search.
+  // OST's search. Enter guesses the student picked from wherever the focus
+  // is, as the grid leaves it on the page.
   React.useEffect(() => {
     if (!keyboardEnabled) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Enter") {
+        if (!selected || e.shiftKey || e.repeat) return;
+        if (e.target === inputRef.current) return;
+        if (e.target instanceof HTMLButtonElement) return;
+        e.preventDefault();
+        guess(selected);
+        return;
+      }
       if (e.key.length !== 1 || e.key === " ") return;
       if (e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return;
       if (isTextField(e.target)) return;
@@ -73,12 +123,19 @@ export function StudentSearch({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [keyboardEnabled]);
+  }, [keyboardEnabled, selected, guess]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Escape") {
       e.preventDefault();
       clear();
+      return;
+    }
+    // Shift+Enter is Voice mode's skip, left for the page to handle.
+    if (e.key === "Enter" && !e.repeat && !e.shiftKey && selected) {
+      e.preventDefault();
+      e.stopPropagation();
+      guess(selected);
       return;
     }
     if (results.length === 0) return;
@@ -92,7 +149,6 @@ export function StudentSearch({
         previous <= 0 ? results.length - 1 : previous - 1
       );
     } else if (e.key === "Enter" && !e.repeat && !e.shiftKey) {
-      // Shift+Enter is Voice mode's skip, left for the page to handle.
       e.preventDefault();
       e.stopPropagation();
       pick(results[Math.max(focused, 0)]);
@@ -104,13 +160,18 @@ export function StudentSearch({
   return (
     <Styled.SearchBox>
       <Styled.InputField>
-        <IoSearch size={20} aria-hidden="true" />
+        {selected ? (
+          <StudentIcon id={selected.id} size={24} />
+        ) : (
+          <IoSearch size={20} aria-hidden="true" />
+        )}
         <Styled.Input
           ref={inputRef}
           value={value}
           onChange={(e) => {
             setValue(e.currentTarget.value);
             setFocused(-1);
+            if (selected) onSelect?.(undefined);
             if (e.currentTarget.value.trim()) onType?.();
           }}
           onKeyDown={handleKeyDown}
@@ -123,6 +184,9 @@ export function StudentSearch({
           aria-activedescendant={focused >= 0 ? optionId(focused) : undefined}
           autoComplete="off"
           spellCheck={false}
+          // Read by the player: Space types a space only while a name is
+          // being typed, and plays the line otherwise.
+          data-typing={value !== "" && !selected ? "true" : undefined}
         />
         {value && (
           <Styled.ClearButton
@@ -136,11 +200,23 @@ export function StudentSearch({
             <IoCloseCircleOutline size={20} aria-hidden="true" />
           </Styled.ClearButton>
         )}
+        {confirms && guessButton && (
+          <Styled.InlineGuess
+            type="button"
+            onClick={() => selected && guess(selected)}
+            disabled={!selected}
+            aria-label="Guess"
+          >
+            <IoCheckmark aria-hidden="true" />
+            <span>Guess</span>
+          </Styled.InlineGuess>
+        )}
       </Styled.InputField>
       <Styled.Results
         id={LISTBOX_ID}
         role="listbox"
         aria-label="Student search results"
+        $up={direction === "up"}
       >
         {results.map((student, index) => (
           <Styled.Result
@@ -167,6 +243,8 @@ export function StudentSearch({
       <Styled.LiveRegion role="status" aria-live="polite">
         {isOpen
           ? `${results.length} ${results.length === 1 ? "match" : "matches"}`
+          : selected
+          ? `${selected.name} picked: Enter to guess`
           : ""}
       </Styled.LiveRegion>
     </Styled.SearchBox>

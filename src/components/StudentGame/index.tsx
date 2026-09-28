@@ -1,5 +1,5 @@
 import React from "react";
-import { IoGrid, IoStopwatch } from "react-icons/io5";
+import { IoDice, IoGrid, IoStopwatch } from "react-icons/io5";
 
 import {
   formatSolveTime,
@@ -9,6 +9,7 @@ import {
 } from "../../helpers/studentRounds";
 import { WinStreak } from "../../helpers/winStreak";
 import {
+  Student,
   StudentGame as Way,
   StudentMode,
   StudentRound,
@@ -96,14 +97,32 @@ export function StudentGame({
     [onGuess]
   );
 
-  const [listOpen, setListOpen] = React.useState(false);
-  const pickFromList = React.useCallback(
+  // The student picked in the box, the grid or at random, guessed on Enter
+  // or Guess, as a song is in the OST.
+  const [selected, setSelected] = React.useState<Student>();
+  const confirm = React.useCallback(
     (id: number) => {
-      setListOpen(false);
+      setSelected(undefined);
       guess(id);
     },
     [guess]
   );
+  const [listOpen, setListOpen] = React.useState(false);
+  const pickFromList = React.useCallback((id: number) => {
+    setListOpen(false);
+    setSelected(studentById.get(id));
+  }, []);
+
+  // A first guess for a player with no idea where to start. Never the
+  // answer: a find by the dice would be no find at all.
+  const pickRandom = React.useCallback(() => {
+    const others = poolOf(game).filter(
+      (student) => student.id !== round.answer && !guessed.has(student.id)
+    );
+    if (others.length === 0) return;
+    onStart();
+    setSelected(others[Math.floor(Math.random() * others.length)]);
+  }, [game, round.answer, guessed, onStart]);
 
   // A misclick shouldn't end a hunt: the first press asks, the second gives up.
   const [confirming, setConfirming] = React.useState(false);
@@ -144,7 +163,10 @@ export function StudentGame({
             <StudentSearch
               pool={poolOf(game)}
               guessed={guessed}
-              onGuess={guess}
+              onGuess={confirm}
+              selected={selected}
+              onSelect={setSelected}
+              guessButton
               onType={onStart}
               // The list has the keys while it's open.
               keyboardEnabled={keyboardEnabled && !listOpen}
@@ -174,16 +196,21 @@ export function StudentGame({
           </Styled.SearchRow>
           <Styled.Hint>
             {round.guesses.length === 0 ? (
-              game === "gameplay" ? (
-                "Guess any student or costume: each has its own kit."
-              ) : (
-                "Guess any student: their profile, not their outfit."
-              )
+              <>
+                {game === "gameplay"
+                  ? "Guess any student or costume: each has its own kit."
+                  : "Guess any student: their profile, not their outfit."}
+                <Styled.RandomButton type="button" onClick={pickRandom}>
+                  <IoDice aria-hidden="true" />
+                  Random first guess
+                </Styled.RandomButton>
+              </>
             ) : (
               <>
                 {round.guesses.length}{" "}
                 {round.guesses.length === 1 ? "guess" : "guesses"} so far ·{" "}
-                <kbd>Enter</kbd> guesses the top name
+                <kbd>Enter</kbd> picks the top name, <kbd>Enter</kbd> again
+                guesses
               </>
             )}
             {typeof round.startedAt === "number" && (

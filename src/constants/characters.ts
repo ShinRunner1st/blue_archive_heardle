@@ -120,7 +120,7 @@ export const spineCharacters: Record<SpineCharacter["id"], SpineCharacter> = {
       listening: "03",
       wrong: "28",
       nervous: ["01", "04", "20", "15", "29"],
-      won: ["21", "12", "11", "32", "09", "03"],
+      won: ["21", "12", "11", "32", "23", "03"],
       lost: "10",
       tapped: [
         "02",

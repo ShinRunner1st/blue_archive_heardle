@@ -404,6 +404,9 @@ function toVoiceRound(value: unknown): VoiceRound | null {
     ...(day === undefined ? {} : { day }),
     ...(choices === undefined ? {} : { choices }),
     ...(run === undefined ? {} : { run }),
+    ...(run !== undefined && round.titles === true
+      ? { titles: true as const }
+      : {}),
   };
 }
 

@@ -80,3 +80,16 @@ export const NextIn = styled.p`
   margin: 0 0 18px;
   text-align: center;
 `;
+
+/**
+ * The four answers of a finished 4-Choice round, under the answer's card,
+ * whose margin already spaces them above: the space goes below instead.
+ */
+export const ResultChoices = styled.div`
+  width: 100%;
+  margin-bottom: 5%;
+
+  & > * {
+    margin-top: 0;
+  }
+`;

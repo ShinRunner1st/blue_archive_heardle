@@ -271,4 +271,7 @@ export const voiceLines: Record<number, [count: number, version: string]> = {
   26015: [5, "b98c4e53"],
 };
 
+/** Students whose line 0 is a lobby line: they have no title call. */
+export const NO_TITLE_CALL: number[] = [20007];
+
 export const VOICE_TEXTS = "voices/texts.99406a15.json";

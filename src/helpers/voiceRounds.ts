@@ -1,7 +1,7 @@
 import { SITE_URL } from "../constants/game";
 import { students } from "../constants/students";
 import { voiceOrder } from "../constants/voiceDailyOrder";
-import { voiceLines } from "../constants/voiceLines";
+import { NO_TITLE_CALL, voiceLines } from "../constants/voiceLines";
 import { GuessType } from "../types/guess";
 import { Round } from "../types/stats";
 import { Student } from "../types/student";
@@ -34,6 +34,18 @@ const inPool = new Set(voicePool.map(({ id }) => id));
 export function lineCount(id: number): number {
   return voiceLines[id]?.[0] ?? 0;
 }
+
+const noTitle = new Set(NO_TITLE_CALL);
+
+/** Whether line 0 is the student's title call: all but a few have one. */
+export function hasTitleCall(id: number): boolean {
+  return lineCount(id) > 0 && !noTitle.has(id);
+}
+
+/** Everyone with a title call, for a time attack run of only those. */
+export const titlePool: Student[] = voicePool.filter(({ id }) =>
+  hasTitleCall(id)
+);
 
 /** One pick for a four-choice or time attack round, four for the rest. */
 export function triesOf(round: VoiceRound): number {
@@ -93,23 +105,30 @@ type Random = () => number;
 /**
  * The next endless answer, from a bag: every student comes up once before
  * any comes round again, and the last one isn't dealt straight away a second
- * time when the bag is refilled. Which of their lines plays is random.
+ * time when the bag is refilled. Which of their lines plays is random, or
+ * the title call when `titles` asks for only those.
  */
 export function pickVoice(
   rounds: VoiceRound[],
-  random: Random = Math.random
+  random: Random = Math.random,
+  titles = false
 ): { answer: number; line: number } {
+  const pool = titles ? titlePool : voicePool;
+  const ids = new Set(pool.map(({ id }) => id));
   let dealt = new Set<number>();
   for (const { answer } of rounds) {
-    if (inPool.has(answer)) dealt.add(answer);
-    if (dealt.size === inPool.size) dealt = new Set();
+    if (ids.has(answer)) dealt.add(answer);
+    if (dealt.size === ids.size) dealt = new Set();
   }
 
   const last = rounds[rounds.length - 1]?.answer;
-  const left = voicePool.filter(({ id }) => !dealt.has(id) && id !== last);
-  const choices = left.length > 0 ? left : voicePool;
+  const left = pool.filter(({ id }) => !dealt.has(id) && id !== last);
+  const choices = left.length > 0 ? left : pool;
   const answer = choices[Math.floor(random() * choices.length)].id;
-  return { answer, line: Math.floor(random() * lineCount(answer)) };
+  return {
+    answer,
+    line: titles ? 0 : Math.floor(random() * lineCount(answer)),
+  };
 }
 
 /** How many answers a four-choice round offers. */
@@ -229,6 +248,24 @@ export function voiceTally(rounds: VoiceRound[], tries: number): number[] {
     tally[isWon(round) ? Math.min(round.guesses.length, tries) : 0] += 1;
   }
   return tally;
+}
+
+/**
+ * The player's history with a student's voice, from the finished rounds of
+ * every mode, for the result card: for example "Heard 4 times · named 3".
+ * A round still being played doesn't count.
+ */
+export function voiceRecordText(rounds: VoiceRound[], id: number): string {
+  let heard = 0;
+  let named = 0;
+  for (const round of rounds) {
+    if (round.answer !== id || !isOver(round)) continue;
+    heard += 1;
+    if (isWon(round)) named += 1;
+  }
+  if (heard === 0) return "";
+  if (heard === 1) return "The first time you've heard them";
+  return `Heard ${heard} times · named ${named === 0 ? "never" : named}`;
 }
 
 const MODE_NAMES: Record<VoiceRoundMode, string> = {

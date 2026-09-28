@@ -179,18 +179,25 @@ export function drawRecapPicture(
     ctx.fillText(content.barsLabel.toUpperCase(), BARS_LEFT - 6, TOP - 14);
   }
 
-  // The guess spread on the right, as bars against the fullest row.
+  // The guess spread on the right, as bars against the fullest row. Short
+  // labels sit centred before the bars; longer ones, words rather than
+  // numbers, push the bars along to make room.
   const most = Math.max(1, ...content.bars.map((bar) => bar.count));
-  const trackLeft = BARS_LEFT + 30;
+  ctx.font = `800 20px ${FONT}`;
+  const labelWidth = Math.max(
+    ...content.bars.map(({ label }) => ctx.measureText(label).width)
+  );
+  const wide = labelWidth > 36;
+  const trackLeft = wide ? BARS_LEFT - 6 + labelWidth + 14 : BARS_LEFT + 30;
   const trackWidth = RIGHT - 56 - trackLeft;
 
   content.bars.forEach(({ label, count, lost }, index) => {
     const y = TOP + index * BAR_ROW;
 
-    ctx.textAlign = "center";
+    ctx.textAlign = wide ? "left" : "center";
     ctx.fillStyle = COLORS.muted;
     ctx.font = `800 20px ${FONT}`;
-    ctx.fillText(label, BARS_LEFT + 8, y + 19);
+    ctx.fillText(label, wide ? BARS_LEFT - 6 : BARS_LEFT + 8, y + 19);
 
     ctx.fillStyle = COLORS.unused;
     roundedRect(ctx, trackLeft, y + 3, trackWidth, 20, 6);

@@ -101,6 +101,41 @@ describe("VoiceGame", () => {
     expect(button("Give up?")).toBeDefined();
   });
 
+  it("picks a name first, and guesses it on Enter or Guess", () => {
+    mount({ answer: hoshino.id, line: 0, guesses: [] });
+    const input = harness.container.querySelector("input")!;
+    const type = (value: string) =>
+      act(() => {
+        Object.getOwnPropertyDescriptor(
+          window.HTMLInputElement.prototype,
+          "value"
+        )!.set!.call(input, value);
+        input.dispatchEvent(new Event("input", { bubbles: true }));
+      });
+    const enter = () =>
+      act(() => {
+        input.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Enter", bubbles: true })
+        );
+      });
+
+    expect(button("Guess")?.disabled).toBe(true);
+    type("aru");
+    enter();
+    expect(game.round.guesses).toEqual([]);
+    expect(input.value).toBe("Aru");
+    expect(button("Guess")?.disabled).toBe(false);
+
+    enter();
+    expect(game.round.guesses).toEqual([aru.id]);
+    expect(input.value).toBe("");
+
+    type("hina");
+    enter();
+    act(() => button("Guess")!.click());
+    expect(game.round.guesses).toEqual([aru.id, hina.id]);
+  });
+
   it("shows no hints in No hints", () => {
     mount({ answer: hoshino.id, line: 0, guesses: [aru.id] }, "nohint");
     expect(text()).not.toContain("After 1 miss");

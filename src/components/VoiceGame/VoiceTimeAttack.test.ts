@@ -87,11 +87,22 @@ describe("Voice time attack", () => {
     expect(text()).toContain("Voice Time Attack");
 
     click("Typed");
-    expect(state.settings).toEqual({ answers: "typed" });
+    expect(state.settings).toEqual({ answers: "typed", lines: "all" });
+    click("Title calls");
+    expect(state.settings).toEqual({ answers: "typed", lines: "titles" });
+  });
+
+  it("deals only title calls when asked", async () => {
+    saveVoiceSettings({ answers: "choice", lines: "titles" });
+    harness.render(React.createElement(Probe));
+    click("Start");
+    await lineLoads();
+    expect(state.run!.current.line).toBe(0);
+    expect(state.run!.current.titles).toBe(true);
   });
 
   it("plays a run: right and wrong answers, saved as they come", async () => {
-    saveVoiceSettings({ answers: "choice" });
+    saveVoiceSettings({ answers: "choice", lines: "all" });
     harness.render(React.createElement(Probe));
     click("Start");
     await lineLoads();

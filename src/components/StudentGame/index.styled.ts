@@ -90,6 +90,62 @@ export const InputField = styled.div`
   }
 `;
 
+/**
+ * Guess, inside the box, once a student is picked. Just its tick on a phone,
+ * where the name needs the room.
+ */
+export const InlineGuess = styled.button`
+  flex-shrink: 0;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  height: 30px;
+  margin-right: -8px;
+  padding: 0 12px;
+
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: #fff;
+
+  background-color: ${({ theme }) => theme.green};
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+
+  transition: opacity 0.15s ease;
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  &:hover:not(:disabled) {
+    opacity: 0.85;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 768px) {
+    height: 26px;
+    padding: 0 10px;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0 7px;
+    font-size: 1rem;
+
+    & > span {
+      display: none;
+    }
+  }
+`;
+
 export const Input = styled.input`
   flex: 1;
   min-width: 0;
@@ -104,10 +160,14 @@ export const Input = styled.input`
   outline: none !important;
 `;
 
-/** Under the box, over the table: the table is below, the box on top. */
-export const Results = styled.div`
+/**
+ * Under the box, over the table: the table is below, the box on top. Or
+ * above it, as the OST's, where the box sits low on the page and a list
+ * under it would stretch the page.
+ */
+export const Results = styled.div<{ $up?: boolean }>`
   position: absolute;
-  top: calc(100% + 2px);
+  ${({ $up }) => ($up ? "bottom" : "top")}: calc(100% + 2px);
   left: 0;
   right: 0;
   z-index: 2;
@@ -180,6 +240,37 @@ export const Hint = styled.p`
     border: 1px solid currentColor;
     border-radius: 4px;
     opacity: 0.9;
+  }
+`;
+
+/** Picks a student at random for the first guess, still to confirm. */
+export const RandomButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 10px;
+  padding: 3px 10px;
+
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: ${({ theme }) => theme.text};
+  vertical-align: middle;
+
+  background-color: ${({ theme }) => theme.background1};
+  border: 1px solid ${({ theme }) => theme.border};
+  border-radius: 999px;
+  cursor: pointer;
+
+  transition: opacity 0.15s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
   }
 `;
 
