@@ -1,4 +1,5 @@
 import React from "react";
+import { IoCloseCircleOutline } from "react-icons/io5";
 
 import { ALBUM_FILTERS, albumCount, jukeboxSongs } from "../../helpers/jukebox";
 import {
@@ -53,6 +54,7 @@ export function Jukebox({
   keepPlaying,
 }: Props) {
   const [filter, setFilter] = React.useState("");
+  const filterRef = React.useRef<HTMLInputElement>(null);
   const [albums, setAlbums] = React.useState<string[]>([]);
   const [playing, setPlaying] = React.useState<Song>();
   const [repeat, setRepeat] = React.useState(loadJukeboxRepeat);
@@ -142,7 +144,9 @@ export function Jukebox({
           <Styled.Filter>
             <Styled.FilterIcon aria-hidden="true" />
             <Styled.FilterInput
-              type="search"
+              ref={filterRef}
+              type="text"
+              enterKeyHint="search"
               value={filter}
               onChange={(e) => setFilter(e.currentTarget.value)}
               onKeyDown={handleKeyDown}
@@ -150,6 +154,18 @@ export function Jukebox({
               aria-label="Search songs"
               autoComplete="off"
             />
+            {filter && (
+              <Styled.FilterClear
+                type="button"
+                onClick={() => {
+                  setFilter("");
+                  filterRef.current?.focus();
+                }}
+                aria-label="Clear search"
+              >
+                <IoCloseCircleOutline size={20} aria-hidden="true" />
+              </Styled.FilterClear>
+            )}
           </Styled.Filter>
 
           <FoldingChips

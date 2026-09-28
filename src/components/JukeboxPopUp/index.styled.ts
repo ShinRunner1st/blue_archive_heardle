@@ -10,6 +10,7 @@ export {
   Count,
   Empty,
   Filter,
+  FilterClear,
   FilterIcon,
   FilterInput,
 } from "../SongListPopUp/index.styled";

@@ -1,4 +1,5 @@
 import React from "react";
+import { IoCloseCircleOutline } from "react-icons/io5";
 
 import { artists, filterSongs } from "../../helpers/searchSong";
 import { Song } from "../../types/song";
@@ -32,6 +33,7 @@ export function SongListPopUp({
   guessed,
 }: Props) {
   const [filter, setFilter] = React.useState("");
+  const filterRef = React.useRef<HTMLInputElement>(null);
   /** The artists picked, in chip order. Empty means every artist. */
   const [picked, setPicked] = React.useState<string[]>([]);
 
@@ -70,7 +72,9 @@ export function SongListPopUp({
       <Styled.Filter>
         <Styled.FilterIcon aria-hidden="true" />
         <Styled.FilterInput
-          type="search"
+          ref={filterRef}
+          type="text"
+          enterKeyHint="search"
           value={filter}
           onChange={(e) => setFilter(e.currentTarget.value)}
           onKeyDown={handleKeyDown}
@@ -78,6 +82,18 @@ export function SongListPopUp({
           aria-label="Filter songs"
           autoComplete="off"
         />
+        {filter && (
+          <Styled.FilterClear
+            type="button"
+            onClick={() => {
+              setFilter("");
+              filterRef.current?.focus();
+            }}
+            aria-label="Clear search"
+          >
+            <IoCloseCircleOutline size={20} aria-hidden="true" />
+          </Styled.FilterClear>
+        )}
       </Styled.Filter>
 
       <FoldingChips

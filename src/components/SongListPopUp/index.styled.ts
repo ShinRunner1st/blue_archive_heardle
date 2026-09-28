@@ -47,6 +47,29 @@ export const FilterInput = styled.input`
   }
 `;
 
+/**
+ * Our own clear button, like the main search's: the browser's built-in one
+ * on a search box ignores the Blue Archive cursor.
+ */
+export const FilterClear = styled.button`
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+
+  padding: 0;
+
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+`;
+
 /** Height of one chip, so "one row" below is an exact measurement. */
 const CHIP_HEIGHT = 30;
 const CHIP_GAP = 6;

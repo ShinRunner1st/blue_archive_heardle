@@ -115,6 +115,26 @@ describe("SongListPopUp", () => {
     expect(document.body.textContent).toContain("1 song");
   });
 
+  it("clears the filter with its own button, not the browser's", () => {
+    mount();
+    // A plain text box: a search box's built-in clear button ignores the
+    // Blue Archive cursor.
+    expect(filterInput().type).toBe("text");
+    const clear = () =>
+      document.querySelector<HTMLButtonElement>(
+        'button[aria-label="Clear search"]'
+      );
+    expect(clear()).toBeNull();
+
+    filter("moderato piano");
+    act(() => clear()!.click());
+
+    expect(filterInput().value).toBe("");
+    expect(songButtons()).toHaveLength(songs.length);
+    expect(document.activeElement).toBe(filterInput());
+    expect(clear()).toBeNull();
+  });
+
   it("filters by theme number too", () => {
     mount();
 
