@@ -6,6 +6,7 @@ import {
   CUSTOM_CURSOR_KEY,
   FIRST_RUN_KEY,
   PLAYER_NAME_KEY,
+  SENSEI_TITLE_KEY,
 } from "../../constants/game";
 import { obscure } from "../../helpers/obscure";
 import { downloadText, reloadPage } from "../../helpers/saveFile";
@@ -46,6 +47,21 @@ describe("SettingsPopUp", () => {
     expect(cursorSwitch().getAttribute("aria-checked")).toBe("true");
     expect(cursorSwitch().textContent).toContain("Blue Archive cursor");
     expect(cursorSwitch().textContent).toContain("use your own cursor");
+  });
+
+  it("turns the Sensei before the name off, and shows how it reads", () => {
+    const title = () =>
+      Array.from(
+        harness.container.querySelectorAll<HTMLButtonElement>('[role="switch"]')
+      ).find((button) => button.textContent?.includes("before my name"))!;
+
+    expect(title().getAttribute("aria-checked")).toBe("true");
+    expect(title().textContent).toContain("Sensei Arona");
+
+    act(() => title().click());
+    expect(title().getAttribute("aria-checked")).toBe("false");
+    expect(localStorage.getItem(SENSEI_TITLE_KEY)).toBe("false");
+    expect(title().textContent).not.toContain("Sensei Arona");
   });
 
   it("turns the cursor off and back on", async () => {

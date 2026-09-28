@@ -26,6 +26,16 @@ export {
   Transport,
 } from "../NowPlaying/index.styled";
 
+/** An album cover, filling the art's square. */
+export const Cover = styled.img`
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  border-radius: inherit;
+`;
+
 /**
  * The player card. Every line is one line tall whatever the song, so the card
  * never changes height and the list below never moves under the pointer.

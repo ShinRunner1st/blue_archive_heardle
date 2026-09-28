@@ -5,6 +5,7 @@ import {
   COLOR_SCHEME_KEY,
   CUSTOM_CURSOR_KEY,
   PLAYER_NAME_KEY,
+  SENSEI_TITLE_KEY,
   VOLUME_KEY,
 } from "../constants/game";
 import { resetPlayerNameState } from "../helpers/playerName";
@@ -28,6 +29,7 @@ beforeEach(() => {
   localStorage.removeItem(CUSTOM_CURSOR_KEY);
   localStorage.removeItem(CHARACTER_KEY);
   localStorage.removeItem(PLAYER_NAME_KEY);
+  localStorage.removeItem(SENSEI_TITLE_KEY);
   resetPlayerNameState();
   resetVolumeState();
   resetColorSchemeState();

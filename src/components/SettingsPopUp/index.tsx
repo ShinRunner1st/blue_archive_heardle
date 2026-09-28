@@ -3,8 +3,12 @@ import { IoNavigate, IoPerson, IoSparkles } from "react-icons/io5";
 
 import { setCharacterChoice } from "../../helpers/characterChoice";
 import { setCustomCursor } from "../../helpers/customCursor";
-import { MAX_PLAYER_NAME, setPlayerName } from "../../helpers/playerName";
-import { usePlayerName } from "../../hooks/usePlayerName";
+import {
+  MAX_PLAYER_NAME,
+  setPlayerName,
+  setSenseiTitle,
+} from "../../helpers/playerName";
+import { usePlayerName, useSenseiTitle } from "../../hooks/usePlayerName";
 import { useCharacterChoice } from "../../hooks/useCharacterChoice";
 import { useCustomCursor } from "../../hooks/useCustomCursor";
 import { CharacterChoice } from "../../types/character";
@@ -38,6 +42,7 @@ export function SettingsPopUp({ onClose }: Props) {
   const character = useCharacterChoice();
   const characterLabel = React.useId();
   const playerName = usePlayerName();
+  const senseiTitle = useSenseiTitle();
   const nameLabel = React.useId();
 
   return (
@@ -109,9 +114,9 @@ export function SettingsPopUp({ onClose }: Props) {
             <PopUpCardBody>
               <PopUpCardTitle id={nameLabel}>Player name</PopUpCardTitle>
               <PopUpCardText>
-                Shown as &ldquo;Sensei &hellip;&rdquo; on the pictures you
-                share, and nowhere else. It stays on this device. Leave it empty
-                to share without a name.
+                Shown on the pictures you share and your Sensei card, and
+                nowhere else. It stays on this device. Leave it empty to share
+                without a name.
               </PopUpCardText>
             </PopUpCardBody>
             <Styled.NameInput
@@ -124,6 +129,21 @@ export function SettingsPopUp({ onClose }: Props) {
               autoComplete="nickname"
               spellCheck={false}
             />
+            <Styled.NameToggle
+              type="button"
+              role="switch"
+              aria-checked={senseiTitle}
+              onClick={() => setSenseiTitle(!senseiTitle)}
+            >
+              <span>
+                &ldquo;Sensei&rdquo; before my name
+                <Styled.NameExample>
+                  {senseiTitle ? "Sensei " : ""}
+                  {playerName.trim() || "Arona"}
+                </Styled.NameExample>
+              </span>
+              <Switch $on={senseiTitle} aria-hidden="true" />
+            </Styled.NameToggle>
           </Styled.Stack>
         </PopUpCard>
 

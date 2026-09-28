@@ -27,7 +27,7 @@ describe("senseiCardContent", () => {
   it("puts the player's record on the card", () => {
     const content = senseiCardContent({
       stats,
-      name: "Arona",
+      name: "Sensei Arona",
       favourite: students[5],
       issued: new Date(2026, 8, 28),
     });
@@ -68,14 +68,14 @@ describe("senseiCardContent", () => {
     expect(content.since).toBeNull();
   });
 
-  it("keeps a name that already says Sensei, and draws the same code for it", () => {
+  it("shows the name as given, and draws the same code for it", () => {
     const input = {
       stats,
-      name: "sensei Plana",
+      name: "Plana",
       favourite: null,
       issued: new Date(),
     };
-    expect(senseiCardContent(input).name).toBe("sensei Plana");
+    expect(senseiCardContent(input).name).toBe("Plana");
     expect(senseiCardContent(input).stripes).toEqual(
       senseiCardContent(input).stripes
     );

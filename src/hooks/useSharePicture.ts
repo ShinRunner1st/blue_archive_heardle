@@ -1,7 +1,7 @@
 import React from "react";
 
 import { sharePicture } from "../helpers/picture/share";
-import { usePlayerName } from "./usePlayerName";
+import { usePictureName } from "./usePlayerName";
 
 /** After the screen's own entrance, so the drawing doesn't stall it. */
 const DRAW_DELAY_MS = 600;
@@ -36,7 +36,7 @@ export function useSharePicture(
   }, [make]);
 
   // Drawn again when the name for pictures changes in Settings.
-  const name = usePlayerName();
+  const name = usePictureName();
   React.useEffect(() => {
     picture.current = null;
     const timer = window.setTimeout(() => {

@@ -2,7 +2,7 @@ import { IoClose, IoExpand } from "react-icons/io5";
 
 import { Song } from "../../types/song";
 
-import { JukeboxAudio } from "./JukeboxPlayer";
+import { AlbumArt, JukeboxAudio } from "./JukeboxPlayer";
 import * as Styled from "./MiniPlayer.styled";
 
 interface Props {
@@ -31,6 +31,9 @@ export function MiniPlayer({ song, audio, onNext, onOpen, onStop }: Props) {
       {/* Room at the end of the page, so nothing stays hidden under it. */}
       <Styled.Room aria-hidden="true" />
       <Styled.Mini aria-label="Jukebox">
+        <Styled.Art aria-hidden="true">
+          <AlbumArt song={song} />
+        </Styled.Art>
         <Styled.Button
           type="button"
           onClick={audio.toggle}

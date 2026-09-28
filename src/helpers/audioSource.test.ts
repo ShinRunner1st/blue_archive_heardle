@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { clearLoadedAudio, loadAudio } from "./audioSource";
+import { clearLoadedAudio, KEEP_SONGS, loadAudio } from "./audioSource";
 
 const fetchMock = vi.fn();
 let made = 0;
@@ -87,5 +87,67 @@ describe("loadAudio", () => {
       );
       expect(fetchMock).toHaveBeenCalledTimes(2);
     });
+  });
+});
+
+/** Cache Storage, which jsdom lacks: one store, in the order put in. */
+function fakeCaches() {
+  const entries = new Map<string, Response>();
+  const store = {
+    match: vi.fn(async (url: string) => entries.get(url)?.clone()),
+    put: vi.fn(async (url: string, response: Response) => {
+      entries.delete(url);
+      entries.set(url, response);
+    }),
+    keys: vi.fn(async () => [...entries.keys()].map((url) => ({ url }))),
+    delete: vi.fn(async (request: { url: string }) =>
+      entries.delete(request.url)
+    ),
+  };
+  vi.stubGlobal("caches", { open: vi.fn(async () => store) });
+  return entries;
+}
+
+/** Lets the store's writes, which aren't waited for, finish. */
+const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+describe("the song store", () => {
+  it("keeps a whole song and plays it from there next visit", async () => {
+    const entries = fakeCaches();
+
+    await loadAudio("/audio/song.ogg", { keep: true });
+    await settle();
+    expect([...entries.keys()]).toEqual(["/audio/song.ogg"]);
+
+    // A new visit: nothing in memory, the store still has it.
+    clearLoadedAudio();
+    await loadAudio("/audio/song.ogg", { keep: true });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("doesn't keep clips", async () => {
+    const entries = fakeCaches();
+    await loadAudio("/audio/clip.ogg");
+    await settle();
+    expect(entries.size).toBe(0);
+  });
+
+  it("lets the songs played longest ago go", async () => {
+    const entries = fakeCaches();
+    for (let i = 0; i <= KEEP_SONGS; i++) {
+      await loadAudio(`/audio/${i}.ogg`, { keep: true });
+      await settle();
+    }
+    expect(entries.size).toBe(KEEP_SONGS);
+    expect(entries.has("/audio/0.ogg")).toBe(false);
+  });
+
+  it("still plays where the browser has no store", async () => {
+    vi.stubGlobal("caches", {
+      open: vi.fn(() => Promise.reject(new Error("blocked"))),
+    });
+    await expect(loadAudio("/audio/song.ogg", { keep: true })).resolves.toBe(
+      "blob:local/1"
+    );
   });
 });

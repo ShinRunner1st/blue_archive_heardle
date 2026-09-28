@@ -67,7 +67,7 @@ export const WHATS_NEW: NewsUpdate[] = [
       {
         icon: IoMusicalNotes,
         title: "Music while you guess",
-        text: "In Students, the Jukebox plays on after you close it, with a small player in the corner. The OST badges have moved into the ☰ menu.",
+        text: "In Students, the Jukebox plays on after you close it, with a small player in the corner. It shows each song's OST album cover, and songs you've played start at once next time. The OST badges have moved into the ☰ menu.",
       },
     ],
   },

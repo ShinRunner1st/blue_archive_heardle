@@ -1,9 +1,12 @@
 import styled from "styled-components";
 
+/** The student picked, with room between it and the search box under it. */
 export const Favourite = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
+
+  margin-bottom: 10px;
 `;
 
 export const FavouriteName = styled.span`

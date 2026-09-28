@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { fakeContext } from "../../test/fakeCanvas";
+import { pictureName } from "../playerName";
 import { drawPlayerName, withoutEmoji } from "./canvas";
 
 describe("withoutEmoji", () => {
@@ -18,19 +19,20 @@ describe("withoutEmoji", () => {
 });
 
 describe("drawPlayerName", () => {
-  it("draws the name as a Sensei, once", () => {
+  it("draws the name as pictureName gives it", () => {
     const { ctx, texts } = fakeContext();
 
-    drawPlayerName(ctx, "  Hoshino ");
-    drawPlayerName(ctx, "Sensei Yuuka");
+    drawPlayerName(ctx, pictureName("  Hoshino ", true));
+    drawPlayerName(ctx, pictureName("Sensei Yuuka", true));
+    drawPlayerName(ctx, pictureName("Aris", false));
 
-    expect(texts).toEqual(["Sensei Hoshino", "Sensei Yuuka"]);
+    expect(texts).toEqual(["Sensei Hoshino", "Sensei Yuuka", "Aris"]);
   });
 
   it("draws nothing without a name", () => {
     const { ctx, texts } = fakeContext();
 
-    drawPlayerName(ctx, "   ");
+    drawPlayerName(ctx, pictureName("   ", true));
 
     expect(texts).toEqual([]);
   });

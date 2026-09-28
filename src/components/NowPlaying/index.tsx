@@ -129,7 +129,8 @@ export function NowPlaying({
   }, [song.themeNo]);
 
   // Downloaded whole before the element gets it (see helpers/audioSource).
-  const source = useAudioSource(getSongUrl(song.themeNo));
+  // A whole song, kept in the song store for the Jukebox too.
+  const source = useAudioSource(getSongUrl(song.themeNo), 0, true);
   React.useEffect(() => {
     if (source.failed) handleError();
   }, [source.failed, handleError]);

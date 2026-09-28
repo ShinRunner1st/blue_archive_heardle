@@ -103,7 +103,9 @@ What the project cares about:
   OST, kept light for speed) and chips from `FoldingChips`. Playing any audio pauses the rest (`src/helpers/onePlayer.ts`).
   `Jukebox` stays mounted and holds the audio: in the student game the music
   plays on after it closes, in a corner `MiniPlayer`; in the OST game closing
-  stops it.
+  stops it. Both players show the song's OST album cover (`albumOf`). Whole
+  songs are kept in Cache Storage (`src/helpers/audioSource.ts`, the 30
+  played last) so replays make no request.
 - **Students** (the switch under the header picks OST or Students; Daily and
   Endless work for both): guess a student and each guess shows how it
   compares with the answer, right, close or wrong, with arrows for numbers.
@@ -114,12 +116,14 @@ What the project cares about:
   own daily and endless stats and streak, and the streak moves the
   background. Squares-only share text; a share picture (daily ones name
   nobody) and a Share recap in stats (`src/helpers/picture/studentPicture.ts`).
-  Gameplay also compares the defense type; damage and defense cells show a
-  dot in the type's colour (`src/constants/typeColors.ts`). The search box stays at
-  the top (the play area is top-aligned here), with Give up always beside
-  it. School, role and gift cells show icons from a second sheet
-  (`pictures/students/clues.webp`), names under them up to 9 letters;
-  Sakugawa has Schale's emblem.
+  Gameplay also compares the defense type. The search box stays at the top
+  (the play area is top-aligned here), with a grid button beside it (every
+  student in the pool as icons, sorted by name, picking one guesses it) and
+  Give up set apart from it. School, role, type and gift cells show icons
+  from a second sheet (`pictures/students/clues.webp`), names under them up
+  to 9 letters; types are the sword or shield on the type's colour
+  (`scripts/lib/typeColors.mjs`, by SchaleDB code; a new type comes in grey
+  with a warning); Sakugawa has ETC's icon, Schale's emblem.
 - **Sensei card** (☰ menu): the record across every mode
   (`src/helpers/senseiStats.ts`, read from the saves) drawn on a Schale
   licence with a favourite student's portrait (`FAV_STUDENT_KEY`, a setting,
@@ -142,8 +146,9 @@ What the project cares about:
   switch or reload.
 - **Settings**: volume (remembered, 20% default), dark mode, Blue Archive
   cursor with tap and drag effects (can be turned off), character choice,
-  player name (drawn as "Sensei …" on every share picture by `makePicture`,
-  used for nothing else; `src/helpers/playerName.ts`).
+  player name (drawn as "Sensei …" on every share picture by `makePicture`
+  and on the Sensei card, used for nothing else; a switch leaves the "Sensei"
+  off; `pictureName` in `src/helpers/playerName.ts`).
 - **Save file**: export all modes to one scrambled file and import it on
   another device (`src/helpers/saveFile.ts`); checked like the saves, asks
   before replacing, then reloads the page.

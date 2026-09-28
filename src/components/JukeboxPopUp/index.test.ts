@@ -101,7 +101,8 @@ describe("JukeboxPopUp", () => {
     click(songButton("Constant Moderato"));
     await songLoads();
 
-    expect(loadAudio).toHaveBeenCalledWith(getSongUrl("1"));
+    // Whole songs go in the song store.
+    expect(loadAudio).toHaveBeenCalledWith(getSongUrl("1"), { keep: true });
     expect(player().textContent).toContain("Constant Moderato");
     expect(play).toHaveBeenCalled();
   });

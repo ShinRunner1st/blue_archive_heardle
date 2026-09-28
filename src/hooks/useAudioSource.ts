@@ -11,9 +11,14 @@ interface AudioSource {
 /**
  * Loads `url` whole (see helpers/audioSource) and returns where to play it
  * from. Changing `attempt` loads a failed file again. Null loads nothing, for
- * a player with no song picked yet.
+ * a player with no song picked yet. `keep` puts a whole song in the song
+ * store, to play from there next time.
  */
-export function useAudioSource(url: string | null, attempt = 0): AudioSource {
+export function useAudioSource(
+  url: string | null,
+  attempt = 0,
+  keep = false
+): AudioSource {
   const [state, setState] = React.useState<AudioSource & { key: string }>({
     key: "",
     failed: false,
@@ -24,7 +29,7 @@ export function useAudioSource(url: string | null, attempt = 0): AudioSource {
     if (url === null) return;
     let live = true;
 
-    loadAudio(url).then(
+    loadAudio(url, { keep }).then(
       (src) => live && setState({ key, src, failed: false }),
       () => live && setState({ key, failed: true })
     );
@@ -32,7 +37,7 @@ export function useAudioSource(url: string | null, attempt = 0): AudioSource {
     return () => {
       live = false;
     };
-  }, [url, key]);
+  }, [url, key, keep]);
 
   // Nothing from an earlier file or attempt leaks into this one.
   return state.key === key ? state : { failed: false };

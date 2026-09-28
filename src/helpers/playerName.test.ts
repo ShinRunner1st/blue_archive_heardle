@@ -1,11 +1,13 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { PLAYER_NAME_KEY } from "../constants/game";
 import {
   getPlayerName,
+  getSenseiTitle,
   MAX_PLAYER_NAME,
   resetPlayerNameState,
   setPlayerName,
+  setSenseiTitle,
   subscribePlayerName,
 } from "./playerName";
 
@@ -44,5 +46,27 @@ describe("the player name", () => {
     setPlayerName("Mutsuki");
 
     expect(listener).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("the Sensei title", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    resetPlayerNameState();
+  });
+
+  it("is on until turned off, and remembered", () => {
+    expect(getSenseiTitle()).toBe(true);
+    setSenseiTitle(false);
+    resetPlayerNameState();
+    expect(getSenseiTitle()).toBe(false);
+  });
+
+  it("tells the listeners", () => {
+    const heard = vi.fn();
+    const stop = subscribePlayerName(heard);
+    setSenseiTitle(false);
+    stop();
+    expect(heard).toHaveBeenCalledTimes(1);
   });
 });

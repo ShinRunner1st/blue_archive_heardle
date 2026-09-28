@@ -25,7 +25,7 @@ const RIGHT_COLUMN = 392;
 
 export interface SenseiCardInput {
   stats: SenseiStats;
-  /** The player's name from Settings, or "" for none. */
+  /** The player's name as pictures show it (see pictureName), or "". */
   name: string;
   favourite: Student | null;
   issued: Date;
@@ -69,13 +69,8 @@ export function senseiCardContent({
   favourite,
   issued,
 }: SenseiCardInput): SenseiCardContent {
-  const shown = name.trim();
-  // Players are Sensei in Blue Archive; one who wrote it already keeps theirs.
-  const fullName = !shown
-    ? "Sensei"
-    : /^sensei(\s|$)/i.test(shown)
-    ? shown
-    : `Sensei ${shown}`;
+  // A card has a holder: plain "Sensei" when the player gave no name.
+  const fullName = name.trim() || "Sensei";
 
   return {
     name: fullName,

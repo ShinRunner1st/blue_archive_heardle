@@ -21,6 +21,7 @@ import {
   STUDENT_GAME_KEY,
   STUDENT_STORAGE_KEYS,
   FAV_STUDENT_KEY,
+  SENSEI_TITLE_KEY,
 } from "../constants/game";
 import { ColorScheme } from "../constants/theme";
 import { CharacterChoice, isCharacterChoice } from "../types/character";
@@ -393,6 +394,16 @@ export function loadPlayerName(): string {
 export function savePlayerName(name: string): void {
   if (name.trim() === "") removeKey(PLAYER_NAME_KEY);
   else writeKey(PLAYER_NAME_KEY, name);
+}
+
+/** Whether pictures put "Sensei" before the player's name; on unless not. */
+export function loadSenseiTitle(): boolean {
+  return readKey(SENSEI_TITLE_KEY) !== "false";
+}
+
+export function saveSenseiTitle(on: boolean): void {
+  if (on) removeKey(SENSEI_TITLE_KEY);
+  else writeKey(SENSEI_TITLE_KEY, "false");
 }
 
 /** The student on the Sensei card, or null for none yet. */

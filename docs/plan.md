@@ -163,6 +163,13 @@ in the README's Student data. Choices made while building it:
   the player's record with a favourite student's portrait. The portraits
   are a file each on the Worker (a card shows one; about 7.5 KB each, 2 MB
   in all), which also puts 2 MB on R2, well inside its free 10 GB.
+- **Third round**: Sakugawa takes ETC's icon (Schale's emblem, on SchaleDB,
+  so the wiki download went); types are SchaleDB's sword and shield drawn
+  on their colour's circle in the clue sheet, and a new type needs only its
+  colour added; a grid of every student beside the search box, by name;
+  Give up set apart; both switches the same height on a phone; a "Sensei"
+  switch under the player name; album covers in the Jukebox; whole songs
+  kept in Cache Storage (the 30 played last).
 - **New students:** rerun `npm run students` after each Global update.
 
 ## Dream plan (big, after the plan above)

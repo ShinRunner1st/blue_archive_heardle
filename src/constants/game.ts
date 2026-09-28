@@ -62,6 +62,12 @@ export const CLIP_OPTIONS = [1, 2, 3, 5, 7];
  */
 export const FAV_STUDENT_KEY = "favStudent";
 
+/**
+ * localStorage key holding "false" once the player turns off the "Sensei"
+ * before their name on pictures. Absent means on.
+ */
+export const SENSEI_TITLE_KEY = "senseiTitle";
+
 /** localStorage key holding the name drawn on shared pictures. */
 export const PLAYER_NAME_KEY = "playerName";
 

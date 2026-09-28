@@ -12,7 +12,7 @@ import { loadFavStudent, saveFavStudent } from "../../helpers/storage";
 import { studentById } from "../../helpers/studentRounds";
 import { SITE_URL } from "../../constants/game";
 import { useBackdropSrc } from "../../hooks/useBackdropSrc";
-import { usePlayerName } from "../../hooks/usePlayerName";
+import { usePictureName } from "../../hooks/usePlayerName";
 import logo from "../../image/BlueArchive-Heardle.png";
 
 import { Button } from "../Button";
@@ -41,7 +41,7 @@ export default function SenseiCard({ onClose, streak }: Props) {
   const [favourite, setFavourite] = React.useState(loadFavStudent);
   const [picture, setPicture] = React.useState<{ blob: Blob; url: string }>();
   const [status, setStatus] = React.useState("");
-  const name = usePlayerName();
+  const name = usePictureName();
   const backdrop = useBackdropSrc(streak);
   // Read once: nothing is played while the card is open.
   const stats = React.useMemo(() => senseiStats(), []);
@@ -166,8 +166,8 @@ export default function SenseiCard({ onClose, streak }: Props) {
         </Styled.Preview>
         <Styled.Note role="status" aria-live="polite">
           {status ||
-            (name.trim()
-              ? "Your name comes from Settings."
+            (name
+              ? "Your name, and the Sensei before it, come from Settings."
               : "Add your name in Settings to put it on the card.")}
         </Styled.Note>
       </PopUpBody>

@@ -1,4 +1,4 @@
-import { VOLUMES } from "../constants/volumes";
+import { Volume, VOLUMES } from "../constants/volumes";
 import { Song } from "../types/song";
 import { filterSongs } from "./searchSong";
 
@@ -45,4 +45,12 @@ export function jukeboxSongs(
 /** How many songs each album filter holds, for its chip. */
 export function albumCount(filter: AlbumFilter): number {
   return jukeboxSongs("", [filter.id]).length;
+}
+
+/**
+ * The OST album a song is on, for its cover in the Jukebox: the first, for
+ * a song on two. Null for a song on none.
+ */
+export function albumOf(themeNo: string): Volume | null {
+  return VOLUMES.find((volume) => volume.songs.includes(themeNo)) ?? null;
 }

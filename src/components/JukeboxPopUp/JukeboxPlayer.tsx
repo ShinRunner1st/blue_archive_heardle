@@ -3,6 +3,7 @@ import React from "react";
 import { clipInfo, getSongUrl } from "../../helpers/audioUrl";
 import { useAudioSource } from "../../hooks/useAudioSource";
 import { useAudioVolume } from "../../hooks/useVolume";
+import { albumOf } from "../../helpers/jukebox";
 import { JukeboxRepeat } from "../../helpers/storage";
 import { Song } from "../../types/song";
 
@@ -39,7 +40,8 @@ export function useJukeboxAudio(
 
   const themeNo = song?.themeNo;
   const duration = themeNo ? clipInfo(themeNo).duration : 0;
-  const source = useAudioSource(themeNo ? getSongUrl(themeNo) : null);
+  // Kept in the song store: the Jukebox is where songs are played again.
+  const source = useAudioSource(themeNo ? getSongUrl(themeNo) : null, 0, true);
 
   // A new song starts from nothing. Done while rendering, so no frame shows
   // the last song's time against the new one's name.
@@ -135,6 +137,20 @@ interface Props {
   onRepeatChange: (repeat: JukeboxRepeat) => void;
 }
 
+/**
+ * The cover of the song's OST album, the same picture as its badge, or a
+ * note for a song on none. The covers are part of the page already, cached
+ * for a year.
+ */
+export function AlbumArt({ song }: { song?: Song }) {
+  const album = song ? albumOf(song.themeNo) : null;
+  return album ? (
+    <Styled.Cover src={album.cover} alt="" />
+  ) : (
+    <Styled.NoteIcon />
+  );
+}
+
 /** Each press of the repeat button moves on one. */
 const NEXT_REPEAT: Record<JukeboxRepeat, JukeboxRepeat> = {
   off: "next",
@@ -181,7 +197,7 @@ export function JukeboxPlayer({
     <Styled.Player aria-label="Jukebox player">
       <Styled.PlayerHead>
         <Styled.Art aria-hidden="true">
-          <Styled.NoteIcon />
+          <AlbumArt song={song} />
         </Styled.Art>
         <Styled.PlayerMeta>
           <Styled.PlayerName title={song?.name}>

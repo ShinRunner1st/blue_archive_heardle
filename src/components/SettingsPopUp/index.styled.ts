@@ -166,3 +166,39 @@ export const NameInput = styled.input`
     outline-offset: 2px;
   }
 `;
+
+/** Turns the "Sensei" before the name on pictures on or off. */
+export const NameToggle = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  width: 100%;
+  padding: 4px 0 0;
+
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: left;
+  color: inherit;
+
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+`;
+
+/** How the name will read, under the switch's label. */
+export const NameExample = styled.span`
+  display: block;
+
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.6;
+`;

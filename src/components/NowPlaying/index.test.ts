@@ -116,7 +116,8 @@ describe("NowPlaying", () => {
     mount();
     await settle();
 
-    expect(loadAudio).toHaveBeenCalledWith(getSongUrl("1"));
+    // Whole songs go in the song store.
+    expect(loadAudio).toHaveBeenCalledWith(getSongUrl("1"), { keep: true });
     expect(audio()?.getAttribute("src")).toBe(`blob:${getSongUrl("1")}`);
     expect(audio()?.hasAttribute("controls")).toBe(false);
   });

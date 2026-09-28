@@ -143,7 +143,8 @@ describe("Player", () => {
     await settle();
 
     expect(loadAudio).toHaveBeenCalledTimes(1);
-    expect(loadAudio).toHaveBeenCalledWith(getClipUrl("1"));
+    // Clips are played once, so not kept.
+    expect(loadAudio).toHaveBeenCalledWith(getClipUrl("1"), { keep: false });
     expect(container.querySelectorAll("audio")).toHaveLength(1);
     expect(audio().getAttribute("src")).toBe(`blob:${getClipUrl("1")}`);
   });

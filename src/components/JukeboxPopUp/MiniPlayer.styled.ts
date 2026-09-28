@@ -86,6 +86,28 @@ export const Small = styled.button`
   }
 `;
 
+/** The album cover, or a note, before the play button. */
+export const Art = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+
+  font-size: 1.2rem;
+  color: lightblue;
+
+  background-color: ${({ theme }) => theme.background100};
+  border-radius: 8px;
+
+  svg {
+    font-size: inherit;
+  }
+`;
+
 export const Meta = styled.div`
   flex: 1;
   min-width: 0;

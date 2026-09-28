@@ -56,10 +56,13 @@ Daily and Endless work for both. Type a student's name (either name, in either
 order: "armed hoshino" finds Hoshino (Armed)) and the guess goes straight into
 the table, newest on top, a column per attribute: green when it matches the
 answer, yellow when it's close, red when it doesn't, with an arrow for numbers
-pointing higher or lower. Schools, roles and gifts show their icon, with the
-name under it when it's short; damage and defense types have a dot in the
-game's colour for them. There's no limit on guesses; Give up (pressed twice)
-counts as a loss. A second switch picks how to play:
+pointing higher or lower. Schools, roles, gifts and damage and defense types
+show their icon (a type is the sword or the shield on a circle of the game's
+colour for it), with the name under it when it's short. The grid button
+beside the search box opens every student in the pool as icons, sorted by
+name so the list says nothing about release order; picking one guesses it.
+There's no limit on guesses; Give up (pressed twice, and set apart from the
+grid button) counts as a loss. A second switch picks how to play:
 
 - **Gameplay** - school, role, damage type, defense type, weapon type, EX
   skill cost (at level 1) and release order. Every costume is its own answer, since its kit
@@ -95,8 +98,9 @@ alone, so it never downloads the icons).
   and badges. Time Attack's has runs, its best scores and the best run at
   each clip length. It names no songs.
 - **Player name** - ☰ → Settings takes a name, drawn as "Sensei …" on every
-  picture you share. It's used for nothing else and stays in your browser;
-  leave it empty to share without one.
+  picture you share and the Sensei card; a switch under it leaves the
+  "Sensei" off. It's used for nothing else and stays in your browser; leave
+  it empty to share without one.
 - **Daily calendar** - daily stats show every puzzle on a month calendar,
   coloured by how it went: greener for fewer tries, red for a loss, faint
   for a day not played. It names no songs, so it spoils nothing.
@@ -107,6 +111,7 @@ alone, so it never downloads the icons).
   shows your record with it in Daily and Classic, such as "Heard 4 times ·
   guessed 3 · best in 2 tries".
 - **Jukebox** - in the ☰ menu: every song in theme order, played in full,
+  with its OST album's cover when it's on one,
   with a search box and OST album chips (Vol.1 to Vol.8 and Other, any
   number at once, folding to one row), like All OST. Songs guessed right in any mode are bright,
   the rest dimmed; missed songs look like unplayed ones, so it never shows
@@ -276,7 +281,11 @@ The game downloads each file whole and plays it from memory
 (`src/helpers/audioSource.ts`): Cloudflare's static files don't answer
 requests for part of a file, which Safari needs to play from a server and
 other browsers need to seek. `_headers` also allows the game, on another
-address, to read the files.
+address, to read the files. Whole songs are also kept in the browser's Cache
+Storage, the 30 played last (about 60 MB), and played from there next time,
+so listening in the Jukebox doesn't ask for a song again even once the
+browser's own cache has let it go. Clips aren't kept: a round plays each
+once.
 
 Both are named with a salted hash of the theme number and a fingerprint of
 the original, so a request in DevTools says nothing about the song, and a
@@ -376,11 +385,15 @@ and R2. `build:students`:
   the whole sheet, so players download it again after each update.
 
 It also draws a second, small sheet, `pictures/students/clues.webp` (about
-45 KB), of the school, role and gift icons for the table's cells, listed in
-`src/constants/clueIcons.ts`. These are white shapes drawn on the cells'
-colours, so this one keeps its transparency. A school SchaleDB has no icon for
-(Sakugawa) gets Schale's emblem, downloaded once from the Blue Archive wiki
-and whitened to match. And it makes each student's portrait (SchaleDB's
+50 KB), of the school, role, type and gift icons for the table's cells,
+listed in `src/constants/clueIcons.ts`. These are white shapes drawn on the
+cells' colours, so this one keeps its transparency. A school SchaleDB has no
+icon for (Sakugawa) gets ETC's, which is Schale's emblem. Each attack and
+armour type is SchaleDB's sword (`Type_Attack`) or shield (`Type_Defense`)
+drawn on a circle of the type's colour, from
+`scripts/lib/typeColors.mjs`, keyed by SchaleDB's codes. A type the game adds
+later comes into the sheet by itself, on grey, and the script says to add
+its colour there. And it makes each student's portrait (SchaleDB's
 collection picture, about 7.5 KB as WebP) into `pictures/portraits/`, for the
 Sensei card; their names on the Worker are listed in
 `src/constants/portraitFiles.ts`, apart from `pictureFiles.ts`, so the page
