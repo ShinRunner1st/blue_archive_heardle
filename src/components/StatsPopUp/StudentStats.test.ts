@@ -20,6 +20,8 @@ function mount(extra: Partial<React.ComponentProps<typeof StudentStats>> = {}) {
       tally,
       played: 4,
       averageGuesses: 5.5,
+      fastest: 48_000,
+      averageFind: 102_500,
       streak: 2,
       best: 3,
       found: 2,
@@ -47,6 +49,20 @@ describe("StudentStats", () => {
     expect(text()).toContain("5.5");
     expect(text()).toContain("10+");
     expect(text()).not.toContain("Calendar");
+  });
+
+  it("shows the fastest and average find times", () => {
+    mount();
+    expect(text()).toContain("0:48");
+    expect(text()).toContain("Fastest find");
+    expect(text()).toContain("1:42");
+    expect(text()).toContain("Average time");
+  });
+
+  it("shows dashes before any timed find", () => {
+    mount({ fastest: null, averageFind: null });
+    expect(text()).toContain("Fastest find");
+    expect(text()).not.toContain("0:");
   });
 
   it("has a calendar in daily, counted in guesses", () => {

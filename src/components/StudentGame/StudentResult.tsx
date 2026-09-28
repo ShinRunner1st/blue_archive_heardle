@@ -3,7 +3,7 @@ import React from "react";
 import { LOSS_TEXT, studentResultTitle } from "../../constants/resultText";
 import { birthdayText } from "../../helpers/studentClues";
 import { isBirthday } from "../../helpers/birthdays";
-import { isWon } from "../../helpers/studentRounds";
+import { isWon, roundTime } from "../../helpers/studentRounds";
 import { buildStudentShareText } from "../../helpers/studentShare";
 import { streakNews, WinStreak } from "../../helpers/winStreak";
 import { homeName } from "../../helpers/season";
@@ -61,6 +61,7 @@ export function StudentResult({
   const won = isWon(round);
   const count = round.guesses.length;
   const isDaily = mode === "daily";
+  const time = roundTime(round);
 
   // On the backdrop the page is showing, like the OST's result picture.
   const backdrop = useBackdropSrc(streak.current);
@@ -124,7 +125,7 @@ export function StudentResult({
         {won
           ? `You found ${answer.name} in ${count} ${
               count === 1 ? "guess" : "guesses"
-            }.`
+            }${time ? `, in ${time}` : ""}.`
           : LOSS_TEXT}
       </ResultStyled.Tries>
       <ResultStyled.Score>

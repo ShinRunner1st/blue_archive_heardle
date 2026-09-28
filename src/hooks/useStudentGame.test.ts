@@ -1,5 +1,5 @@
 import React, { act } from "react";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createHarness } from "../test/harness";
 
@@ -63,6 +63,59 @@ describe("useStudentGame", () => {
     act(() => game.guess(wrongId()));
     expect(game.round.guesses).toHaveLength(2);
     expect(game.tally[2]).toBe(1);
+  });
+
+  it("starts the clock once, and stops it on the find", () => {
+    vi.useFakeTimers({ now: 1_000_000, toFake: ["Date"] });
+    try {
+      render();
+      expect(game.round.startedAt).toBeUndefined();
+
+      act(() => game.start());
+      vi.setSystemTime(1_010_000);
+      // A second start doesn't reset the clock.
+      act(() => game.start());
+      expect(game.round.startedAt).toBe(1_000_000);
+
+      act(() => game.guess(wrongId()));
+      expect(game.round.time).toBeUndefined();
+
+      vi.setSystemTime(1_048_000);
+      act(() => game.guess(game.round.answer));
+      expect(game.round.time).toBe(48_000);
+      expect(game.fastest).toBe(48_000);
+      expect(game.averageFind).toBe(48_000);
+      expect(loadStudentRounds("gameplay-endless")[0].time).toBe(48_000);
+
+      // The next round's clock waits for the player.
+      act(() => game.next());
+      expect(game.round.startedAt).toBeUndefined();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("stops the clock on giving up, which no time record counts", () => {
+    vi.useFakeTimers({ now: 5_000, toFake: ["Date"] });
+    try {
+      render();
+      act(() => game.start());
+      act(() => game.guess(wrongId()));
+      vi.setSystemTime(65_000);
+      act(() => game.giveUp());
+
+      expect(game.round.time).toBe(60_000);
+      expect(game.fastest).toBeNull();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("leaves a round found without starting untimed", () => {
+    render();
+    act(() => game.guess(game.round.answer));
+    expect(game.round.time).toBeUndefined();
+    expect(game.fastest).toBeNull();
   });
 
   it("ignores an id that isn't a student", () => {

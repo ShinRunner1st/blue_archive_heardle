@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { StudentRound } from "../types/student";
+
 import {
   DAILY_STORAGE_KEY,
   MODE_KEY,
@@ -285,6 +287,23 @@ describe("replaceAllRounds", () => {
     );
     expect(localStorage.getItem(DAILY_STORAGE_KEY)).toBeNull();
     expect(localStorage.getItem(STORAGE_KEY)).toBe("old endless");
+  });
+
+  it("keeps a student round's clock, and drops a broken one", () => {
+    saveStudentRounds("gameplay-endless", [
+      { answer: 10005, guesses: [10005], startedAt: 1_000, time: 42_000 },
+      {
+        answer: 10005,
+        guesses: [],
+        startedAt: -5,
+        time: "soon",
+      } as unknown as StudentRound,
+    ]);
+
+    expect(loadStudentRounds("gameplay-endless")).toEqual([
+      { answer: 10005, guesses: [10005], startedAt: 1_000, time: 42_000 },
+      { answer: 10005, guesses: [] },
+    ]);
   });
 
   it("swaps the student game's rounds with them", () => {

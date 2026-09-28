@@ -167,6 +167,11 @@ in the README's Student data. Choices made while building it:
   Give up set apart; both switches the same height on a phone; a "Sensei"
   switch under the player name; album covers in the Jukebox; whole songs
   kept in Cache Storage (the 30 played last).
+- **After the release** (branches `fix/icon-sheet`, then `feat/solve-timer`):
+  the icon sheet keeps its transparency; a solve clock times each find,
+  from the first letter typed, as a second score beside the guesses. A
+  student Time Attack was turned down for the clue game (a find takes too
+  many guesses for a 3-minute run); students get one with Voice line mode.
 - **New students:** rerun `npm run students` after each Global update.
 
 ## Dream plan (big, after the plan above)

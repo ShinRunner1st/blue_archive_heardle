@@ -24,6 +24,22 @@ describe("buildStudentShareText", () => {
     expect(text).not.toContain(answer.name);
   });
 
+  it("adds the time when the round was timed", () => {
+    const text = buildStudentShareText({
+      game: "gameplay",
+      mode: "daily",
+      round: {
+        answer: answer.id,
+        guesses: [wrong[0], answer.id],
+        day: 7,
+        time: 102_000,
+      },
+      answer,
+      score: "",
+    });
+    expect(text.split("\n")[3]).toBe("Found in 2 guesses · ⏱️ 1:42");
+  });
+
   it("shortens a long hunt, keeping its start and end", () => {
     const text = buildStudentShareText({
       game: "lore",

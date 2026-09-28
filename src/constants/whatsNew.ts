@@ -41,6 +41,17 @@ export interface NewsUpdate {
  */
 export const WHATS_NEW: NewsUpdate[] = [
   {
+    id: "2026-09-solve-time",
+    name: "Time your finds",
+    items: [
+      {
+        icon: IoStopwatch,
+        title: "Solve time",
+        text: "In Students, a clock starts when you type your first letter and stops when you find the student. Your time shows on the result, the share text and the share picture, and Stats keeps your fastest and average find. Guesses still come first.",
+      },
+    ],
+  },
+  {
     id: "2026-09-students",
     name: "Guess the student",
     items: [

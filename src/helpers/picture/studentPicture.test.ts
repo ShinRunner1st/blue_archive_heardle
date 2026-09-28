@@ -43,6 +43,14 @@ describe("studentPictureContent", () => {
     expect(texts).toContain("Can you find today's student?");
   });
 
+  it("puts the time on the picture", () => {
+    const content = studentPictureContent({
+      ...daily,
+      round: { ...daily.round, time: 48_000 },
+    });
+    expect(content.subtitle).toBe("Found in 2 guesses in 0:48");
+  });
+
   it("names the student on an endless picture", () => {
     const content = studentPictureContent({
       ...daily,
@@ -110,10 +118,26 @@ describe("studentRecapContent", () => {
     ]);
     expect(content.tiles[1]).toEqual({ label: "Found", value: "87%" });
     expect(content.footer).toContain("12 of 144 students found");
+    expect(content.footer).not.toContain("fastest");
 
     const { ctx, texts } = fakeContext();
     drawRecapPicture(ctx, content, { backdrop: null, logo: null });
     expect(texts).toContain("Schale activity report");
+  });
+
+  it("adds the fastest find to the footer once there is one", () => {
+    const content = studentRecapContent({
+      game: "gameplay",
+      mode: "endless",
+      tally: [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      played: 1,
+      averageGuesses: 1,
+      fastest: 48_000,
+      streak: 1,
+      best: 1,
+      found: 1,
+    });
+    expect(content.footer).toContain("fastest 0:48");
   });
 
   it("names the file by way to play, mode and date", () => {

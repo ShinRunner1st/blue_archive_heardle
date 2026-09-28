@@ -7,12 +7,16 @@ import { calStreaks } from "./streaks";
 import { dailyOutcomes } from "./dailyCalendar";
 import {
   asRound,
+  averageTime,
   dailyAnswer,
+  fastestTime,
+  formatSolveTime,
   isOver,
   isWon,
   knownRounds,
   pickAnswer,
   poolOf,
+  roundTime,
   studentTally,
 } from "./studentRounds";
 
@@ -131,5 +135,39 @@ describe("studentTally", () => {
     expect(tally[3]).toBe(1);
     expect(tally[10]).toBe(1);
     expect(tally.reduce((a, b) => a + b, 0)).toBe(4);
+  });
+});
+
+describe("solve times", () => {
+  const found = (time?: number): StudentRound => ({
+    answer: first.id,
+    guesses: [first.id],
+    ...(time === undefined ? {} : { time }),
+  });
+
+  it("reads like a stopwatch, rounded down", () => {
+    expect(formatSolveTime(0)).toBe("0:00");
+    expect(formatSolveTime(59_999)).toBe("0:59");
+    expect(formatSolveTime(102_000)).toBe("1:42");
+    expect(formatSolveTime(3_723_000)).toBe("1:02:03");
+    expect(formatSolveTime(-50)).toBe("0:00");
+  });
+
+  it("times only finds, and leaves rounds from before the clock out", () => {
+    const rounds = [
+      found(90_000),
+      found(30_000),
+      found(),
+      { answer: first.id, guesses: [second.id], gaveUp: true, time: 5_000 },
+    ];
+    expect(fastestTime(rounds)).toBe(30_000);
+    expect(averageTime(rounds)).toBe(60_000);
+    expect(fastestTime([found()])).toBeNull();
+    expect(averageTime([])).toBeNull();
+  });
+
+  it("shows a round's time, or nothing for an untimed one", () => {
+    expect(roundTime(found(48_000))).toBe("0:48");
+    expect(roundTime(found())).toBe("");
   });
 });

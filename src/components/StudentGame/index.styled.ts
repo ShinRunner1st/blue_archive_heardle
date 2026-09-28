@@ -183,6 +183,18 @@ export const Hint = styled.p`
   }
 `;
 
+/** The running clock at the end of the hint; its digits keep their width. */
+export const Clock = styled.span`
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 10px;
+
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  vertical-align: middle;
+`;
+
 /**
  * The guesses, newest on top. On a phone the columns are wider than the
  * screen, so the table scrolls sideways inside its box, never the page.

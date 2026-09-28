@@ -116,7 +116,11 @@ What the project cares about:
   own daily and endless stats and streak, and the streak moves the
   background. Squares-only share text; a share picture (daily ones name
   nobody) and a Share recap in stats (`src/helpers/picture/studentPicture.ts`).
-  Gameplay also compares the defense type. The search box stays at the top
+  Gameplay also compares the defense type. A clock starts at the first
+  letter typed or the grid opened (not on load) and stops on the find or
+  give-up, the wall clock, saved with the round (`startedAt`, `time`); it
+  shows while playing, on the result, share text and picture, and Stats
+  has the fastest and average find. Guesses stay the score. The search box stays at the top
   (the play area is top-aligned here), with a grid button beside it (every
   student in the pool as icons, sorted by name, picking one guesses it) and
   Give up set apart from it. School, role, type and gift cells show icons

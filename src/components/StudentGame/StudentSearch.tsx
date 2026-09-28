@@ -15,6 +15,8 @@ interface Props {
   /** Students already guessed this round, left out of the results. */
   guessed: ReadonlySet<number>;
   onGuess: (id: number) => void;
+  /** Called as letters are typed: the first starts the round's clock. */
+  onType?: () => void;
   /** False while a dialog is open, which gets the keys instead. */
   keyboardEnabled: boolean;
 }
@@ -31,6 +33,7 @@ export function StudentSearch({
   pool,
   guessed,
   onGuess,
+  onType,
   keyboardEnabled,
 }: Props) {
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -107,6 +110,7 @@ export function StudentSearch({
           onChange={(e) => {
             setValue(e.currentTarget.value);
             setFocused(-1);
+            if (e.currentTarget.value.trim()) onType?.();
           }}
           onKeyDown={handleKeyDown}
           placeholder="Type a student's name"

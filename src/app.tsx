@@ -344,6 +344,8 @@ function App() {
           tally={students.tally}
           played={students.played}
           averageGuesses={students.averageGuesses}
+          fastest={students.fastest}
+          averageFind={students.averageFind}
           streak={students.streak.current}
           best={students.best}
           found={students.found}
@@ -432,6 +434,7 @@ function App() {
             round={studentRound}
             score={`${students.wins}/${students.played}`}
             streak={students.streak}
+            onStart={students.start}
             onGuess={students.guess}
             onGiveUp={students.giveUp}
             onNext={students.next}

@@ -268,6 +268,10 @@ export function clearRounds(mode: GameMode = "endless"): void {
 const isId = (value: unknown): value is number =>
   typeof value === "number" && Number.isInteger(value) && value > 0;
 
+/** A moment or a duration in milliseconds: whole and not negative. */
+const isTime = (value: unknown): value is number =>
+  typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+
 /**
  * Coerces a saved student round into a usable one, or null when it is too
  * damaged to repair. Whether the ids are students the game knows is checked
@@ -291,6 +295,9 @@ function toStudentRound(value: unknown): StudentRound | null {
     typeof round.day === "number" && Number.isFinite(round.day)
       ? Math.trunc(round.day)
       : undefined;
+  // Rounds from before the clock have neither; a broken one is dropped.
+  const startedAt = isTime(round.startedAt) ? round.startedAt : undefined;
+  const time = isTime(round.time) ? round.time : undefined;
 
   return {
     answer: round.answer,
@@ -299,6 +306,8 @@ function toStudentRound(value: unknown): StudentRound | null {
       ? { gaveUp: true }
       : {}),
     ...(day === undefined ? {} : { day }),
+    ...(startedAt === undefined ? {} : { startedAt }),
+    ...(time === undefined ? {} : { time }),
   };
 }
 

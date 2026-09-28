@@ -11,6 +11,7 @@ import { SITE_URL } from "../../constants/game";
 import { useBackdropSrc } from "../../hooks/useBackdropSrc";
 import { useSharePicture } from "../../hooks/useSharePicture";
 import logo from "../../image/BlueArchive-Heardle.png";
+import { formatSolveTime } from "../../helpers/studentRounds";
 import { StudentGame, StudentMode } from "../../types/student";
 
 import { CalendarBands, DailyCalendar } from "./DailyCalendar";
@@ -26,6 +27,9 @@ interface Props {
   tally: number[];
   played: number;
   averageGuesses: number;
+  /** The quickest and the average timed find, in ms; null before any. */
+  fastest: number | null;
+  averageFind: number | null;
   streak: number;
   best: number;
   /** Different students found at least once. */
@@ -61,6 +65,8 @@ export function StudentStats({
   tally,
   played,
   averageGuesses,
+  fastest,
+  averageFind,
   streak,
   best,
   found,
@@ -79,10 +85,31 @@ export function StudentStats({
   const makeRecap = React.useCallback(
     () =>
       makeStudentRecap(
-        { game, mode, tally, played, averageGuesses, streak, best, found },
+        {
+          game,
+          mode,
+          tally,
+          played,
+          averageGuesses,
+          fastest,
+          streak,
+          best,
+          found,
+        },
         { backdrop, logo }
       ),
-    [game, mode, tally, played, averageGuesses, streak, best, found, backdrop]
+    [
+      game,
+      mode,
+      tally,
+      played,
+      averageGuesses,
+      fastest,
+      streak,
+      best,
+      found,
+      backdrop,
+    ]
   );
   const picture = useSharePicture(
     "Share recap",
@@ -154,6 +181,23 @@ ${SITE_URL}`
           <Styled.Tile>
             <Styled.TileValue>{best}</Styled.TileValue>
             <Styled.TileLabel>Best</Styled.TileLabel>
+          </Styled.Tile>
+        </Styled.Tiles>
+
+        <PopUpSpacer />
+
+        <Styled.Tiles $columns={2}>
+          <Styled.Tile>
+            <Styled.TileValue>
+              {fastest === null ? "-" : formatSolveTime(fastest)}
+            </Styled.TileValue>
+            <Styled.TileLabel>Fastest find</Styled.TileLabel>
+          </Styled.Tile>
+          <Styled.Tile>
+            <Styled.TileValue>
+              {averageFind === null ? "-" : formatSolveTime(averageFind)}
+            </Styled.TileValue>
+            <Styled.TileLabel>Average time</Styled.TileLabel>
           </Styled.Tile>
         </Styled.Tiles>
 

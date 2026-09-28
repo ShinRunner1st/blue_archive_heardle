@@ -15,7 +15,13 @@ import {
 import { dateStamp } from "../daily";
 import { loadIconSheet } from "../iconSheet";
 import { compareStudents, Verdict } from "../studentClues";
-import { isWon, poolOf, studentById } from "../studentRounds";
+import {
+  formatSolveTime,
+  isWon,
+  poolOf,
+  roundTime,
+  studentById,
+} from "../studentRounds";
 import {
   COLORS,
   CONTENT_LEFT as LEFT,
@@ -82,6 +88,7 @@ export function studentPictureContent({
   const won = isWon(round);
   const count = round.guesses.length;
   const guesses = count === 1 ? "guess" : "guesses";
+  const time = roundTime(round);
 
   const all = round.guesses.flatMap((id) => {
     const guess = studentById.get(id);
@@ -104,9 +111,10 @@ export function studentPictureContent({
         ? `${GAME_NAMES[game].toUpperCase()} #${round.day}`
         : `${GAME_NAMES[game].toUpperCase()} ENDLESS`,
     title: withoutEmoji(studentResultTitle(won, count)),
-    subtitle: won
-      ? `Found in ${count} ${guesses}`
-      : `Gave up after ${count} ${guesses}`,
+    subtitle:
+      (won
+        ? `Found in ${count} ${guesses}`
+        : `Gave up after ${count} ${guesses}`) + (time ? ` in ${time}` : ""),
     rows,
     stats: isDaily
       ? [
@@ -295,6 +303,8 @@ export interface StudentRecapStats {
   tally: number[];
   played: number;
   averageGuesses: number;
+  /** The quickest timed find in ms, or null before any. */
+  fastest?: number | null;
   streak: number;
   best: number;
   /** Different students found at least once. */
@@ -340,9 +350,13 @@ export function studentRecapContent(
       { label: "10+", count: sum(10, 10) },
       { label: "X", count: tally[0], lost: true },
     ],
-    footer: `${stats.averageGuesses || "-"} guesses a find · ${
-      stats.found
-    } of ${poolOf(stats.game).length} students found`,
+    footer: [
+      `${stats.averageGuesses || "-"} guesses a find`,
+      `${stats.found} of ${poolOf(stats.game).length} students found`,
+      ...(typeof stats.fastest === "number"
+        ? [`fastest ${formatSolveTime(stats.fastest)}`]
+        : []),
+    ].join(" · "),
   };
 }
 

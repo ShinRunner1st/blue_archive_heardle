@@ -10,7 +10,9 @@ import {
 import { calStreaks } from "../helpers/streaks";
 import {
   asRound,
+  averageTime,
   dailyAnswer,
+  fastestTime,
   isOver,
   isWon,
   knownRounds,
@@ -35,6 +37,17 @@ type Histories = Record<StudentSlot, StudentRound[]>;
 
 /** Which way to play a slot is, from its name. */
 const gameOf = (slot: StudentSlot) => slot.split("-")[0] as StudentGame;
+
+/**
+ * The round with its clock stopped: the time since it started. A round
+ * that somehow ends before starting (a guess from outside the search) is
+ * left untimed rather than timed at zero.
+ */
+function stopClock(round: StudentRound, now: number): StudentRound {
+  return typeof round.startedAt === "number"
+    ? { ...round, time: Math.max(now - round.startedAt, 0) }
+    : round;
+}
 
 function dealRound(game: StudentGame, played: StudentRound[]): StudentRound {
   return { answer: pickAnswer(game, played), guesses: [] };
@@ -119,20 +132,41 @@ export function useStudentGame(game: StudentGame, mode: StudentMode) {
     [slot]
   );
 
+  /**
+   * Starts the round's clock, if it hasn't started: on the first letter
+   * typed or the grid opened, so an unplayed puzzle left open costs nothing.
+   */
+  const start = React.useCallback(() => {
+    const now = Date.now();
+    updateCurrent((current) =>
+      isOver(current) || typeof current.startedAt === "number"
+        ? current
+        : { ...current, startedAt: now }
+    );
+  }, [updateCurrent]);
+
   const guess = React.useCallback(
     (id: number) => {
-      updateCurrent((current) =>
-        isOver(current) || current.guesses.includes(id) || !studentById.has(id)
-          ? current
-          : { ...current, guesses: [...current.guesses, id] }
-      );
+      const now = Date.now();
+      updateCurrent((current) => {
+        if (
+          isOver(current) ||
+          current.guesses.includes(id) ||
+          !studentById.has(id)
+        ) {
+          return current;
+        }
+        const next = { ...current, guesses: [...current.guesses, id] };
+        return isWon(next) ? stopClock(next, now) : next;
+      });
     },
     [updateCurrent]
   );
 
   const giveUp = React.useCallback(() => {
+    const now = Date.now();
     updateCurrent((current) =>
-      isOver(current) ? current : { ...current, gaveUp: true }
+      isOver(current) ? current : stopClock({ ...current, gaveUp: true }, now)
     );
   }, [updateCurrent]);
 
@@ -212,6 +246,9 @@ export function useStudentGame(game: StudentGame, mode: StudentMode) {
     return Math.round((total / wins.length) * 10) / 10;
   }, [rounds]);
 
+  const fastest = React.useMemo(() => fastestTime(rounds), [rounds]);
+  const averageFind = React.useMemo(() => averageTime(rounds), [rounds]);
+
   const played = tally.reduce((sum, count) => sum + count, 0);
 
   // Different students found at least once, for the recap.
@@ -228,11 +265,14 @@ export function useStudentGame(game: StudentGame, mode: StudentMode) {
     played,
     wins: played - tally[0],
     averageGuesses,
+    fastest,
+    averageFind,
     found,
     streak,
     best,
     dailyResults,
     hasHistory: played > 0,
+    start,
     guess,
     giveUp,
     next,

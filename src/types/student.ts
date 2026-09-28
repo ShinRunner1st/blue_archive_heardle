@@ -79,4 +79,11 @@ export interface StudentRound {
   gaveUp?: boolean;
   /** Which daily puzzle the round belongs to; daily rounds only. */
   day?: number;
+  /**
+   * When the clock started, in epoch milliseconds: the first letter typed or
+   * the grid opened, so a puzzle left open unplayed doesn't count.
+   */
+  startedAt?: number;
+  /** Milliseconds from the start to the find or the give-up. */
+  time?: number;
 }

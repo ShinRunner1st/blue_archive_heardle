@@ -1,7 +1,12 @@
 import React from "react";
-import { IoGrid } from "react-icons/io5";
+import { IoGrid, IoStopwatch } from "react-icons/io5";
 
-import { isOver, poolOf, studentById } from "../../helpers/studentRounds";
+import {
+  formatSolveTime,
+  isOver,
+  poolOf,
+  studentById,
+} from "../../helpers/studentRounds";
 import { WinStreak } from "../../helpers/winStreak";
 import {
   StudentGame as Way,
@@ -25,6 +30,8 @@ interface Props {
   /** Found out of played, for endless. */
   score: string;
   streak: WinStreak;
+  /** Starts the round's clock, when the player starts looking. */
+  onStart: () => void;
   onGuess: (id: number) => void;
   onGiveUp: () => void;
   onNext: () => void;
@@ -37,6 +44,26 @@ interface Props {
 const CONFIRM_MS = 3000;
 
 /**
+ * The round's clock, read once a second while it runs: the time since the
+ * round started, including any time spent away, as it's the wall clock.
+ */
+function SolveClock({ startedAt }: { startedAt: number }) {
+  const [now, setNow] = React.useState(Date.now);
+  React.useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
+    return () => window.clearInterval(timer);
+  }, []);
+  return (
+    <Styled.Clock>
+      <IoStopwatch aria-hidden="true" />
+      <span role="timer" aria-label="Time so far">
+        {formatSolveTime(now - startedAt)}
+      </span>
+    </Styled.Clock>
+  );
+}
+
+/**
  * The student game: guess a student, and each guess shows how its school,
  * role, birthday and the rest compare with the answer's. No limit on
  * guesses; giving up counts as a loss.
@@ -47,6 +74,7 @@ export function StudentGame({
   round,
   score,
   streak,
+  onStart,
   onGuess,
   onGiveUp,
   onNext,
@@ -117,12 +145,16 @@ export function StudentGame({
               pool={poolOf(game)}
               guessed={guessed}
               onGuess={guess}
+              onType={onStart}
               // The list has the keys while it's open.
               keyboardEnabled={keyboardEnabled && !listOpen}
             />
             <Styled.BrowseButton
               type="button"
-              onClick={() => setListOpen(true)}
+              onClick={() => {
+                onStart();
+                setListOpen(true);
+              }}
               aria-label="Browse all students"
               title="All students"
             >
@@ -153,6 +185,9 @@ export function StudentGame({
                 {round.guesses.length === 1 ? "guess" : "guesses"} so far ·{" "}
                 <kbd>Enter</kbd> guesses the top name
               </>
+            )}
+            {typeof round.startedAt === "number" && (
+              <SolveClock startedAt={round.startedAt} />
             )}
           </Styled.Hint>
         </>

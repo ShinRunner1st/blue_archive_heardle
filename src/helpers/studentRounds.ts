@@ -139,3 +139,42 @@ export function studentTally(rounds: StudentRound[]): number[] {
   }
   return tally;
 }
+
+/** The finds that were timed: rounds from before the clock have no time. */
+function timedWins(rounds: StudentRound[]): number[] {
+  return rounds
+    .filter((round) => isWon(round) && typeof round.time === "number")
+    .map((round) => round.time!);
+}
+
+/** The quickest find in milliseconds, or null before the first timed one. */
+export function fastestTime(rounds: StudentRound[]): number | null {
+  const times = timedWins(rounds);
+  return times.length > 0 ? Math.min(...times) : null;
+}
+
+/** The average find in milliseconds, or null before the first timed one. */
+export function averageTime(rounds: StudentRound[]): number | null {
+  const times = timedWins(rounds);
+  if (times.length === 0) return null;
+  return Math.round(times.reduce((sum, time) => sum + time, 0) / times.length);
+}
+
+/** The round's time as the result shows it, or "" for an untimed round. */
+export function roundTime(round: StudentRound): string {
+  return typeof round.time === "number" ? formatSolveTime(round.time) : "";
+}
+
+/**
+ * A stopwatch reading: m:ss, or h:mm:ss past an hour. Rounded down, so it
+ * never shows a second not yet gone by.
+ */
+export function formatSolveTime(ms: number): string {
+  const seconds = Math.floor(Math.max(ms, 0) / 1000);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor(seconds / 60) % 60;
+  return hours > 0
+    ? `${hours}:${pad(minutes)}:${pad(seconds % 60)}`
+    : `${minutes}:${pad(seconds % 60)}`;
+}

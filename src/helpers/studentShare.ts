@@ -6,7 +6,7 @@ import {
   StudentRound,
 } from "../types/student";
 import { compareStudents, Verdict } from "./studentClues";
-import { isWon, studentById } from "./studentRounds";
+import { isWon, roundTime, studentById } from "./studentRounds";
 
 const SQUARES: Record<Verdict, string> = {
   right: "🟩",
@@ -65,14 +65,16 @@ export function buildStudentShareText({
 
   const name = `Blue Archive Heardle · Students (${GAME_NAMES[game]})`;
   const count = round.guesses.length;
+  const time = roundTime(round);
   const lines = [
     mode === "daily" && typeof round.day === "number"
       ? `${name} #${round.day}`
       : name,
     ...shown,
-    isWon(round)
+    (isWon(round)
       ? `Found in ${count} ${count === 1 ? "guess" : "guesses"}`
-      : `Gave up after ${count} ${count === 1 ? "guess" : "guesses"}`,
+      : `Gave up after ${count} ${count === 1 ? "guess" : "guesses"}`) +
+      (time ? ` · ⏱️ ${time}` : ""),
   ];
   if (mode === "endless") lines.push(`Score: ${score}`);
   lines.push(SITE_URL);
