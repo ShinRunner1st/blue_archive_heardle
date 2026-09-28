@@ -10,6 +10,7 @@ export type ClueKey =
   | "school"
   | "role"
   | "damage"
+  | "defense"
   | "weapon"
   | "exCost"
   | "order"
@@ -31,7 +32,15 @@ export interface Clue {
 
 /** The columns of each way to play, in the order the table shows them. */
 export const CLUE_KEYS: Record<StudentGame, ClueKey[]> = {
-  gameplay: ["school", "role", "damage", "weapon", "exCost", "order"],
+  gameplay: [
+    "school",
+    "role",
+    "damage",
+    "defense",
+    "weapon",
+    "exCost",
+    "order",
+  ],
   lore: [
     "height",
     "school",
@@ -49,6 +58,7 @@ export const CLUE_NAMES: Record<ClueKey, string> = {
   school: "School",
   role: "Role",
   damage: "Damage",
+  defense: "Defense",
   weapon: "Weapon",
   exCost: "EX Cost",
   order: "Release",
@@ -123,6 +133,7 @@ function clueFor(key: ClueKey, guess: Student, answer: Student): Clue {
     case "school":
     case "role":
     case "damage":
+    case "defense":
     case "weapon":
     case "club":
       return same(key, guess[key], guess[key], answer[key]);

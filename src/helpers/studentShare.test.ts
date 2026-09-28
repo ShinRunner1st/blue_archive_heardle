@@ -18,7 +18,7 @@ describe("buildStudentShareText", () => {
     const lines = text.split("\n");
 
     expect(lines[0]).toBe("Blue Archive Heardle · Students (Gameplay) #7");
-    expect(lines[2]).toBe("🟩".repeat(6));
+    expect(lines[2]).toBe("🟩".repeat(7));
     expect(lines[3]).toBe("Found in 2 guesses");
     expect(lines[4]).toBe("https://baheardle.com/");
     expect(text).not.toContain(answer.name);

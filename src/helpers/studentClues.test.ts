@@ -17,6 +17,7 @@ function student(overrides: Partial<Student> = {}): Student {
     school: "Abydos",
     role: "Tank",
     damage: "Piercing",
+    defense: "Heavy",
     weapon: "SG",
     exCost: 4,
     order: 5,
@@ -42,7 +43,15 @@ describe("compareStudents", () => {
     const answer = student();
     expect(
       compareStudents(answer, answer, "gameplay").map((c) => c.key)
-    ).toEqual(["school", "role", "damage", "weapon", "exCost", "order"]);
+    ).toEqual([
+      "school",
+      "role",
+      "damage",
+      "defense",
+      "weapon",
+      "exCost",
+      "order",
+    ]);
     expect(compareStudents(answer, answer, "lore").map((c) => c.key)).toEqual([
       "height",
       "school",
@@ -71,6 +80,14 @@ describe("compareStudents", () => {
     expect(clue("school", student({ school: "Trinity" }), answer)).toEqual({
       key: "school",
       text: "Trinity",
+      verdict: "wrong",
+    });
+  });
+
+  it("compares the armour type like any word", () => {
+    expect(clue("defense", student({ defense: "Light" }), student())).toEqual({
+      key: "defense",
+      text: "Light",
       verdict: "wrong",
     });
   });

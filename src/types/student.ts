@@ -19,6 +19,8 @@ export interface Student {
   school: string;
   role: string;
   damage: string;
+  /** The armour type: Light, Heavy, Special, Elastic or Composite. */
+  defense: string;
   weapon: string;
   /** The EX skill's cost at level 1. */
   exCost: number;

@@ -31,6 +31,7 @@ export const clueIcons: string[] = [
   "school/Hyakkiyako",
   "school/Millennium",
   "school/Red Winter",
+  "school/Sakugawa",
   "school/Shanhaijing",
   "school/SRT",
   "school/Tokiwadai",

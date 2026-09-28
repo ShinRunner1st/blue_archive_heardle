@@ -199,6 +199,7 @@ export function convertStudents(
       school: localize(localization, "School", text("School"), name),
       role: localize(localization, "TacticRole", text("TacticRole"), name),
       damage: localize(localization, "BulletType", text("BulletType"), name),
+      defense: localize(localization, "ArmorType", text("ArmorType"), name),
       weapon: text("WeaponType"),
       // Level 1, what the student list shows and players quote; a few
       // students' EX gets cheaper at level 5.

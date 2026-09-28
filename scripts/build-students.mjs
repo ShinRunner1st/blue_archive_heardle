@@ -15,7 +15,8 @@
  *   at a time.
  * - pictures/students/clues.webp: the school, role and gift icons for the
  *   table's cells, with src/constants/clueIcons.ts saying which is where.
- *   A school SchaleDB has no icon for is left out, and shows its name.
+ *   A school SchaleDB has no icon for (Sakugawa) gets Schale's emblem,
+ *   from the Blue Archive wiki, whitened to match.
  *
  * SchaleDB's FAQ allows reusing its data and images. Only the official
  * English text is used, never community translations.
@@ -66,6 +67,8 @@ const SHEET_PATH = `pictures/${ICON_SHEET_KEY}.webp`;
 const CLUE_CACHE = ".cache/clue-icons";
 const CLUE_SHEET_PATH = `pictures/${CLUE_SHEET_KEY}.webp`;
 const CLUE_MANIFEST_PATH = "src/constants/clueIcons.ts";
+/** The stand-in for a school with no icon, from the wiki like the backdrops. */
+const SCHALE_EMBLEM = "File:Schale.png";
 /**
  * WebP quality for the sheet: about 380 KB for 262 students, where their
  * separate icons on SchaleDB come to 2 MB.
@@ -227,23 +230,55 @@ const kb = (statSync(SHEET_PATH).size / 1024).toFixed(1);
 console.log(`${students.length} students (${lore.length} in Lore).`);
 console.log(`${SHEET_PATH}: ${ICON_COLUMNS}x${rows} icons, ${kb} KB.`);
 
+/** Schale's emblem, navy on white, downloaded once from the wiki. */
+async function schaleEmblem() {
+  const file = join(CLUE_CACHE, "schale-emblem.png");
+  if (existsSync(file)) return file;
+  const api = new URL("https://bluearchive.wiki/w/api.php");
+  api.search = new URLSearchParams({
+    action: "query",
+    titles: SCHALE_EMBLEM,
+    prop: "imageinfo",
+    iiprop: "url",
+    format: "json",
+  });
+  const data = await (await fetch(api, { headers: HEADERS })).json();
+  const url = Object.values(data.query.pages)[0].imageinfo?.[0]?.url;
+  if (!url) throw new Error(`No ${SCHALE_EMBLEM} on the wiki`);
+  const image = await fetch(url, { headers: HEADERS });
+  if (!image.ok) throw new Error(`${url}: ${image.status}`);
+  writeFileSync(file, Buffer.from(await image.arrayBuffer()));
+  return file;
+}
+
 // The clue icons: each fitted into its cell, keeping its transparency.
 mkdirSync(CLUE_CACHE, { recursive: true });
 const clues = [];
 for (const { key, path } of clueIconFiles(raw, localization, items, students)) {
   const file = join(CLUE_CACHE, path.split("/").pop());
-  if (await downloadOnce(path, file)) clues.push({ key, file });
-  else console.log(`No icon for ${key}: it shows its name.`);
+  if (await downloadOnce(path, file)) {
+    clues.push({ key, file });
+  } else if (key.startsWith("school/")) {
+    console.log(`No icon for ${key}: it gets Schale's emblem.`);
+    clues.push({ key, file: await schaleEmblem(), whiten: true });
+  } else {
+    console.log(`No icon for ${key}: it shows its name.`);
+  }
 }
 
 const clueRows = Math.ceil(clues.length / CLUE_COLUMNS);
 const clueWork = mkdtempSync(join(tmpdir(), "clue-icons-"));
 try {
   // One at a time first: the icons come as PNG and WebP, in all sizes.
-  for (const [index, { file }] of clues.entries()) {
+  // A dark emblem on white becomes a white one on nothing, like the rest.
+  // The quotes keep the expression's commas from splitting the filters.
+  const whiten =
+    "geq=r=255:g=255:b=255:" +
+    "a='min(255,(255-(r(X,Y)+g(X,Y)+b(X,Y))/3)*1.5)*alpha(X,Y)/255',";
+  for (const [index, { file, whiten: dark }] of clues.entries()) {
     await run("ffmpeg", [
       ...["-v", "error", "-y", "-i", file, "-vf"],
-      `format=rgba,scale=${CLUE_SIZE}:${CLUE_SIZE}` +
+      `format=rgba,${dark ? whiten : ""}scale=${CLUE_SIZE}:${CLUE_SIZE}` +
         ":force_original_aspect_ratio=decrease:flags=lanczos" +
         `,pad=${CLUE_CELL}:${CLUE_CELL}:(ow-iw)/2:(oh-ih)/2:color=black@0`,
       join(clueWork, `${String(index).padStart(4, "0")}.png`),

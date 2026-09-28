@@ -10,6 +10,7 @@ import {
   Verdict,
 } from "../../helpers/studentClues";
 import { studentById } from "../../helpers/studentRounds";
+import { TYPE_COLORS } from "../../constants/typeColors";
 import { Student, StudentGame } from "../../types/student";
 
 import { ClueIcon, hasClueIcon, StudentIcon } from "../StudentIcon";
@@ -51,6 +52,20 @@ function iconsFor(clue: Clue): string[] | null {
 }
 
 function ClueContent({ clue }: { clue: Clue }) {
+  // Attack and armour types in their colours, as the game shows them.
+  const color =
+    clue.key === "damage" || clue.key === "defense"
+      ? TYPE_COLORS[clue.text]
+      : undefined;
+  if (color) {
+    return (
+      <Styled.ClueIcons aria-hidden="true">
+        <Styled.TypeDot style={{ backgroundColor: color }} />
+        <span>{clue.text}</span>
+      </Styled.ClueIcons>
+    );
+  }
+
   const icons = iconsFor(clue);
   if (icons) {
     return (

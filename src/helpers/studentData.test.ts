@@ -16,6 +16,7 @@ const localization = {
   Club: { Countermeasure: "Foreclosure Task Force" },
   TacticRole: { Tanker: "Tank", DamageDealer: "Dealer" },
   BulletType: { Pierce: "Piercing" },
+  ArmorType: { HeavyArmor: "Heavy" },
 };
 
 const items = [
@@ -49,6 +50,7 @@ function entry(overrides: Record<string, unknown> = {}) {
     Club: "Countermeasure",
     TacticRole: "Tanker",
     BulletType: "Pierce",
+    ArmorType: "HeavyArmor",
     WeaponType: "SG",
     Skills: { Ex: { Cost: [4, 4, 4, 4, 3] } },
     CharHeightMetric: "145cm",
@@ -125,6 +127,7 @@ describe("convertStudents", () => {
         school: "Abydos",
         role: "Tank",
         damage: "Piercing",
+        defense: "Heavy",
         weapon: "SG",
         exCost: 4,
         order: 5,

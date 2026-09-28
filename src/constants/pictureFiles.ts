@@ -9,6 +9,6 @@ export const pictureFiles: Record<string, string> = {
   "seasons/christmas-night": "pictures/christmas-night.c8e48d7c.webp",
   "seasons/new-year-day": "pictures/new-year-day.95478ce3.webp",
   "seasons/new-year-night": "pictures/new-year-night.87cb5914.webp",
-  "students/clues": "pictures/clues.0979e2e3.webp",
+  "students/clues": "pictures/clues.dda68915.webp",
   "students/icons": "pictures/icons.d49f4418.webp",
 };

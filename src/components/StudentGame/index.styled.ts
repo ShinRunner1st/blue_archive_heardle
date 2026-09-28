@@ -291,6 +291,16 @@ export const ClueIcons = styled.span`
   }
 `;
 
+/** A type's colour, ringed so it shows on a cell of the same colour. */
+export const TypeDot = styled.span`
+  width: 16px;
+  height: 16px;
+
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+`;
+
 export const IconRow = styled.span`
   display: flex;
   gap: 2px;
