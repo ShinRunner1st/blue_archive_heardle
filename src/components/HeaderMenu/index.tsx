@@ -1,6 +1,7 @@
 import React from "react";
 import {
   IoClose,
+  IoDisc,
   IoGift,
   IoGameController,
   IoInformationCircle,
@@ -11,6 +12,7 @@ import {
 } from "react-icons/io5";
 
 import { switchColorScheme } from "../../helpers/colorScheme";
+import { preloadCovers } from "../../helpers/preloadCovers";
 import { Switch } from "../Switch";
 import { useColorScheme } from "../../hooks/useColorScheme";
 
@@ -22,6 +24,7 @@ interface Props {
   openSettingsPopUp: () => void;
   openWhatsNewPopUp: () => void;
   openJukeboxPopUp: () => void;
+  openBadgesPopUp: () => void;
 }
 
 /**
@@ -35,6 +38,7 @@ export function HeaderMenu({
   openSettingsPopUp,
   openWhatsNewPopUp,
   openJukeboxPopUp,
+  openBadgesPopUp,
 }: Props) {
   const [open, setOpen] = React.useState(false);
   const wrapperRef = React.useRef<HTMLDivElement>(null);
@@ -107,6 +111,17 @@ export function HeaderMenu({
           <Styled.Item type="button" onClick={openPopUp(openJukeboxPopUp)}>
             <IoMusicalNotes aria-hidden="true" />
             Jukebox
+          </Styled.Item>
+          <Styled.Item
+            type="button"
+            onClick={openPopUp(openBadgesPopUp)}
+            // Start on the covers as soon as the player heads for the item.
+            onPointerEnter={preloadCovers}
+            onPointerDown={preloadCovers}
+            onFocus={preloadCovers}
+          >
+            <IoDisc aria-hidden="true" />
+            OST badges
           </Styled.Item>
           <Styled.Item type="button" onClick={openPopUp(openHowToPopUp)}>
             <IoGameController aria-hidden="true" />

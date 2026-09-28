@@ -31,3 +31,18 @@ export const ICON_SIZE = 72;
 export const ICON_BACKGROUND = "#DCE6F0";
 
 export const ICON_COLUMNS = 16;
+
+/**
+ * The clue icons, in a sheet of their own: school, role and gift icons for
+ * the table's cells. They are white shapes drawn over the cell's colour, so
+ * this sheet keeps its transparency; it is small enough that it costs
+ * little. Which icon is in which cell is in clueIcons.ts.
+ */
+export const CLUE_SHEET_KEY = "students/clues";
+
+export const CLUE_CELL = 64;
+
+/** Twice the size they show at (28 px). */
+export const CLUE_SIZE = 56;
+
+export const CLUE_COLUMNS = 8;

@@ -25,6 +25,8 @@ export interface Clue {
   text: string;
   verdict: Verdict;
   arrow?: Arrow;
+  /** The values behind the text, where there can be several: the gifts. */
+  values?: string[];
 }
 
 /** The columns of each way to play, in the order the table shows them. */
@@ -180,7 +182,7 @@ function clueFor(key: ClueKey, guess: Student, answer: Student): Clue {
           : shared.length > 0
           ? "close"
           : "wrong";
-      return { key, text, verdict };
+      return { key, text, verdict, values: guess.gifts };
     }
   }
 }

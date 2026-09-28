@@ -171,9 +171,9 @@ describe("StudentGame guesses", () => {
     expect(onGiveUp).toHaveBeenCalledTimes(1);
   });
 
-  it("has no give up before the first guess", () => {
+  it("can't give up before the first guess", () => {
     mount({ answer: hoshino.id, guesses: [] });
-    expect(button("Give up")).toBeUndefined();
+    expect(button("Give up")?.disabled).toBe(true);
   });
 });
 
@@ -228,5 +228,30 @@ describe("StudentGame result", () => {
     expect(text).toContain("Found in 2 guesses");
     expect(text).not.toContain("Hoshino");
     expect(button("Copied to your clipboard")).toBeDefined();
+  });
+});
+
+describe("StudentGame icons", () => {
+  it("shows school and role icons, with short names under them", () => {
+    mount({ answer: hoshino.id, guesses: [aru.id] });
+    const cell = (label: string) =>
+      Array.from(container.querySelectorAll('[role="cell"]')).find((c) =>
+        c.getAttribute("aria-label")?.startsWith(label)
+      );
+
+    const school = cell("School Gehenna");
+    expect(school?.querySelector("span[style]")).not.toBeNull();
+    expect(school?.textContent).toBe("Gehenna");
+    // No icons for weapons: the name alone.
+    expect(cell("Weapon")?.querySelector("span[style]")).toBeNull();
+  });
+
+  it("shows a gift's icon alone, its name too long to fit", () => {
+    mount({ answer: hoshino.id, guesses: [aru.id] }, { game: "lore" });
+    const gift = Array.from(container.querySelectorAll('[role="cell"]')).find(
+      (c) => c.getAttribute("aria-label")?.startsWith("Fav Gift")
+    );
+    expect(gift?.querySelector("span[style]")).not.toBeNull();
+    expect(gift?.textContent).toBe("");
   });
 });

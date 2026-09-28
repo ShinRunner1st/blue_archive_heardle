@@ -18,4 +18,4 @@ export { SongListPopUp } from "./SongListPopUp";
 export { SettingsPopUp } from "./SettingsPopUp";
 export { BadgesPopUp } from "./BadgesPopUp";
 export { WhatsNewPopUp } from "./WhatsNewPopUp";
-export { JukeboxPopUp } from "./JukeboxPopUp";
+export { Jukebox, JukeboxPopUp } from "./JukeboxPopUp";

@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { gameplayOrder, loreOrder } from "../constants/studentDailyOrder";
 import { students } from "../constants/students";
 import {
+  clueIconFiles,
   convertStudents,
   favouriteGifts,
   parseBirthday,
@@ -24,6 +25,7 @@ const items = [
     IsReleased: [true, true, true],
     Name: "Lace Pillow",
     Tags: ["aV", "Bf"],
+    Icon: "item_icon_favor_lv2_0",
   },
   {
     Category: "Favor",
@@ -31,6 +33,7 @@ const items = [
     IsReleased: [true, true, true],
     Name: "A lesser gift",
     Tags: ["aV", "Bf", "de"],
+    Icon: "item_icon_favor_0",
   },
 ];
 
@@ -177,6 +180,17 @@ describe("convertStudents", () => {
     expect(() =>
       convertStudents([entry({ Club: "NewClub" })], localization, items)
     ).toThrow(/Club NewClub/);
+  });
+});
+
+describe("clueIconFiles", () => {
+  it("finds the icon for each school, role and gift the table uses", () => {
+    const table = convertStudents([entry()], localization, items);
+    expect(clueIconFiles([entry()], localization, items, table)).toEqual([
+      { key: "gift/Lace Pillow", path: "item/icon/item_icon_favor_lv2_0.webp" },
+      { key: "role/Tank", path: "ui/Role_Tanker.png" },
+      { key: "school/Abydos", path: "schoolicon/Abydos.png" },
+    ]);
   });
 });
 

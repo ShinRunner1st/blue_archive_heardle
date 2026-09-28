@@ -31,6 +31,24 @@ export const SearchRow = styled.div`
   width: 100%;
 `;
 
+/** The same height as the search box beside it. */
+export const GiveUp = styled.div`
+  flex-shrink: 0;
+
+  & > button {
+    height: 45px;
+    padding: 0 18px;
+  }
+
+  @media (max-width: 768px) {
+    & > button {
+      height: 38px;
+      padding: 0 14px;
+      font-size: 0.9rem;
+    }
+  }
+`;
+
 export const SearchBox = styled.div`
   position: relative;
   flex: 1;
@@ -251,6 +269,31 @@ export const ClueCell = styled.div<{ $verdict: Verdict; $delay?: number }>`
   border-radius: 6px;
 
   ${({ $delay }) => $delay !== undefined && reveal($delay)}
+`;
+
+/** An icon, or two, with the name under it when it's short. */
+export const ClueIcons = styled.span`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  max-width: 100%;
+
+  font-size: 0.62rem;
+
+  /* A name under an icon stays whole, on one line. */
+  & > span:last-child:not(:first-child) {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow-wrap: normal;
+  }
+`;
+
+export const IconRow = styled.span`
+  display: flex;
+  gap: 2px;
 `;
 
 /** Long gift names are smaller, to fit a phone's column. */

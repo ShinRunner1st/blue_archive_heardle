@@ -159,7 +159,7 @@ describe("compareStudents", () => {
     ).toBe("wrong");
     expect(
       clue("gifts", student({ gifts: [] }), student({ gifts: [] }))
-    ).toEqual({ key: "gifts", text: "None", verdict: "right" });
+    ).toEqual({ key: "gifts", text: "None", verdict: "right", values: [] });
   });
 });
 

@@ -10,50 +10,28 @@ import { VolumeControl } from "../VolumeControl";
 
 import * as Styled from "./index.styled";
 
-interface Props {
-  /** The song picked, or none yet. */
-  song?: Song;
-  /** The songs either side of it in the list shown, if any. */
-  onPrevious?: () => void;
-  onNext?: () => void;
-  /** When a song ends: stop, play the next in the list, or play it again. */
-  repeat: JukeboxRepeat;
-  onRepeatChange: (repeat: JukeboxRepeat) => void;
-}
-
-/** Each press of the repeat button moves on one. */
-const NEXT_REPEAT: Record<JukeboxRepeat, JukeboxRepeat> = {
-  off: "next",
-  next: "one",
-  one: "off",
-};
-
-const REPEAT_LABEL: Record<JukeboxRepeat, string> = {
-  off: "Repeat: off",
-  next: "Repeat: play the next song",
-  one: "Repeat: this song",
-};
-
-function formatTime(seconds: number): string {
-  if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
-  const whole = Math.floor(seconds);
-  return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, "0")}`;
+/** The Jukebox's audio, kept by the Jukebox so it can outlive its pop-up. */
+export interface JukeboxAudio {
+  /** The audio element itself, to render wherever the Jukebox is. */
+  element: React.ReactElement;
+  playing: boolean;
+  ready: boolean;
+  time: number;
+  duration: number;
+  failed: boolean;
+  toggle: () => void;
+  seek: (seconds: number) => void;
 }
 
 /**
- * The Jukebox's player. It keeps one audio element and one layout for every
- * song, and knows each song's length before it downloads, so picking another
- * song changes the words and nothing else: the list under it never moves.
- * The repeat button picks what happens when a song ends: it stops, the next
- * song in the list plays, or the same song plays again.
+ * Plays the song picked, whole, as soon as it loads. What happens when it
+ * ends follows `repeat`: it stops, `onNext` plays the next, or it loops.
  */
-export function JukeboxPlayer({
-  song,
-  onPrevious,
-  onNext,
-  repeat,
-  onRepeatChange,
-}: Props) {
+export function useJukeboxAudio(
+  song: Song | undefined,
+  repeat: JukeboxRepeat,
+  onNext?: () => void
+): JukeboxAudio {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = React.useState(false);
   const [ready, setReady] = React.useState(false);
@@ -91,36 +69,103 @@ export function JukeboxPlayer({
     else audio.pause();
   }, [ready]);
 
-  const seek = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const audio = audioRef.current;
-    const seconds = Number(event.target.value);
-    if (audio && ready) audio.currentTime = seconds;
-    setTime(seconds);
+  const seek = React.useCallback(
+    (seconds: number) => {
+      const audio = audioRef.current;
+      if (audio && ready) audio.currentTime = seconds;
+      setTime(seconds);
+    },
+    [ready]
+  );
+
+  const element = (
+    // No captions: the tracks are instrumental.
+    // eslint-disable-next-line jsx-a11y/media-has-caption
+    <audio
+      ref={audioRef}
+      src={source.src}
+      preload="auto"
+      // The browser starts the song over by itself, with no gap.
+      loop={repeat === "one"}
+      onLoadedMetadata={handleReady}
+      onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
+      onPlay={() => setPlaying(true)}
+      onPause={() => setPlaying(false)}
+      onEnded={() => {
+        setPlaying(false);
+        if (repeat === "next") onNext?.();
+      }}
+    />
+  );
+
+  return {
+    element,
+    playing,
+    ready,
+    time,
+    duration,
+    failed: source.failed,
+    toggle,
+    seek,
   };
+}
+
+interface Props {
+  /** The song picked, or none yet. */
+  song?: Song;
+  audio: JukeboxAudio;
+  /** The songs either side of it in the list shown, if any. */
+  onPrevious?: () => void;
+  onNext?: () => void;
+  /** When a song ends: stop, play the next in the list, or play it again. */
+  repeat: JukeboxRepeat;
+  onRepeatChange: (repeat: JukeboxRepeat) => void;
+}
+
+/** Each press of the repeat button moves on one. */
+const NEXT_REPEAT: Record<JukeboxRepeat, JukeboxRepeat> = {
+  off: "next",
+  next: "one",
+  one: "off",
+};
+
+const REPEAT_LABEL: Record<JukeboxRepeat, string> = {
+  off: "Repeat: off",
+  next: "Repeat: play the next song",
+  one: "Repeat: this song",
+};
+
+export function formatTime(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds < 0) return "0:00";
+  const whole = Math.floor(seconds);
+  return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, "0")}`;
+}
+
+/**
+ * The Jukebox's player. It keeps one layout for every song, and knows each
+ * song's length before it downloads, so picking another song changes the
+ * words and nothing else: the list under it never moves. The repeat button
+ * picks what happens when a song ends: it stops, the next song in the list
+ * plays, or the same song plays again.
+ */
+export function JukeboxPlayer({
+  song,
+  audio,
+  onPrevious,
+  onNext,
+  repeat,
+  onRepeatChange,
+}: Props) {
+  const { playing, ready, time, duration, toggle, failed } = audio;
+
+  const seek = (event: React.ChangeEvent<HTMLInputElement>) =>
+    audio.seek(Number(event.target.value));
 
   const percent =
     duration > 0 ? `${Math.min(time / duration, 1) * 100}%` : "0%";
 
   return (
     <Styled.Player aria-label="Jukebox player">
-      {/* No captions: the tracks are instrumental. */}
-      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
-      <audio
-        ref={audioRef}
-        src={source.src}
-        preload="auto"
-        // The browser starts the song over by itself, with no gap.
-        loop={repeat === "one"}
-        onLoadedMetadata={handleReady}
-        onTimeUpdate={(e) => setTime(e.currentTarget.currentTime)}
-        onPlay={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
-        onEnded={() => {
-          setPlaying(false);
-          if (repeat === "next") onNext?.();
-        }}
-      />
-
       <Styled.PlayerHead>
         <Styled.Art aria-hidden="true">
           <Styled.NoteIcon />
@@ -130,7 +175,7 @@ export function JukeboxPlayer({
             {song ? song.name : "Pick a song to play it"}
           </Styled.PlayerName>
           <Styled.PlayerArtist>
-            {source.failed
+            {failed
               ? "This track won’t play here."
               : song
               ? `${song.artist} · Theme ${song.themeNo}`

@@ -13,6 +13,9 @@
  *   order (see src/constants/studentIcons.ts). The icons themselves are kept
  *   in .cache/, which isn't committed, and only new ones are downloaded, one
  *   at a time.
+ * - pictures/students/clues.webp: the school, role and gift icons for the
+ *   table's cells, with src/constants/clueIcons.ts saying which is where.
+ *   A school SchaleDB has no icon for is left out, and shows its name.
  *
  * SchaleDB's FAQ allows reusing its data and images. Only the official
  * English text is used, never community translations.
@@ -33,8 +36,15 @@ import { join } from "node:path";
 import { promisify } from "node:util";
 
 import { obscure, reveal } from "../src/helpers/obscure.ts";
-import { convertStudents } from "../src/helpers/studentData.ts";
 import {
+  clueIconFiles,
+  convertStudents,
+} from "../src/helpers/studentData.ts";
+import {
+  CLUE_CELL,
+  CLUE_COLUMNS,
+  CLUE_SHEET_KEY,
+  CLUE_SIZE,
   ICON_BACKGROUND,
   ICON_CELL,
   ICON_COLUMNS,
@@ -46,13 +56,16 @@ import { shuffled } from "./lib/shuffle.mjs";
 const run = promisify(execFile);
 
 const DATA_URL = "https://schaledb.com/data/en";
-const ICON_URL = "https://schaledb.com/images/student/icon";
+const IMAGES_URL = "https://schaledb.com/images";
 const HEADERS = { "User-Agent": "baheardle.com build script" };
 
 const TABLE_PATH = "src/constants/students.ts";
 const ORDER_PATH = "src/constants/studentDailyOrder.ts";
 const ICON_CACHE = ".cache/student-icons";
 const SHEET_PATH = `pictures/${ICON_SHEET_KEY}.webp`;
+const CLUE_CACHE = ".cache/clue-icons";
+const CLUE_SHEET_PATH = `pictures/${CLUE_SHEET_KEY}.webp`;
+const CLUE_MANIFEST_PATH = "src/constants/clueIcons.ts";
 /**
  * WebP quality for the sheet: about 380 KB for 262 students, where their
  * separate icons on SchaleDB come to 2 MB.
@@ -61,6 +74,21 @@ const SHEET_QUALITY = 70;
 
 /** Fixed seeds, like the OST's: only new students are ever shuffled. */
 const SEEDS = { gameplay: 20260928, lore: 20260929 };
+
+/**
+ * Saves a picture from SchaleDB, unless it's in the cache already: true if
+ * it's there. SchaleDB answers a missing picture with its page, so anything
+ * that isn't a picture counts as missing.
+ */
+async function downloadOnce(path, file) {
+  if (existsSync(file)) return true;
+  const response = await fetch(`${IMAGES_URL}/${path}`, { headers: HEADERS });
+  const type = response.headers.get("content-type") ?? "";
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  if (!response.ok || !type.startsWith("image/")) return false;
+  writeFileSync(file, Buffer.from(await response.arrayBuffer()));
+  return true;
+}
 
 async function fetchJson(name) {
   const response = await fetch(`${DATA_URL}/${name}.json`, {
@@ -155,10 +183,9 @@ mkdirSync(ICON_CACHE, { recursive: true });
 const iconPath = (id) => join(ICON_CACHE, `${id}.webp`);
 const missing = students.filter(({ id }) => !existsSync(iconPath(id)));
 for (const { id, name } of missing) {
-  const response = await fetch(`${ICON_URL}/${id}.webp`, { headers: HEADERS });
-  if (!response.ok) throw new Error(`No icon for ${name}: ${response.status}`);
-  writeFileSync(iconPath(id), Buffer.from(await response.arrayBuffer()));
-  await new Promise((resolve) => setTimeout(resolve, 200));
+  if (!(await downloadOnce(`student/icon/${id}.webp`, iconPath(id)))) {
+    throw new Error(`No icon for ${name}`);
+  }
 }
 console.log(`${missing.length} new icon(s) downloaded.`);
 
@@ -199,3 +226,50 @@ try {
 const kb = (statSync(SHEET_PATH).size / 1024).toFixed(1);
 console.log(`${students.length} students (${lore.length} in Lore).`);
 console.log(`${SHEET_PATH}: ${ICON_COLUMNS}x${rows} icons, ${kb} KB.`);
+
+// The clue icons: each fitted into its cell, keeping its transparency.
+mkdirSync(CLUE_CACHE, { recursive: true });
+const clues = [];
+for (const { key, path } of clueIconFiles(raw, localization, items, students)) {
+  const file = join(CLUE_CACHE, path.split("/").pop());
+  if (await downloadOnce(path, file)) clues.push({ key, file });
+  else console.log(`No icon for ${key}: it shows its name.`);
+}
+
+const clueRows = Math.ceil(clues.length / CLUE_COLUMNS);
+const clueWork = mkdtempSync(join(tmpdir(), "clue-icons-"));
+try {
+  // One at a time first: the icons come as PNG and WebP, in all sizes.
+  for (const [index, { file }] of clues.entries()) {
+    await run("ffmpeg", [
+      ...["-v", "error", "-y", "-i", file, "-vf"],
+      `format=rgba,scale=${CLUE_SIZE}:${CLUE_SIZE}` +
+        ":force_original_aspect_ratio=decrease:flags=lanczos" +
+        `,pad=${CLUE_CELL}:${CLUE_CELL}:(ow-iw)/2:(oh-ih)/2:color=black@0`,
+      join(clueWork, `${String(index).padStart(4, "0")}.png`),
+    ]);
+  }
+  await run("ffmpeg", [
+    ...["-v", "error", "-y", "-i", join(clueWork, "%04d.png")],
+    ...["-vf", `format=rgba,tile=${CLUE_COLUMNS}x${clueRows}:color=black@0`],
+    ...["-frames:v", "1", "-c:v", "libwebp", "-quality", "80"],
+    ...["-compression_level", "6", "-map_metadata", "-1", CLUE_SHEET_PATH],
+  ]);
+} finally {
+  rmSync(clueWork, { recursive: true, force: true });
+}
+
+writeFileSync(
+  CLUE_MANIFEST_PATH,
+  `/**
+ * The icons in the clue sheet (see studentIcons.ts), a cell each in this
+ * order, by what the table shows: "school/Abydos", "role/Tank", "gift/...".
+ *
+ * GENERATED FILE - do not edit by hand. Run \`npm run students\`.
+ */
+export const clueIcons: string[] = ${JSON.stringify(clues.map(({ key }) => key))};
+`
+);
+
+const clueKb = (statSync(CLUE_SHEET_PATH).size / 1024).toFixed(1);
+console.log(`${CLUE_SHEET_PATH}: ${clues.length} icons, ${clueKb} KB.`);

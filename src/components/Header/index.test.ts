@@ -70,8 +70,8 @@ describe("Header", () => {
   // These were bare <svg onClick> elements, unreachable by keyboard and
   // unnamed for screen readers.
   it("keeps only the everyday controls on the bar", () => {
-    // Stats, badges and the menu, plus the two mode buttons.
-    expect(harness.container.querySelectorAll("button")).toHaveLength(5);
+    // Stats and the menu, plus the two mode buttons.
+    expect(harness.container.querySelectorAll("button")).toHaveLength(4);
     expect(buttonFor("Your stats")).not.toBeNull();
     expect(buttonFor("Menu")).not.toBeNull();
   });
@@ -221,8 +221,9 @@ describe("Header menu", () => {
     expect(openJukeboxPopUp).toHaveBeenCalled();
   });
 
-  it("opens the OST badges from the header", () => {
-    act(() => buttonFor("OST badges")!.click());
+  it("opens the OST badges from the menu", () => {
+    openMenu();
+    act(() => menuItem("OST badges")!.click());
 
     expect(openBadgesPopUp).toHaveBeenCalled();
   });

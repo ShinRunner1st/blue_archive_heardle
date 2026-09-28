@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import "@fontsource-variable/nunito-sans";
 
-export const Container = styled.main`
+export const Container = styled.main<{ $top?: boolean }>`
   font-family: "Nunito Sans Variable";
 
   /*
@@ -19,9 +19,10 @@ export const Container = styled.main`
   /*
    * Auto margins centre the play area between the header and the footer;
    * equal padding keeps it off both, so it sits in the middle rather than
-   * low.
+   * low. The student game's table grows with every guess, so it starts at
+   * the top instead, where its search box stays put.
    */
-  margin: auto;
+  margin: ${({ $top }) => ($top ? "0 auto auto" : "auto")};
   padding: 24px 0;
 
   @media (max-width: 768px) {
@@ -46,14 +47,25 @@ export const BG = styled.div`
 `;
 
 /**
- * Holds the game switch, and the ways to play it, in one place under the
- * header. The two sit side by side, or one above the other on a phone.
+ * Holds the game switch, and under it the ways to play, in one place under
+ * the header. Each has a row of its own, so neither moves when the other
+ * changes.
  */
+/**
+ * The ways to play, as tall when there are none (OST daily), so the game
+ * under it doesn't move either.
+ */
+export const StyleRow = styled.div`
+  display: flex;
+  justify-content: center;
+  min-height: 32px;
+`;
+
 export const StyleBar = styled.div`
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px 10px;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 
   padding: 16px 16px 0;
 

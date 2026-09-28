@@ -2,6 +2,7 @@ import React from "react";
 
 import { isBirthday } from "../../helpers/birthdays";
 import {
+  Clue,
   CLUE_KEYS,
   CLUE_NAMES,
   compareStudents,
@@ -11,7 +12,7 @@ import {
 import { studentById } from "../../helpers/studentRounds";
 import { Student, StudentGame } from "../../types/student";
 
-import { StudentIcon } from "../StudentIcon";
+import { ClueIcon, hasClueIcon, StudentIcon } from "../StudentIcon";
 
 import * as Styled from "./index.styled";
 
@@ -29,6 +30,54 @@ const STAGGER_MS = 110;
 
 /** Past this, a gift's name is set smaller to fit its column. */
 const LONG_TEXT = 16;
+
+/** Up to this, a name fits under its icon; past it, the icon shows alone. */
+const SHORT_TEXT = 9;
+
+/** The columns that have icons, and what their keys start with. */
+const ICON_KINDS: Partial<Record<Clue["key"], string>> = {
+  school: "school",
+  role: "role",
+  gifts: "gift",
+};
+
+/** The clue's icons, if every value it shows has one. */
+function iconsFor(clue: Clue): string[] | null {
+  const kind = ICON_KINDS[clue.key];
+  const values = clue.values ?? [clue.text];
+  if (!kind || values.length === 0) return null;
+  const keys = values.map((value) => `${kind}/${value}`);
+  return keys.every(hasClueIcon) ? keys : null;
+}
+
+function ClueContent({ clue }: { clue: Clue }) {
+  const icons = iconsFor(clue);
+  if (icons) {
+    return (
+      <Styled.ClueIcons aria-hidden="true" title={clue.text}>
+        <Styled.IconRow>
+          {icons.map((key) => (
+            <ClueIcon
+              key={key}
+              iconKey={key}
+              size={icons.length > 1 ? 22 : 28}
+            />
+          ))}
+        </Styled.IconRow>
+        {clue.text.length <= SHORT_TEXT && <span>{clue.text}</span>}
+      </Styled.ClueIcons>
+    );
+  }
+  return (
+    <span aria-hidden="true">
+      {clue.text.length > LONG_TEXT ? (
+        <Styled.LongText>{clue.text}</Styled.LongText>
+      ) : (
+        clue.text
+      )}
+    </span>
+  );
+}
 
 const LEGEND: Array<[Verdict, string]> = [
   ["right", "Right"],
@@ -94,13 +143,7 @@ export function ClueTable({ game, answer, guesses, fresh }: Props) {
                     $verdict={clue.verdict}
                     $delay={delay(column + 1)}
                   >
-                    <span aria-hidden="true">
-                      {clue.text.length > LONG_TEXT ? (
-                        <Styled.LongText>{clue.text}</Styled.LongText>
-                      ) : (
-                        clue.text
-                      )}
-                    </span>
+                    <ClueContent clue={clue} />
                     {clue.arrow && (
                       <Styled.Arrow aria-hidden="true">
                         {clue.arrow === "up" ? "▲" : "▼"}

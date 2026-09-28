@@ -1,8 +1,7 @@
-import { IoBarChart, IoDisc } from "react-icons/io5";
+import { IoBarChart } from "react-icons/io5";
 
 import { GameMode, isEndlessStyle } from "../../types/mode";
 
-import { preloadCovers } from "../../helpers/preloadCovers";
 import { HeaderMenu } from "../HeaderMenu";
 
 import * as Styled from "./index.styled";
@@ -107,23 +106,13 @@ export function Header({
           >
             <IoBarChart size="1em" aria-hidden="true" />
           </Styled.IconButton>
-          <Styled.IconButton
-            type="button"
-            onClick={openBadgesPopUp}
-            // Start on the covers as soon as the player heads for the button.
-            onPointerEnter={preloadCovers}
-            onPointerDown={preloadCovers}
-            onFocus={preloadCovers}
-            aria-label="OST badges"
-          >
-            <IoDisc size="1em" aria-hidden="true" />
-          </Styled.IconButton>
           <HeaderMenu
             openInfoPopUp={openInfoPopUp}
             openHowToPopUp={openHowToPopUp}
             openSettingsPopUp={openSettingsPopUp}
             openWhatsNewPopUp={openWhatsNewPopUp}
             openJukeboxPopUp={openJukeboxPopUp}
+            openBadgesPopUp={openBadgesPopUp}
           />
         </Styled.Tools>
         <Styled.Tagline>{tagline}</Styled.Tagline>

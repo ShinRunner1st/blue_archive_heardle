@@ -38,7 +38,7 @@ import {
   SettingsPopUp,
   BadgesPopUp,
   WhatsNewPopUp,
-  JukeboxPopUp,
+  Jukebox,
 } from "./components";
 import { GameSwitch, PlayStyles, StudentStyles } from "./components/PlayStyles";
 import { BirthdayNote } from "./components/BirthdayNote";
@@ -384,9 +384,6 @@ function App() {
       {isSettingsOpen && <SettingsPopUp onClose={closeSettingsPopUp} />}
       {isBadgesOpen && <BadgesPopUp onClose={closeBadges} badges={badges} />}
       {isWhatsNewOpen && <WhatsNewPopUp onClose={closeWhatsNew} />}
-      {isJukeboxOpen && (
-        <JukeboxPopUp onClose={closeJukebox} guessed={jukeboxGuessed} />
-      )}
       {isSongListOpen && (
         <SongListPopUp
           onClose={closeSongList}
@@ -399,16 +396,18 @@ function App() {
           the page: there it moved with every screen's height. */}
       <Styled.StyleBar>
         <GameSwitch game={gameName} onChange={changeGame} />
-        {isStudents ? (
-          <StudentStyles game={studentWay} onChange={setStudentWay} />
-        ) : (
-          isEndlessStyle(mode) && (
-            <PlayStyles mode={mode} onChange={changeStyle} />
-          )
-        )}
+        <Styled.StyleRow>
+          {isStudents ? (
+            <StudentStyles game={studentWay} onChange={setStudentWay} />
+          ) : (
+            isEndlessStyle(mode) && (
+              <PlayStyles mode={mode} onChange={changeStyle} />
+            )
+          )}
+        </Styled.StyleRow>
       </Styled.StyleBar>
       <BirthdayNote students={birthdays} withIcons={isStudents} />
-      <Styled.Container>
+      <Styled.Container $top={isStudents}>
         {isStudents ? (
           <StudentGame
             // A new screen for each way to play and mode, as for the OST.
@@ -467,6 +466,15 @@ function App() {
         didGuess={reactTo.didGuess}
         roundKey={roundKey}
         tries={reactTo.tries}
+      />
+      {/* Always there: in the student game its music plays on when it closes.
+          Last before the footer, where its corner player leaves room. */}
+      <Jukebox
+        open={isJukeboxOpen}
+        onOpen={openJukebox}
+        onClose={closeJukebox}
+        guessed={jukeboxGuessed}
+        keepPlaying={isStudents}
       />
       <Footer />
     </Styled.BG>

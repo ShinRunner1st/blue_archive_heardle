@@ -108,11 +108,17 @@ export function StudentGame({
               onGuess={guess}
               keyboardEnabled={keyboardEnabled}
             />
-            {round.guesses.length > 0 && (
-              <Button stroke variant="red" onClick={giveUp}>
+            {/* Always there, so the search box never changes width. */}
+            <Styled.GiveUp>
+              <Button
+                stroke
+                variant="red"
+                onClick={giveUp}
+                disabled={round.guesses.length === 0}
+              >
                 {confirming ? "Sure?" : "Give up"}
               </Button>
-            )}
+            </Styled.GiveUp>
           </Styled.SearchRow>
           <Styled.Hint>
             {round.guesses.length === 0 ? (

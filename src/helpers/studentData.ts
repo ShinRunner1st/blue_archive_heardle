@@ -97,6 +97,8 @@ export function schoolYear(text: string): string {
 interface Gift {
   name: string;
   tags: string[];
+  /** SchaleDB's name for its icon. */
+  icon: string;
 }
 
 /**
@@ -105,7 +107,10 @@ interface Gift {
  * sharing the most win. Only gifts sharing at least one count: a guest from
  * another series with no tags has no favourite.
  */
-export function favouriteGifts(studentTags: string[], gifts: Gift[]): string[] {
+export function favouriteGifts(
+  studentTags: string[],
+  gifts: Array<Pick<Gift, "name" | "tags">>
+): string[] {
   const tags = new Set(studentTags);
   const shared = gifts.map((gift) => ({
     name: gift.name,
@@ -140,6 +145,7 @@ function ssrGifts(items: unknown): Gift[] {
     .map((item) => ({
       name: field(item, "Name", isString, "text"),
       tags: field(item, "Tags", isStrings, "a list of tags"),
+      icon: field(item, "Icon", isString, "text"),
     }));
 }
 
@@ -207,4 +213,56 @@ export function convertStudents(
   }
 
   return table.sort((a, b) => a.order - b.order || a.id - b.id);
+}
+
+/** A clue icon: its key in clueIcons.ts and its path under SchaleDB's images. */
+export interface ClueIconFile {
+  key: string;
+  path: string;
+}
+
+/**
+ * The icons for the table's cells, for every school, role and gift the
+ * student table uses: "school/Red Winter" is SchaleDB's schoolicon/RedWinter.
+ * Keyed by the name the table shows, so the game looks them up by value.
+ */
+export function clueIconFiles(
+  students: unknown,
+  localization: unknown,
+  items: unknown,
+  table: Student[]
+): ClueIconFile[] {
+  if (!isObject(localization)) {
+    throw new FormatError("localization.json is not an object");
+  }
+  const files = new Map<string, string>();
+  const used = (key: string) =>
+    table.some((student) =>
+      [
+        `school/${student.school}`,
+        `role/${student.role}`,
+        ...student.gifts.map((gift) => `gift/${gift}`),
+      ].includes(key)
+    );
+
+  for (const entry of entriesOf(students, "students.json")) {
+    const name = typeof entry.Name === "string" ? entry.Name : "an entry";
+    for (const [kind, names, folder] of [
+      ["school", "School", "schoolicon/"],
+      ["role", "TacticRole", "ui/Role_"],
+    ] as const) {
+      const code = entry[names];
+      if (!isString(code)) continue;
+      const key = `${kind}/${localize(localization, names, code, name)}`;
+      if (used(key)) files.set(key, `${folder}${code}.png`);
+    }
+  }
+  for (const gift of ssrGifts(items)) {
+    const key = `gift/${gift.name}`;
+    if (used(key)) files.set(key, `item/icon/${gift.icon}.webp`);
+  }
+
+  return [...files]
+    .map(([key, path]) => ({ key, path }))
+    .sort((a, b) => a.key.localeCompare(b.key));
 }

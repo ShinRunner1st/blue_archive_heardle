@@ -5,7 +5,7 @@ import { createHarness } from "../../test/harness";
 
 import { loadAudio } from "../../helpers/audioSource";
 import { getSongUrl } from "../../helpers/audioUrl";
-import { JukeboxPopUp } from "./index";
+import { Jukebox, JukeboxPopUp } from "./index";
 
 vi.mock("../../helpers/audioSource", () => ({
   loadAudio: vi.fn((url: string) => Promise.resolve(`blob:${url}`)),
@@ -62,7 +62,7 @@ function player() {
 async function songLoads() {
   await act(async () => undefined);
   act(() => {
-    player().querySelector("audio")!.dispatchEvent(new Event("loadedmetadata"));
+    document.querySelector("audio")!.dispatchEvent(new Event("loadedmetadata"));
   });
 }
 
@@ -107,11 +107,11 @@ describe("JukeboxPopUp", () => {
     mount();
     click(songButton("Constant Moderato"));
     await songLoads();
-    const audio = player().querySelector("audio");
+    const audio = document.querySelector("audio");
 
     click(songButton("Mischievous Step"));
 
-    expect(player().querySelector("audio")).toBe(audio);
+    expect(document.querySelector("audio")).toBe(audio);
     expect(player().textContent).toContain("Mischievous Step");
   });
 
@@ -162,7 +162,7 @@ describe("JukeboxPopUp", () => {
     mount();
     const repeat = () =>
       player().querySelector<HTMLButtonElement>('[aria-label^="Repeat"]')!;
-    const audio = () => player().querySelector("audio")!;
+    const audio = () => document.querySelector("audio")!;
     const end = () =>
       act(() => {
         audio().dispatchEvent(new Event("ended"));
@@ -211,5 +211,65 @@ describe("JukeboxPopUp", () => {
     );
 
     expect(onClose).toHaveBeenCalled();
+  });
+});
+
+describe("Jukebox, closed", () => {
+  const onOpen = vi.fn();
+
+  function mountJukebox(open: boolean, keepPlaying: boolean) {
+    harness.render(
+      React.createElement(Jukebox, {
+        open,
+        onOpen,
+        onClose,
+        guessed: new Set<string>(),
+        keepPlaying,
+      })
+    );
+  }
+
+  async function playOne(keepPlaying: boolean) {
+    mountJukebox(true, keepPlaying);
+    click(songButton("Constant Moderato"));
+    await songLoads();
+    return document.querySelector("audio");
+  }
+
+  const mini = () => document.querySelector('[aria-label="Jukebox"]');
+  const miniButton = (label: string) =>
+    mini()?.querySelector<HTMLButtonElement>(`[aria-label="${label}"]`);
+
+  it("plays on in the corner in the student game, on the same audio", async () => {
+    const audio = await playOne(true);
+    mountJukebox(false, true);
+
+    expect(mini()?.textContent).toContain("Constant Moderato");
+    // The same element: closing the pop-up didn't cut the music.
+    expect(document.querySelector("audio")).toBe(audio);
+
+    click(miniButton("Open the Jukebox"));
+    expect(onOpen).toHaveBeenCalled();
+  });
+
+  it("stops from the corner", async () => {
+    await playOne(true);
+    mountJukebox(false, true);
+
+    click(miniButton("Stop the music"));
+    expect(mini()).toBeNull();
+    expect(document.querySelector("audio")?.getAttribute("src")).toBeNull();
+  });
+
+  it("stops on closing in the OST game, and on going back to it", async () => {
+    await playOne(false);
+    mountJukebox(false, false);
+    expect(mini()).toBeNull();
+
+    await playOne(true);
+    mountJukebox(false, true);
+    expect(mini()).not.toBeNull();
+    mountJukebox(false, false);
+    expect(mini()).toBeNull();
   });
 });

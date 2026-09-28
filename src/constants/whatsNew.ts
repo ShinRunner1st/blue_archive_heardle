@@ -58,6 +58,11 @@ export const WHATS_NEW: NewsUpdate[] = [
         title: "Birthdays",
         text: "On a student's birthday, a note at the top of the page wishes them a happy one.",
       },
+      {
+        icon: IoMusicalNotes,
+        title: "Music while you guess",
+        text: "In Students, the Jukebox plays on after you close it, with a small player in the corner. The OST badges have moved into the ☰ menu.",
+      },
     ],
   },
   {
@@ -140,7 +145,7 @@ export const WHATS_NEW: NewsUpdate[] = [
       {
         icon: IoDisc,
         title: "OST badges",
-        text: "Guess every song on one of the eight soundtrack albums to earn its badge. The disc in the header shows how close you are.",
+        text: "Guess every song on one of the eight soundtrack albums to earn its badge. OST badges in the ☰ menu show how close you are.",
       },
       {
         icon: IoSparkles,
