@@ -2,6 +2,7 @@ import { SITE_URL } from "../constants/game";
 import { students } from "../constants/students";
 import { voiceOrder } from "../constants/voiceDailyOrder";
 import { NO_TITLE_CALL, voiceLines } from "../constants/voiceLines";
+import { voiceNeighbours } from "../constants/voiceTones";
 import { GuessType } from "../types/guess";
 import { Round } from "../types/stats";
 import { Student } from "../types/student";
@@ -131,6 +132,23 @@ export function pickVoice(
   };
 }
 
+const tablePlace = new Map(students.map(({ id }, index) => [id, index]));
+
+/**
+ * The voices nearest a student's, closest first, as measured at build time
+ * (voiceTones.ts keeps them as places in the student table, two base-36
+ * characters each). None for a student not measured yet.
+ */
+export function nearestVoices(id: number): Student[] {
+  const row = voiceNeighbours[tablePlace.get(id) ?? -1] ?? "";
+  const near: Student[] = [];
+  for (let i = 0; i + 2 <= row.length; i += 2) {
+    const student = students[parseInt(row.slice(i, i + 2), 36)];
+    if (student) near.push(student);
+  }
+  return near;
+}
+
 /** How many answers a four-choice round offers. */
 export const VOICE_CHOICES = 4;
 
@@ -144,11 +162,14 @@ function shuffle<T>(list: T[], random: Random): T[] {
 }
 
 /**
- * The four answers for a one-pick round, by id, in a random order. Two from
- * the answer's school where there are, so the school's look doesn't give it
- * away, and the rest from anyone. Each is a different student: the answer's
- * other costumes, and two costumes of one student, are left out, as the same
- * voice twice would leave a guess between outfits.
+ * The four answers for a one-pick round, by id, in a random order. The wrong
+ * three are dealt from the voices that sound most like the answer's (see
+ * voiceTones.ts, measured at build time), so it takes an ear, not a guess
+ * between very different voices; which three of the nearest varies. Each is
+ * a different student: the answer's other costumes, and two costumes of one
+ * student, are left out, as the same voice twice would leave a guess
+ * between outfits. A student not measured yet gets two from their school
+ * and the rest from anyone.
  */
 export function makeVoiceChoices(
   answer: Student,
@@ -156,6 +177,9 @@ export function makeVoiceChoices(
 ): number[] {
   const others = voicePool.filter(
     ({ fullName }) => fullName !== answer.fullName
+  );
+  const near = nearestVoices(answer.id).filter(
+    ({ id, fullName }) => inPool.has(id) && fullName !== answer.fullName
   );
   const sameSchool = shuffle(
     others.filter(({ school }) => school === answer.school),
@@ -172,6 +196,7 @@ export function makeVoiceChoices(
       }
     }
   };
+  add(shuffle(near, random), VOICE_CHOICES - 1);
   add(sameSchool, 2);
   add(anyone, VOICE_CHOICES - 1);
 

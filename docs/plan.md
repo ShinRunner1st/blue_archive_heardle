@@ -267,6 +267,12 @@ Decided with the user on 2026-09-28, when building it:
     and the rest straight after, so opening doesn't stall.
   - Arona's faces after a miss on try 3 and 4 looked pleased; they're
     worried ones now (07, then 06).
+- **4-Choice by ear** (same branch): the wrong answers are dealt from the
+  eight voices that sound most like the answer's, measured at build time
+  (pitch and timbre, see the README's Voice lines), in place of two from
+  the answer's school. Like the OST's 4-Choice (nearby theme numbers), a
+  player who read the bundle could work out which of the four sits in the
+  middle of the others; that is no easier than there, so it's accepted.
 - **Third feedback** (same branch): the all-students grid opens about
   twice as fast (its tiles styled by class name, the first rows drawn
   first), and a security review added the headers in the README's

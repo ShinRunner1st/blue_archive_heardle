@@ -104,9 +104,11 @@ silhouette. The hints aren't in the page until they open.
     the game turns them off: four tries and nothing but the voice, with its
     own score and stats (No hints). It sits there, as 4-Choice's clip length
     does in the OST, because a fourth pill didn't fit beside the game switch.
-  - **4-Choice** - one pick from four students: two from the answer's school
-    where there are, and never another costume of the answer or two of one
-    student, since the same voice twice would leave a guess between outfits.
+  - **4-Choice** - one pick from four students whose voices sound alike: the
+    wrong three are dealt from the eight voices nearest the answer's (see
+    Voice lines), a different three each time. Never another costume of the
+    answer or two of one student, since the same voice twice would leave a
+    guess between outfits. Time Attack's 4-Choice deals the same way.
   - **Time Attack** - as many students as you can in three minutes, one try
     each, typed (with the grid too) or from four, played like the OST's. It
     can play every line or title calls only ("Blue Archive!" from everyone,
@@ -261,6 +263,7 @@ npm run dev           # http://localhost:3000
 | `npm run voices`            | The voice lines and silhouettes, then `songs`         |
 | `npm run build:students`    | Copy the student data and draw the icon sheet         |
 | `npm run build:voices`      | Pick and download new voice lines, draw silhouettes   |
+| `npm run build:voice-tones` | Find the voices that sound alike, for 4-Choice        |
 | `npm run build:voice-audio` | Put the voice lines in beside the audio               |
 | `npm run build:daily-order` | Extend the daily schedule                             |
 | `npm run build:audio`       | Build the served audio from `audio/`                  |
@@ -468,6 +471,17 @@ songs`. `build:voices`:
   `pictures/voices/silhouettes.webp`, in a shuffled order of its own
   (`src/constants/silhouettes.ts`, scrambled), so a silhouette's place in its
   sheet doesn't match the icon sheet's.
+- measures how each student's voice sounds (`build:voice-tones`,
+  `scripts/build-voice-tones.mjs`): ffmpeg decodes their lines and the script
+  takes the pitch (median and spread, in semitones) and the timbre (mean
+  MFCCs, the usual measure of a voice's colour) over the voiced parts. Each
+  measure is scaled to its spread across students and weighted, timbre most.
+  It was checked against costumes, which share a voice actress: a student's
+  other costume is typically the 5th nearest of 261 voices (about the 130th
+  by chance). The eight nearest per student go in
+  `src/constants/voiceTones.ts` as places in the student table, 2.4 KB
+  gzipped; the measures are cached in `.cache/` by the lines' version, so
+  an update measures only new students (two minutes for all of them).
 
 `npm run songs` then runs `build:voice-audio`, which copies the lines into
 `audio-dist/voices/` under hashed names (`voiceFile` in

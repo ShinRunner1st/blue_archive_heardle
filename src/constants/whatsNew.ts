@@ -53,7 +53,7 @@ export const WHATS_NEW: NewsUpdate[] = [
       {
         icon: IoGrid,
         title: "Every way to play",
-        text: "Voice has a daily puzzle with its own streak and calendar, and in Endless: Classic (hints on or off, each with its own stats), 4-Choice and Time Attack, with every line or title calls only. The result plays the line again and shows what the student said, in English. Share a picture of your round or run, or a recap from Stats.",
+        text: "Voice has a daily puzzle with its own streak and calendar, and in Endless: Classic (hints on or off, each with its own stats), 4-Choice (four voices that sound alike) and Time Attack, with every line or title calls only. The result plays the line again and shows what the student said, in English. Share a picture of your round or run, or a recap from Stats.",
       },
       {
         icon: IoPeople,

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { students } from "../constants/students";
+import { voiceNeighbours } from "../constants/voiceTones";
 import { SKIPPED, VoiceRound } from "../types/voice";
 import {
   buildVoiceShareText,
@@ -12,6 +13,7 @@ import {
   knownVoiceRounds,
   lineCount,
   makeVoiceChoices,
+  nearestVoices,
   pickVoice,
   triesOf,
   VOICE_TRIES,
@@ -116,6 +118,26 @@ describe("pickVoice", () => {
   });
 });
 
+describe("nearestVoices", () => {
+  it("has a row for every student, so the places match students.ts", () => {
+    // If this fails, students.ts changed without \`npm run voices\`.
+    expect(voiceNeighbours).toHaveLength(students.length);
+  });
+
+  it("lists other students' voices, never the student's own", () => {
+    for (const student of voicePool) {
+      const near = nearestVoices(student.id);
+      expect(near.length).toBeGreaterThanOrEqual(3);
+      expect(near.every(({ fullName }) => fullName !== student.fullName)).toBe(
+        true
+      );
+      expect(new Set(near.map(({ fullName }) => fullName)).size).toBe(
+        near.length
+      );
+    }
+  });
+});
+
 describe("makeVoiceChoices", () => {
   it("offers four different students, the answer among them", () => {
     const random = seeded(3);
@@ -130,10 +152,27 @@ describe("makeVoiceChoices", () => {
     }
   });
 
-  it("offers two from the answer's school where there are", () => {
-    const choices = makeVoiceChoices(hoshino, seeded(11));
+  it("deals the wrong three from the voices nearest the answer's", () => {
+    const random = seeded(11);
+    const dealt = new Set<number>();
+    for (let i = 0; i < 30; i++) {
+      const wrong = makeVoiceChoices(hoshino, random).filter(
+        (id) => id !== hoshino.id
+      );
+      for (const id of wrong) {
+        expect(nearestVoices(hoshino.id).map((s) => s.id)).toContain(id);
+        dealt.add(id);
+      }
+    }
+    // Different ones from round to round, not the same three every time.
+    expect(dealt.size).toBeGreaterThan(3);
+  });
+
+  it("falls back to the school and anyone for a voice not measured", () => {
+    const unmeasured = { ...hoshino, id: 99999 };
+    const choices = makeVoiceChoices(unmeasured, seeded(11));
     const schools = choices
-      .filter((id) => id !== hoshino.id)
+      .filter((id) => id !== unmeasured.id)
       .map((id) => students.find((s) => s.id === id)!.school);
     expect(schools.filter((school) => school === hoshino.school)).toHaveLength(
       2
