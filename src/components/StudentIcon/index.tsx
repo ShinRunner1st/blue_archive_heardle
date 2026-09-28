@@ -64,6 +64,32 @@ function sheetStyle(sheet: string | null, size: number, layout: Layout) {
   };
 }
 
+/**
+ * A student's icon as an inline style, for a long list of them that looks
+ * the sheet up once (useStudentIconSheet) rather than once an icon.
+ */
+export function studentIconStyle(
+  sheet: string | null,
+  id: number,
+  size: number
+): React.CSSProperties {
+  return {
+    backgroundColor: ICON_TILE,
+    ...sheetStyle(sheet, size, {
+      cell: CELLS.get(id) ?? 0,
+      cellSize: ICON_CELL,
+      iconSize: ICON_SIZE,
+      columns: ICON_COLUMNS,
+      rows: ROWS,
+    }),
+  };
+}
+
+/** The student icon sheet, once it has loaded. */
+export function useStudentIconSheet(): string | null {
+  return useIconSheet(ICON_SHEET_KEY);
+}
+
 interface Props {
   id: number;
   /** Shown size in pixels. */
@@ -78,16 +104,7 @@ interface Props {
  */
 export function StudentIcon({ id, size, alt = "" }: Props) {
   const sheet = useIconSheet(ICON_SHEET_KEY);
-  const style: React.CSSProperties = {
-    backgroundColor: ICON_TILE,
-    ...sheetStyle(sheet, size, {
-      cell: CELLS.get(id) ?? 0,
-      cellSize: ICON_CELL,
-      iconSize: ICON_SIZE,
-      columns: ICON_COLUMNS,
-      rows: ROWS,
-    }),
-  };
+  const style = studentIconStyle(sheet, id, size);
 
   return alt ? (
     <Styled.Icon role="img" aria-label={alt} style={style} />
