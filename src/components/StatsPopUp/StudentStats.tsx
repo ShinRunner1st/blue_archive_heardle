@@ -3,6 +3,14 @@ import React from "react";
 import { Button } from "../Button";
 import { PopUp, PopUpBody, PopUpGroupLabel, PopUpSpacer } from "../PopUp";
 import { DayOutcome } from "../../helpers/dailyCalendar";
+import {
+  makeStudentRecap,
+  studentRecapName,
+} from "../../helpers/picture/studentPicture";
+import { SITE_URL } from "../../constants/game";
+import { useBackdropSrc } from "../../hooks/useBackdropSrc";
+import { useSharePicture } from "../../hooks/useSharePicture";
+import logo from "../../image/BlueArchive-Heardle.png";
 import { StudentGame, StudentMode } from "../../types/student";
 
 import { CalendarBands, DailyCalendar } from "./DailyCalendar";
@@ -20,6 +28,8 @@ interface Props {
   averageGuesses: number;
   streak: number;
   best: number;
+  /** Different students found at least once. */
+  found: number;
   dailyResults: Map<number, DayOutcome>;
 }
 
@@ -53,6 +63,7 @@ export function StudentStats({
   averageGuesses,
   streak,
   best,
+  found,
   dailyResults,
 }: Props) {
   const [animate, setAnimate] = React.useState(false);
@@ -63,6 +74,24 @@ export function StudentStats({
     return () => window.clearTimeout(timer);
   }, []);
 
+  // On the backdrop the page is showing, like the result picture.
+  const backdrop = useBackdropSrc(streak);
+  const makeRecap = React.useCallback(
+    () =>
+      makeStudentRecap(
+        { game, mode, tally, played, averageGuesses, streak, best, found },
+        { backdrop, logo }
+      ),
+    [game, mode, tally, played, averageGuesses, streak, best, found, backdrop]
+  );
+  const picture = useSharePicture(
+    "Share recap",
+    makeRecap,
+    studentRecapName({ game, mode }),
+    `My Blue Archive Heardle ${GAME_NAMES[game]} recap
+${SITE_URL}`
+  );
+
   const wins = played - tally[0];
   const winRate = played > 0 ? Math.round((wins / played) * 100) : 0;
 
@@ -72,9 +101,16 @@ export function StudentStats({
       subtitle={subtitleFor(game, mode, played)}
       onClose={onClose}
       actions={
-        <Button variant="green" onClick={onClose}>
-          Close
-        </Button>
+        <>
+          {played > 0 && (
+            <Button variant="pink" onClick={picture.share}>
+              {picture.text}
+            </Button>
+          )}
+          <Button variant="green" onClick={onClose}>
+            Close
+          </Button>
+        </>
       }
     >
       <PopUpBody>

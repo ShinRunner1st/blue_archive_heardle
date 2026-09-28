@@ -337,6 +337,7 @@ function App() {
           averageGuesses={students.averageGuesses}
           streak={students.streak.current}
           best={students.best}
+          found={students.found}
           dailyResults={students.dailyResults}
         />
       )}

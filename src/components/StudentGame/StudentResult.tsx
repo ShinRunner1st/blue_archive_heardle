@@ -8,6 +8,13 @@ import { buildStudentShareText } from "../../helpers/studentShare";
 import { streakNews, WinStreak } from "../../helpers/winStreak";
 import { homeName } from "../../helpers/season";
 import { useSeason } from "../../hooks/useSeason";
+import { useBackdropSrc } from "../../hooks/useBackdropSrc";
+import { useSharePicture } from "../../hooks/useSharePicture";
+import {
+  makeStudentPicture,
+  studentPictureName,
+} from "../../helpers/picture/studentPicture";
+import logo from "../../image/BlueArchive-Heardle.png";
 import {
   Student,
   StudentGame,
@@ -54,6 +61,23 @@ export function StudentResult({
   const won = isWon(round);
   const count = round.guesses.length;
   const isDaily = mode === "daily";
+
+  // On the backdrop the page is showing, like the OST's result picture.
+  const backdrop = useBackdropSrc(streak.current);
+  const pictureInput = React.useMemo(
+    () => ({ game, mode, round, answer, score, streak: streak.current }),
+    [game, mode, round, answer, score, streak]
+  );
+  const makePicture = React.useCallback(
+    () => makeStudentPicture(pictureInput, { backdrop, logo }),
+    [pictureInput, backdrop]
+  );
+  const picture = useSharePicture(
+    "Share picture",
+    makePicture,
+    studentPictureName(pictureInput),
+    buildStudentShareText(pictureInput)
+  );
 
   const copy = React.useCallback(() => {
     navigator.clipboard
@@ -129,6 +153,9 @@ export function StudentResult({
       <ResultStyled.Buttons>
         <Button stroke onClick={copy} variant="blue">
           {shareText}
+        </Button>
+        <Button stroke onClick={picture.share} variant="pink">
+          {picture.text}
         </Button>
         {!isDaily && (
           <Button stroke onClick={onNext} variant="green">

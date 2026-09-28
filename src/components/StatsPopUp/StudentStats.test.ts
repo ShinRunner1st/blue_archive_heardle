@@ -22,6 +22,7 @@ function mount(extra: Partial<React.ComponentProps<typeof StudentStats>> = {}) {
       averageGuesses: 5.5,
       streak: 2,
       best: 3,
+      found: 2,
       dailyResults: new Map(),
       ...extra,
     })

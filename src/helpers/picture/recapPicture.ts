@@ -45,7 +45,7 @@ export interface RecapPictureContent {
 }
 
 /** "As of 28 September 2026", on the player's calendar. */
-function asOf(now: Date): string {
+export function asOf(now: Date): string {
   return `As of ${now.toLocaleDateString("en-GB", {
     day: "numeric",
     month: "long",

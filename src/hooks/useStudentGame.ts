@@ -214,6 +214,12 @@ export function useStudentGame(game: StudentGame, mode: StudentMode) {
 
   const played = tally.reduce((sum, count) => sum + count, 0);
 
+  // Different students found at least once, for the recap.
+  const found = React.useMemo(
+    () => new Set(rounds.filter(isWon).map(({ answer }) => answer)).size,
+    [rounds]
+  );
+
   return {
     slot,
     round,
@@ -222,6 +228,7 @@ export function useStudentGame(game: StudentGame, mode: StudentMode) {
     played,
     wins: played - tally[0],
     averageGuesses,
+    found,
     streak,
     best,
     dailyResults,
