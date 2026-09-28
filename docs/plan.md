@@ -267,6 +267,12 @@ Decided with the user on 2026-09-28, when building it:
     and the rest straight after, so opening doesn't stall.
   - Arona's faces after a miss on try 3 and 4 looked pleased; they're
     worried ones now (07, then 06).
+- **Third feedback** (same branch): the all-students grid opens about
+  twice as fast (its tiles styled by class name, the first rows drawn
+  first), and a security review added the headers in the README's
+  Deploying: a Content-Security-Policy that allows only the site, the
+  Worker and R2, and no framing by other sites. Checked on a production
+  build served with them: nothing blocked.
   - A player shows its loading bar only when a load takes longer than
     0.4 s, so a cached clip doesn't flash it on a mode switch.
 

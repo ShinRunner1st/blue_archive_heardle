@@ -561,6 +561,16 @@ The audio is on Cloudflare (see [Audio](#audio)), so a deployment is about
   names, so browsers keep them for a week, then go on using them while they
   check in the background. A replaced file under the same name can take up to
   a week to reach everyone; give it a new name to reach them at once.
+- **Security headers** go on every page from `vercel.json`. The
+  Content-Security-Policy lets the page load and fetch only from itself, the
+  audio Worker and the R2 backup, so the privacy promise is enforced by the
+  browser too: a new outside address has to be added there, or it's
+  blocked. Styles may be inline (styled-components writes them); scripts may
+  not. `frame-ancestors 'none'` and `X-Frame-Options` stop other sites
+  framing the game to trick clicks, `nosniff` stops browsers guessing file
+  types, and `Referrer-Policy: no-referrer` tells the Worker, R2 and linked
+  sites nothing about where a visit came from. If the Worker's address or
+  the R2 domain changes, change it in the policy as well.
 
 The game moved from `bluearchive-heardle.xyz` to `baheardle.com` on
 27 September 2026. Progress wasn't carried over: a browser keeps each
