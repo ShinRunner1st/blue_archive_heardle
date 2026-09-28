@@ -55,9 +55,16 @@ const COUNTDOWN_TICK_MS = 30_000;
 
 /**
  * Counts down to the next puzzle. Daily mode has nothing to advance to, so this
- * replaces the Next Song button rather than sitting beside it.
+ * replaces the Next Song button rather than sitting beside it. The student
+ * game's result shows it too, for the next student.
  */
-function DailyCountdown({ onNewDay }: { onNewDay: () => void }) {
+export function DailyCountdown({
+  onNewDay,
+  what = "song",
+}: {
+  onNewDay: () => void;
+  what?: string;
+}) {
   const [remaining, setRemaining] = useState(() => msUntilNextDay());
 
   React.useEffect(() => {
@@ -74,7 +81,9 @@ function DailyCountdown({ onNewDay }: { onNewDay: () => void }) {
   }, [onNewDay]);
 
   return (
-    <Styled.NextIn>Next song in {formatCountdown(remaining)}</Styled.NextIn>
+    <Styled.NextIn>
+      Next {what} in {formatCountdown(remaining)}
+    </Styled.NextIn>
   );
 }
 

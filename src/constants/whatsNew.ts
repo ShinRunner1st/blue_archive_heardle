@@ -7,6 +7,9 @@ import {
   IoStopwatch,
   IoCalendar,
   IoDisc,
+  IoGift,
+  IoPeople,
+  IoSchool,
   IoKeypad,
   IoMap,
   IoMusicalNotes,
@@ -36,6 +39,27 @@ export interface NewsUpdate {
  * below it (see SHOWN_UPDATES) for anyone who missed them.
  */
 export const WHATS_NEW: NewsUpdate[] = [
+  {
+    id: "2026-09-students",
+    name: "Guess the student",
+    items: [
+      {
+        icon: IoPeople,
+        title: "Students",
+        text: "Switch to Students under the header to guess a Blue Archive student. Each guess shows how its school, role, birthday and more compare with the answer's, with arrows for higher or lower. Daily and Endless, each with its own stats and streak.",
+      },
+      {
+        icon: IoSchool,
+        title: "Gameplay and Lore",
+        text: "Gameplay compares kits: school, role, damage, weapon, EX cost and release, and every costume is its own answer. Lore compares profiles: height, birthday, school year, club, favourite gift and more.",
+      },
+      {
+        icon: IoGift,
+        title: "Birthdays",
+        text: "On a student's birthday, a note at the top of the page wishes them a happy one.",
+      },
+    ],
+  },
   {
     id: "2026-09-ost-modes",
     name: "New ways to play the OST",

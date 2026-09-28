@@ -58,7 +58,11 @@ const TRY_BUCKETS = [1, 2, 3, 4, 5, 6] as const;
  * cancelled on unmount so closing the pop-up mid-animation can't set state on
  * an unmounted component.
  */
-function useCountUp(target: number, animate: boolean, duration = 500): number {
+export function useCountUp(
+  target: number,
+  animate: boolean,
+  duration = 500
+): number {
   const [value, setValue] = React.useState(0);
 
   React.useEffect(() => {
@@ -84,24 +88,27 @@ function useCountUp(target: number, animate: boolean, duration = 500): number {
   return value;
 }
 
-function StatRow({
+export function StatRow({
   label,
   value,
   total,
   animate,
   bad = false,
+  wideLabel = false,
 }: {
   label: string;
   value: number;
   total: number;
   animate: boolean;
   bad?: boolean;
+  /** Room for a label like "10+". */
+  wideLabel?: boolean;
 }) {
   const counted = useCountUp(value, animate);
   const Bar = bad ? Styled.BadProgress : Styled.Progress;
 
   return (
-    <Styled.Row>
+    <Styled.Row $wideLabel={wideLabel}>
       <Styled.RowLabel>{label}</Styled.RowLabel>
       <Styled.Track>
         <Bar $animate={animate} $value={value} $maxValue={total} />

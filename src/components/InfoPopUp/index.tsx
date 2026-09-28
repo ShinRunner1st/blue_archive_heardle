@@ -9,6 +9,7 @@ import {
   IoShieldCheckmark,
   IoHeart,
   IoStopwatch,
+  IoPeople,
 } from "react-icons/io5";
 
 import { Button } from "../Button";
@@ -25,9 +26,10 @@ import {
 import { KOFI_URL, LAST_UPDATED } from "../../constants/game";
 import { songs } from "../../constants";
 import { artists } from "../../helpers/searchSong";
-import { GameMode } from "../../types/mode";
+import { Game, GameMode } from "../../types/mode";
 
 const OFFICIAL_SITE = "https://bluearchive.nexon.com/";
+const SCHALEDB = "https://schaledb.com/";
 
 /**
  * The composers behind most of the soundtrack, read from the song list so the
@@ -47,10 +49,19 @@ interface Props {
   canReset: boolean;
   onReset: () => void;
   mode: GameMode;
+  /** Which game the welcome is about; the OST unless told. */
+  game?: Game;
 }
 
-export function InfoPopUp({ onClose, canReset, onReset, mode }: Props) {
+export function InfoPopUp({
+  onClose,
+  canReset,
+  onReset,
+  mode,
+  game = "ost",
+}: Props) {
   const isDaily = mode === "daily";
+  const isStudents = game === "students";
   const handleReset = React.useCallback(() => {
     onReset();
     onClose();
@@ -59,7 +70,11 @@ export function InfoPopUp({ onClose, canReset, onReset, mode }: Props) {
   return (
     <PopUp
       title="Welcome, Sensei 👋"
-      subtitle="Guess the Blue Archive OST from a few seconds of audio."
+      subtitle={
+        isStudents
+          ? "Guess the Blue Archive student from how they compare."
+          : "Guess the Blue Archive OST from a few seconds of audio."
+      }
       onClose={onClose}
       actions={
         <>
@@ -75,7 +90,21 @@ export function InfoPopUp({ onClose, canReset, onReset, mode }: Props) {
       }
     >
       <PopUpBody>
-        {mode === "timeattack" ? (
+        {isStudents ? (
+          <PopUpCard>
+            <PopUpCardIcon>
+              <IoPeople aria-hidden="true" />
+            </PopUpCardIcon>
+            <PopUpCardBody>
+              <PopUpCardTitle>Find the student</PopUpCardTitle>
+              <PopUpCardText>
+                Each guess shows how its school, role, birthday and more compare
+                with the answer&apos;s. Arrows point higher or lower. Guess as
+                often as you like.
+              </PopUpCardText>
+            </PopUpCardBody>
+          </PopUpCard>
+        ) : mode === "timeattack" ? (
           <PopUpCard>
             <PopUpCardIcon>
               <IoStopwatch aria-hidden="true" />
@@ -125,11 +154,19 @@ export function InfoPopUp({ onClose, canReset, onReset, mode }: Props) {
           </PopUpCardIcon>
           <PopUpCardBody>
             <PopUpCardTitle>
-              {isDaily ? "One track a day" : "No repeats"}
+              {isDaily
+                ? isStudents
+                  ? "One student a day"
+                  : "One track a day"
+                : "No repeats"}
             </PopUpCardTitle>
             <PopUpCardText>
               {isDaily
-                ? "Every Sensei gets the same song today. Switch to Endless in the header to keep playing."
+                ? `Every Sensei gets the same ${
+                    isStudents ? "student" : "song"
+                  } today. Switch to Endless in the header to keep playing.`
+                : isStudents
+                ? "Every student comes up once before any comes round again."
                 : `All ${songs.length} tracks play once before any comes round again.`}
             </PopUpCardText>
           </PopUpCardBody>
@@ -160,9 +197,8 @@ export function InfoPopUp({ onClose, canReset, onReset, mode }: Props) {
             </PopUpCardText>
             <PopUpCardText>
               Like any website, the services that deliver it — Vercel for the
-              game, Cloudflare for the music and seasonal pictures — see basic
-              connection details, such as your IP address, to send you the
-              pages.
+              game, Cloudflare for the music and pictures — see basic connection
+              details, such as your IP address, to send you the pages.
             </PopUpCardText>
           </PopUpCardBody>
         </PopUpCard>
@@ -196,7 +232,12 @@ export function InfoPopUp({ onClose, canReset, onReset, mode }: Props) {
               </a>{" "}
               is developed by NEXON Games and published by NEXON and Yostar. Its
               music, characters, artwork and cursor belong to their rights
-              holders. Soundtrack by {composerCredit}.
+              holders. Soundtrack by {composerCredit}. Student data and icons
+              from{" "}
+              <a href={SCHALEDB} target="_blank" rel="noopener noreferrer">
+                SchaleDB
+              </a>
+              .
             </PopUpCardText>
             <PopUpCardText>
               This is an unofficial fan game, not affiliated with or endorsed by

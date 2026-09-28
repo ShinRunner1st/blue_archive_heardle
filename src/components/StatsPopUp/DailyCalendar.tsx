@@ -11,10 +11,26 @@ import { dayNumber } from "../../helpers/daily";
 
 import * as Styled from "./index.styled";
 
+/**
+ * Where the greens change: up to `best` tries is the brightest, up to `good`
+ * the next, and past it the last, up to `most` (or with no end).
+ */
+export interface CalendarBands {
+  best: number;
+  good: number;
+  most?: number;
+}
+
+/** The OST's six tries. */
+const TRY_BANDS: CalendarBands = { best: 2, good: 4, most: 6 };
+
 interface Props {
   outcomes: Map<number, DayOutcome>;
   /** Today's puzzle number; passed in by tests. */
   today?: number;
+  bands?: CalendarBands;
+  /** What a try is called in the day's description: a try, or a guess. */
+  unit?: [one: string, many: string];
 }
 
 const WEEKDAYS = [
@@ -30,36 +46,53 @@ const WEEKDAYS = [
 type DayTone = Exclude<Styled.DayTone, "none">;
 
 /** Fewer tries reads greener; a lost day is red. */
-function toneFor(outcome: DayOutcome | undefined, isToday: boolean): DayTone {
+function toneFor(
+  outcome: DayOutcome | undefined,
+  isToday: boolean,
+  bands: CalendarBands
+): DayTone {
   if (!outcome) return isToday ? "open" : "missed";
   if (!outcome.won) return "lost";
-  if (outcome.tries <= 2) return "best";
-  if (outcome.tries <= 4) return "good";
+  if (outcome.tries <= bands.best) return "best";
+  if (outcome.tries <= bands.good) return "good";
   return "close";
 }
 
-function describe(outcome: DayOutcome | undefined, isToday: boolean): string {
+function describe(
+  outcome: DayOutcome | undefined,
+  isToday: boolean,
+  [one, many]: [string, string]
+): string {
   if (!outcome) return isToday ? "not finished yet" : "not played";
   if (!outcome.won) return "lost";
-  return `won in ${outcome.tries} ${outcome.tries === 1 ? "try" : "tries"}`;
+  return `won in ${outcome.tries} ${outcome.tries === 1 ? one : many}`;
 }
 
-const LEGEND: Array<{ tone: DayTone; label: string }> = [
-  { tone: "best", label: "1-2 tries" },
-  { tone: "good", label: "3-4" },
-  { tone: "close", label: "5-6" },
-  { tone: "lost", label: "Lost" },
-  { tone: "missed", label: "Not played" },
-];
+function legendFor(
+  { best, good, most }: CalendarBands,
+  [, many]: [string, string]
+): Array<{ tone: DayTone; label: string }> {
+  return [
+    { tone: "best", label: `1-${best} ${many}` },
+    { tone: "good", label: `${best + 1}-${good}` },
+    { tone: "close", label: most ? `${good + 1}-${most}` : `${good + 1}+` },
+    { tone: "lost", label: "Lost" },
+    { tone: "missed", label: "Not played" },
+  ];
+}
 
 function Day({
   cell,
   outcomes,
   monthName,
+  bands,
+  unit,
 }: {
   cell: CalendarDay;
   outcomes: Map<number, DayOutcome>;
   monthName: string;
+  bands: CalendarBands;
+  unit: [string, string];
 }) {
   if (cell.day === null) {
     return <Styled.Day $tone="none">{cell.date}</Styled.Day>;
@@ -68,12 +101,13 @@ function Day({
   const outcome = outcomes.get(cell.day);
   const label = `${cell.date} ${monthName}, puzzle #${cell.day}: ${describe(
     outcome,
-    cell.isToday
+    cell.isToday,
+    unit
   )}`;
 
   return (
     <Styled.Day
-      $tone={toneFor(outcome, cell.isToday)}
+      $tone={toneFor(outcome, cell.isToday, bands)}
       $today={cell.isToday}
       title={label}
     >
@@ -87,7 +121,12 @@ function Day({
  * Every daily puzzle on a calendar, coloured by how it went. It shows no song
  * names, so it can't spoil a puzzle someone else hasn't played yet.
  */
-export function DailyCalendar({ outcomes, today = dayNumber() }: Props) {
+export function DailyCalendar({
+  outcomes,
+  today = dayNumber(),
+  bands = TRY_BANDS,
+  unit = ["try", "tries"],
+}: Props) {
   const months = React.useMemo(() => calendarMonths(today), [today]);
   const [index, setIndex] = React.useState(months.length - 1);
   const shown = months[Math.min(index, months.length - 1)];
@@ -141,6 +180,8 @@ export function DailyCalendar({ outcomes, today = dayNumber() }: Props) {
                       cell={cell}
                       outcomes={outcomes}
                       monthName={monthName}
+                      bands={bands}
+                      unit={unit}
                     />
                   )}
                 </td>
@@ -151,7 +192,7 @@ export function DailyCalendar({ outcomes, today = dayNumber() }: Props) {
       </Styled.Grid>
 
       <Styled.Legend aria-hidden="true">
-        {LEGEND.map(({ tone, label }) => (
+        {legendFor(bands, unit).map(({ tone, label }) => (
           <Styled.LegendItem key={tone}>
             <Styled.Swatch $tone={tone} />
             {label}

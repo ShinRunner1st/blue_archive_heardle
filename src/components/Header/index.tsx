@@ -23,6 +23,8 @@ interface Props {
    * Shown once there is one going.
    */
   streak: number;
+  /** The line under the logo: which game is being played. */
+  tagline: string;
 }
 
 const MODES: Array<{ mode: GameMode; label: string; hint: string }> = [
@@ -41,6 +43,7 @@ export function Header({
   mode,
   onModeChange,
   streak,
+  tagline,
 }: Props) {
   const showStreak = streak > 0;
   const streakLabel =
@@ -123,7 +126,7 @@ export function Header({
             openJukeboxPopUp={openJukeboxPopUp}
           />
         </Styled.Tools>
-        <Styled.Tagline>Guess the Blue Archive OST</Styled.Tagline>
+        <Styled.Tagline>{tagline}</Styled.Tagline>
       </Styled.Content>
     </Styled.Container>
   );

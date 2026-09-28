@@ -1,20 +1,28 @@
 import React from "react";
 
-import { GameMode, isEndlessStyle } from "./types/mode";
+import { Game as GameName, GameMode, isEndlessStyle } from "./types/mode";
 import { Song } from "./types/song";
+import { StudentGame as StudentWay } from "./types/student";
 
+import { useBirthdays } from "./hooks/useBirthdays";
 import { useGame } from "./hooks/useGame";
+import { useStudentGame } from "./hooks/useStudentGame";
 import { useTimeAttack } from "./hooks/useTimeAttack";
+import { guessesForCharacter, isWon } from "./helpers/studentRounds";
 import { runsOf } from "./helpers/timeAttack";
 import { LATEST_UPDATE_ID } from "./constants/whatsNew";
 import { placeFor } from "./helpers/winStreak";
 import {
   hasSeenWhatsNew,
   isFirstRun,
+  loadGame,
   loadMode,
+  loadStudentGame,
   markFirstRunDone,
   markWhatsNewSeen,
+  saveGame,
   saveMode,
+  saveStudentGame,
 } from "./helpers/storage";
 
 import {
@@ -32,15 +40,23 @@ import {
   WhatsNewPopUp,
   JukeboxPopUp,
 } from "./components";
-import { PlayStyles } from "./components/PlayStyles";
+import { GameSwitch, PlayStyles, StudentStyles } from "./components/PlayStyles";
+import { BirthdayNote } from "./components/BirthdayNote";
+import { StudentGame } from "./components/StudentGame";
 import { TimeAttack } from "./components/TimeAttack";
+import { StudentStats } from "./components/StatsPopUp/StudentStats";
 import { TimeAttackStats } from "./components/StatsPopUp/TimeAttackStats";
 
 import * as Styled from "./app.styled";
 
 function App() {
   const [mode, setMode] = React.useState<GameMode>(loadMode);
-  const isTimeAttack = mode === "timeattack";
+  // The OST, or the student game, which shares the header's Daily/Endless.
+  const [gameName, setGameName] = React.useState<GameName>(loadGame);
+  const [studentWay, setStudentWay] =
+    React.useState<StudentWay>(loadStudentGame);
+  const isStudents = gameName === "students";
+  const isTimeAttack = !isStudents && mode === "timeattack";
 
   const {
     solution,
@@ -72,7 +88,11 @@ function App() {
     refreshDay,
     // Time attack runs its own songs (see useTimeAttack); this side of the
     // game stays on Endless behind it, unseen.
-  } = useGame(isTimeAttack ? "endless" : mode);
+  } = useGame(mode === "timeattack" ? "endless" : mode);
+
+  const studentMode = mode === "daily" ? "daily" : "endless";
+  const students = useStudentGame(studentWay, studentMode);
+  const birthdays = useBirthdays();
 
   const timeAttack = useTimeAttack();
   const { finish: finishRun } = timeAttack;
@@ -87,7 +107,11 @@ function App() {
   // The mode's own run: it sets the background and the header's count. In
   // time attack that is the run's score, from zero again with each run.
   const streak = mode === "daily" ? dayStreak : winStreak;
-  const run = isTimeAttack ? timeAttack.score : streak.current;
+  const run = isStudents
+    ? students.streak.current
+    : isTimeAttack
+    ? timeAttack.score
+    : streak.current;
 
   // The way to play Endless picked last, which the header's Endless button
   // goes back to.
@@ -121,6 +145,19 @@ function App() {
   React.useEffect(() => {
     saveMode(mode);
   }, [mode]);
+
+  React.useEffect(() => {
+    saveGame(gameName);
+  }, [gameName]);
+
+  React.useEffect(() => {
+    saveStudentGame(studentWay);
+  }, [studentWay]);
+
+  const changeGame = React.useCallback((next: GameName) => {
+    setGameName(next);
+    setSelectedSong(undefined);
+  }, []);
 
   // Read once on mount: the welcome pop-up is only shown to new players.
   const [isInfoPopUpOpen, setIsInfoPopUpOpen] =
@@ -180,16 +217,36 @@ function App() {
   // Changes when a new round starts, in any mode: in time attack, with each
   // song answered.
   const taRun = timeAttack.run;
-  const roundKey = isTimeAttack
+  const studentRound = students.round;
+  const roundKey = isStudents
+    ? `${students.slot}:${studentRound.day ?? ""}:${students.rounds.length}`
+    : isTimeAttack
     ? `${mode}:${taRun?.id ?? ""}:${taRun?.rounds.length ?? 0}`
     : `${mode}:${round.day ?? ""}:${solution.themeNo}`;
 
   // What the character reacts to: the round being played, or in time attack
-  // the last song answered.
+  // the last song answered. In the student game each guess is a try, with no
+  // end to them until the answer, or giving up.
   const lastAnswered = taRun?.rounds[taRun.rounds.length - 1];
-  const reactTo = isTimeAttack
-    ? lastAnswered ?? { guesses: [], currentTry: 0, didGuess: false }
-    : round;
+  const studentGuesses = React.useMemo(
+    () => guessesForCharacter(studentRound),
+    [studentRound]
+  );
+  const reactTo = isStudents
+    ? {
+        guesses: studentGuesses,
+        currentTry: studentRound.guesses.length,
+        didGuess: isWon(studentRound),
+        tries: studentRound.gaveUp
+          ? studentRound.guesses.length
+          : studentRound.guesses.length + 1,
+      }
+    : isTimeAttack
+    ? {
+        ...(lastAnswered ?? { guesses: [], currentTry: 0, didGuess: false }),
+        tries: 1,
+      }
+    : { ...round, tries: round.tries };
 
   // Songs guessed right in any mode, time attack included.
   const jukeboxGuessed = React.useMemo(
@@ -260,10 +317,29 @@ function App() {
         openSettingsPopUp={openSettingsPopUp}
         openWhatsNewPopUp={openWhatsNew}
         openJukeboxPopUp={openJukebox}
-        mode={mode}
+        // The student game has Daily and Endless only.
+        mode={isStudents ? studentMode : mode}
         onModeChange={changeMode}
         streak={run}
+        tagline={
+          isStudents
+            ? "Guess the Blue Archive student"
+            : "Guess the Blue Archive OST"
+        }
       />
+      {isStatsPopUpOpen && isStudents && (
+        <StudentStats
+          onClose={closeStatsPopUp}
+          game={studentWay}
+          mode={studentMode}
+          tally={students.tally}
+          played={students.played}
+          averageGuesses={students.averageGuesses}
+          streak={students.streak.current}
+          best={students.best}
+          dailyResults={students.dailyResults}
+        />
+      )}
       {isStatsPopUpOpen && isTimeAttack && (
         <TimeAttackStats
           onClose={closeStatsPopUp}
@@ -272,7 +348,7 @@ function App() {
           streak={timeAttack.score}
         />
       )}
-      {isStatsPopUpOpen && !isTimeAttack && (
+      {isStatsPopUpOpen && !isStudents && mode !== "timeattack" && (
         <StatsPopUp
           onClose={closeStatsPopUp}
           score={score}
@@ -286,9 +362,22 @@ function App() {
       {isInfoPopUpOpen && (
         <InfoPopUp
           onClose={closeInfoPopUp}
-          canReset={isTimeAttack ? timeAttack.stats.runs > 0 : hasHistory}
-          onReset={isTimeAttack ? timeAttack.resetHistory : resetScore}
-          mode={mode}
+          canReset={
+            isStudents
+              ? students.hasHistory
+              : isTimeAttack
+              ? timeAttack.stats.runs > 0
+              : hasHistory
+          }
+          onReset={
+            isStudents
+              ? students.reset
+              : isTimeAttack
+              ? timeAttack.resetHistory
+              : resetScore
+          }
+          mode={isStudents ? studentMode : mode}
+          game={gameName}
         />
       )}
       {isHowToPopUpOpen && <HowToPopUp onClose={closeHowToPopUp} />}
@@ -308,13 +397,34 @@ function App() {
       )}
       {/* Below the header rather than in the play area, which is centred on
           the page: there it moved with every screen's height. */}
-      {isEndlessStyle(mode) && (
-        <Styled.StyleBar>
-          <PlayStyles mode={mode} onChange={changeStyle} />
-        </Styled.StyleBar>
-      )}
+      <Styled.StyleBar>
+        <GameSwitch game={gameName} onChange={changeGame} />
+        {isStudents ? (
+          <StudentStyles game={studentWay} onChange={setStudentWay} />
+        ) : (
+          isEndlessStyle(mode) && (
+            <PlayStyles mode={mode} onChange={changeStyle} />
+          )
+        )}
+      </Styled.StyleBar>
+      <BirthdayNote students={birthdays} withIcons={isStudents} />
       <Styled.Container>
-        {isTimeAttack ? (
+        {isStudents ? (
+          <StudentGame
+            // A new screen for each way to play and mode, as for the OST.
+            key={students.slot}
+            game={studentWay}
+            mode={studentMode}
+            round={studentRound}
+            score={`${students.wins}/${students.played}`}
+            streak={students.streak}
+            onGuess={students.guess}
+            onGiveUp={students.giveUp}
+            onNext={students.next}
+            onNewDay={students.refreshDay}
+            keyboardEnabled={!isPopUpOpen}
+          />
+        ) : isTimeAttack ? (
           <TimeAttack timeAttack={timeAttack} keyboardEnabled={!isPopUpOpen} />
         ) : (
           <Game
@@ -356,7 +466,7 @@ function App() {
         currentTry={reactTo.currentTry}
         didGuess={reactTo.didGuess}
         roundKey={roundKey}
-        tries={isTimeAttack ? 1 : round.tries}
+        tries={reactTo.tries}
       />
       <Footer />
     </Styled.BG>

@@ -2,6 +2,7 @@ import {
   IoCalendarNumber,
   IoGrid,
   IoInfinite,
+  IoPeople,
   IoStopwatch,
 } from "react-icons/io5";
 
@@ -116,6 +117,22 @@ export function HowToPopUp({ onClose }: Props) {
             <PopUpCardText>
               In Endless: name as many songs as you can in three minutes, typed
               or from four. A miss or a pass costs two seconds. No badges.
+            </PopUpCardText>
+          </PopUpCardBody>
+        </PopUpCard>
+        <PopUpCard>
+          <PopUpCardIcon>
+            <IoPeople aria-hidden="true" />
+          </PopUpCardIcon>
+          <PopUpCardBody>
+            <PopUpCardTitle>Students</PopUpCardTitle>
+            <PopUpCardText>
+              Switch to Students under the header and find the student, daily or
+              endless. Each guess shows how it compares with the answer: green
+              is right, yellow is close, red is wrong, and arrows point higher
+              or lower. Gameplay compares school, role, damage, weapon, EX cost
+              and release; each costume is its own answer. Lore compares height,
+              birthday, school year, club, favourite gift and more.
             </PopUpCardText>
           </PopUpCardBody>
         </PopUpCard>

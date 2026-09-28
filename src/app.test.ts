@@ -72,6 +72,36 @@ describe("App", () => {
     expect(skipLabel()).toBe("Skip +2s");
   });
 
+  it("switches to the student game and back, remembering it", () => {
+    localStorage.setItem("firstRun", "false");
+    localStorage.setItem("whatsNew", LATEST_UPDATE_ID);
+    mount();
+    const click = (label: string) =>
+      act(() => {
+        Array.from(container.querySelectorAll("button"))
+          .find((button) => button.textContent === label)
+          ?.click();
+      });
+    const search = () =>
+      container.querySelector("input")?.getAttribute("aria-label");
+
+    click("Students");
+    expect(search()).toBe("Search for a student");
+    expect(container.textContent).toContain("Guess the Blue Archive student");
+
+    click("Lore");
+    click("Endless");
+    harness.unmount();
+    mount();
+    expect(search()).toBe("Search for a student");
+    expect(
+      container.querySelector('[aria-pressed="true"][title^="Height"]')
+    ).not.toBeNull();
+
+    click("OST");
+    expect(search()).toBe("Search for a song");
+  });
+
   it("unmounts without leaving timers or listeners behind", () => {
     mount();
 

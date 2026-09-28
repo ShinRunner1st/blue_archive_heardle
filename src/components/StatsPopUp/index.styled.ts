@@ -10,9 +10,9 @@ export const Rows = styled.div`
   width: 100%;
 `;
 
-export const Row = styled.div`
+export const Row = styled.div<{ $wideLabel?: boolean }>`
   display: grid;
-  grid-template-columns: 14px 1fr 26px;
+  grid-template-columns: ${({ $wideLabel }) => ($wideLabel ? "24px" : "14px")} 1fr 26px;
   gap: 10px;
   align-items: center;
 

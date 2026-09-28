@@ -33,3 +33,22 @@ export function resultTitle(
     Math.min(Math.max(currentTry - 1, 0), TEXT_FOR_TRY.length - 1)
   ];
 }
+
+/**
+ * The student game's win titles, by guesses: a first-guess find is still a
+ * three-star clear, but with over a hundred students to go through, a few
+ * guesses is good going.
+ */
+const STUDENT_WIN_TITLES: Array<[upTo: number, title: string]> = [
+  [1, TEXT_FOR_TRY[0]],
+  [3, TEXT_FOR_TRY[1]],
+  [6, TEXT_FOR_TRY[2]],
+  [10, TEXT_FOR_TRY[3]],
+  [Infinity, TEXT_FOR_TRY[4]],
+];
+
+export function studentResultTitle(won: boolean, guesses: number): string {
+  if (!won) return LOSS_TITLE;
+  const found = STUDENT_WIN_TITLES.find(([upTo]) => guesses <= upTo);
+  return found ? found[1] : TEXT_FOR_TRY[4];
+}

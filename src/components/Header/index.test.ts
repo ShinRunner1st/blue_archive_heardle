@@ -51,6 +51,7 @@ function mount(mode: GameMode = "daily", streak = 0) {
       mode,
       onModeChange,
       streak,
+      tagline: "Guess the Blue Archive OST",
     })
   );
 }

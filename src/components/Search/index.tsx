@@ -27,7 +27,7 @@ function label(song: Song): string {
 }
 
 /** Somewhere typing already goes, so a key there is left alone. */
-function isTextField(target: EventTarget | null): boolean {
+export function isTextField(target: EventTarget | null): boolean {
   return (
     target instanceof HTMLElement &&
     (target.isContentEditable ||

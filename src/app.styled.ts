@@ -45,10 +45,15 @@ export const BG = styled.div`
   flex-direction: column;
 `;
 
-/** Holds the ways to play Endless in one place under the header. */
+/**
+ * Holds the game switch, and the ways to play it, in one place under the
+ * header. The two sit side by side, or one above the other on a phone.
+ */
 export const StyleBar = styled.div`
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
+  gap: 8px 10px;
 
   padding: 16px 16px 0;
 

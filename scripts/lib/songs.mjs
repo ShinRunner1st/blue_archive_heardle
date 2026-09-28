@@ -31,9 +31,7 @@ export function loadSongs() {
   // A silent partial parse would look like a healthy short list, so check the
   // shape rather than trusting the count.
   const malformed = songs.find(
-    (song) =>
-      typeof song?.themeNo !== "string" ||
-      !song.themeNo
+    (song) => typeof song?.themeNo !== "string" || !song.themeNo
   );
 
   if (malformed) {
