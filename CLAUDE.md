@@ -203,6 +203,11 @@ What the project cares about:
   Group 5's pictures (icon sheets and 262 portraits) went on the Worker and
   R2 first. It added about 47 KB gzipped of JavaScript to the first load,
   no first-load requests, and 0.2 MB to the Vercel deployment.
+- **28 Sep 2026, follow-up** (`fix/icon-sheet` and `feat/solve-timer`): the
+  student icon sheet lost its specks and became transparent (447 KB, on the
+  Worker and R2 first), our own clear button in the All OST and Jukebox
+  search boxes (the browser's ignored the custom cursor), and a solve clock
+  for each student find.
 
 ## Commands
 
