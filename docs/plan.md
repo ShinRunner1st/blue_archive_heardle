@@ -18,8 +18,7 @@ name, when it's built.
    not merged yet._
 2. **Group 2: seasonal, merged before 2026-12-25.** Christmas and New Year
    backgrounds. _Built on `feat/seasonal-backgrounds` (stacked on Group 1), not
-   merged yet; run `npm run songs` before merging to put the pictures on the
-   Worker._ After 2026-12-10, the old-domain cleanup in "Dates to remember" in
+   merged yet; its pictures went on the Worker and R2 on 2026-09-28._ After 2026-12-10, the old-domain cleanup in "Dates to remember" in
    `CLAUDE.md` can ride along.
 3. **Group 3: new ways to play the OST.** Jukebox, then four-choice answers,
    then time attack (it uses four-choice). _Done on `feat/ost-modes` (stacked
@@ -28,10 +27,9 @@ name, when it's built.
 4. **Group 4: storage.** _Built on `feat/storage` (stacked on Group 3), not
    merged yet._ The R2 bucket `ba-heardle-audio` is served at
    `audio.baheardle.com`; the game falls back to it when the Worker fails, and
-   `npm run songs` uploads new files to it. Before merging, the user sets up
-   the Cloudflare dashboard rules in the README's "The backup on R2" (the
-   `Access-Control-Allow-Origin` header rule and the usage alerts),
-   then runs `npm run songs`, which does the first full upload.
+   `npm run songs` uploads new files to it. The dashboard setup (the
+   `Access-Control-Allow-Origin` header rule and the usage alerts) and the
+   first full upload were done on 2026-09-28, with the Group 2 pictures.
 5. **Group 5: Badle. Next up.** Make its branch off `feat/storage`. Data script, then the icon sprite sheet, then Gameplay
    mode, then Lore mode, then student birthday touches (they use the Badle
    student table).
