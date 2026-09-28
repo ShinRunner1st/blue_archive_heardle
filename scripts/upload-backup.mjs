@@ -63,25 +63,17 @@ try {
     writeFileSync(list, JSON.stringify(entries));
 
     console.log(`Uploading ${batch.length} ${extension} file(s) to R2...`);
-    const result = spawnSync(
-      "npx",
-      [
-        "--yes",
-        "wrangler",
-        "r2",
-        "bulk",
-        "put",
-        R2_BUCKET,
-        "--remote",
-        "--filename",
-        list,
-        "--content-type",
-        type,
-        "--cache-control",
-        `"${CACHE_CONTROL}"`,
-      ],
-      { stdio: "inherit", shell: true }
-    );
+    // One command line, since npx needs a shell on Windows. --force answers
+    // Wrangler's "may overwrite" question: only missing files are in the list.
+    const command = [
+      "npx --yes wrangler r2 bulk put",
+      R2_BUCKET,
+      "--remote --force",
+      `--filename "${list}"`,
+      `--content-type ${type}`,
+      `--cache-control "${CACHE_CONTROL}"`,
+    ].join(" ");
+    const result = spawnSync(command, { stdio: "inherit", shell: true });
     if (result.status !== 0) process.exit(result.status ?? 1);
   }
 } finally {
