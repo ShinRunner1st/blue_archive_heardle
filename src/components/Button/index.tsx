@@ -27,7 +27,7 @@ export function Button({
   return (
     <Styled.Button
       onClick={onClick}
-      variant={variant}
+      $variant={variant}
       style={style}
       disabled={disabled}
       $stroke={stroke}

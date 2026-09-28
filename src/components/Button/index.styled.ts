@@ -2,16 +2,17 @@ import styled from "styled-components";
 import { theme } from "../../constants";
 import "@fontsource-variable/nunito-sans";
 
+/** Transient ($) props: styled-components keeps them off the <button>. */
 interface ButtonProps {
-  variant?: keyof typeof theme;
+  $variant?: keyof typeof theme;
   disabled?: boolean;
   $stroke?: boolean;
 }
 
 export const Button = styled.button<ButtonProps>`
   font-family: "Nunito Sans Variable";
-  background-color: ${({ theme, variant }) =>
-    variant ? theme[variant] : theme.background100};
+  background-color: ${({ theme, $variant }) =>
+    $variant ? theme[$variant] : theme.background100};
 
   border-radius: 5px;
   border: ${({ theme, $stroke }) =>

@@ -19,9 +19,18 @@ export const ProgressBackground = styled.div`
   margin-top: 5%;
 `;
 
-export const Progress = styled.div<{ $value: number; $max: number }>`
-  width: ${({ $value, $max }) =>
-    $max > 0 ? `${Math.min(($value / $max) * 100, 100)}%` : "0%"};
+/**
+ * The width is an inline style, not part of the CSS: it changes several
+ * times a second while a clip plays, and each new value in the CSS would
+ * make a new class.
+ */
+export const Progress = styled.div.attrs<{ $value: number; $max: number }>(
+  ({ $value, $max }) => ({
+    style: {
+      width: $max > 0 ? `${Math.min(($value / $max) * 100, 100)}%` : "0%",
+    },
+  })
+)`
   height: 100%;
 
   background-color: ${({ theme }) => theme.green};
