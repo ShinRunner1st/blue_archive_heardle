@@ -49,6 +49,9 @@ import { TimeAttackStats } from "./components/StatsPopUp/TimeAttackStats";
 
 import * as Styled from "./app.styled";
 
+/** Loaded when first opened, with the portrait list it needs. */
+const SenseiCard = React.lazy(() => import("./components/SenseiCard"));
+
 function App() {
   const [mode, setMode] = React.useState<GameMode>(loadMode);
   // The OST, or the student game, which shares the header's Daily/Endless.
@@ -210,6 +213,10 @@ function App() {
     setIsWhatsNewOpen(false);
   }, []);
 
+  const [isCardOpen, setIsCardOpen] = React.useState(false);
+  const openCard = React.useCallback(() => setIsCardOpen(true), []);
+  const closeCard = React.useCallback(() => setIsCardOpen(false), []);
+
   const [isJukeboxOpen, setIsJukeboxOpen] = React.useState(false);
   const openJukebox = React.useCallback(() => setIsJukeboxOpen(true), []);
   const closeJukebox = React.useCallback(() => setIsJukeboxOpen(false), []);
@@ -280,7 +287,8 @@ function App() {
     isSettingsOpen ||
     isBadgesOpen ||
     isWhatsNewOpen ||
-    isJukeboxOpen;
+    isJukeboxOpen ||
+    isCardOpen;
 
   // Marked in the song list, so a wrong answer isn't picked twice by accident.
   const guessedThemeNos = React.useMemo(
@@ -317,6 +325,7 @@ function App() {
         openSettingsPopUp={openSettingsPopUp}
         openWhatsNewPopUp={openWhatsNew}
         openJukeboxPopUp={openJukebox}
+        openSenseiCard={openCard}
         // The student game has Daily and Endless only.
         mode={isStudents ? studentMode : mode}
         onModeChange={changeMode}
@@ -385,6 +394,11 @@ function App() {
       {isSettingsOpen && <SettingsPopUp onClose={closeSettingsPopUp} />}
       {isBadgesOpen && <BadgesPopUp onClose={closeBadges} badges={badges} />}
       {isWhatsNewOpen && <WhatsNewPopUp onClose={closeWhatsNew} />}
+      {isCardOpen && (
+        <React.Suspense fallback={null}>
+          <SenseiCard onClose={closeCard} streak={run} />
+        </React.Suspense>
+      )}
       {isSongListOpen && (
         <SongListPopUp
           onClose={closeSongList}

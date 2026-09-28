@@ -8,6 +8,7 @@ import {
   IoCalendar,
   IoDisc,
   IoGift,
+  IoIdCard,
   IoPeople,
   IoSchool,
   IoKeypad,
@@ -51,7 +52,12 @@ export const WHATS_NEW: NewsUpdate[] = [
       {
         icon: IoSchool,
         title: "Gameplay and Lore",
-        text: "Gameplay compares kits: school, role, damage, weapon, EX cost and release, and every costume is its own answer. Lore compares profiles: height, birthday, school year, club, favourite gift and more.",
+        text: "Gameplay compares kits: school, role, damage and defense type, weapon, EX cost and release, and every costume is its own answer. Lore compares profiles: height, birthday, school year, club, favourite gift and more. Share a picture of your round, or a recap from Stats.",
+      },
+      {
+        icon: IoIdCard,
+        title: "Sensei card",
+        text: "Open Sensei card from the ☰ menu for your record across every mode on a Schale licence, with your favourite student's portrait. Share it or download it.",
       },
       {
         icon: IoGift,

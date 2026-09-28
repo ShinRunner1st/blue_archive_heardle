@@ -9,6 +9,7 @@ export function fakeContext() {
     {
       fillText: (text: string) => texts.push(text),
       measureText: (text: string) => ({ width: text.length * size * 0.5 }),
+      createLinearGradient: () => ({ addColorStop: () => {} }),
     } as Record<string, unknown>,
     {
       get: (target, key: string) => target[key] ?? (() => {}),

@@ -56,6 +56,12 @@ export const CHOICE_CLIP_SECONDS = 3;
  */
 export const CLIP_OPTIONS = [1, 2, 3, 5, 7];
 
+/**
+ * localStorage key holding the student on the Sensei card, by id. A setting
+ * like the player name, so it isn't in the save file.
+ */
+export const FAV_STUDENT_KEY = "favStudent";
+
 /** localStorage key holding the name drawn on shared pictures. */
 export const PLAYER_NAME_KEY = "playerName";
 

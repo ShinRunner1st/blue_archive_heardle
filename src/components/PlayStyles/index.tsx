@@ -130,7 +130,7 @@ const STUDENT_GAMES: Array<Option<StudentGame>> = [
   {
     value: "gameplay",
     label: "Gameplay",
-    hint: "School, role, damage, weapon, EX cost and release",
+    hint: "School, role, damage, defense, weapon, EX cost and release",
   },
   {
     value: "lore",

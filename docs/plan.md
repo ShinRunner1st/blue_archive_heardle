@@ -31,9 +31,9 @@ name, when it's built.
    `Access-Control-Allow-Origin` header rule and the usage alerts) and the
    first full upload were done on 2026-09-28, with the Group 2 pictures.
 5. **Group 5: Badle.** _Built on `feat/badle` (stacked on Group 4), not
-   merged yet._ Its two icon sheets aren't on the Worker or R2 yet: they go
-   up with `npm run songs` before merging (two new files, about 380 KB and
-   45 KB).
+   merged yet._ Its pictures aren't on the Worker or R2 yet: they go up
+   with `npm run songs` before merging (264 new files, about 2.4 MB: the two
+   icon sheets and 262 portraits).
 6. **Group 6: dream plan. Next up.** Make its branch off `feat/badle`. The
    user messages SchaleDB first, then Voice line mode. The user checks the
    Durable Objects and PartyServer free-tier limits, then Multiplayer.
@@ -45,7 +45,8 @@ Any time: `npm run songs` when new OSTs come out.
 - **Worker first.** The audio Worker only serves static files, and those
   requests are free and unlimited (`audio-worker/wrangler.jsonc`). Its limits
   (checked 2026-09-28, free plan): 20,000 files per Worker version and 25 MiB
-  per file. The OST and pictures use 694, 696 with the student icon sheets.
+  per file. The OST and pictures use 694, 958 with the student icon sheets
+  and portraits.
 - **R2 as backup.** A copy of everything on the Worker is on Cloudflare R2
   (bucket `ba-heardle-audio`, at `audio.baheardle.com`), and the game falls
   back to it if the Worker fails; `npm run songs` uploads to both. Files that
@@ -153,6 +154,15 @@ in the README's Student data. Choices made while building it:
   OST/Students switch on a row of its own, with the way-to-play row under it
   keeping its height when empty; the OST badges moved into the ☰ menu; and
   the Jukebox playing on in the student game, in a corner player.
+- **Second round of feedback**: one row for both switches, the way-to-play
+  slot keeping its width when empty and the game switch showing icons on a
+  narrow phone; Sakugawa gets Schale's emblem (from the wiki); a Defense
+  column, with damage and defense as coloured dots (Composite's green is a
+  guess); share pictures and recaps for Students; the Jukebox paused for
+  real when it stops. And a new **Sensei card**: a licence-style picture of
+  the player's record with a favourite student's portrait. The portraits
+  are a file each on the Worker (a card shows one; about 7.5 KB each, 2 MB
+  in all), which also puts 2 MB on R2, well inside its free 10 GB.
 - **New students:** rerun `npm run students` after each Global update.
 
 ## Dream plan (big, after the plan above)

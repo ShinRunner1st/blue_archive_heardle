@@ -17,6 +17,9 @@
  *   table's cells, with src/constants/clueIcons.ts saying which is where.
  *   A school SchaleDB has no icon for (Sakugawa) gets Schale's emblem,
  *   from the Blue Archive wiki, whitened to match.
+ * - pictures/portraits/<id>.webp: each student's portrait, for the photo on
+ *   the Sensei card. A file each, since a card shows one; the game never
+ *   asks for one during a round, so they give nothing away.
  *
  * SchaleDB's FAQ allows reusing its data and images. Only the official
  * English text is used, never community translations.
@@ -27,6 +30,7 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   rmSync,
   statSync,
@@ -67,6 +71,10 @@ const SHEET_PATH = `pictures/${ICON_SHEET_KEY}.webp`;
 const CLUE_CACHE = ".cache/clue-icons";
 const CLUE_SHEET_PATH = `pictures/${CLUE_SHEET_KEY}.webp`;
 const CLUE_MANIFEST_PATH = "src/constants/clueIcons.ts";
+const PORTRAIT_CACHE = ".cache/student-portraits";
+const PORTRAIT_DIR = "pictures/portraits";
+/** About 10 KB a portrait, 200x226 as SchaleDB has them. */
+const PORTRAIT_QUALITY = 75;
 /** The stand-in for a school with no icon, from the wiki like the backdrops. */
 const SCHALE_EMBLEM = "File:Schale.png";
 /**
@@ -308,3 +316,35 @@ export const clueIcons: string[] = ${JSON.stringify(clues.map(({ key }) => key))
 
 const clueKb = (statSync(CLUE_SHEET_PATH).size / 1024).toFixed(1);
 console.log(`${CLUE_SHEET_PATH}: ${clues.length} icons, ${clueKb} KB.`);
+
+// Portraits: downloaded once each, then made into small WebPs. One no longer
+// in the table is removed, so an old one can't linger on the Worker.
+mkdirSync(PORTRAIT_CACHE, { recursive: true });
+mkdirSync(PORTRAIT_DIR, { recursive: true });
+let newPortraits = 0;
+for (const { id, name } of students) {
+  const source = join(PORTRAIT_CACHE, `${id}.webp`);
+  const output = join(PORTRAIT_DIR, `${id}.webp`);
+  const had = existsSync(source);
+  if (!(await downloadOnce(`student/collection/${id}.webp`, source))) {
+    throw new Error(`No portrait for ${name}`);
+  }
+  if (!had) newPortraits += 1;
+  if (existsSync(output) && had) continue;
+  await run("ffmpeg", [
+    ...["-v", "error", "-y", "-i", source],
+    ...["-c:v", "libwebp", "-quality", String(PORTRAIT_QUALITY)],
+    ...["-compression_level", "6", "-map_metadata", "-1", output],
+  ]);
+}
+const ids = new Set(students.map(({ id }) => `${id}.webp`));
+for (const file of readdirSync(PORTRAIT_DIR)) {
+  if (!ids.has(file)) rmSync(join(PORTRAIT_DIR, file));
+}
+const portraitKb = readdirSync(PORTRAIT_DIR).reduce(
+  (total, file) => total + statSync(join(PORTRAIT_DIR, file)).size / 1024,
+  0
+);
+console.log(
+  `${PORTRAIT_DIR}: ${students.length} portraits (${newPortraits} new), ${portraitKb.toFixed(0)} KB.`
+);

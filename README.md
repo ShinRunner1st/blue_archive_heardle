@@ -57,11 +57,12 @@ order: "armed hoshino" finds Hoshino (Armed)) and the guess goes straight into
 the table, newest on top, a column per attribute: green when it matches the
 answer, yellow when it's close, red when it doesn't, with an arrow for numbers
 pointing higher or lower. Schools, roles and gifts show their icon, with the
-name under it when it's short. There's no limit on guesses; Give up (pressed twice)
+name under it when it's short; damage and defense types have a dot in the
+game's colour for them. There's no limit on guesses; Give up (pressed twice)
 counts as a loss. A second switch picks how to play:
 
-- **Gameplay** - school, role, damage type, weapon type, EX skill cost (at
-  level 1) and release order. Every costume is its own answer, since its kit
+- **Gameplay** - school, role, damage type, defense type, weapon type, EX
+  skill cost (at level 1) and release order. Every costume is its own answer, since its kit
   differs: 262 on Global.
 - **Lore** - height, school, birthday (the right month is close), school year,
   weapon type, favourite SSR gift (sharing one is close), club and release
@@ -72,7 +73,8 @@ Daily is one student a day, the same for everyone, from a schedule in
 `src/constants/studentDailyOrder.ts` that is only ever added to, like the
 OST's. Endless deals every student once before any comes round again. The
 result names the student; its share text is squares only, so it spoils
-nothing. On a student's birthday a note at the top of the page wishes them a
+nothing, and so is its share picture on a daily puzzle (an endless one shows
+the student). Stats has Share recap, like the OST's. On a student's birthday a note at the top of the page wishes them a
 happy one (with their icon in the student game; the OST game shows the name
 alone, so it never downloads the icons).
 
@@ -150,6 +152,12 @@ alone, so it never downloads the icons).
   another device. The file is made and read on the device; nothing is
   uploaded. An import is checked like a save, shows what's in it and asks
   before it replaces the progress there.
+- **Sensei card** - ☰ → Sensei card draws the player's record across every
+  mode (songs and students found, badges, best streaks, Time Attack best,
+  rounds played) on a Schale licence, with the player name from Settings and
+  a favourite student's portrait, remembered like the name and not in the
+  save file. Share or Download it. The card's code and the portrait list
+  load only when it opens, and only the favourite's portrait is fetched.
 - **What's new** - after an update, returning players see what was added,
   once, with the two updates before it for anyone who missed them. It stays
   in the ☰ menu. The updates are listed newest first in
@@ -371,7 +379,12 @@ It also draws a second, small sheet, `pictures/students/clues.webp` (about
 45 KB), of the school, role and gift icons for the table's cells, listed in
 `src/constants/clueIcons.ts`. These are white shapes drawn on the cells'
 colours, so this one keeps its transparency. A school SchaleDB has no icon for
-(Sakugawa) shows its name instead.
+(Sakugawa) gets Schale's emblem, downloaded once from the Blue Archive wiki
+and whitened to match. And it makes each student's portrait (SchaleDB's
+collection picture, about 7.5 KB as WebP) into `pictures/portraits/`, for the
+Sensei card; their names on the Worker are listed in
+`src/constants/portraitFiles.ts`, apart from `pictureFiles.ts`, so the page
+doesn't carry 262 of them.
 
 Needs ffmpeg built with libwebp, like `build:audio`. A student's favourite gift
 is the SSR gift sharing the most tags with them, as the game rates gifts; two

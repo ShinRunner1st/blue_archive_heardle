@@ -22,7 +22,9 @@ import { OUTPUT_DIR, writeHeaders } from "./lib/audio.mjs";
 import {
   PICTURE_MANIFEST_PATH,
   PICTURE_OUTPUT_DIR,
+  PORTRAIT_MANIFEST_PATH,
   listPictures,
+  manifestPathFor,
   pictureFile,
 } from "./lib/pictures.mjs";
 
@@ -44,19 +46,36 @@ for (const file of stale) rmSync(join(PICTURE_OUTPUT_DIR, file));
 
 writeHeaders(OUTPUT_DIR);
 
-const lines = pictures.map(
-  ({ key, file }) => `  "${key}": "pictures/${file}",`
-);
+const lines = (path) =>
+  pictures
+    .filter(({ key }) => manifestPathFor(key) === path)
+    .map(({ key, file }) => `  "${key}": "pictures/${file}",`)
+    .join("\n");
 writeFileSync(
   PICTURE_MANIFEST_PATH,
   `/**
  * The pictures served from the Worker, by their path in pictures/, and their
- * names there, which change whenever a picture does.
+ * names there, which change whenever a picture does. The portraits are in
+ * portraitFiles.ts.
  *
  * GENERATED FILE - do not edit by hand. Run \`npm run songs\`.
  */
 export const pictureFiles: Record<string, string> = {
-${lines.join("\n")}
+${lines(PICTURE_MANIFEST_PATH)}
+};
+`
+);
+writeFileSync(
+  PORTRAIT_MANIFEST_PATH,
+  `/**
+ * The students' portraits on the Worker, by "portraits/<student id>", for
+ * the Sensei card, which loads this file with it: the page doesn't carry it
+ * otherwise.
+ *
+ * GENERATED FILE - do not edit by hand. Run \`npm run songs\`.
+ */
+export const portraitFiles: Record<string, string> = {
+${lines(PORTRAIT_MANIFEST_PATH)}
 };
 `
 );

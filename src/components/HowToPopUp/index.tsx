@@ -130,9 +130,9 @@ export function HowToPopUp({ onClose }: Props) {
               Switch to Students under the header and find the student, daily or
               endless. Each guess shows how it compares with the answer: green
               is right, yellow is close, red is wrong, and arrows point higher
-              or lower. Gameplay compares school, role, damage, weapon, EX cost
-              and release; each costume is its own answer. Lore compares height,
-              birthday, school year, club, favourite gift and more.
+              or lower. Gameplay compares school, role, damage, defense, weapon,
+              EX cost and release; each costume is its own answer. Lore compares
+              height, birthday, school year, club, favourite gift and more.
             </PopUpCardText>
           </PopUpCardBody>
         </PopUpCard>

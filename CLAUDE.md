@@ -112,10 +112,19 @@ What the project cares about:
   every costume its own) or **Lore** (height, school, birthday, year, weapon,
   favourite SSR gift, club, release; 144 default costumes). Each keeps its
   own daily and endless stats and streak, and the streak moves the
-  background. Squares-only share text, no picture. The search box stays at
+  background. Squares-only share text; a share picture (daily ones name
+  nobody) and a Share recap in stats (`src/helpers/picture/studentPicture.ts`).
+  Gameplay also compares the defense type; damage and defense cells show a
+  dot in the type's colour (`src/constants/typeColors.ts`). The search box stays at
   the top (the play area is top-aligned here), with Give up always beside
   it. School, role and gift cells show icons from a second sheet
-  (`pictures/students/clues.webp`), names under them up to 9 letters.
+  (`pictures/students/clues.webp`), names under them up to 9 letters;
+  Sakugawa has Schale's emblem.
+- **Sensei card** (☰ menu): the record across every mode
+  (`src/helpers/senseiStats.ts`, read from the saves) drawn on a Schale
+  licence with a favourite student's portrait (`FAV_STUDENT_KEY`, a setting,
+  not in the save file); Share or Download. Lazy-loaded with
+  `portraitFiles.ts`; portraits are one file per student on the Worker.
 - **Birthdays**: on a student's birthday a note under the switches wishes
   them a happy one, with their icon in the student game only (the OST game
   never loads the icon sheet); a cake by their name in the student game.

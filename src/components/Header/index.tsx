@@ -15,6 +15,7 @@ interface Props {
   openSettingsPopUp: () => void;
   openWhatsNewPopUp: () => void;
   openJukeboxPopUp: () => void;
+  openSenseiCard: () => void;
   mode: GameMode;
   onModeChange: (mode: GameMode) => void;
   /**
@@ -39,6 +40,7 @@ export function Header({
   openSettingsPopUp,
   openWhatsNewPopUp,
   openJukeboxPopUp,
+  openSenseiCard,
   mode,
   onModeChange,
   streak,
@@ -113,6 +115,7 @@ export function Header({
             openWhatsNewPopUp={openWhatsNewPopUp}
             openJukeboxPopUp={openJukeboxPopUp}
             openBadgesPopUp={openBadgesPopUp}
+            openSenseiCard={openSenseiCard}
           />
         </Styled.Tools>
         <Styled.Tagline>{tagline}</Styled.Tagline>

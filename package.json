@@ -22,7 +22,7 @@
     "check:audio": "node scripts/check-audio.mjs",
     "check:pictures": "node scripts/check-pictures.mjs",
     "build:audio": "node scripts/build-audio.mjs && prettier --write src/constants/audioClips.ts",
-    "build:pictures": "node scripts/build-pictures.mjs && prettier --write src/constants/pictureFiles.ts",
+    "build:pictures": "node scripts/build-pictures.mjs && prettier --write src/constants/pictureFiles.ts src/constants/portraitFiles.ts",
     "upload:audio": "npx --yes wrangler deploy --config audio-worker/wrangler.jsonc",
     "upload:backup": "node scripts/upload-backup.mjs",
     "build:daily-order": "node scripts/build-daily-order.mjs && prettier --write src/constants/dailyOrder.ts",

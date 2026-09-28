@@ -20,6 +20,7 @@ import {
   GAME_KEY,
   STUDENT_GAME_KEY,
   STUDENT_STORAGE_KEYS,
+  FAV_STUDENT_KEY,
 } from "../constants/game";
 import { ColorScheme } from "../constants/theme";
 import { CharacterChoice, isCharacterChoice } from "../types/character";
@@ -392,6 +393,17 @@ export function loadPlayerName(): string {
 export function savePlayerName(name: string): void {
   if (name.trim() === "") removeKey(PLAYER_NAME_KEY);
   else writeKey(PLAYER_NAME_KEY, name);
+}
+
+/** The student on the Sensei card, or null for none yet. */
+export function loadFavStudent(): number | null {
+  const id = Number(readKey(FAV_STUDENT_KEY));
+  return Number.isInteger(id) && id > 0 ? id : null;
+}
+
+export function saveFavStudent(id: number | null): void {
+  if (id === null) removeKey(FAV_STUDENT_KEY);
+  else writeKey(FAV_STUDENT_KEY, String(id));
 }
 
 /** What the Jukebox does when a song ends; it stops unless told otherwise. */

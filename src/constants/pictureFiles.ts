@@ -1,6 +1,7 @@
 /**
  * The pictures served from the Worker, by their path in pictures/, and their
- * names there, which change whenever a picture does.
+ * names there, which change whenever a picture does. The portraits are in
+ * portraitFiles.ts.
  *
  * GENERATED FILE - do not edit by hand. Run `npm run songs`.
  */

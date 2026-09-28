@@ -81,29 +81,31 @@ export function roundedRect(
  */
 export function drawBackdrop(
   ctx: CanvasRenderingContext2D,
-  image: HTMLImageElement | null
+  image: HTMLImageElement | null,
+  width: number = PICTURE_WIDTH,
+  height: number = PICTURE_HEIGHT
 ): void {
   ctx.fillStyle = COLORS.navy;
-  ctx.fillRect(0, 0, PICTURE_WIDTH, PICTURE_HEIGHT);
+  ctx.fillRect(0, 0, width, height);
 
   if (image && image.naturalWidth > 0) {
     const scale = Math.max(
-      PICTURE_WIDTH / image.naturalWidth,
-      PICTURE_HEIGHT / image.naturalHeight
+      width / image.naturalWidth,
+      height / image.naturalHeight
     );
-    const width = image.naturalWidth * scale;
-    const height = image.naturalHeight * scale;
+    const drawnWidth = image.naturalWidth * scale;
+    const drawnHeight = image.naturalHeight * scale;
     ctx.drawImage(
       image,
-      (PICTURE_WIDTH - width) / 2,
-      (PICTURE_HEIGHT - height) / 2,
-      width,
-      height
+      (width - drawnWidth) / 2,
+      (height - drawnHeight) / 2,
+      drawnWidth,
+      drawnHeight
     );
   }
 
   ctx.fillStyle = "rgba(10, 16, 30, 0.3)";
-  ctx.fillRect(0, 0, PICTURE_WIDTH, PICTURE_HEIGHT);
+  ctx.fillRect(0, 0, width, height);
 }
 
 /** The white panel everything else sits on, with a soft shadow. */
