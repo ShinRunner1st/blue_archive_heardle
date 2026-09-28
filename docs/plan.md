@@ -30,7 +30,7 @@ name, when it's built.
    `audio.baheardle.com`; the game falls back to it when the Worker fails, and
    `npm run songs` uploads new files to it. Before merging, the user sets up
    the Cloudflare dashboard rules in the README's "The backup on R2" (the
-   `Access-Control-Allow-Origin` header rule, rate limiting, a billing alert),
+   `Access-Control-Allow-Origin` header rule and the usage alerts),
    then runs `npm run songs`, which does the first full upload.
 5. **Group 5: Badle. Next up.** Make its branch off `feat/storage`. Data script, then the icon sprite sheet, then Gameplay
    mode, then Lore mode, then student birthday touches (they use the Badle

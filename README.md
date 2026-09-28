@@ -271,10 +271,11 @@ account; R2 has no spending cap. So:
   sent with a year-long `Cache-Control`.
 - The free `r2.dev` address stays off: it is rate-limited and can't be
   cached or protected.
-- In the Cloudflare dashboard, `audio.baheardle.com` has a rate-limiting rule
-  (Security > WAF), a billing alert for R2 (Notifications), and a response
-  header rule adding `Access-Control-Allow-Origin: *` (Rules > Transform
-  Rules), which the game needs to read the files. It is a header rule rather
+- In the Cloudflare dashboard, R2 has usage alerts (Notifications > Usage
+  Based Billing: 1,000,000 reads, 100,000 writes, 5 GB stored), and
+  `audio.baheardle.com` has a response header rule adding
+  `Access-Control-Allow-Origin: *` (Rules > Transform Rules), which the game
+  needs to read the files. Rate limiting is a paid add-on, so there is none. It is a header rule rather
   than the bucket's CORS setting because Cloudflare's cache would keep a
   copy without the header for everyone after one request without an Origin.
 - If R2 ever needs shutting off, disconnecting the custom domain does it; the
