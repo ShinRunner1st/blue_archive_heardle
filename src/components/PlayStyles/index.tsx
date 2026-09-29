@@ -2,7 +2,7 @@ import React from "react";
 import { IoMic, IoMusicalNotes, IoPeople, IoSparkles } from "react-icons/io5";
 
 import { Game, GameMode } from "../../types/mode";
-import { PictureStyle } from "../../types/picture";
+import { PicturePill, PictureStyle, pillOf } from "../../types/picture";
 import { StudentGame } from "../../types/student";
 import { VoiceStyle } from "../../types/voice";
 
@@ -122,7 +122,19 @@ export function Pills<T extends string>({
               $hidden={compact && !active}
               data-short={option.short}
             >
-              {option.label}
+              {compact ? (
+                // As wide as the longest name, so the switch keeps one width
+                // whichever game is picked. The others' names are drawn by
+                // CSS, invisibly, so the button's text is its own name.
+                <Styled.Fit>
+                  <span>{option.label}</span>
+                  {options.map((other) => (
+                    <Styled.Ghost key={other.value} data-label={other.label} />
+                  ))}
+                </Styled.Fit>
+              ) : (
+                option.label
+              )}
             </Styled.Label>
           </Styled.Style>
         );
@@ -291,16 +303,16 @@ export function VoiceStyles({
   );
 }
 
-const PICTURE_STYLES: Array<Option<Exclude<PictureStyle, "silhouette">>> = [
+const PICTURE_STYLES: Array<Option<PicturePill>> = [
   {
     value: "endless",
     label: "Classic",
-    hint: "Four tries, with a hint after each miss, or the silhouette only",
+    hint: "Four tries, with a hint after each miss or none, the picture or its silhouette",
   },
   {
     value: "choice",
     label: "4-Choice",
-    hint: "One pick from four students",
+    hint: "One pick from four students, the picture or its silhouette",
   },
   {
     value: "timeattack",
@@ -312,21 +324,21 @@ const PICTURE_STYLES: Array<Option<Exclude<PictureStyle, "silhouette">>> = [
 
 /**
  * Picks how to play the picture game's Endless: the OST's three, as Voice
- * mode's. Silhouette is Classic with the picture's shape in its place,
- * turned on above the game (see PictureGame), as Voice's hints are.
+ * mode's. The silhouette and hints are picked above the game (see
+ * PictureGame), as Voice's hints are.
  */
 export function PictureStyles({
   style,
   onChange,
 }: {
   style: PictureStyle;
-  onChange: (style: Exclude<PictureStyle, "silhouette">) => void;
+  onChange: (pill: PicturePill) => void;
 }) {
   return (
     <Pills
       label="Way to play"
       options={PICTURE_STYLES}
-      value={style === "silhouette" ? "endless" : style}
+      value={pillOf(style)}
       onChange={onChange}
     />
   );

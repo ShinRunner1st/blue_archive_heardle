@@ -123,3 +123,21 @@ export const Label = styled.span<{
     }
   }
 `;
+
+/** Holds a compact switch's label and, invisibly, every other one. */
+export const Fit = styled.span`
+  display: inline-grid;
+
+  & > * {
+    grid-area: 1 / 1;
+    justify-self: center;
+  }
+`;
+
+export const Ghost = styled.span`
+  visibility: hidden;
+
+  &::before {
+    content: attr(data-label);
+  }
+`;

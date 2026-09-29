@@ -4,7 +4,15 @@ import { Game as GameName, GameMode, isEndlessStyle } from "./types/mode";
 import { Song } from "./types/song";
 import { StudentGame as StudentWay } from "./types/student";
 import { VoiceMode, VoiceStyle } from "./types/voice";
-import { PictureKind, PictureMode, PictureStyle } from "./types/picture";
+import {
+  pillOf,
+  PictureKind,
+  PictureMode,
+  PictureOptions,
+  PicturePill,
+  PictureStyle,
+  styleFor,
+} from "./types/picture";
 
 import { useBirthdays } from "./hooks/useBirthdays";
 import { useGame } from "./hooks/useGame";
@@ -98,16 +106,17 @@ function App() {
   const voiceHeaderMode: GameMode =
     voiceMode === "nohint" ? "endless" : voiceMode;
 
-  // The picture game's kind, halo or weapon, and its way to play Endless,
-  // which has one more, Silhouette.
+  // The picture game's kind, halo or weapon, and its way to play Endless:
+  // a pill, and the silhouette and hints picked above the game.
   const [pictureKind, setPictureKind] =
     React.useState<PictureKind>(loadPictureKind);
   const [pictureStyle, setPictureStyle] =
     React.useState<PictureStyle>(loadPictureStyle);
   const pictureMode: PictureMode = mode === "daily" ? "daily" : pictureStyle;
   const isPictureTimeAttack = isPicture && pictureMode === "timeattack";
+  // How the header and the pop-ups see it: every Classic is Classic.
   const pictureHeaderMode: GameMode =
-    pictureMode === "silhouette" ? "endless" : pictureMode;
+    pictureMode === "daily" ? "daily" : pillOf(pictureMode);
 
   const {
     solution,
@@ -247,26 +256,23 @@ function App() {
     savePictureStyle(pictureStyle);
   }, [pictureStyle]);
 
-  // Classic, with the silhouette on or off as it was last.
-  const pictureClassic = React.useRef<PictureStyle>(
-    pictureStyle === "silhouette" ? "silhouette" : "endless"
-  );
-  const changePictureStyle = React.useCallback((next: PictureStyle) => {
-    if (next === "endless" || next === "silhouette") {
-      setPictureStyle((was) =>
-        next === "endless" && (was === "endless" || was === "silhouette")
-          ? was
-          : next === "endless"
-          ? pictureClassic.current
-          : next
-      );
-    } else {
-      setPictureStyle(next);
-    }
+  // Each pill's way to play as it was last: Classic with or without the
+  // silhouette and hints, 4-Choice with or without the silhouette.
+  const pictureLast = React.useRef<Record<PicturePill, PictureStyle>>({
+    endless: "endless",
+    choice: "choice",
+    timeattack: "timeattack",
+    [pillOf(pictureStyle)]: pictureStyle,
+  });
+  const changePicturePill = React.useCallback((pill: PicturePill) => {
+    setPictureStyle(pictureLast.current[pill]);
   }, []);
-  const setPictureSilhouette = React.useCallback((on: boolean) => {
-    pictureClassic.current = on ? "silhouette" : "endless";
-    setPictureStyle(pictureClassic.current);
+  const setPictureOptions = React.useCallback((options: PictureOptions) => {
+    setPictureStyle((was) => {
+      const next = styleFor(pillOf(was), options);
+      pictureLast.current[pillOf(was)] = next;
+      return next;
+    });
   }, []);
   const changePictureKind = React.useCallback(
     (next: PictureKind) => {
@@ -687,7 +693,7 @@ function App() {
             pictureMode !== "daily" && (
               <PictureStyles
                 style={pictureStyle}
-                onChange={changePictureStyle}
+                onChange={changePicturePill}
               />
             )
           ) : isVoice ? (
@@ -701,92 +707,94 @@ function App() {
           )}
         </Styled.StyleRow>
       </Styled.StyleBar>
-      <BirthdayNote
-        students={birthdays}
-        withIcons={isStudents || isVoice || isPicture}
-      />
-      <Styled.Container $top={isStudents}>
-        {isStudents ? (
-          <StudentGame
-            // A new screen for each way to play and mode, as for the OST.
-            key={students.slot}
-            game={studentWay}
-            mode={studentMode}
-            round={studentRound}
-            score={`${students.wins}/${students.played}`}
-            streak={students.streak}
-            onGuess={students.guess}
-            onGiveUp={students.giveUp}
-            onNext={students.next}
-            onNewDay={students.refreshDay}
-            keyboardEnabled={!isPopUpOpen}
-          />
-        ) : isPictureTimeAttack ? (
-          <PictureTimeAttack
-            timeAttack={pictureTimeAttack}
-            onKindChange={changePictureKind}
-            keyboardEnabled={!isPopUpOpen}
-          />
-        ) : isPicture ? (
-          <PictureGame
-            // A new screen for each kind and mode, as for the OST.
-            key={`${pictureKind}-${pictureMode}`}
-            game={picture}
-            onKindChange={changePictureKind}
-            onSilhouetteChange={setPictureSilhouette}
-            keyboardEnabled={!isPopUpOpen}
-          />
-        ) : isVoiceTimeAttack ? (
-          <VoiceTimeAttack
-            timeAttack={voiceTimeAttack}
-            keyboardEnabled={!isPopUpOpen}
-          />
-        ) : isVoice ? (
-          <VoiceGame
-            // A new screen for each mode, as for the OST.
-            key={voiceMode}
-            mode={voice.mode}
-            game={voice}
-            onHintsChange={setVoiceHints}
-            keyboardEnabled={!isPopUpOpen}
-          />
-        ) : isTimeAttack ? (
-          <TimeAttack timeAttack={timeAttack} keyboardEnabled={!isPopUpOpen} />
-        ) : (
-          <Game
-            // Remounting on a mode change clears the search box and the player,
-            // which otherwise carry the old mode's round over.
-            key={mode}
-            guesses={guesses}
-            didGuess={didGuess}
-            solution={solution}
-            currentTry={currentTry}
-            selectedSong={selectedSong}
-            setSelectedSong={setSelectedSong}
-            skip={skip}
-            guess={submitGuess}
-            pick={guess}
-            setClip={setClip}
-            score={score}
-            bagEmpty={bagEmpty}
-            onNextSong={nextSong}
-            onResetScore={resetScore}
-            setStartTime={setStartTime}
-            startTime={startTime}
-            keyboardEnabled={!isPopUpOpen}
-            mode={mode}
-            round={round}
-            onNewDay={refreshDay}
-            // Daily is the same puzzle for everyone, so a bad track there cannot
-            // be swapped out - only the bag modes can deal a replacement.
-            onSkipTrack={mode === "daily" ? undefined : replaceCurrentSong}
-            onBrowseSongs={openSongList}
-            streak={streak}
-            badgeLines={badgeLines}
-            record={record}
-          />
-        )}
-      </Styled.Container>
+      <BirthdayNote students={birthdays} />
+      <Styled.PlayArea>
+        <Styled.Container $top={isStudents}>
+          {isStudents ? (
+            <StudentGame
+              // A new screen for each way to play and mode, as for the OST.
+              key={students.slot}
+              game={studentWay}
+              mode={studentMode}
+              round={studentRound}
+              score={`${students.wins}/${students.played}`}
+              streak={students.streak}
+              onGuess={students.guess}
+              onGiveUp={students.giveUp}
+              onNext={students.next}
+              onNewDay={students.refreshDay}
+              keyboardEnabled={!isPopUpOpen}
+            />
+          ) : isPictureTimeAttack ? (
+            <PictureTimeAttack
+              timeAttack={pictureTimeAttack}
+              onKindChange={changePictureKind}
+              keyboardEnabled={!isPopUpOpen}
+            />
+          ) : isPicture ? (
+            <PictureGame
+              // A new screen for each kind and mode, as for the OST.
+              key={`${pictureKind}-${pictureMode}`}
+              game={picture}
+              onKindChange={changePictureKind}
+              onOptionsChange={setPictureOptions}
+              keyboardEnabled={!isPopUpOpen}
+            />
+          ) : isVoiceTimeAttack ? (
+            <VoiceTimeAttack
+              timeAttack={voiceTimeAttack}
+              keyboardEnabled={!isPopUpOpen}
+            />
+          ) : isVoice ? (
+            <VoiceGame
+              // A new screen for each mode, as for the OST.
+              key={voiceMode}
+              mode={voice.mode}
+              game={voice}
+              onHintsChange={setVoiceHints}
+              keyboardEnabled={!isPopUpOpen}
+            />
+          ) : isTimeAttack ? (
+            <TimeAttack
+              timeAttack={timeAttack}
+              keyboardEnabled={!isPopUpOpen}
+            />
+          ) : (
+            <Game
+              // Remounting on a mode change clears the search box and the player,
+              // which otherwise carry the old mode's round over.
+              key={mode}
+              guesses={guesses}
+              didGuess={didGuess}
+              solution={solution}
+              currentTry={currentTry}
+              selectedSong={selectedSong}
+              setSelectedSong={setSelectedSong}
+              skip={skip}
+              guess={submitGuess}
+              pick={guess}
+              setClip={setClip}
+              score={score}
+              bagEmpty={bagEmpty}
+              onNextSong={nextSong}
+              onResetScore={resetScore}
+              setStartTime={setStartTime}
+              startTime={startTime}
+              keyboardEnabled={!isPopUpOpen}
+              mode={mode}
+              round={round}
+              onNewDay={refreshDay}
+              // Daily is the same puzzle for everyone, so a bad track there cannot
+              // be swapped out - only the bag modes can deal a replacement.
+              onSkipTrack={mode === "daily" ? undefined : replaceCurrentSong}
+              onBrowseSongs={openSongList}
+              streak={streak}
+              badgeLines={badgeLines}
+              record={record}
+            />
+          )}
+        </Styled.Container>
+      </Styled.PlayArea>
       <Character
         guesses={reactTo.guesses}
         currentTry={reactTo.currentTry}

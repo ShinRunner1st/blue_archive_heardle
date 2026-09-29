@@ -41,6 +41,9 @@ import {
 import { SKIPPED } from "../types/voice";
 
 type Slot = `${PictureKind}-${PictureRoundMode}`;
+
+/** 4-Choice, the picture or its silhouette: one pick from four. */
+const isChoice = (mode: PictureRoundMode) => mode.startsWith("choice");
 type Histories = Record<Slot, PictureRound[]>;
 
 /** A new round from the mode's bag, with four answers in 4-Choice. */
@@ -53,7 +56,7 @@ function dealRound(
   return {
     answer,
     guesses: [],
-    ...(mode === "choice" ? { choices: makePictureChoices(kind, answer) } : {}),
+    ...(isChoice(mode) ? { choices: makePictureChoices(kind, answer) } : {}),
   };
 }
 
@@ -204,7 +207,7 @@ export function usePictureGame(kind: PictureKind, mode: PictureRoundMode) {
   // The OST's streak and calendar helpers, fed the same rounds in its shape.
   const asRounds = React.useMemo(() => rounds.map(asRound), [rounds]);
 
-  const tries = mode === "choice" ? 1 : VOICE_TRIES;
+  const tries = isChoice(mode) ? 1 : VOICE_TRIES;
   const tally = React.useMemo(() => voiceTally(rounds, tries), [rounds, tries]);
 
   const streak = React.useMemo(

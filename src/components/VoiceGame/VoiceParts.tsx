@@ -11,7 +11,7 @@ import { ClueIcon, hasClueIcon, Silhouette, StudentIcon } from "../StudentIcon";
 
 import * as Styled from "./index.styled";
 
-/** The round's tries, one row each: who was guessed, a skip, or empty. */
+/** The round's tries, two to a row: who was guessed, a skip, or empty. */
 export function VoiceGuesses({
   guesses,
   tries,
@@ -22,7 +22,7 @@ export function VoiceGuesses({
   answer: number;
 }) {
   return (
-    <>
+    <Styled.Tries>
       {Array.from({ length: tries }, (_, index) => {
         const id = guesses[index];
         const student = id === undefined ? undefined : studentById.get(id);
@@ -44,7 +44,7 @@ export function VoiceGuesses({
           </Styled.GuessRow>
         );
       })}
-    </>
+    </Styled.Tries>
   );
 }
 
@@ -89,7 +89,7 @@ export function VoiceHints({
 }
 
 function HintValue({ hint, answer }: { hint: Hint; answer: Student }) {
-  if (hint === "silhouette") return <Silhouette id={answer.id} size={60} />;
+  if (hint === "silhouette") return <Silhouette id={answer.id} size={48} />;
   if (hint === "club")
     return <Styled.HintValue>{answer.club}</Styled.HintValue>;
 

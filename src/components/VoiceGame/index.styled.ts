@@ -22,6 +22,19 @@ export const PlayerBox = styled.div`
   text-align: center;
 `;
 
+/**
+ * The round's four tries, two to a row: a name fits in half the width, and
+ * four full-width rows made the game taller than a laptop's window.
+ */
+export const Tries = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+
+  width: 100%;
+  margin: 4px 0;
+`;
+
 /** A try: the student guessed with their icon, a skip, or still to come. */
 export const GuessRow = styled.div<{
   $active: boolean;
@@ -33,8 +46,8 @@ export const GuessRow = styled.div<{
 
   box-sizing: border-box;
   width: 100%;
-  height: 45px;
-  margin: 5px auto;
+  min-width: 0;
+  height: 42px;
   padding: 0 10px;
 
   font-size: 0.9rem;
@@ -57,6 +70,17 @@ export const GuessRow = styled.div<{
   }
 `;
 
+/** Skip and Guess, closer under the search box than the OST's. */
+export const Buttons = styled.div`
+  display: flex;
+  justify-content: space-between;
+
+  width: 100%;
+  margin-top: 12px;
+
+  font-family: "Nunito Sans Variable";
+`;
+
 export const GuessName = styled.span`
   overflow: hidden;
   white-space: nowrap;
@@ -74,7 +98,7 @@ export const Hints = styled.div`
   gap: 8px;
 
   width: 100%;
-  margin: 10px 0 4px;
+  margin: 8px 0 0;
 `;
 
 const reveal = keyframes`
@@ -90,8 +114,8 @@ export const HintCard = styled.div<{ $open: boolean }>`
   gap: 4px;
 
   box-sizing: border-box;
-  min-height: 96px;
-  padding: 8px 6px;
+  min-height: 80px;
+  padding: 6px;
 
   text-align: center;
   color: ${({ theme }) => theme.text};
@@ -105,7 +129,7 @@ export const HintCard = styled.div<{ $open: boolean }>`
   animation: ${({ $open }) => ($open ? reveal : "none")} 0.35s ease-out;
 
   @media (max-width: 480px) {
-    min-height: 84px;
+    min-height: 72px;
   }
 `;
 

@@ -1,11 +1,14 @@
-import { IoLockClosed } from "react-icons/io5";
+import {
+  IoCheckmarkCircle,
+  IoEllipseOutline,
+  IoLockClosed,
+} from "react-icons/io5";
 
 import { PictureKind } from "../../constants/guessSheets";
 import { KIND_NAMES, PictureHint } from "../../helpers/pictureRounds";
-import { PICTURE_KINDS } from "../../types/picture";
+import { PICTURE_KINDS, PictureOptions } from "../../types/picture";
 import { Student } from "../../types/student";
 
-import * as GameStyled from "../Game/index.styled";
 import { Chip } from "../SongListPopUp/index.styled";
 import { ClueIcon, hasClueIcon, Silhouette } from "../StudentIcon";
 
@@ -67,14 +70,14 @@ function HintValue({
   hint: PictureHint;
   answer: Student;
 }) {
-  if (hint === "silhouette") return <Silhouette id={answer.id} size={60} />;
+  if (hint === "silhouette") return <Silhouette id={answer.id} size={48} />;
   if (hint === "picture") {
     return (
       <Styled.SmallStage>
         <GuessPicture
           kind={kind}
           id={answer.id}
-          zoom={kind === "halo" ? 0.42 : 0.4}
+          zoom={kind === "halo" ? 0.36 : 0.34}
         />
       </Styled.SmallStage>
     );
@@ -92,25 +95,55 @@ function HintValue({
   );
 }
 
+/** A choice above the game that's on or off, with a tick when on. */
+function Toggle({
+  label,
+  on,
+  onChange,
+}: {
+  label: string;
+  on: boolean;
+  onChange: (on: boolean) => void;
+}) {
+  return (
+    <Chip
+      type="button"
+      $active={on}
+      aria-pressed={on}
+      onClick={() => onChange(!on)}
+    >
+      {on ? (
+        <IoCheckmarkCircle aria-hidden="true" />
+      ) : (
+        <IoEllipseOutline aria-hidden="true" />
+      )}
+      {label}
+    </Chip>
+  );
+}
+
 /**
- * Picks the kind, halo or weapon, above the game, and in Classic whether the
- * picture shows as it is or as its silhouette, as Voice mode's hints are
- * turned on and off there.
+ * Picks the kind, halo or weapon, above the game, and where the mode has
+ * them, whether the picture shows as its silhouette and whether misses
+ * open hints, as Voice mode's hints are turned on and off there. One row,
+ * so the game keeps its height.
  */
 export function KindRow({
   kind,
   onKindChange,
-  silhouette,
-  onSilhouetteChange,
+  options,
+  toggles = [],
+  onOptionsChange,
 }: {
   kind: PictureKind;
   onKindChange: (kind: PictureKind) => void;
-  /** Left out where the mode has no choice of it. */
-  silhouette?: boolean;
-  onSilhouetteChange?: (on: boolean) => void;
+  options?: PictureOptions;
+  /** The options this mode lets the player pick. */
+  toggles?: Array<keyof PictureOptions>;
+  onOptionsChange?: (options: PictureOptions) => void;
 }) {
   return (
-    <GameStyled.ClipRow>
+    <Styled.OptionRow>
       <Styled.HintSwitch role="group" aria-label="Name the student from">
         {PICTURE_KINDS.map((each) => (
           <Chip
@@ -124,24 +157,24 @@ export function KindRow({
           </Chip>
         ))}
       </Styled.HintSwitch>
-      {silhouette !== undefined && onSilhouetteChange && (
-        <>
-          <GameStyled.ClipLabel>Silhouette</GameStyled.ClipLabel>
-          <Styled.HintSwitch role="group" aria-label="Silhouette">
-            {[true, false].map((on) => (
-              <Chip
-                key={String(on)}
-                type="button"
-                $active={silhouette === on}
-                aria-pressed={silhouette === on}
-                onClick={() => onSilhouetteChange(on)}
-              >
-                {on ? "On" : "Off"}
-              </Chip>
-            ))}
-          </Styled.HintSwitch>
-        </>
+      {options && onOptionsChange && toggles.length > 0 && (
+        <Styled.HintSwitch role="group" aria-label="Options">
+          {toggles.includes("shape") && (
+            <Toggle
+              label="Silhouette"
+              on={options.shape}
+              onChange={(shape) => onOptionsChange({ ...options, shape })}
+            />
+          )}
+          {toggles.includes("hints") && (
+            <Toggle
+              label="Hints"
+              on={options.hints}
+              onChange={(hints) => onOptionsChange({ ...options, hints })}
+            />
+          )}
+        </Styled.HintSwitch>
       )}
-    </GameStyled.ClipRow>
+    </Styled.OptionRow>
   );
 }

@@ -31,16 +31,37 @@ export const Container = styled.main<{ $top?: boolean }>`
 `;
 
 /**
- * The page's wrapper. The artwork behind it is painted by Backdrop's fixed
- * layers rather than by the wrapper: a `position: fixed` wrapper would take
- * the whole page out of flow and make anything past the first viewport
- * unreachable.
+ * The page's wrapper, exactly the window's height: the page itself never
+ * scrolls, so the header, the switches and the footer stay put, and a play
+ * area taller than the window scrolls inside PlayArea instead. The artwork
+ * behind it is painted by Backdrop's fixed layers rather than by the
+ * wrapper.
  */
 export const BG = styled.div`
   position: relative;
 
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   width: 100%;
+  overflow: hidden;
+
+  display: flex;
+  flex-direction: column;
+`;
+
+/**
+ * Everything between the switches and the footer, the window's full width
+ * so the wheel works anywhere beside the game. It scrolls only when the
+ * game is taller than the room left, as on a small laptop, with a thin bar.
+ */
+export const PlayArea = styled.div`
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(241, 247, 237, 0.3) transparent;
 
   display: flex;
   flex-direction: column;

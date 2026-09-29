@@ -142,7 +142,7 @@ export function InfoPopUp({
                   ? `Name as many students as you can by their ${pictureKind}, one try each. Pick pictures or silhouettes before you start.`
                   : mode === "choice"
                   ? `See a ${pictureKind}, then pick whose it is from four students.`
-                  : `See a ${pictureKind}, and name any student it belongs to. Each miss shows a hint: their school, then their club, then their silhouette. In Endless you can play with the ${pictureKind}'s silhouette instead.`}
+                  : `See a ${pictureKind}, and name any student it belongs to. Each miss shows a hint: their school, then their club, then their silhouette. In Endless, Classic can turn the hints off, and Classic and 4-Choice can show only the ${pictureKind}'s silhouette.`}
               </PopUpCardText>
             </PopUpCardBody>
           </PopUpCard>

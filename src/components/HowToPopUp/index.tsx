@@ -154,9 +154,10 @@ export function HowToPopUp({ onClose }: Props) {
               and most share a gun, so naming any student it belongs to is
               right. You get four tries, and each miss or skip shows a hint:
               their school, then their club, then their silhouette. In Endless,
-              Classic can show only the picture&apos;s silhouette, 4-Choice is
-              one pick from four, and Time Attack is as many as you can in three
-              minutes, pictures or silhouettes.
+              Classic can turn the hints off, 4-Choice is one pick from four,
+              and Time Attack is as many as you can in three minutes. Classic,
+              4-Choice and Time Attack can show only the picture&apos;s
+              silhouette.
             </PopUpCardText>
           </PopUpCardBody>
         </PopUpCard>

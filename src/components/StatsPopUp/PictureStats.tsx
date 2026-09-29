@@ -40,8 +40,11 @@ const PICTURE_BANDS: CalendarBands = { best: 1, good: 2, most: 4 };
 const MODE_NOUNS: Record<PictureRoundMode, string> = {
   daily: "daily puzzle",
   endless: "round",
+  nohint: "No hints round",
   silhouette: "silhouette round",
+  "silhouette-nohint": "silhouette round without hints",
   choice: "4-Choice round",
+  "choice-silhouette": "4-Choice silhouette round",
 };
 
 function subtitleFor(

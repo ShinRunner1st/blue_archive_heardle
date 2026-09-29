@@ -80,9 +80,11 @@ Daily is one student a day, the same for everyone, from a schedule in
 OST's. Endless deals every student once before any comes round again. The
 result names the student; its share text is squares only, so it spoils
 nothing, and so is its share picture on a daily puzzle (an endless one shows
-the student). Stats has Share recap, like the OST's. On a student's birthday a note at the top of the page wishes them a
-happy one (with their icon in the student game; the OST game shows the name
-alone, so it never downloads the icons).
+the student). Stats has Share recap, like the OST's. On a student's birthday a card at the top of the page wishes them a
+happy one, with their portrait, in every game. The portraits are a file each
+on the Worker (about 7.5 KB), and their list (`portraitFiles.ts`, shared
+with the Sensei card) loads only on a birthday, so an OST player never
+downloads the 450 KB icon sheet for it.
 
 ### Voice
 
@@ -138,19 +140,31 @@ picture shows on a slate tile, which suits pale halos and dark guns alike.
 - **Daily** - one halo and one weapon a day, the same for everyone, from the
   schedules in `src/constants/guessDailyOrder.ts`, only ever added to. Always
   the picture itself.
-- **Endless**, with the OST's three:
-  - **Classic** - four tries with hints. A Silhouette switch above the game
-    shows only the picture's shape, white on the tile, with its own score and
-    stats; its last hint is then the picture itself.
-  - **4-Choice** - one pick from four students: for a halo, two from the
-    answer's school where there are; for a weapon, two with the same kind of
-    gun (SG, AR...); never another costume of the answer.
+- **Endless**, with the OST's three. The row above the game has toggles
+  beside Halo and Weapon: **Silhouette** shows only the picture's shape,
+  white on the tile, and in Classic **Hints** turns the hints off. Each mix
+  is its own way to play, with its own score and stats, as Voice's No hints
+  is, and each pill remembers the mix it had last.
+  - **Classic** - four tries, with hints or none. With the silhouette on,
+    the last hint is the picture itself.
+  - **4-Choice** - one pick from four students, the picture or its
+    silhouette: for a halo, two from the answer's school where there are;
+    for a weapon, two with the same kind of gun (SG, AR...); never another
+    costume of the answer.
   - **Time Attack** - as many as you can in three minutes, typed or from four,
     pictures or silhouettes, each with its own best.
 
 The result shows whose it was (everyone sharing it, and a weapon's name), your
 record with the picture, and the picture itself. Share text is squares only;
 share pictures (a daily one names nobody) and Stats' recaps work as Voice's.
+
+### Fitting the window
+
+The page is the window's height and never scrolls itself: the header, the
+switches and the footer stay put. When a game is taller than the room left,
+as on a small laptop or a phone, only the play area between them scrolls,
+with a thin bar. Voice and Picture show their four tries two to a row, so
+they need no more height than the OST, and every game fits a 1080p window.
 
 ### Finding a song
 

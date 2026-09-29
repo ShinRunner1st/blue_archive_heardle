@@ -82,7 +82,11 @@ describe("App", () => {
     const click = (label: string) =>
       act(() => {
         Array.from(container.querySelectorAll("button"))
-          .find((button) => button.textContent === label)
+          .find(
+            (button) =>
+              button.textContent === label ||
+              button.getAttribute("aria-label") === label
+          )
           ?.click();
       });
     const search = () =>
@@ -167,7 +171,7 @@ describe("App mode switch", () => {
     expect(localStorage.getItem("game")).toBe("picture");
     expect(container.querySelector('[aria-label="The halo"]')).not.toBeNull();
     // Daily shows the picture itself, never its silhouette.
-    expect(modeButton("On")).toBeUndefined();
+    expect(modeButton("Silhouette")).toBeUndefined();
 
     act(() => {
       modeButton("Weapon")!.click();
@@ -179,13 +183,34 @@ describe("App mode switch", () => {
       modeButton("Endless")!.click();
     });
     act(() => {
-      modeButton("On")!.click();
+      modeButton("Silhouette")!.click();
     });
     expect(localStorage.getItem("pictureStyle")).toBe("silhouette");
     expect(
       container.querySelector(`[aria-label="The weapon's silhouette"]`)
     ).not.toBeNull();
     expect(container.querySelector('[aria-label="The weapon"]')).toBeNull();
+
+    act(() => {
+      modeButton("Hints")!.click();
+    });
+    expect(localStorage.getItem("pictureStyle")).toBe("silhouette-nohint");
+    expect(container.querySelector('[aria-label="Hints"]')).toBeNull();
+
+    // 4-Choice keeps a silhouette of its own; Classic remembers its mix.
+    act(() => {
+      modeButton("4-Choice")!.click();
+    });
+    expect(localStorage.getItem("pictureStyle")).toBe("choice");
+    expect(modeButton("Hints")).toBeUndefined();
+    act(() => {
+      modeButton("Silhouette")!.click();
+    });
+    expect(localStorage.getItem("pictureStyle")).toBe("choice-silhouette");
+    act(() => {
+      modeButton("Classic")!.click();
+    });
+    expect(localStorage.getItem("pictureStyle")).toBe("silhouette-nohint");
   });
 
   it("plays four-choice, and goes back to it from Daily", () => {

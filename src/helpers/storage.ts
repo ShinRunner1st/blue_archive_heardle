@@ -486,8 +486,8 @@ export function toPictureRounds(value: unknown): PictureRound[] {
 }
 
 const slotKey = (slot: PictureSlot) => {
-  const [kind, mode] = slot.split("-");
-  return pictureStorageKey(kind, mode);
+  const dash = slot.indexOf("-");
+  return pictureStorageKey(slot.slice(0, dash), slot.slice(dash + 1));
 };
 
 /** A picture game slot's saved rounds; never throws, like loadRounds. */

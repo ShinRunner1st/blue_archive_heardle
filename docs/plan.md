@@ -310,6 +310,19 @@ weapons" and "Halos and weapons"):
   Fandom, as SchaleDB has none (all 144 there, three under other names).
   Credited in About and the README. Hatsune Miku's is filed as "Miku
   Halo.png", uploaded in 2022: the user to check it's hers.
+- **First feedback** (same branch, 2026-09-29):
+  - The page never scrolls: it is the window's height, with the header,
+    switches and footer fixed, and only the play area scrolls when a screen
+    is too tall, as on a small laptop, in every game.
+  - Voice and Picture take less height: the four tries two to a row,
+    smaller hint cards and picture, Skip and Guess closer. They now need
+    no more than the OST's Classic (both fit a 1080p window).
+  - Picture: Classic can turn the hints off, and 4-Choice can show the
+    silhouette. Silhouette and Hints are toggles beside Halo and Weapon,
+    one row; each mix is its own way to play with its own stats.
+  - The game switch keeps one width whatever game is picked.
+  - The birthday note is bigger, with the student's portrait in every game
+    (the portraits' list loads only on a birthday, 3 KB, one request).
 - **Size:** each picture sheet is about 600 KB, the shapes 120 to 330 KB,
   1.7 MB in all on the Worker and R2 (well inside R2's free 10 GB). A player
   downloads a kind's sheet once, the first time it shows. Nothing is added

@@ -205,7 +205,7 @@ export function VoiceGame({
           <IoGrid size={20} aria-hidden="true" />
         </Styled.BrowseButton>
       </Styled.SearchRow>
-      <GameStyled.Buttons>
+      <Styled.Buttons>
         <Button stroke onClick={skip}>
           {isLastTry ? "Give up?" : nextHint ? "Skip for a hint" : "Skip"}
         </Button>
@@ -217,7 +217,7 @@ export function VoiceGame({
         >
           Guess
         </Button>
-      </GameStyled.Buttons>
+      </Styled.Buttons>
       {listOpen && (
         <StudentListPopUp
           pool={voicePool}

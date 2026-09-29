@@ -11,11 +11,10 @@ import {
 import { studentById } from "../../helpers/studentRounds";
 import { hintsShown, isOver, triesOf } from "../../helpers/voiceRounds";
 import { PictureGameState } from "../../hooks/usePictureGame";
-import { PictureKind } from "../../types/picture";
+import { optionsOf, PictureKind, PictureOptions } from "../../types/picture";
 import { Student } from "../../types/student";
 
 import { Button } from "../Button";
-import * as GameStyled from "../Game/index.styled";
 import { StudentListPopUp } from "../StudentGame/StudentListPopUp";
 import { StudentSearch } from "../StudentGame/StudentSearch";
 import { hasSilhouette } from "../StudentIcon";
@@ -33,21 +32,25 @@ export { PictureTimeAttack } from "./PictureTimeAttack";
 interface Props {
   game: PictureGameState;
   onKindChange: (kind: PictureKind) => void;
-  /** Turns Classic's silhouette on or off: each is its own way to play. */
-  onSilhouetteChange?: (on: boolean) => void;
+  /**
+   * Turns the silhouette and hints on or off: each mix is its own way to
+   * play, with its own stats.
+   */
+  onOptionsChange?: (options: PictureOptions) => void;
   /** False while a dialog is open, so the page's keys stay inert. */
   keyboardEnabled: boolean;
 }
 
 /**
  * The picture game: see a student's halo or weapon and name them. Daily and
- * Classic give a hint with each miss, four tries in all, and Classic can
- * show the picture's silhouette instead; 4-Choice is one pick from four.
+ * Classic give a hint with each miss, four tries in all; Classic can turn
+ * the hints off and show the picture's silhouette instead, and 4-Choice,
+ * one pick from four, can show the silhouette too.
  */
 export function PictureGame({
   game,
   onKindChange,
-  onSilhouetteChange,
+  onOptionsChange,
   keyboardEnabled,
 }: Props) {
   const { kind, mode, round } = game;
@@ -101,10 +104,15 @@ export function PictureGame({
     <KindRow
       kind={kind}
       onKindChange={onKindChange}
-      silhouette={
-        mode === "endless" || mode === "silhouette" ? shape : undefined
+      options={optionsOf(mode)}
+      toggles={
+        mode === "daily"
+          ? []
+          : mode.startsWith("choice")
+          ? ["shape"]
+          : ["shape", "hints"]
       }
-      onSilhouetteChange={onSilhouetteChange}
+      onOptionsChange={onOptionsChange}
     />
   );
 
@@ -188,7 +196,7 @@ export function PictureGame({
           <IoGrid size={20} aria-hidden="true" />
         </Styled.BrowseButton>
       </Styled.SearchRow>
-      <GameStyled.Buttons>
+      <Styled.Buttons>
         <Button stroke onClick={skip}>
           {isLastTry ? "Give up?" : nextHint ? "Skip for a hint" : "Skip"}
         </Button>
@@ -200,7 +208,7 @@ export function PictureGame({
         >
           Guess
         </Button>
-      </GameStyled.Buttons>
+      </Styled.Buttons>
       {listOpen && (
         <StudentListPopUp
           pool={pool}

@@ -8,6 +8,7 @@ import {
 } from "../constants/guessPictures";
 import { students } from "../constants/students";
 import {
+  optionsOf,
   PictureKind,
   PictureMode,
   PictureRound,
@@ -135,14 +136,14 @@ export function ruledOut(kind: PictureKind, guesses: number[]): Set<number> {
   return out;
 }
 
-/** Whether a mode gives hints: Daily and both kinds of Classic do. */
+/** Whether a mode gives hints: Daily and Classic do, unless turned off. */
 export function hasPictureHints(mode: PictureRoundMode): boolean {
-  return mode === "daily" || mode === "endless" || mode === "silhouette";
+  return optionsOf(mode).hints;
 }
 
 /** Whether the round shows the picture's shape rather than the picture. */
 export function showsShape(mode: PictureMode, round?: PictureRound): boolean {
-  return mode === "silhouette" || round?.shape === true;
+  return optionsOf(mode).shape || round?.shape === true;
 }
 
 /**
@@ -317,8 +318,11 @@ export const KIND_SYMBOLS: Record<PictureKind, string> = {
 export const PICTURE_MODE_NAMES: Record<PictureRoundMode, string> = {
   daily: "Daily",
   endless: "Classic",
+  nohint: "No hints",
   silhouette: "Silhouette",
+  "silhouette-nohint": "Silhouette, no hints",
   choice: "4-Choice",
+  "choice-silhouette": "4-Choice silhouette",
 };
 
 /**

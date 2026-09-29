@@ -1,4 +1,5 @@
 import React from "react";
+import { act } from "react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { createHarness } from "../../test/harness";
@@ -10,10 +11,8 @@ let harness: ReturnType<typeof createHarness>;
 
 const three = students.filter(({ lore }) => lore).slice(0, 3);
 
-function mount(list = three, withIcons = false) {
-  harness.render(
-    React.createElement(BirthdayNote, { students: list, withIcons })
-  );
+function mount(list = three) {
+  harness.render(React.createElement(BirthdayNote, { students: list }));
 }
 
 beforeEach(() => {
@@ -28,7 +27,7 @@ describe("BirthdayNote", () => {
   it("wishes each student a happy birthday", () => {
     mount(three.slice(0, 1));
     expect(harness.container.textContent).toBe(
-      `🎂Happy birthday, ${three[0].name}!`
+      `Happy birthday, ${three[0].name}! 🎂`
     );
 
     mount(three);
@@ -37,12 +36,16 @@ describe("BirthdayNote", () => {
     );
   });
 
-  it("shows icons only when asked", () => {
-    mount(three, false);
-    expect(harness.container.querySelectorAll("span[style]")).toHaveLength(0);
-
-    mount(three, true);
-    expect(harness.container.querySelectorAll("span[style]")).toHaveLength(3);
+  it("shows each student's portrait, from the Worker", async () => {
+    mount(three);
+    // The portraits' list loads on its own, as it does on the page.
+    await act(async () => {
+      await import("../../constants/portraitFiles");
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
+    const images = harness.container.querySelectorAll("img");
+    expect(images).toHaveLength(3);
+    expect(images[0].getAttribute("src")).toMatch(/pictures\/.+\.webp$/);
   });
 
   it("is nothing on a day with no birthday", () => {

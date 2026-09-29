@@ -3,13 +3,22 @@ import { describe, expect, it } from "vitest";
 import { PICTURE_SHEETS, SHAPE_SHEETS } from "../constants/guessSheets";
 import { haloOrder, weaponOrder } from "../constants/guessDailyOrder";
 import { students } from "../constants/students";
-import { PICTURE_KINDS, PictureRound } from "../types/picture";
+import {
+  optionsOf,
+  pillOf,
+  PICTURE_KINDS,
+  PICTURE_SLOTS,
+  PICTURE_STYLES,
+  PictureRound,
+  styleFor,
+} from "../types/picture";
 import { SKIPPED } from "../types/voice";
 import {
   answerOf,
   asGuess,
   buildPictureShareText,
   dailyPicture,
+  hasPictureHints,
   knownPictureRounds,
   makePictureChoices,
   pickPicture,
@@ -27,6 +36,7 @@ import {
   pictureTimeAttackShareText,
   pictureTimeAttackStats,
 } from "./pictureTimeAttack";
+import { loadPictureRounds, savePictureRounds } from "./storage";
 import { isWon } from "./voiceRounds";
 
 const byName = (name: string) => {
@@ -128,7 +138,10 @@ describe("hints", () => {
 
   it("show the shape in Silhouette and a run of silhouettes", () => {
     expect(showsShape("silhouette")).toBe(true);
+    expect(showsShape("silhouette-nohint")).toBe(true);
+    expect(showsShape("choice-silhouette")).toBe(true);
     expect(showsShape("endless")).toBe(false);
+    expect(showsShape("choice")).toBe(false);
     expect(
       showsShape("timeattack", { answer: 1, guesses: [], shape: true })
     ).toBe(true);
@@ -261,5 +274,39 @@ describe("time attack", () => {
         shape: false,
       })
     ).not.toContain("Aru");
+  });
+});
+
+describe("ways to play", () => {
+  it("are a pill and the options picked above the game", () => {
+    expect(styleFor("endless", { shape: false, hints: true })).toBe("endless");
+    expect(styleFor("endless", { shape: false, hints: false })).toBe("nohint");
+    expect(styleFor("endless", { shape: true, hints: false })).toBe(
+      "silhouette-nohint"
+    );
+    expect(styleFor("choice", { shape: true, hints: true })).toBe(
+      "choice-silhouette"
+    );
+    for (const style of PICTURE_STYLES) {
+      expect(styleFor(pillOf(style), optionsOf(style))).toBe(style);
+    }
+  });
+
+  it("give hints in Daily and Classic unless turned off", () => {
+    expect(hasPictureHints("daily")).toBe(true);
+    expect(hasPictureHints("silhouette")).toBe(true);
+    expect(hasPictureHints("nohint")).toBe(false);
+    expect(hasPictureHints("silhouette-nohint")).toBe(false);
+    expect(hasPictureHints("choice")).toBe(false);
+  });
+
+  it("keep each its own save", () => {
+    expect(new Set(PICTURE_SLOTS).size).toBe(16);
+    localStorage.clear();
+    const rounds = [{ answer: aru.id, guesses: [] }];
+    savePictureRounds("halo-silhouette-nohint", rounds);
+    expect(localStorage.getItem("guess.halo.silhouette-nohint")).not.toBeNull();
+    expect(loadPictureRounds("halo-silhouette-nohint")).toEqual(rounds);
+    expect(loadPictureRounds("halo-silhouette")).toEqual([]);
   });
 });
