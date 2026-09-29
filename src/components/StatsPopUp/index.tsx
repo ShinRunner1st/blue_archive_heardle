@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Button } from "../Button";
 import { PopUp, PopUpBody, PopUpGroupLabel, PopUpSpacer } from "../PopUp";
 import { songs } from "../../constants";
-import { SITE_URL } from "../../constants/game";
+import { pageUrl } from "../../constants/pages";
 import { RoundMode } from "../../types/mode";
 import { StatsTally } from "../../types/stats";
 import { Streaks } from "../../helpers/streaks";
@@ -149,7 +149,7 @@ export function StatsPopUp({
     makeRecap,
     recapPictureName(mode),
     `My Blue Archive Heardle ${mode} recap
-${SITE_URL}`
+${pageUrl("ost")}`
   );
 
   return (

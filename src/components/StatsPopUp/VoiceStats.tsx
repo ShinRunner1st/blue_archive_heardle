@@ -1,6 +1,6 @@
 import React from "react";
 
-import { SITE_URL } from "../../constants/game";
+import { pageUrl } from "../../constants/pages";
 import {
   makeVoiceRecap,
   voiceRecapName,
@@ -89,7 +89,7 @@ export function VoiceStats({
     makeRecap,
     voiceRecapName(mode),
     `My Blue Archive Heardle Voice recap
-${SITE_URL}`
+${pageUrl("voice")}`
   );
 
   return (

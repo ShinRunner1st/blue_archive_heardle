@@ -1,4 +1,5 @@
-import { SITE_URL, VOICE_TIME_ATTACK_SETTINGS_KEY } from "../constants/game";
+import { VOICE_TIME_ATTACK_SETTINGS_KEY } from "../constants/game";
+import { pageUrl } from "../constants/pages";
 import { SKIPPED, VoiceRound } from "../types/voice";
 import { studentById } from "./studentRounds";
 import {
@@ -156,6 +157,6 @@ export function voiceTimeAttackShareText(
       settings.answers
     )} · ${linesLabel(settings.lines)}`,
     `${squares}${more}`,
-    SITE_URL,
+    pageUrl("voice"),
   ].join("\n");
 }

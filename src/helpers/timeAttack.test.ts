@@ -208,7 +208,7 @@ describe("timeAttackShareText", () => {
       "Blue Archive Heardle ⏱ Time Attack",
       "2 right in 3:00 · Typed · 1s clips · random start",
       "🟩🟥🟩",
-      "https://baheardle.com/",
+      "https://baheardle.com/ost",
     ]);
     for (const round of run) {
       expect(text).not.toContain(round.solution.name);

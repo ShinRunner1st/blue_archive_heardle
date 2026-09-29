@@ -1,4 +1,4 @@
-import { SITE_URL } from "../constants/game";
+import { pageUrl } from "../constants/pages";
 import { haloOrder, weaponOrder } from "../constants/guessDailyOrder";
 import {
   HALOS,
@@ -348,6 +348,6 @@ export function buildPictureShareText(
       : `Blue Archive Heardle · ${KIND_NAMES[kind]} (${PICTURE_MODE_NAMES[mode]})`;
   const lines = [title, `${KIND_SYMBOLS[kind]}${squares.join("")}`];
   if (mode !== "daily") lines.push(`Score: ${score}`);
-  lines.push(SITE_URL);
+  lines.push(pageUrl("picture"));
   return lines.join("\n");
 }

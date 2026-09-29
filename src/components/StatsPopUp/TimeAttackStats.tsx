@@ -1,6 +1,6 @@
 import React from "react";
 
-import { SITE_URL } from "../../constants/game";
+import { pageUrl } from "../../constants/pages";
 import {
   makeTimeAttackRecap,
   recapPictureName,
@@ -95,7 +95,7 @@ export function TimeAttackStats({
       ? voiceRecapName("timeattack")
       : recapPictureName("timeattack"),
     `My Blue Archive Heardle ${game}time attack recap
-${SITE_URL}`
+${pageUrl(picture ? "picture" : voice ? "voice" : "ost")}`
   );
 
   return (

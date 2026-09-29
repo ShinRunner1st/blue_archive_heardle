@@ -116,13 +116,13 @@ describe("buildShareText", () => {
     expect(text).not.toContain(`Theme_${songs[0].themeNo}`);
   });
 
-  it("links back to the site", () => {
+  it("links back to the game's page", () => {
     const text = buildShareText({
       mode: "daily",
       round: round(["correct"], 3),
       score: "1/1",
     });
 
-    expect(text.endsWith("https://baheardle.com/")).toBe(true);
+    expect(text.endsWith("https://baheardle.com/ost")).toBe(true);
   });
 });

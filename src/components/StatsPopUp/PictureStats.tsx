@@ -1,6 +1,6 @@
 import React from "react";
 
-import { SITE_URL } from "../../constants/game";
+import { pageUrl } from "../../constants/pages";
 import {
   guessRecapName,
   makeGuessRecap,
@@ -102,7 +102,7 @@ export function PictureStats({
     makeRecap,
     guessRecapName(kind, mode),
     `My Blue Archive Heardle ${KIND_NAMES[kind]} recap
-${SITE_URL}`
+${pageUrl("picture")}`
   );
 
   return (

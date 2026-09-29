@@ -1,4 +1,4 @@
-import { SITE_URL } from "../constants/game";
+import { pageUrl } from "../constants/pages";
 import {
   Student,
   StudentGame,
@@ -77,7 +77,7 @@ export function buildStudentShareText({
       (time ? ` · ⏱️ ${time}` : ""),
   ];
   if (mode === "endless") lines.push(`Score: ${score}`);
-  lines.push(SITE_URL);
+  lines.push(pageUrl("students"));
 
   return lines.join("\n");
 }

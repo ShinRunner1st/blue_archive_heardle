@@ -168,7 +168,7 @@ describe("StatsPopUp recap", () => {
     const [blob, name, text] = vi.mocked(sharePicture).mock.calls[0];
     expect(blob).toBe(picture);
     expect(name).toBe("baheardle-endless-recap-2026-09-28.png");
-    expect(text).toContain("https://baheardle.com/");
+    expect(text).toContain("https://baheardle.com/ost");
   });
 
   it("has nothing to share before a round is finished", () => {

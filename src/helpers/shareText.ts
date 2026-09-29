@@ -1,4 +1,4 @@
-import { SITE_URL } from "../constants/game";
+import { pageUrl } from "../constants/pages";
 import { GameMode } from "../types/mode";
 import { Round } from "../types/stats";
 import { triesOf } from "./calStats";
@@ -53,7 +53,7 @@ export function buildShareText({ mode, round, score }: ShareInput): string {
 
   if (mode !== "daily") lines.push(`Score: ${score}`);
 
-  lines.push(SITE_URL);
+  lines.push(pageUrl("ost"));
 
   return lines.join("\n");
 }

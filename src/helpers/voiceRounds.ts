@@ -1,4 +1,4 @@
-import { SITE_URL } from "../constants/game";
+import { pageUrl } from "../constants/pages";
 import { students } from "../constants/students";
 import { voiceOrder } from "../constants/voiceDailyOrder";
 import { NO_TITLE_CALL, voiceLines } from "../constants/voiceLines";
@@ -327,6 +327,6 @@ export function buildVoiceShareText(
       : `Blue Archive Heardle · Voice (${MODE_NAMES[mode]})`;
   const lines = [title, `🔊${squares.join("")}`];
   if (mode !== "daily") lines.push(`Score: ${score}`);
-  lines.push(SITE_URL);
+  lines.push(pageUrl("voice"));
   return lines.join("\n");
 }

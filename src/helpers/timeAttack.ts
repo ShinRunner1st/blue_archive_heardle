@@ -1,9 +1,6 @@
 import { playTimes } from "../constants";
-import {
-  CLIP_OPTIONS,
-  SITE_URL,
-  TIME_ATTACK_SETTINGS_KEY,
-} from "../constants/game";
+import { CLIP_OPTIONS, TIME_ATTACK_SETTINGS_KEY } from "../constants/game";
+import { pageUrl } from "../constants/pages";
 import { Round } from "../types/stats";
 import { Song } from "../types/song";
 import { makeChoices } from "./choices";
@@ -230,6 +227,6 @@ export function timeAttackShareText(
       settings.randomStart ? " · random start" : ""
     }`,
     `${squares}${more}`,
-    SITE_URL,
+    pageUrl("ost"),
   ].join("\n");
 }

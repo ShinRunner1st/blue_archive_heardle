@@ -7,7 +7,7 @@ import {
   makeStudentRecap,
   studentRecapName,
 } from "../../helpers/picture/studentPicture";
-import { SITE_URL } from "../../constants/game";
+import { pageUrl } from "../../constants/pages";
 import { useBackdropSrc } from "../../hooks/useBackdropSrc";
 import { useSharePicture } from "../../hooks/useSharePicture";
 import logo from "../../image/BlueArchive-Heardle.png";
@@ -116,7 +116,7 @@ export function StudentStats({
     makeRecap,
     studentRecapName({ game, mode }),
     `My Blue Archive Heardle ${GAME_NAMES[game]} recap
-${SITE_URL}`
+${pageUrl("students")}`
   );
 
   const wins = played - tally[0];

@@ -1,4 +1,5 @@
-import { PICTURE_TIME_ATTACK_SETTINGS_KEY, SITE_URL } from "../constants/game";
+import { PICTURE_TIME_ATTACK_SETTINGS_KEY } from "../constants/game";
+import { pageUrl } from "../constants/pages";
 import { PictureKind, PictureRound } from "../types/picture";
 import { SKIPPED } from "../types/voice";
 import {
@@ -146,7 +147,7 @@ export function pictureTimeAttackShareText(
       settings.answers
     )} · ${shapeLabel(settings.shape)}`,
     `${squares}${more}`,
-    SITE_URL,
+    pageUrl("picture"),
   ].join("\n");
 }
 

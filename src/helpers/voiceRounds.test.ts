@@ -222,7 +222,7 @@ describe("buildVoiceShareText", () => {
       [
         "Blue Archive Heardle · Voice #4",
         "🔊🟥⬛🟩⬜",
-        "https://baheardle.com/",
+        "https://baheardle.com/voice",
       ].join("\n")
     );
     expect(text).not.toContain("Hoshino");
