@@ -1,7 +1,15 @@
 import React from "react";
-import { IoMic, IoMusicalNotes, IoPeople, IoSparkles } from "react-icons/io5";
+import {
+  IoHome,
+  IoMic,
+  IoMusicalNotes,
+  IoPeople,
+  IoSparkles,
+} from "react-icons/io5";
 
-import { Game, GameMode } from "../../types/mode";
+import { Page, PAGES } from "../../constants/pages";
+import { isPlainClick } from "../../hooks/usePage";
+import { GameMode } from "../../types/mode";
 import { PicturePill, PictureStyle, pillOf } from "../../types/picture";
 import { StudentGame } from "../../types/student";
 import { VoiceStyle } from "../../types/voice";
@@ -16,6 +24,12 @@ interface Option<T extends string> {
   hint: string;
   /** Shown beside the label, and in its place on a narrow phone. */
   icon?: React.ReactNode;
+  /**
+   * Makes the option a link to one of the site's pages, which search engines
+   * follow and a middle click opens in a new tab. A plain click still calls
+   * onChange, which moves there without a reload.
+   */
+  href?: string;
 }
 
 interface PillsProps<T extends string> {
@@ -50,7 +64,8 @@ function usePickedBox(
     if (!enabled || !element) return;
 
     const measure = () => {
-      const picked = element.querySelectorAll("button")[index];
+      const picked =
+        element.querySelectorAll<HTMLElement>("[data-pill]")[index];
       if (!picked) return;
       setBox({ left: picked.offsetLeft, width: picked.offsetWidth });
     };
@@ -60,7 +75,7 @@ function usePickedBox(
     // switch doing so.
     const observer = new ResizeObserver(measure);
     observer.observe(element);
-    element.querySelectorAll("button").forEach((b) => observer.observe(b));
+    element.querySelectorAll("[data-pill]").forEach((b) => observer.observe(b));
     return () => observer.disconnect();
   }, [group, index, enabled]);
 
@@ -88,7 +103,8 @@ export function Pills<T extends string>({
   return (
     <Styled.Styles
       ref={group}
-      role="group"
+      as={options.some((option) => option.href) ? "nav" : "div"}
+      role={options.some((option) => option.href) ? undefined : "group"}
       aria-label={label}
       $count={options.length}
       $compact={compact}
@@ -105,17 +121,15 @@ export function Pills<T extends string>({
       />
       {options.map((option) => {
         const active = option.value === value;
-        return (
-          <Styled.Style
-            key={option.value}
-            type="button"
-            $active={active}
-            $iconOnly={Boolean(option.icon)}
-            aria-pressed={active}
-            title={option.hint}
-            aria-label={option.icon ? option.label : undefined}
-            onClick={() => onChange(option.value)}
-          >
+        const shared = {
+          $active: active,
+          $iconOnly: Boolean(option.icon),
+          title: option.hint,
+          "aria-label": option.icon ? option.label : undefined,
+          "data-pill": "",
+        };
+        const content = (
+          <>
             {option.icon}
             <Styled.Label
               $hideable={Boolean(option.icon)}
@@ -136,6 +150,32 @@ export function Pills<T extends string>({
                 option.label
               )}
             </Styled.Label>
+          </>
+        );
+        return option.href ? (
+          <Styled.Style
+            key={option.value}
+            as="a"
+            href={option.href}
+            aria-current={active ? "page" : undefined}
+            onClick={(event: React.MouseEvent) => {
+              if (!isPlainClick(event)) return;
+              event.preventDefault();
+              onChange(option.value);
+            }}
+            {...shared}
+          >
+            {content}
+          </Styled.Style>
+        ) : (
+          <Styled.Style
+            key={option.value}
+            type="button"
+            aria-pressed={active}
+            onClick={() => onChange(option.value)}
+            {...shared}
+          >
+            {content}
           </Styled.Style>
         );
       })}
@@ -181,49 +221,58 @@ export function PlayStyles({
   );
 }
 
-const GAMES: Array<Option<Game>> = [
-  {
-    value: "ost",
-    label: "OST",
-    hint: "Name the song from a clip",
-    icon: <IoMusicalNotes aria-hidden="true" />,
-  },
-  {
-    value: "voice",
-    label: "Voice",
-    hint: "Name the student from their voice",
-    icon: <IoMic aria-hidden="true" />,
-  },
-  {
-    value: "students",
-    label: "Students",
-    hint: "Name the student from how they compare",
-    icon: <IoPeople aria-hidden="true" />,
-  },
-  {
-    value: "picture",
-    label: "Picture",
-    hint: "Name the student from their halo or weapon",
-    icon: <IoSparkles aria-hidden="true" />,
-  },
-];
+export const PAGE_LINKS: Array<Option<Page>> = (
+  [
+    {
+      value: "hub",
+      label: "Home",
+      hint: "Every game, and today's puzzles",
+      icon: <IoHome aria-hidden="true" />,
+    },
+    {
+      value: "ost",
+      label: "OST",
+      hint: "Name the song from a clip",
+      icon: <IoMusicalNotes aria-hidden="true" />,
+    },
+    {
+      value: "voice",
+      label: "Voice",
+      hint: "Name the student from their voice",
+      icon: <IoMic aria-hidden="true" />,
+    },
+    {
+      value: "students",
+      label: "Students",
+      hint: "Name the student from how they compare",
+      icon: <IoPeople aria-hidden="true" />,
+    },
+    {
+      value: "picture",
+      label: "Picture",
+      hint: "Name the student from their halo or weapon",
+      icon: <IoSparkles aria-hidden="true" />,
+    },
+  ] satisfies Array<Option<Page>>
+).map((option) => ({ ...option, href: PAGES[option.value].path }));
 
 /**
- * Picks the game: the OST, the students' voices, the students, or their
- * halos and weapons.
+ * The site's navigation bar: the hub, then the games, the OST, the
+ * students' voices, the students, and their halos and weapons. Each is a
+ * link to its own page.
  */
 export function GameSwitch({
-  game,
+  page,
   onChange,
 }: {
-  game: Game;
-  onChange: (game: Game) => void;
+  page: Page;
+  onChange: (page: Page) => void;
 }) {
   return (
     <Pills
-      label="Game"
-      options={GAMES}
-      value={game}
+      label="Games"
+      options={PAGE_LINKS}
+      value={page}
       onChange={onChange}
       compact
     />

@@ -19,12 +19,15 @@ function mount() {
 
 beforeEach(() => {
   localStorage.clear();
+  // The OST's page: the root is the hub, tested on its own below.
+  window.history.replaceState(null, "", "/ost");
   harness = createHarness();
   container = harness.container;
 });
 
 afterEach(() => {
   harness.destroy();
+  window.history.replaceState(null, "", "/");
 });
 
 describe("App", () => {
@@ -75,13 +78,13 @@ describe("App", () => {
     expect(skipLabel()).toBe("Skip +2s");
   });
 
-  it("switches to the student game and back, remembering it", () => {
+  it("switches to the student game's page and back", () => {
     localStorage.setItem("firstRun", "false");
     localStorage.setItem("whatsNew", LATEST_UPDATE_ID);
     mount();
     const click = (label: string) =>
       act(() => {
-        Array.from(container.querySelectorAll("button"))
+        Array.from(container.querySelectorAll<HTMLElement>("button, a"))
           .find(
             (button) =>
               button.textContent === label ||
@@ -95,7 +98,9 @@ describe("App", () => {
     click("Students");
     expect(search()).toBe("Search for a student");
     expect(container.textContent).toContain("Guess the Blue Archive student");
+    expect(window.location.pathname).toBe("/students");
 
+    // A reload stays on the page, with its way to play and mode.
     click("Lore");
     click("Endless");
     harness.unmount();
@@ -107,12 +112,84 @@ describe("App", () => {
 
     click("OST");
     expect(search()).toBe("Search for a song");
+    expect(window.location.pathname).toBe("/ost");
   });
 
   it("unmounts without leaving timers or listeners behind", () => {
     mount();
 
     expect(() => harness.unmount()).not.toThrow();
+  });
+});
+
+describe("App hub", () => {
+  beforeEach(() => {
+    window.history.replaceState(null, "", "/");
+    localStorage.setItem("whatsNew", LATEST_UPDATE_ID);
+  });
+
+  const card = (name: string) =>
+    Array.from(container.querySelectorAll<HTMLAnchorElement>("li a")).find(
+      (link) => link.querySelector("h2")?.textContent === name
+    );
+
+  it("shows a card for each game, linking to its page", () => {
+    mount();
+
+    expect(container.querySelector(TEXT_INPUT)).toBeNull();
+    expect(
+      ["OST", "Voice", "Students", "Picture"].map((name) =>
+        card(name)?.getAttribute("href")
+      )
+    ).toEqual(["/ost", "/voice", "/students", "/picture"]);
+    expect(document.title).toContain("Guess the OST, Voices");
+  });
+
+  it("welcomes a new player on the first game, not the hub", () => {
+    mount();
+    expect(container.textContent).not.toContain("Welcome");
+    expect(container.textContent).not.toContain("Continue");
+
+    act(() => card("Voice")!.click());
+
+    expect(window.location.pathname).toBe("/voice");
+    expect(document.title).toContain("by Voice");
+    expect(container.textContent).toContain("Welcome");
+  });
+
+  it("goes back to the hub with Back, and offers to continue", () => {
+    localStorage.setItem("firstRun", "false");
+    mount();
+    act(() => card("Students")!.click());
+    expect(container.querySelector(TEXT_INPUT)).not.toBeNull();
+
+    // Back, as the browser does it: the address changes, then popstate.
+    act(() => {
+      window.history.replaceState(null, "", "/");
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    });
+
+    expect(container.querySelector(TEXT_INPUT)).toBeNull();
+    const resume = Array.from(container.querySelectorAll("a")).find((link) =>
+      link.textContent?.includes("Continue")
+    );
+    expect(resume?.textContent).toContain("Students");
+    expect(resume?.getAttribute("href")).toBe("/students");
+  });
+
+  it("links home from every game's navigation bar", () => {
+    window.history.replaceState(null, "", "/picture");
+    localStorage.setItem("firstRun", "false");
+    mount();
+
+    const home = container.querySelector<HTMLAnchorElement>(
+      'nav a[aria-label="Home"]'
+    )!;
+    expect(home.getAttribute("href")).toBe("/");
+    act(() => home.click());
+
+    expect(window.location.pathname).toBe("/");
+    expect(card("OST")).toBeDefined();
   });
 });
 
@@ -164,7 +241,7 @@ describe("App mode switch", () => {
     mount();
     act(() => {
       container
-        .querySelector<HTMLButtonElement>('button[aria-label="Picture"]')!
+        .querySelector<HTMLAnchorElement>('a[aria-label="Picture"]')!
         .click();
     });
 

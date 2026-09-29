@@ -39,7 +39,9 @@ function modeButton(label: string) {
   ).find((button) => button.textContent === label);
 }
 
-function mount(mode: GameMode = "daily", streak = 0) {
+const onHome = vi.fn();
+
+function mount(mode: GameMode = "daily", streak = 0, isHub = false) {
   harness.render(
     React.createElement(Header, {
       openInfoPopUp,
@@ -54,6 +56,8 @@ function mount(mode: GameMode = "daily", streak = 0) {
       onModeChange,
       streak,
       tagline: "Guess the Blue Archive OST",
+      isHub,
+      onHome,
     })
   );
 }
@@ -89,15 +93,57 @@ describe("Header", () => {
     });
   });
 
-  // The tagline used to carry the heading; the wordmark does now, so its alt
-  // text has to stand in for it.
-  it("gives the page a single level-one heading, named by the wordmark", () => {
+  // A game's page is about the game, so its tagline is the heading.
+  it("gives a game's page a single level-one heading, its tagline", () => {
+    const headings = harness.container.querySelectorAll("h1");
+
+    expect(headings).toHaveLength(1);
+    expect(headings[0].textContent).toBe("Guess the Blue Archive OST");
+  });
+
+  // On the hub the wordmark is, so its alt text has to stand in for it.
+  it("gives the hub a single level-one heading, named by the wordmark", () => {
+    mount("daily", 3, true);
     const headings = harness.container.querySelectorAll("h1");
 
     expect(headings).toHaveLength(1);
     expect(headings[0].querySelector("img")?.getAttribute("alt")).toBe(
       "Blue Archive Heardle"
     );
+  });
+
+  it("has no game's controls on the hub", () => {
+    mount("daily", 3, true);
+
+    expect(buttonFor("Your stats")).toBeNull();
+    expect(modeButton("Daily")).toBeUndefined();
+    expect(harness.container.querySelector('[role="img"]')).toBeNull();
+    expect(buttonFor("Menu")).not.toBeNull();
+  });
+
+  it("links the wordmark to the hub, moving there in place", () => {
+    const link = harness.container.querySelector<HTMLAnchorElement>("a")!;
+    expect(link.getAttribute("href")).toBe("/");
+
+    const click = new MouseEvent("click", { bubbles: true, cancelable: true });
+    act(() => {
+      link.dispatchEvent(click);
+    });
+    expect(onHome).toHaveBeenCalled();
+    expect(click.defaultPrevented).toBe(true);
+  });
+
+  it("leaves a click with a modifier key to the browser", () => {
+    const link = harness.container.querySelector<HTMLAnchorElement>("a")!;
+    const click = new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+      ctrlKey: true,
+    });
+    link.dispatchEvent(click);
+
+    expect(onHome).not.toHaveBeenCalled();
+    expect(click.defaultPrevented).toBe(false);
   });
 });
 

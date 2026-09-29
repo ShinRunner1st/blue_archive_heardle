@@ -8,6 +8,7 @@ import {
   IoCalendar,
   IoDisc,
   IoGift,
+  IoHome,
   IoIdCard,
   IoPeople,
   IoSchool,
@@ -43,8 +44,13 @@ export interface NewsUpdate {
 export const WHATS_NEW: NewsUpdate[] = [
   {
     id: "2026-09-picture",
-    name: "Halos and weapons",
+    name: "Halos, weapons and a home page",
     items: [
+      {
+        icon: IoHome,
+        title: "A home page",
+        text: "baheardle.com now opens on every game at once, with how today's daily puzzles went and a button to carry on where you left off. Each game has its own page to bookmark or share (baheardle.com/voice, say); the bar under the header moves between them, and the logo brings you home.",
+      },
       {
         icon: IoSparkles,
         title: "Picture",

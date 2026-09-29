@@ -14,7 +14,9 @@ import {
   styleFor,
 } from "./types/picture";
 
+import { Page } from "./constants/pages";
 import { useBirthdays } from "./hooks/useBirthdays";
+import { usePage } from "./hooks/usePage";
 import { useGame } from "./hooks/useGame";
 import { useStudentGame } from "./hooks/useStudentGame";
 import { useTimeAttack } from "./hooks/useTimeAttack";
@@ -73,6 +75,7 @@ import {
 import { PictureGame, PictureTimeAttack } from "./components/PictureGame";
 import { PictureStats } from "./components/StatsPopUp/PictureStats";
 import { BirthdayNote } from "./components/BirthdayNote";
+import { Hub } from "./components/Hub";
 import { StudentGame } from "./components/StudentGame";
 import { TimeAttack } from "./components/TimeAttack";
 import { VoiceGame, VoiceTimeAttack } from "./components/VoiceGame";
@@ -87,8 +90,13 @@ const SenseiCard = React.lazy(() => import("./components/SenseiCard"));
 
 function App() {
   const [mode, setMode] = React.useState<GameMode>(loadMode);
-  // The OST, or the student game, which shares the header's Daily/Endless.
-  const [gameName, setGameName] = React.useState<GameName>(loadGame);
+  // The hub or a game's page, from the address bar. On the hub every game
+  // waits behind it, unseen, as the game played last.
+  const [page, navigate] = usePage();
+  const isHub = page === "hub";
+  const [lastGame, setLastGame] = React.useState<GameName>(loadGame);
+  if (!isHub && lastGame !== page) setLastGame(page);
+  const gameName: GameName = isHub ? lastGame : page;
   const [studentWay, setStudentWay] =
     React.useState<StudentWay>(loadStudentGame);
   const isStudents = gameName === "students";
@@ -189,7 +197,10 @@ function App() {
   // The mode's own run: it sets the background and the header's count. In
   // time attack that is the run's score, from zero again with each run.
   const streak = mode === "daily" ? dayStreak : winStreak;
-  const run = isStudents
+  // The hub has no run of its own: it stays in the library.
+  const run = isHub
+    ? 0
+    : isStudents
     ? students.streak.current
     : isPicture
     ? isPictureTimeAttack
@@ -236,9 +247,10 @@ function App() {
     saveMode(mode);
   }, [mode]);
 
+  // The game played last, for the hub's Continue.
   React.useEffect(() => {
-    saveGame(gameName);
-  }, [gameName]);
+    if (page !== "hub") saveGame(page);
+  }, [page]);
 
   React.useEffect(() => {
     saveStudentGame(studentWay);
@@ -305,14 +317,21 @@ function App() {
     setVoiceStyle(voiceClassic.current);
   }, []);
 
-  const changeGame = React.useCallback((next: GameName) => {
-    setGameName(next);
-    setSelectedSong(undefined);
-  }, []);
+  // Read once on mount: the welcome pop-up is only shown to new players, on
+  // the first game they open rather than the hub, which explains itself.
+  const [isInfoPopUpOpen, setIsInfoPopUpOpen] = React.useState<boolean>(
+    () => isFirstRun() && !isHub
+  );
 
-  // Read once on mount: the welcome pop-up is only shown to new players.
-  const [isInfoPopUpOpen, setIsInfoPopUpOpen] =
-    React.useState<boolean>(isFirstRun);
+  const changePage = React.useCallback(
+    (next: Page) => {
+      navigate(next);
+      setSelectedSong(undefined);
+      if (next !== "hub" && isFirstRun()) setIsInfoPopUpOpen(true);
+    },
+    [navigate]
+  );
+  const goHome = React.useCallback(() => changePage("hub"), [changePage]);
   const [isStatsPopUpOpen, setIsStatsPopUpOpen] = React.useState(false);
   const [isHowToPopUpOpen, setIsHowToPopUpOpen] = React.useState(false);
   const [isSongListOpen, setIsSongListOpen] = React.useState(false);
@@ -375,7 +394,9 @@ function App() {
   const voiceRun = voiceTimeAttack.run;
   const pictureRun = pictureTimeAttack.run;
   const studentRound = students.round;
-  const roundKey = isStudents
+  const roundKey = isHub
+    ? "hub"
+    : isStudents
     ? `${students.slot}:${studentRound.day ?? ""}:${students.rounds.length}`
     : isPictureTimeAttack
     ? `picture-ta:${pictureRun?.id ?? ""}:${pictureRun?.rounds.length ?? 0}`
@@ -419,7 +440,9 @@ function App() {
     }
     return voiceAsRound(pictureRound);
   }, [isPictureTimeAttack, pictureRun, pictureRound]);
-  const reactTo = isPicture
+  const reactTo = isHub
+    ? { guesses: [], currentTry: 0, didGuess: false, tries: 1 }
+    : isPicture
     ? pictureReaction
     : isVoice
     ? voiceReaction
@@ -530,8 +553,12 @@ function App() {
         }
         onModeChange={changeMode}
         streak={run}
+        isHub={isHub}
+        onHome={goHome}
         tagline={
-          isStudents
+          isHub
+            ? "Blue Archive guessing games"
+            : isStudents
             ? "Guess the Blue Archive student"
             : isPicture
             ? `Guess the Blue Archive student by ${pictureKind}`
@@ -622,8 +649,11 @@ function App() {
       {isInfoPopUpOpen && (
         <InfoPopUp
           onClose={closeInfoPopUp}
+          // The hub has no game on screen whose score it could mean.
           canReset={
-            isStudents
+            isHub
+              ? false
+              : isStudents
               ? students.hasHistory
               : isPictureTimeAttack
               ? pictureTimeAttack.stats.runs > 0
@@ -685,9 +715,9 @@ function App() {
       {/* Below the header rather than in the play area, which is centred on
           the page: there it moved with every screen's height. */}
       <Styled.StyleBar>
-        <GameSwitch game={gameName} onChange={changeGame} />
+        <GameSwitch page={page} onChange={changePage} />
         <Styled.StyleRow>
-          {isStudents ? (
+          {isHub ? null : isStudents ? (
             <StudentStyles game={studentWay} onChange={setStudentWay} />
           ) : isPicture ? (
             pictureMode !== "daily" && (
@@ -708,9 +738,12 @@ function App() {
         </Styled.StyleRow>
       </Styled.StyleBar>
       <BirthdayNote students={birthdays} />
-      <Styled.PlayArea>
+      {/* A new one for each page, so it starts scrolled to the top. */}
+      <Styled.PlayArea key={page}>
         <Styled.Container $top={isStudents}>
-          {isStudents ? (
+          {isHub ? (
+            <Hub onOpen={changePage} />
+          ) : isStudents ? (
             <StudentGame
               // A new screen for each way to play and mode, as for the OST.
               key={students.slot}
@@ -809,7 +842,8 @@ function App() {
         onOpen={openJukebox}
         onClose={closeJukebox}
         guessed={jukeboxGuessed}
-        keepPlaying={isStudents}
+        // The hub has no audio of its own for it to make way for.
+        keepPlaying={isStudents || isHub}
       />
       <Footer />
     </Styled.BG>

@@ -66,6 +66,17 @@ export const Heading = styled.h1`
   line-height: 0;
 `;
 
+/** The wordmark, a link to the hub. */
+export const HomeLink = styled.a`
+  display: inline-block;
+  border-radius: 8px;
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 4px;
+  }
+`;
+
 export const Tagline = styled.p`
   grid-area: tagline;
   justify-self: center;

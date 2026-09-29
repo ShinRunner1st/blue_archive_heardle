@@ -1,5 +1,8 @@
+import React from "react";
 import { IoBarChart } from "react-icons/io5";
 
+import { PAGES } from "../../constants/pages";
+import { isPlainClick } from "../../hooks/usePage";
 import { GameMode, isEndlessStyle } from "../../types/mode";
 
 import { HeaderMenu } from "../HeaderMenu";
@@ -25,6 +28,13 @@ interface Props {
   streak: number;
   /** The line under the logo: which game is being played. */
   tagline: string;
+  /**
+   * On the hub there is no game, so no Daily/Endless, streak or stats, and
+   * the logo is the page's heading. On a game's page the tagline is.
+   */
+  isHub?: boolean;
+  /** The logo links to the hub; a plain click moves there in place. */
+  onHome?: () => void;
 }
 
 const MODES: Array<{ mode: GameMode; label: string; hint: string }> = [
@@ -45,8 +55,10 @@ export function Header({
   onModeChange,
   streak,
   tagline,
+  isHub = false,
+  onHome,
 }: Props) {
-  const showStreak = streak > 0;
+  const showStreak = !isHub && streak > 0;
   const streakLabel =
     mode === "daily"
       ? `${streak} day streak`
@@ -57,38 +69,53 @@ export function Header({
   return (
     <Styled.Container>
       <Styled.Content>
-        <Styled.Modes role="group" aria-label="Game mode">
-          {/*
+        {!isHub && (
+          <Styled.Modes role="group" aria-label="Game mode">
+            {/*
             The green pill is one element that slides, rather than a background
             that jumps from one button to the other.
           */}
-          <Styled.ModeThumb
-            aria-hidden="true"
-            $index={isEndlessStyle(mode) ? 1 : 0}
-          />
-          {MODES.map((option) => {
-            // Endless stands for every way to play it (see PlayStyles).
-            const active =
-              option.mode === "daily" ? mode === "daily" : isEndlessStyle(mode);
+            <Styled.ModeThumb
+              aria-hidden="true"
+              $index={isEndlessStyle(mode) ? 1 : 0}
+            />
+            {MODES.map((option) => {
+              // Endless stands for every way to play it (see PlayStyles).
+              const active =
+                option.mode === "daily"
+                  ? mode === "daily"
+                  : isEndlessStyle(mode);
 
-            return (
-              <Styled.ModeButton
-                key={option.mode}
-                type="button"
-                $active={active}
-                aria-pressed={active}
-                title={option.hint}
-                onClick={() => onModeChange(option.mode)}
-              >
-                {option.label}
-              </Styled.ModeButton>
-            );
-          })}
-        </Styled.Modes>
+              return (
+                <Styled.ModeButton
+                  key={option.mode}
+                  type="button"
+                  $active={active}
+                  aria-pressed={active}
+                  title={option.hint}
+                  onClick={() => onModeChange(option.mode)}
+                >
+                  {option.label}
+                </Styled.ModeButton>
+              );
+            })}
+          </Styled.Modes>
+        )}
 
-        {/* The wordmark carries the page heading, so its alt text is the h1. */}
-        <Styled.Heading>
-          <Styled.Logo src={img} alt="Blue Archive Heardle" />
+        {/* On the hub the wordmark carries the page heading, so its alt
+            text is the h1; on a game's page the tagline is. */}
+        <Styled.Heading as={isHub ? "h1" : "div"}>
+          <Styled.HomeLink
+            href={PAGES.hub.path}
+            title="Every game"
+            onClick={(event: React.MouseEvent) => {
+              if (!onHome || !isPlainClick(event)) return;
+              event.preventDefault();
+              onHome();
+            }}
+          >
+            <Styled.Logo src={img} alt="Blue Archive Heardle" />
+          </Styled.HomeLink>
         </Styled.Heading>
 
         <Styled.Tools>
@@ -101,13 +128,15 @@ export function Header({
               🔥 {streak}
             </Styled.Streak>
           )}
-          <Styled.IconButton
-            type="button"
-            onClick={openStatsPopUp}
-            aria-label="Your stats"
-          >
-            <IoBarChart size="1em" aria-hidden="true" />
-          </Styled.IconButton>
+          {!isHub && (
+            <Styled.IconButton
+              type="button"
+              onClick={openStatsPopUp}
+              aria-label="Your stats"
+            >
+              <IoBarChart size="1em" aria-hidden="true" />
+            </Styled.IconButton>
+          )}
           <HeaderMenu
             openInfoPopUp={openInfoPopUp}
             openHowToPopUp={openHowToPopUp}
@@ -118,7 +147,7 @@ export function Header({
             openSenseiCard={openSenseiCard}
           />
         </Styled.Tools>
-        <Styled.Tagline>{tagline}</Styled.Tagline>
+        <Styled.Tagline as={isHub ? "p" : "h1"}>{tagline}</Styled.Tagline>
       </Styled.Content>
     </Styled.Container>
   );
