@@ -47,8 +47,8 @@ before (the first off `main`):
   `feat/halo-weapon`, off `main` (the user called it done on 2026-09-29),
   not merged: its four sheets are not on the Worker or R2 yet, so run
   `npm run songs` before the merge._
-- **6.2. New SEO text and header** (see "SEO, header and preview picture"
-  below).
+- **6.2. New SEO text** (see "SEO, header and preview picture" below).
+  _Done on `feat/seo-text`, off `feat/halo-weapon`, not merged._
 - **6.3. New preview picture**, the link preview, drawn once 6.1 and 6.2
   settle what it shows.
 
@@ -333,12 +333,14 @@ weapons" and "Halos and weapons"):
 ### SEO, header and preview picture (6.2, 6.3)
 
 Asked for on 2026-09-29. The page's title, description and Open Graph and
-Twitter tags (`index.html`) still describe the OST game only; they should
-cover the OST, Voice, Students, and halo and weapon guess. Then a new
-`public/preview.jpg` (1200×630, the link preview on X and elsewhere) to
-match. To settle when planning: what the new header changes, and what the
-preview shows. X caches link previews, so a new one can take a while to
-appear there.
+Twitter tags (`index.html`) described the OST game only; they now cover
+the OST, Voice, Students, and halo and weapon guess (built on
+`feat/seo-text`). The name stays "Blue Archive Heardle". The user chose
+to leave the visible header as it is (its tagline already follows the
+game), so 6.2 changed the tags only. Then a new `public/preview.jpg`
+(1200×630, the link preview on X and elsewhere) to match. To settle when
+planning: what the preview shows. X caches link previews, so a new one
+can take a while to appear there.
 
 ### Multiplayer (Group 7): private rooms, played like AMQ
 
