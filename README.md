@@ -368,8 +368,16 @@ date on its own, every Wednesday (and from the Actions tab by hand):
    that have come out on Global, voice lines and halos that have come out for
    a student without them, and tracks on the Blue Archive wiki's Music page
    that the song list doesn't have (not the 10000-range specials), or titles
-   and artists for songs still named "Theme N" or by "Unknown". The wiki's
-   files are the originals in `audio/`, byte for byte.
+   and artists for songs still half named. A song with either half still
+   blank ("Theme N" or by "Unknown") follows the wiki for both, so a
+   correction to the other half comes along; once both are filled it is the
+   list's own, and the wiki's spelling (typos, Japanese titles) never
+   replaces it. Differences only of case or punctuation don't count. The
+   wiki's files are the originals in `audio/`, byte for byte. A few tracks
+   aren't on the wiki's Music page at all, 269 and 271 (the game's
+   `269_title`, `271_title`) and 314 (`314_short`), downloaded from the game
+   with [BA-AD](https://github.com/Deathemonic/BA-AD); they stay "Theme N"
+   until named by hand.
 2. Only if there is something, it runs `build:students`, `build:voices` and
    `build:guess`, adds the songs (`npm run build:new-songs`, which checks each
    file against the wiki's SHA-1), and builds the audio and pictures as

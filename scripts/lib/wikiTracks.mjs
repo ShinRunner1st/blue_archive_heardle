@@ -92,10 +92,26 @@ export const isPlaceholderName = (song) =>
   song.name === `Theme ${song.themeNo}`;
 export const isPlaceholderArtist = (song) => song.artist === "Unknown";
 
+/** The same words, whatever the case, spacing, quotes or punctuation. */
+const sameWords = (a, b) => {
+  const plain = (text) =>
+    text
+      .normalize("NFKC")
+      .toLowerCase()
+      .replace(/[^\p{L}\p{N}]+/gu, "");
+  return plain(a) === plain(b);
+};
+
 /**
  * What the wiki has that the song list doesn't: tracks to add (with a file
- * on the wiki to download), and titles and artists for songs still named
- * "Theme N" or by "Unknown".
+ * on the wiki to download), and titles and artists for songs still half
+ * named, "Theme N" or by "Unknown".
+ *
+ * While either half of a song is still blank, the song follows the wiki for
+ * both: when the wiki fills the blank, a change it made to the other half
+ * comes along. Once both are filled, the song is the list's own, and the
+ * wiki's spelling (its typos and Japanese titles among them) never replaces
+ * it. A difference only of case or punctuation isn't a change.
  */
 export async function trackChanges(songs) {
   const tracks = await wikiTracks();
@@ -113,9 +129,13 @@ export async function trackChanges(songs) {
   const named = tracks.flatMap((track) => {
     const song = have.get(track.themeNo);
     if (!song) return [];
-    const name = isPlaceholderName(song) && track.title ? track.title : null;
+    if (!isPlaceholderName(song) && !isPlaceholderArtist(song)) return [];
+    const name =
+      track.title && !sameWords(track.title, song.name) ? track.title : null;
     const artist =
-      isPlaceholderArtist(song) && track.artist ? track.artist : null;
+      track.artist && !sameWords(track.artist, song.artist)
+        ? track.artist
+        : null;
     return name || artist ? [{ song, name, artist }] : [];
   });
 

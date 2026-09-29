@@ -4,8 +4,13 @@
  * new track's file goes into audio/ as Theme_<n>.ogg, checked against the
  * wiki's SHA-1, and its entry into src/constants/songs.ts, with the wiki's
  * title and artist, or "Theme <n>" by "Unknown" while the wiki has none. A
- * song still named like that gets the wiki's title or artist once it has
- * one. Nothing else in the list is touched, so names edited by hand stay.
+ * song with either half still like that follows the wiki for both, until
+ * both are filled. Nothing else in the list is touched, so names edited by
+ * hand stay.
+ *
+ * A few tracks come from the game's files (downloaded with BA-AD) and aren't
+ * on the wiki's Music page at all: 269 and 271 (the game's 269_title and
+ * 271_title) and 314 (314_short). They stay "Theme N" until named by hand.
  *
  * The special tracks (10000 and up) are left out, as they always were. Run
  * `npm run songs` afterwards to build and upload the audio; the weekly
@@ -58,10 +63,11 @@ for (const track of added) {
 
 for (const { song, name, artist } of named) {
   const entry = list.find(({ themeNo }) => themeNo === song.themeNo);
+  const was = `"${entry.name}" by ${entry.artist}`;
   if (name) entry.name = name;
   if (artist) entry.artist = artist;
   summary.push(
-    `- Named: Theme ${song.themeNo} is now "${entry.name}" by ${entry.artist}`
+    `- Named: Theme ${song.themeNo}, ${was}, is now "${entry.name}" by ${entry.artist}`
   );
 }
 
