@@ -6,10 +6,10 @@
  * GENERATED FILE - do not edit by hand. Run `npm run songs`.
  */
 export const pictureFiles: Record<string, string> = {
-  "guess/halos": "pictures/halos.12ea14aa.webp",
-  "guess/halo-shapes": "pictures/halo-shapes.e434deb0.webp",
-  "guess/weapons": "pictures/weapons.f8508b90.webp",
-  "guess/weapon-shapes": "pictures/weapon-shapes.6da304dc.webp",
+  "guess/halos": "pictures/halos.a9681667.webp",
+  "guess/halo-shapes": "pictures/halo-shapes.a174d01b.webp",
+  "guess/weapons": "pictures/weapons.929eb7e5.webp",
+  "guess/weapon-shapes": "pictures/weapon-shapes.dbbdec92.webp",
   "hub/ost": "pictures/ost.e7db58bd.webp",
   "hub/picture": "pictures/picture.4fb2ae49.webp",
   "hub/students": "pictures/students.0022a1c2.webp",
@@ -19,6 +19,6 @@ export const pictureFiles: Record<string, string> = {
   "seasons/new-year-day": "pictures/new-year-day.95478ce3.webp",
   "seasons/new-year-night": "pictures/new-year-night.87cb5914.webp",
   "students/clues": "pictures/clues.6cd21495.webp",
-  "students/icons": "pictures/icons.f6b82074.webp",
-  "voices/silhouettes": "pictures/silhouettes.987b55c8.webp",
+  "students/icons": "pictures/icons.59ad5919.webp",
+  "voices/silhouettes": "pictures/silhouettes.4d9913be.webp",
 };
