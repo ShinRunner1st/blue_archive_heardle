@@ -69,7 +69,7 @@ voice lines and card scenes on the Worker and R2. The two Actions run from
 8. **Group 8: move the site to Cloudflare** (see "Moving off Vercel"
    below). _Built on `feat/cloudflare-site`, off `main` (Group 7 isn't
    built yet, and this doesn't need it). baheardle.com moved to the Worker
-   on 2026-09-29; www, HTTPS and the merge are still to do._
+   on 2026-09-29; the merge is still to do._
 
 Any time: `npm run songs` when new OSTs come out.
 
@@ -584,8 +584,8 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   fails a check never goes live (Vercel deployed whatever reached `main`).
   It uses the Cloudflare secrets the Now in Global Action already has.
 - **Headers** in `public/_headers`, the same as `vercel.json`'s, plus
-  `Strict-Transport-Security`, which Vercel added by itself. `npm run
-  preview` and the page check serve the build with `wrangler dev`
+  `Strict-Transport-Security`, which Vercel added by itself.
+  `npm run preview` and the page check serve the build with `wrangler dev`
   (pinned as a dev dependency), so the check now runs under the real
   Content-Security-Policy.
 - **Addresses:** `/voice` serves `voice.html`, and `/voice/` and
@@ -600,10 +600,11 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   project, and baheardle.com's DNS records swapped for the Worker's Custom
   Domain (in `site-worker/wrangler.jsonc`). The page check on the domain
   found Cloudflare's Web Analytics beacon injected into every page (blocked
-  by the CSP, but it breaks the no-analytics promise); it must stay off for
-  the zone. Still to do: www's record and a Redirect Rule to the apex,
-  Always Use HTTPS, the merge, and after a day taking baheardle.com off the
-  Vercel project.
+  by the CSP, but it breaks the no-analytics promise); the user turned it
+  off, and it must stay off for the zone. Then www got a proxied record and
+  a Redirect Rule to the apex, and Always Use HTTPS went on. The page check
+  on baheardle.com passed. Still to do: the merge, and a day after the
+  switch taking baheardle.com and www off the Vercel project.
 
 ## Still considering
 

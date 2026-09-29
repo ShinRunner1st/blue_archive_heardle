@@ -903,7 +903,10 @@ per deployment; the site is about 70 files and 5 MB.
   stays on, to test a deployment on the real network; it sends
   `X-Robots-Tag: noindex`, so search engines index only baheardle.com.
 - **The domain** is a Custom Domain on the Worker; `www.baheardle.com`
-  goes to it by a Redirect Rule in the Cloudflare dashboard.
+  goes to it by a Redirect Rule in the Cloudflare dashboard, and Always Use
+  HTTPS sends `http://` on. Cloudflare's Web Analytics (and RUM) stay off
+  for the zone: it would inject a beacon into every page, against the
+  privacy promise, and the CSP blocks it anyway.
 - **Caching** is set in `public/_headers`, which the build copies to
   `build/` and Cloudflare reads (it isn't served itself), to spare requests
   as well as bandwidth. Built files under `/assets/` carry a hash in their
