@@ -50,7 +50,8 @@ before (the first off `main`):
 - **6.2. New SEO text** (see "SEO, header and preview picture" below).
   _Done on `feat/seo-text`, off `feat/halo-weapon`, not merged._
 - **6.3. New preview picture**, the link preview, drawn once 6.1 and 6.2
-  settle what it shows.
+  settle what it shows, and a new icon and favicon. _Done on
+  `feat/preview-picture`, off `feat/seo-text`, not merged._
 
 **Future**, after the planned ones:
 
@@ -338,9 +339,24 @@ the OST, Voice, Students, and halo and weapon guess (built on
 `feat/seo-text`). The name stays "Blue Archive Heardle". The user chose
 to leave the visible header as it is (its tagline already follows the
 game), so 6.2 changed the tags only. Then a new `public/preview.jpg`
-(1200×630, the link preview on X and elsewhere) to match. To settle when
-planning: what the preview shows. X caches link previews, so a new one
-can take a while to appear there.
+(1200×630, the link preview on X and elsewhere) to match. X caches link
+previews, so a new one can take a while to appear there.
+
+Built on `feat/preview-picture` (details in the README's "Link preview and
+icons"), with the user's ask on 2026-09-29 for a new icon and favicon too:
+
+- **The preview** is on the game's light blue, with the logo, a line
+  naming every game, a card for each of the four with its icon from the
+  game switch and its size (songs, voice lines, students, halos and
+  weapons), the Daily, Endless, Time Attack and "Free, no ads" tags, and
+  Arona on the right with a few students' halos round her. Its numbers come
+  from the game's data when it is drawn. `og:image` gained `?v=2`, so the
+  sites that cache previews fetch the new one.
+- **The icon** is a white music note wearing a Blue Archive halo, tilted
+  like the logo's, on a blue tile, drawn for every size; at tab sizes the
+  halo is bolder and loses its spark. It replaces the fan art of Mari,
+  which also made `favicon.ico` 150 KB: now 4 KB, and the icons and preview
+  are cached for a week like the characters.
 
 ### Multiplayer (Group 7): private rooms, played like AMQ
 

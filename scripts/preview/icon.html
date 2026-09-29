@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<!--
+  The site's icon: a music note wearing a Blue Archive halo. Drawn by
+  scripts/make-preview.mjs at each size the site needs, into favicon.ico,
+  logo192.png, logo512.png and apple-touch-icon.png. With ?bleed the blue
+  fills the square, for iOS, which rounds the corners itself. At tab sizes
+  the halo is bolder and loses its spark, which smeared into the note.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+        background: transparent;
+      }
+      svg {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#5ccbff" />
+          <stop offset="1" stop-color="#1273e6" />
+        </linearGradient>
+      </defs>
+      <rect
+        id="tile"
+        x="0"
+        y="0"
+        width="512"
+        height="512"
+        rx="112"
+        fill="url(#sky)"
+      />
+
+      <g id="note" fill="#ffffff">
+        <!-- The note: head, stem and flag. -->
+        <ellipse
+          cx="206"
+          cy="372"
+          rx="78"
+          ry="58"
+          transform="rotate(-22 206 372)"
+        />
+        <rect x="248" y="178" width="36" height="198" rx="6" />
+        <path
+          d="M266 178 C 300 214, 380 226, 372 318 C 360 276, 318 262, 284 258 Z"
+        />
+      </g>
+
+      <!-- The halo, tilted like the logo's, with its four-pointed spark. -->
+      <ellipse
+        id="halo"
+        cx="262"
+        cy="118"
+        rx="150"
+        ry="42"
+        transform="rotate(-12 262 118)"
+        fill="none"
+        stroke="#ffffff"
+        stroke-width="22"
+      />
+      <path
+        id="spark"
+        fill="#ffffff"
+        d="M410 44 L424 80 L460 94 L424 108 L410 144 L396 108 L360 94 L396 80 Z"
+      />
+    </svg>
+    <script>
+      if (location.search.includes("bleed")) {
+        document.getElementById("tile").setAttribute("rx", "0");
+      }
+      if (innerWidth <= 32) {
+        const halo = document.getElementById("halo");
+        halo.setAttribute("stroke-width", "46");
+        halo.setAttribute("rx", "172");
+        halo.setAttribute("ry", "54");
+        halo.setAttribute("cy", "104");
+        halo.setAttribute("transform", "rotate(-6 262 104)");
+        document
+          .getElementById("note")
+          .setAttribute("transform", "translate(-6 28)");
+        document.getElementById("spark").remove();
+        document.getElementById("tile").setAttribute("rx", "80");
+      }
+      window.previewReady = true;
+    </script>
+  </body>
+</html>

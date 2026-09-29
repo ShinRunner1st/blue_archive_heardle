@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<!--
+  The link preview, public/preview.jpg: drawn by scripts/make-preview.mjs,
+  which serves this page with Vite and screenshots it at 1200x630. Never
+  part of the site's build.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="./preview.css" />
+  </head>
+  <body>
+    <main class="card">
+      <div class="ring ring-a"></div>
+      <div class="ring ring-b"></div>
+      <div class="band"></div>
+
+      <section class="text">
+        <img class="logo" src="/src/image/BlueArchive-Heardle.png" alt="" />
+        <p class="tagline">
+          Guess the OST, and students by voice, halo, weapon or clues.
+        </p>
+        <ul class="games">
+          <li>
+            <span class="icon" data-icon="music"></span>
+            <b>OST</b><span data-count="songs"></span>
+          </li>
+          <li>
+            <span class="icon" data-icon="mic"></span>
+            <b>Voice</b><span data-count="lines"></span>
+          </li>
+          <li>
+            <span class="icon" data-icon="people"></span>
+            <b>Students</b><span data-count="students"></span>
+          </li>
+          <li>
+            <span class="icon" data-icon="sparkles"></span>
+            <b>Halo &amp; Weapon</b><span data-count="pictures"></span>
+          </li>
+        </ul>
+        <p class="footer">
+          <span>Daily puzzle</span><span>Endless</span><span>Time Attack</span>
+          <span>Free, no ads</span>
+        </p>
+      </section>
+
+      <div class="halos"></div>
+      <div class="arona"><canvas></canvas></div>
+      <p class="site">baheardle.com</p>
+    </main>
+    <script type="module" src="./preview.ts"></script>
+  </body>
+</html>

@@ -194,7 +194,9 @@ What the project cares about:
   Shift+Enter skips, Esc closes.
 - The answer is hidden from the page source and saves are scrambled.
 - SEO: canonical, Open Graph/Twitter card (`public/preview.jpg`, 1200×630),
-  `robots.txt`, `sitemap.xml`.
+  `robots.txt`, `sitemap.xml`. The preview and the icons (a music note
+  wearing a halo) are drawn by `scripts/make-preview.mjs` from the pages in
+  `scripts/preview/`.
 
 ## What has been done (history)
 

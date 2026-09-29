@@ -592,6 +592,21 @@ To add a character, export her from the game (Spine 4.2 `.skel`, `.atlas` and
 2. Add her to `src/constants/characters.ts`: the part of her to frame, her
    touch bones if she has them, and which expression fits each moment.
 
+### Link preview and icons
+
+`public/preview.jpg` (1200×630, the picture X, Discord and LINE show when a
+link is shared) and the icons (`favicon.ico` with 16, 32 and 48 pixel
+PNGs, `logo192.png` and `logo512.png` for the manifest, and
+`apple-touch-icon.png`, square, since iOS rounds it itself) are drawn by
+`node scripts/make-preview.mjs`. It serves the pages in `scripts/preview/`
+with Vite and screenshots them in headless Chrome or Edge (`CHROME` picks
+another), so the preview uses the site's own font, logo, halo sheet and
+Arona, and its numbers come from the game's data. Run it again when those
+numbers have grown, and bump the `?v=` on `og:image` and `twitter:image` in
+`index.html`: those sites keep a copy of the picture per address. Give it a
+folder (`node scripts/make-preview.mjs <folder>`) to try a change without
+touching `public/`. The pages are never part of the site's build.
+
 ### Project layout
 
 ```
@@ -613,9 +628,9 @@ pictures/       Pictures served from the Worker: the seasonal backdrops, the
                 student icon sheets and the silhouettes
 audio-worker/   The Cloudflare Worker that serves the built audio and pictures
 scripts/        build-audio, check-audio, build-pictures, check-pictures,
-                upload-backup, make-backdrop, build-daily-order, build-spine,
-                build-students, build-voices, build-voice-audio, and the
-                helpers they share
+                upload-backup, make-backdrop, make-preview, build-daily-order,
+                build-spine, build-students, build-voices, build-voice-audio,
+                and the helpers they share; preview/ holds make-preview's pages
 docs/           README screenshots
 ```
 
@@ -645,8 +660,8 @@ The audio is on Cloudflare (see [Audio](#audio)), so a deployment is about
   branch that still exists.
 - **Caching** is set in `vercel.json`, to spare requests as well as bandwidth.
   Built files under `/assets/` carry a hash in their name, so browsers keep
-  them for a year without asking again. The characters and cursor keep their
-  names, so browsers keep them for a week, then go on using them while they
+  them for a year without asking again. The characters, cursor, icons and
+  link preview keep their names, so browsers keep them for a week, then go on using them while they
   check in the background. A replaced file under the same name can take up to
   a week to reach everyone; give it a new name to reach them at once.
 - **Security headers** go on every page from `vercel.json`. The
