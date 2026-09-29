@@ -43,9 +43,10 @@ before (the first off `main`):
 
 - **6.1. Halo and weapon guess**, each with normal, silhouette and Time
   Attack (see "Halo and weapon guess" below). First, since the next two
-  describe the whole game and should include it. _Built on
-  `feat/halo-weapon`, off `main`; its four sheets are not on the Worker or
-  R2 yet (`npm run songs` before merging)._
+  describe the whole game and should include it. _Done on
+  `feat/halo-weapon`, off `main` (the user called it done on 2026-09-29),
+  not merged: its four sheets are not on the Worker or R2 yet, so run
+  `npm run songs` before the merge._
 - **6.2. New SEO text and header** (see "SEO, header and preview picture"
   below).
 - **6.3. New preview picture**, the link preview, drawn once 6.1 and 6.2
@@ -321,8 +322,9 @@ weapons" and "Halos and weapons"):
     silhouette. Silhouette and Hints are toggles beside Halo and Weapon,
     one row; each mix is its own way to play with its own stats.
   - The game switch keeps one width whatever game is picked.
-  - The birthday note is bigger, with the student's portrait in every game
-    (the portraits' list loads only on a birthday, 3 KB, one request).
+  - The birthday note has the student's portrait in every game (the
+    portraits' list loads only on a birthday, 3 KB, one request), and is
+    as tall as the switches above it, 33 px.
 - **Size:** each picture sheet is about 600 KB, the shapes 120 to 330 KB,
   1.7 MB in all on the Worker and R2 (well inside R2's free 10 GB). A player
   downloads a kind's sheet once, the first time it shows. Nothing is added

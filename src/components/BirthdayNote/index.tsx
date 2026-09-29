@@ -57,8 +57,8 @@ function Portrait({ url }: { url: string }) {
     <Styled.Portrait
       src={src}
       alt=""
-      width={40}
-      height={40}
+      width={27}
+      height={27}
       onError={() => {
         const backup = backupUrlFor(url);
         if (backup && src !== backup) setSrc(backup);
@@ -83,9 +83,9 @@ export function BirthdayNote({ students }: Props) {
           })}
         </Styled.Portraits>
       )}
-      <span>
+      <Styled.Text>
         Happy birthday, {names(students)}! <span aria-hidden="true">🎂</span>
-      </span>
+      </Styled.Text>
     </Styled.Note>
   );
 }

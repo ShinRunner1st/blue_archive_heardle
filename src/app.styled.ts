@@ -55,7 +55,11 @@ export const BG = styled.div`
  * game is taller than the room left, as on a small laptop, with a thin bar.
  */
 export const PlayArea = styled.div`
-  flex: 1 1 auto;
+  /*
+   * Only the room left: sized by its content, it would squeeze the header,
+   * the switches and the birthday note to fit instead.
+   */
+  flex: 1 1 0;
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
