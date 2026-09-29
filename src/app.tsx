@@ -873,8 +873,9 @@ function App() {
         tries={reactTo.tries}
       />
       {/* Always there: its music plays on in the corner when it closes,
-          until a game's own audio plays. Last before the footer, where its
-          corner player leaves room. */}
+          until a game's own audio plays. Last before the footer: on most
+          screens its corner player is a bar there, above which the play
+          area ends. */}
       <Jukebox
         open={isJukeboxOpen}
         onOpen={openJukebox}

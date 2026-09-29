@@ -3,14 +3,25 @@ import { IoPause, IoPlay, IoPlaySkipForward } from "react-icons/io5";
 import "@fontsource-variable/nunito-sans";
 
 /**
- * Above the footer at the bottom right, clear of the character, who stands
- * on the left. On a phone it spans the bottom, above the footer.
+ * A bar at the bottom right, above the footer, clear of the character, who
+ * stands on the left; on a phone it spans the bottom. It sits in the page's
+ * column, so the play area ends above it and nothing goes under it. Only
+ * where it fits beside the play area (632 px, centred) does it float in the
+ * corner instead, taking no room from the game.
  */
 export const Mini = styled.section`
-  position: fixed;
-  right: 16px;
-  bottom: 44px;
+  position: relative;
+  flex-shrink: 0;
+  align-self: flex-end;
+  margin: 4px 16px 8px 0;
   z-index: 4;
+
+  @media (min-width: 1344px) {
+    position: fixed;
+    right: 16px;
+    bottom: 44px;
+    margin: 0;
+  }
 
   display: flex;
   align-items: center;
@@ -27,11 +38,6 @@ export const Mini = styled.section`
   border: 1px solid ${({ theme }) => theme.border100};
   border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
-`;
-
-export const Room = styled.div`
-  flex-shrink: 0;
-  height: 72px;
 `;
 
 const round = `
