@@ -138,6 +138,15 @@ const ANSWER_OF = Object.fromEntries(
   ])
 ) as Record<Server, ByKind<Map<number, PictureAnswer>>>;
 
+/**
+ * How many pictures a kind's sheets hold: every server's, whichever is
+ * played, since the sheets are drawn once for all of them. A cell's place in
+ * a sheet comes from this, never from one server's pool.
+ */
+export function sheetCount(kind: PictureKind): number {
+  return ALL_ANSWERS[kind].length;
+}
+
 /** Every answer of a kind on the server, in the student table's order. */
 export function pictureAnswers(
   kind: PictureKind,

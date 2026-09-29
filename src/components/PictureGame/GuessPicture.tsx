@@ -7,7 +7,7 @@ import {
   SheetLayout,
   SHOWN_SIZE,
 } from "../../constants/guessSheets";
-import { answerOf, pictureAnswers } from "../../helpers/pictureRounds";
+import { answerOf, sheetCount } from "../../helpers/pictureRounds";
 import { useIconSheet } from "../../hooks/useIconSheet";
 
 import * as Styled from "./index.styled";
@@ -81,7 +81,7 @@ export function GuessPicture({
     sheet,
     layout,
     shape ? answer.shape : answer.picture,
-    pictureAnswers(kind).length,
+    sheetCount(kind),
     scale
   );
 

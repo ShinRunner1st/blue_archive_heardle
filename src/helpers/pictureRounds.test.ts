@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+
 import { describe, expect, it } from "vitest";
 
 import { PICTURE_SHEETS, SHAPE_SHEETS } from "../constants/guessSheets";
@@ -32,6 +34,7 @@ import {
   picturePool,
   pictureRecordText,
   ruledOut,
+  sheetCount,
   showsShape,
 } from "./pictureRounds";
 import {
@@ -136,7 +139,40 @@ describe("the answers", () => {
       expect(PICTURE_SHEETS[kind].key).not.toBe(SHAPE_SHEETS[kind].key);
     }
   });
+
+  it("size each sheet as drawn, on either server", () => {
+    for (const kind of PICTURE_KINDS) {
+      for (const layout of [PICTURE_SHEETS[kind], SHAPE_SHEETS[kind]]) {
+        const rows = Math.ceil(sheetCount(kind) / layout.columns);
+        expect(webpSize(`pictures/${layout.key}.webp`)).toEqual({
+          width: layout.columns * layout.cellWidth,
+          height: rows * layout.cellHeight,
+        });
+      }
+      for (const server of ["global", "jp"] as const) {
+        for (const { picture, shape } of pictureAnswers(kind, server)) {
+          expect(picture).toBeLessThan(sheetCount(kind));
+          expect(shape).toBeLessThan(sheetCount(kind));
+        }
+      }
+    }
+  });
 });
+
+/** A WebP file's width and height, from its header (VP8X or VP8L). */
+function webpSize(path: string): { width: number; height: number } {
+  const bytes = readFileSync(path);
+  const chunk = bytes.toString("ascii", 12, 16);
+  if (chunk === "VP8X") {
+    return {
+      width: bytes.readUIntLE(24, 3) + 1,
+      height: bytes.readUIntLE(27, 3) + 1,
+    };
+  }
+  expect(chunk).toBe("VP8L");
+  const bits = bytes.readUInt32LE(21);
+  return { width: (bits & 0x3fff) + 1, height: ((bits >> 14) & 0x3fff) + 1 };
+}
 
 describe("guesses", () => {
   const round: PictureRound = { answer: aru.id, guesses: [] };
