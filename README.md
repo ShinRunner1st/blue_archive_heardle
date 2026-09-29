@@ -265,10 +265,12 @@ they need no more height than the OST, and every game fits a 1080p window.
   a favourite student's portrait, remembered like the name and not in the
   save file. Share or Download it. The card's code and the portrait list
   load only when it opens, and only the favourite's portrait is fetched.
-- **What's new** - after an update, returning players see what it added,
-  once; it stays in the ☰ menu. It shows only the newest update, in
-  `src/constants/whatsNew.ts`: replace it, with a new `id`, to show the
-  pop-up again, and earlier ones go.
+- **What's new** - after an update, returning players see what was added,
+  once, with the two updates before it for anyone who missed them. It stays
+  in the ☰ menu. The updates are listed newest first in
+  `src/constants/whatsNew.ts`; add a new one at the top, with its own `id`, to
+  show the pop-up again. It tells players what they'll notice (a new game or
+  mode, new students), not how the site is built.
 - **Pop-ups** - never taller than the screen: the title and buttons stay put
   and only the middle scrolls. On a phone they rise from the bottom as a
   sheet, and every one has a ✕ in its corner.

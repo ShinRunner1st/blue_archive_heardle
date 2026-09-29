@@ -349,9 +349,10 @@ multi-line message write it to a file and use `git commit -F <file>`.
 - Before merging, run the full check above and `check:pages`, and measure
   what the release adds in Vercel requests, bandwidth and storage (check
   cache headers). The user watches the Hobby limits closely.
-- When a release has something players should know, replace `WHATS_NEW` in
-  `src/constants/whatsNew.ts` with it, with a new id. The pop-up shows only
-  the newest update's features; earlier ones are deleted, not kept below.
+- When a release has something players should know, add an entry at the top of
+  `WHATS_NEW` in `src/constants/whatsNew.ts` with a new id. Only what players
+  notice (a new game or mode, new students, a change to how something
+  plays), never how the site is built or where its files come from.
 - Don't commit raw art folders.
 - Keep single fixed 16-second clips. No AAC fallback (iOS older than 18.4 can't
   play Ogg; that is accepted).
