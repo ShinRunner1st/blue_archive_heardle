@@ -8,23 +8,18 @@ import {
   PopUpCardText,
   PopUpCardTitle,
   PopUpGroupLabel,
-  PopUpSpacer,
 } from "../PopUp";
-import { SHOWN_UPDATES, WHATS_NEW } from "../../constants/whatsNew";
-
-import * as Styled from "./index.styled";
+import { WHATS_NEW } from "../../constants/whatsNew";
 
 interface Props {
   onClose: () => void;
 }
 
 /**
- * What has been added lately: the newest update, then the few before it for
- * anyone who missed them. Shown once after an update, and from the menu.
+ * What the newest update added. Shown once after an update, and from the
+ * menu.
  */
 export function WhatsNewPopUp({ onClose }: Props) {
-  const updates = WHATS_NEW.slice(0, SHOWN_UPDATES);
-
   return (
     <PopUp
       title="What's new ✨"
@@ -37,26 +32,20 @@ export function WhatsNewPopUp({ onClose }: Props) {
       }
     >
       <PopUpBody>
-        {updates.map((update, index) => (
-          <section key={update.id} aria-label={update.name}>
-            {index > 0 && <PopUpSpacer />}
-            <PopUpGroupLabel>
-              {update.name}
-              {index === 0 && <Styled.NewTag>New</Styled.NewTag>}
-            </PopUpGroupLabel>
-            {update.items.map(({ icon: Icon, title, text }) => (
-              <PopUpCard key={title}>
-                <PopUpCardIcon>
-                  <Icon aria-hidden="true" />
-                </PopUpCardIcon>
-                <PopUpCardBody>
-                  <PopUpCardTitle>{title}</PopUpCardTitle>
-                  <PopUpCardText>{text}</PopUpCardText>
-                </PopUpCardBody>
-              </PopUpCard>
-            ))}
-          </section>
-        ))}
+        <section aria-label={WHATS_NEW.name}>
+          <PopUpGroupLabel>{WHATS_NEW.name}</PopUpGroupLabel>
+          {WHATS_NEW.items.map(({ icon: Icon, title, text }) => (
+            <PopUpCard key={title}>
+              <PopUpCardIcon>
+                <Icon aria-hidden="true" />
+              </PopUpCardIcon>
+              <PopUpCardBody>
+                <PopUpCardTitle>{title}</PopUpCardTitle>
+                <PopUpCardText>{text}</PopUpCardText>
+              </PopUpCardBody>
+            </PopUpCard>
+          ))}
+        </section>
       </PopUpBody>
     </PopUp>
   );

@@ -307,8 +307,8 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   the Worker). It added about 31 KB gzipped to the first load, no
   first-load requests (a hub visit may fetch the 3 KB portrait list, cached
   for a year), and 2 KB to the Vercel deployment (four small HTML pages; the
-  favicon shrank). Previews on Vercel were never used; send the sitemap
-  again in Search Console.
+  favicon shrank). Previews on Vercel were never used; the sitemap was
+  sent again in Search Console.
 - **29 Sep 2026, hotfix** (`fix/halo-sheet`, main baf14f1): Global's halo
   and silhouette pictures were cut from the sheet by Global's count; sheets
   hold both servers' pictures, so they're sized by the sheet's count.
@@ -349,8 +349,9 @@ multi-line message write it to a file and use `git commit -F <file>`.
 - Before merging, run the full check above and `check:pages`, and measure
   what the release adds in Vercel requests, bandwidth and storage (check
   cache headers). The user watches the Hobby limits closely.
-- When a release has something players should know, add an entry at the top of
-  `WHATS_NEW` in `src/constants/whatsNew.ts` with a new id.
+- When a release has something players should know, replace `WHATS_NEW` in
+  `src/constants/whatsNew.ts` with it, with a new id. The pop-up shows only
+  the newest update's features; earlier ones are deleted, not kept below.
 - Don't commit raw art folders.
 - Keep single fixed 16-second clips. No AAC fallback (iOS older than 18.4 can't
   play Ogg; that is accepted).

@@ -320,7 +320,7 @@ weapons" and "Halos and weapons"):
 - **Pictures:** weapons from SchaleDB; halos from the Blue Archive Wiki on
   Fandom, as SchaleDB has none (all 144 there, three under other names).
   Credited in About and the README. Hatsune Miku's is filed as "Miku
-  Halo.png", uploaded in 2022: the user to check it's hers.
+  Halo.png", uploaded in 2022; the user checked it's hers.
 - **First feedback** (same branch, 2026-09-29):
   - The page never scrolls: it is the window's height, with the header,
     switches and footer fixed, and only the play area scrolls when a screen
