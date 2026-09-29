@@ -2,8 +2,7 @@
  * Draws the link preview (public/preview.jpg, 1200x630) and the site's icons
  * (favicon.ico, logo192.png, logo512.png, apple-touch-icon.png) from the
  * pages in scripts/preview/, by serving them with Vite and screenshotting
- * them in headless Chrome. The preview takes its numbers from the game's
- * own data, so run this again when they have grown enough to matter.
+ * them in headless Chrome.
  *
  *   node scripts/make-preview.mjs [output folder, public/ by default]
  *

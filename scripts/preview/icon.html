@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <!--
-  The site's icon: a music note wearing a Blue Archive halo. Drawn by
+  The site's icon: a music note wearing a Blue Archive halo, in the
+  colours of Mari's idol dress (charcoal velvet, gold halo, peach hair) as
+  on the link preview. Drawn by
   scripts/make-preview.mjs at each size the site needs, into favicon.ico,
-  logo192.png, logo512.png and apple-touch-icon.png. With ?bleed the blue
+  logo192.png, logo512.png and apple-touch-icon.png. With ?bleed the tile
   fills the square, for iOS, which rounds the corners itself. At tab sizes
   the halo is bolder and loses its spark, which smeared into the note.
 -->
@@ -28,9 +30,13 @@
   <body>
     <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#5ccbff" />
-          <stop offset="1" stop-color="#1273e6" />
+        <linearGradient id="velvet" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#3f3846" />
+          <stop offset="1" stop-color="#1d1a21" />
+        </linearGradient>
+        <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ffc996" />
+          <stop offset="1" stop-color="#ee8f52" />
         </linearGradient>
       </defs>
       <rect
@@ -40,10 +46,10 @@
         width="512"
         height="512"
         rx="112"
-        fill="url(#sky)"
+        fill="url(#velvet)"
       />
 
-      <g id="note" fill="#ffffff">
+      <g id="note" fill="url(#hair)">
         <!-- The note: head, stem and flag. -->
         <ellipse
           cx="206"
@@ -67,12 +73,12 @@
         ry="42"
         transform="rotate(-12 262 118)"
         fill="none"
-        stroke="#ffffff"
+        stroke="#f0cf78"
         stroke-width="22"
       />
       <path
         id="spark"
-        fill="#ffffff"
+        fill="#f0cf78"
         d="M410 44 L424 80 L460 94 L424 108 L410 144 L396 108 L360 94 L396 80 Z"
       />
     </svg>

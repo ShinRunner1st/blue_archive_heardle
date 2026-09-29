@@ -345,18 +345,19 @@ previews, so a new one can take a while to appear there.
 Built on `feat/preview-picture` (details in the README's "Link preview and
 icons"), with the user's ask on 2026-09-29 for a new icon and favicon too:
 
-- **The preview** is on the game's light blue, with the logo, a line
-  naming every game, a card for each of the four with its icon from the
-  game switch and its size (songs, voice lines, students, halos and
-  weapons), the Daily, Endless, Time Attack and "Free, no ads" tags, and
-  Arona on the right with a few students' halos round her. Its numbers come
-  from the game's data when it is drawn. `og:image` gained `?v=2`, so the
-  sites that cache previews fetch the new one.
-- **The icon** is a white music note wearing a Blue Archive halo, tilted
-  like the logo's, on a blue tile, drawn for every size; at tab sizes the
-  halo is bolder and loses its spark. It replaces the fan art of Mari,
-  which also made `favicon.ico` 150 KB: now 4 KB, and the icons and preview
-  are cached for a week like the characters.
+- **The preview** has the logo, a line naming every game, a card for each
+  of the four with its icon from the game switch and a few words on it,
+  the Daily, Endless, Time Attack and "Free, no ads" tags, and Mari (Idol)
+  on a dark stage with gold sparks. After a first draft with Arona, the
+  user chose Mari (Idol), colours taken from her dress (ivory, charcoal,
+  gold, and peach like her hair), and no counts of songs or students,
+  which keep growing. `og:image` gained `?v=2`, so the sites that cache
+  previews fetch the new one.
+- **The icon** is a peach music note wearing a gold halo, tilted like the
+  logo's, on a charcoal tile, in the preview's colours, drawn for every
+  size; at tab sizes the halo is bolder and loses its spark. It replaces
+  the fan art of Mari, which also made `favicon.ico` 150 KB: now 4 KB, and
+  the icons and preview are cached for a week like the characters.
 
 ### Multiplayer (Group 7): private rooms, played like AMQ
 
