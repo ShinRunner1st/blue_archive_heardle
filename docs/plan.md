@@ -52,6 +52,8 @@ before (the first off `main`):
 - **6.3. New preview picture**, the link preview, drawn once 6.1 and 6.2
   settle what it shows, and a new icon and favicon. _Done on
   `feat/preview-picture`, off `feat/seo-text`, not merged._
+- **6.4. A page for each game and a hub** (see "Game pages and the hub"
+  below). On `feat/game-pages`, off `feat/preview-picture`.
 
 **Future**, after the planned ones:
 
@@ -361,6 +363,36 @@ icons"), with the user's ask on 2026-09-29 for a new icon and favicon too:
   It replaces fan art of Mari, which also made `favicon.ico` 150 KB: now
   11 KB, and the icons and preview are cached for a week like the
   characters.
+
+### Game pages and the hub (6.4)
+
+Asked for on 2026-09-29: with four games on one page, the site could only
+rank for one broad topic, and a new player met a switch of four icons. Agreed:
+
+- **Paths:** `/` is a hub; the games are `/ost`, `/voice`, `/students` and
+  `/picture` (Halo and Weapon stay one page). The ways to play (Daily,
+  Classic, 4-Choice, Time Attack) stay switches, not paths: pages that
+  differ only by a mode would be near-copies, which search engines treat as
+  doorway pages.
+- **Each page's own HTML**, built from one template: its title, description,
+  canonical address and link-preview tags written into the file, since X and
+  Discord don't run JavaScript. One JavaScript bundle for all five: a chunk
+  per game would be one more Vercel request.
+- **Moving between games doesn't reload:** a navigation bar of real links
+  (the game switch, and a way back to the hub) swaps the game in place, so
+  there's no new request and the music and characters carry on. Back and
+  Forward move between the pages too.
+- **The hub:** a short paragraph on what the site is, a card for each game
+  with a few words and today's daily result from the player's own saves,
+  and a Continue button for the game played last.
+- **Nothing is lost:** saves are per domain, not per path, so every save,
+  streak and setting carries over. `baheardle.com` still works; it lands on
+  the hub. Share texts link to their game's page.
+- **Tested on a Vercel preview** before the merge: previews are on for
+  this branch only, and go off again before it merges.
+- **Cost:** one HTML file per visit as now, plus four small ones in the
+  deployment. The sitemap lists the five pages; send it again in Search
+  Console after the release.
 
 ### Multiplayer (Group 7): private rooms, played like AMQ
 

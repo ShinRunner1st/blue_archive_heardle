@@ -6,6 +6,13 @@ or weapon, or how each guess compares.
 
 **Play it at [baheardle.com](https://baheardle.com/)**
 
+The home page has a card for each game, with how today's daily puzzles went
+and a button to carry on with the game played last. Each game has its own
+page: [/ost](https://baheardle.com/ost), [/voice](https://baheardle.com/voice),
+[/students](https://baheardle.com/students) and
+[/picture](https://baheardle.com/picture). The bar under the header moves
+between them without reloading, and the logo goes back home.
+
 <p>
   <img src="docs/screenshot-game.webp" alt="A round in progress: one wrong guess, one skip, and the clip player" width="49%">
   <img src="docs/screenshot-result.webp" alt="The result screen in dark mode, playing the answer" width="49%">
@@ -620,7 +627,8 @@ src/
                 colour scheme, audio URLs
   hooks/        useGame (the round-by-round modes), useTimeAttack,
                 useStudentGame, useVoiceGame, useVoiceTimeAttack,
-                useVolume, useColorScheme
+                usePage (the hub or a game's page), useVolume,
+                useColorScheme
   image/        Logo and the day and night backgrounds
 public/spine/   The characters, made by build-spine
   test/         Render harness and shared setup for the tests
@@ -658,7 +666,10 @@ The audio is on Cloudflare (see [Audio](#audio)), so a deployment is about
 
 - **Only `main` deploys** (`git.deploymentEnabled` in `vercel.json`); other
   branches get no preview deployments. Test with `npm run build` and
-  `npm run preview` instead.
+  `npm run preview` instead. A branch that needs testing on Vercel itself
+  can be let in there for a while (`feat/game-pages` is, for its clean
+  URLs); take it out again before it merges. Vercel marks preview addresses
+  `noindex`, so search engines leave them alone.
 - **Delete merged branches.** Vercel keeps the latest deployment of every
   branch that still exists.
 - **Caching** is set in `vercel.json`, to spare requests as well as bandwidth.
@@ -677,6 +688,26 @@ The audio is on Cloudflare (see [Audio](#audio)), so a deployment is about
   types, and `Referrer-Policy: no-referrer` tells the Worker, R2 and linked
   sites nothing about where a visit came from. If the Worker's address or
   the R2 domain changes, change it in the policy as well.
+
+### Pages
+
+The site is one bundle but five HTML files: the hub (`index.html`) and a page
+per game (`ost.html`, `voice.html`, `students.html`, `picture.html`). The
+`game-pages` plugin in `vite.config.ts` writes them from `index.html`, filling
+its `{{page.title}}`, `{{page.description}}` and `{{page.url}}` fields from
+`src/constants/pages.ts`, so each page's title, description, canonical address
+and link preview are in the file itself: X, Discord and LINE read those
+without running any JavaScript. `cleanUrls` in `vercel.json` serves
+`voice.html` at `/voice` and `trailingSlash: false` sends `/voice/` there too.
+The app reads the path to pick the game (`usePage`); moving between pages
+uses the History API, so it costs no request and the music and characters
+carry on. Every page is in `public/sitemap.xml`. The ways to play (Daily,
+Classic, 4-Choice, Time Attack) stay switches rather than pages: pages that
+differ only by a mode would be near-copies of each other, which search
+engines count against a site. A new page needs an entry in `PAGES` and the
+sitemap.
+
+### Old address
 
 The game moved from `bluearchive-heardle.xyz` to `baheardle.com` on
 27 September 2026. Progress wasn't carried over: a browser keeps each
