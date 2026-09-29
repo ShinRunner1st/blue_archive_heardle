@@ -329,6 +329,12 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
 songs` put the new files on the Worker and R2 first. About 0.3 KB gzipped
   more on the first load, no new requests or files on Vercel. The weekly
   Action's first run with the game's tools is Wednesday 30 Sep.
+- **29 Sep 2026, Group 8 released** (main bed409f, then 907d8f8): the site
+  moved from Vercel to the static-assets Worker `ba-heardle-site`, with
+  baheardle.com as its Custom Domain; CI deploys `main` once every check
+  passes, and the page check runs under the real headers. Cloudflare's Web
+  Analytics beacon, found by the page check on the domain, was turned off.
+  No new files for players; Vercel now only redirects the old domain.
 
 ## Commands
 

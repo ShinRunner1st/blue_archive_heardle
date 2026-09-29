@@ -64,12 +64,20 @@ voice lines and card scenes on the Worker and R2. The two Actions run from
 
 **Future**, next:
 
+- **Page-check guard** (agreed 2026-09-30, to build next): make
+  `npm run check:pages` fail on any cookie and on any script but the
+  site's own bundle, including ones Cloudflare serves from the site's own
+  address (`/cdn-cgi/`, which the CSP's `'self'` lets through), so a
+  dashboard setting (Bot Fight Mode, Rocket Loader, Email Address
+  Obfuscation, Zaraz) can't quietly break the privacy promise.
+
 7. **Group 7: Multiplayer.** The user checks the Durable Objects and
    PartyServer free-tier limits first (see "Multiplayer" below).
 8. **Group 8: move the site to Cloudflare** (see "Moving off Vercel"
    below). _Built on `feat/cloudflare-site`, off `main` (Group 7 isn't
-   built yet, and this doesn't need it). baheardle.com moved to the Worker
-   on 2026-09-29; the merge is still to do._
+   built yet, and this doesn't need it). Released on 2026-09-29 (main
+   bed409f, then 907d8f8 fixing the page check), after baheardle.com moved
+   to the Worker the same day._
 
 Any time: `npm run songs` when new OSTs come out.
 
@@ -603,8 +611,19 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   by the CSP, but it breaks the no-analytics promise); the user turned it
   off, and it must stay off for the zone. Then www got a proxied record and
   a Redirect Rule to the apex, and Always Use HTTPS went on. The page check
-  on baheardle.com passed. Still to do: the merge, and a day after the
-  switch taking baheardle.com and www off the Vercel project.
+  on baheardle.com passed. The merge's CI run failed the page check (the
+  hub's first load had a hard 30 s wait for a quiet network, which a cold
+  runner missed); with that fixed, CI deployed `main` itself.
+- **Cloudflare's suggestions** (2026-09-30), all left off: Bot Fight Mode
+  (a `__cf_bm` cookie and a challenge script), AI Labyrinth (hidden links
+  in the pages), Page Shield (players' browsers reporting to Cloudflare),
+  and security.txt for now. DNSSEC, SPF `-all` and DMARC `p=reject` were
+  already on. Cloudflare's `Nel`/`Report-To` headers stay: error reports
+  to the host only, nothing on a normal visit.
+- **baheardle.com and www stay on the Vercel project** until it is
+  deleted after 2026-12-10: the old domain's redirect is set in Vercel's
+  domain settings, which can only point at a domain in the same project.
+  Their DNS is on Cloudflare, so Vercel gets none of their traffic.
 
 ## Still considering
 

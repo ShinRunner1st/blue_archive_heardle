@@ -956,10 +956,12 @@ The game moved from `bluearchive-heardle.xyz` to `baheardle.com` on
 27 September 2026. Progress wasn't carried over: a browser keeps each
 address's saves apart, so everyone started fresh, and daily mode restarted at
 #1 that day. Its DNS is on Vercel, so it stays attached to the old Vercel
-project, whose last deployment sends every visit on with a permanent
-redirect, until it expires on 10 December 2026; it won't be renewed. The
-project is no longer connected to GitHub, so nothing deploys there. After
-that date the Vercel project can be deleted.
+project, whose domain settings send every visit on to baheardle.com with a
+permanent redirect, until it expires on 10 December 2026; it won't be
+renewed. That setting can only point at a domain in the same project, so
+baheardle.com and www stay attached there too, unused: their DNS is on
+Cloudflare. The project is no longer connected to GitHub, so nothing
+deploys there. After that date the Vercel project can be deleted.
 
 ## Privacy
 
