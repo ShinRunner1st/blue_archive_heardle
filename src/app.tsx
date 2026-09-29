@@ -4,6 +4,7 @@ import { Game as GameName, GameMode, isEndlessStyle } from "./types/mode";
 import { Song } from "./types/song";
 import { StudentGame as StudentWay } from "./types/student";
 import { VoiceMode, VoiceStyle } from "./types/voice";
+import { PictureKind, PictureMode, PictureStyle } from "./types/picture";
 
 import { useBirthdays } from "./hooks/useBirthdays";
 import { useGame } from "./hooks/useGame";
@@ -11,6 +12,9 @@ import { useStudentGame } from "./hooks/useStudentGame";
 import { useTimeAttack } from "./hooks/useTimeAttack";
 import { useVoiceGame } from "./hooks/useVoiceGame";
 import { useVoiceTimeAttack } from "./hooks/useVoiceTimeAttack";
+import { usePictureGame } from "./hooks/usePictureGame";
+import { usePictureTimeAttack } from "./hooks/usePictureTimeAttack";
+import { pictureRunsOf } from "./helpers/pictureTimeAttack";
 import { guessesForCharacter, isWon } from "./helpers/studentRounds";
 import { asRound as voiceAsRound } from "./helpers/voiceRounds";
 import { voiceRunsOf } from "./helpers/voiceTimeAttack";
@@ -24,12 +28,16 @@ import {
   loadMode,
   loadStudentGame,
   loadVoiceStyle,
+  loadPictureKind,
+  loadPictureStyle,
   markFirstRunDone,
   markWhatsNewSeen,
   saveGame,
   saveMode,
   saveStudentGame,
   saveVoiceStyle,
+  savePictureKind,
+  savePictureStyle,
 } from "./helpers/storage";
 
 import {
@@ -49,10 +57,13 @@ import {
 } from "./components";
 import {
   GameSwitch,
+  PictureStyles,
   PlayStyles,
   StudentStyles,
   VoiceStyles,
 } from "./components/PlayStyles";
+import { PictureGame, PictureTimeAttack } from "./components/PictureGame";
+import { PictureStats } from "./components/StatsPopUp/PictureStats";
 import { BirthdayNote } from "./components/BirthdayNote";
 import { StudentGame } from "./components/StudentGame";
 import { TimeAttack } from "./components/TimeAttack";
@@ -74,6 +85,7 @@ function App() {
     React.useState<StudentWay>(loadStudentGame);
   const isStudents = gameName === "students";
   const isVoice = gameName === "voice";
+  const isPicture = gameName === "picture";
   const isTimeAttack = gameName === "ost" && mode === "timeattack";
 
   // Voice mode's way to play Endless, remembered apart from the OST's: it
@@ -85,6 +97,17 @@ function App() {
   // How the header and the pop-ups see it: No hints is a kind of Classic.
   const voiceHeaderMode: GameMode =
     voiceMode === "nohint" ? "endless" : voiceMode;
+
+  // The picture game's kind, halo or weapon, and its way to play Endless,
+  // which has one more, Silhouette.
+  const [pictureKind, setPictureKind] =
+    React.useState<PictureKind>(loadPictureKind);
+  const [pictureStyle, setPictureStyle] =
+    React.useState<PictureStyle>(loadPictureStyle);
+  const pictureMode: PictureMode = mode === "daily" ? "daily" : pictureStyle;
+  const isPictureTimeAttack = isPicture && pictureMode === "timeattack";
+  const pictureHeaderMode: GameMode =
+    pictureMode === "silhouette" ? "endless" : pictureMode;
 
   const {
     solution,
@@ -130,6 +153,18 @@ function App() {
   React.useEffect(() => {
     if (!isVoiceTimeAttack) finishVoiceRun();
   }, [isVoiceTimeAttack, finishVoiceRun]);
+
+  // Time attack runs its own pictures, and Classic waits behind it, unseen.
+  const picture = usePictureGame(
+    pictureKind,
+    pictureMode === "timeattack" ? "endless" : pictureMode
+  );
+  const pictureTimeAttack = usePictureTimeAttack(pictureKind);
+  const { finish: finishPictureRun } = pictureTimeAttack;
+
+  React.useEffect(() => {
+    if (!isPictureTimeAttack) finishPictureRun();
+  }, [isPictureTimeAttack, finishPictureRun]);
   const birthdays = useBirthdays();
 
   const timeAttack = useTimeAttack();
@@ -147,6 +182,10 @@ function App() {
   const streak = mode === "daily" ? dayStreak : winStreak;
   const run = isStudents
     ? students.streak.current
+    : isPicture
+    ? isPictureTimeAttack
+      ? pictureTimeAttack.score
+      : picture.streak.current
     : isVoice
     ? isVoiceTimeAttack
       ? voiceTimeAttack.score
@@ -199,6 +238,44 @@ function App() {
   React.useEffect(() => {
     saveVoiceStyle(voiceStyle);
   }, [voiceStyle]);
+
+  React.useEffect(() => {
+    savePictureKind(pictureKind);
+  }, [pictureKind]);
+
+  React.useEffect(() => {
+    savePictureStyle(pictureStyle);
+  }, [pictureStyle]);
+
+  // Classic, with the silhouette on or off as it was last.
+  const pictureClassic = React.useRef<PictureStyle>(
+    pictureStyle === "silhouette" ? "silhouette" : "endless"
+  );
+  const changePictureStyle = React.useCallback((next: PictureStyle) => {
+    if (next === "endless" || next === "silhouette") {
+      setPictureStyle((was) =>
+        next === "endless" && (was === "endless" || was === "silhouette")
+          ? was
+          : next === "endless"
+          ? pictureClassic.current
+          : next
+      );
+    } else {
+      setPictureStyle(next);
+    }
+  }, []);
+  const setPictureSilhouette = React.useCallback((on: boolean) => {
+    pictureClassic.current = on ? "silhouette" : "endless";
+    setPictureStyle(pictureClassic.current);
+  }, []);
+  const changePictureKind = React.useCallback(
+    (next: PictureKind) => {
+      // A run of the other kind ends: it can't carry on with this one.
+      finishPictureRun();
+      setPictureKind(next);
+    },
+    [finishPictureRun]
+  );
 
   // Classic, with its hints on or off as they were last.
   const voiceClassic = React.useRef<VoiceStyle>(
@@ -290,9 +367,16 @@ function App() {
   // song answered.
   const taRun = timeAttack.run;
   const voiceRun = voiceTimeAttack.run;
+  const pictureRun = pictureTimeAttack.run;
   const studentRound = students.round;
   const roundKey = isStudents
     ? `${students.slot}:${studentRound.day ?? ""}:${students.rounds.length}`
+    : isPictureTimeAttack
+    ? `picture-ta:${pictureRun?.id ?? ""}:${pictureRun?.rounds.length ?? 0}`
+    : isPicture
+    ? `${pictureKind}-${pictureMode}:${picture.round.day ?? ""}:${
+        picture.rounds.length
+      }`
     : isVoiceTimeAttack
     ? `voice-ta:${voiceRun?.id ?? ""}:${voiceRun?.rounds.length ?? 0}`
     : isVoice
@@ -319,7 +403,19 @@ function App() {
     }
     return voiceAsRound(voiceRound);
   }, [isVoiceTimeAttack, voiceRun, voiceRound]);
-  const reactTo = isVoice
+  const pictureRound = picture.round;
+  const pictureReaction = React.useMemo(() => {
+    if (isPictureTimeAttack) {
+      const last = pictureRun?.rounds[pictureRun.rounds.length - 1];
+      return last
+        ? voiceAsRound(last)
+        : { guesses: [], currentTry: 0, didGuess: false, tries: 1 };
+    }
+    return voiceAsRound(pictureRound);
+  }, [isPictureTimeAttack, pictureRun, pictureRound]);
+  const reactTo = isPicture
+    ? pictureReaction
+    : isVoice
     ? voiceReaction
     : isStudents
     ? {
@@ -350,6 +446,10 @@ function App() {
   const voiceRuns = React.useMemo(
     () => voiceRunsOf(voiceTimeAttack.history),
     [voiceTimeAttack.history]
+  );
+  const pictureRuns = React.useMemo(
+    () => pictureRunsOf(pictureTimeAttack.history),
+    [pictureTimeAttack.history]
   );
 
   const openSongList = React.useCallback(() => setIsSongListOpen(true), []);
@@ -413,12 +513,22 @@ function App() {
         openJukeboxPopUp={openJukebox}
         openSenseiCard={openCard}
         // The student game has Daily and Endless only.
-        mode={isStudents ? studentMode : isVoice ? voiceHeaderMode : mode}
+        mode={
+          isStudents
+            ? studentMode
+            : isVoice
+            ? voiceHeaderMode
+            : isPicture
+            ? pictureHeaderMode
+            : mode
+        }
         onModeChange={changeMode}
         streak={run}
         tagline={
           isStudents
             ? "Guess the Blue Archive student"
+            : isPicture
+            ? `Guess the Blue Archive student by ${pictureKind}`
             : isVoice
             ? "Guess the Blue Archive student by voice"
             : "Guess the Blue Archive OST"
@@ -438,6 +548,29 @@ function App() {
           best={students.best}
           found={students.found}
           dailyResults={students.dailyResults}
+        />
+      )}
+      {isStatsPopUpOpen && isPictureTimeAttack && (
+        <TimeAttackStats
+          onClose={closeStatsPopUp}
+          stats={pictureTimeAttack.stats}
+          runs={pictureRuns}
+          streak={pictureTimeAttack.score}
+          picture={pictureKind}
+        />
+      )}
+      {isStatsPopUpOpen && isPicture && !isPictureTimeAttack && (
+        <PictureStats
+          onClose={closeStatsPopUp}
+          kind={pictureKind}
+          mode={picture.mode}
+          tally={picture.tally}
+          played={picture.played}
+          streak={picture.streak.current}
+          best={picture.best}
+          found={picture.found}
+          total={picture.total}
+          dailyResults={picture.dailyResults}
         />
       )}
       {isStatsPopUpOpen && isVoiceTimeAttack && (
@@ -486,6 +619,10 @@ function App() {
           canReset={
             isStudents
               ? students.hasHistory
+              : isPictureTimeAttack
+              ? pictureTimeAttack.stats.runs > 0
+              : isPicture
+              ? picture.hasHistory
               : isVoiceTimeAttack
               ? voiceTimeAttack.stats.runs > 0
               : isVoice
@@ -497,6 +634,10 @@ function App() {
           onReset={
             isStudents
               ? students.reset
+              : isPictureTimeAttack
+              ? pictureTimeAttack.resetHistory
+              : isPicture
+              ? picture.reset
               : isVoiceTimeAttack
               ? voiceTimeAttack.resetHistory
               : isVoice
@@ -505,8 +646,17 @@ function App() {
               ? timeAttack.resetHistory
               : resetScore
           }
-          mode={isStudents ? studentMode : isVoice ? voiceHeaderMode : mode}
+          mode={
+            isStudents
+              ? studentMode
+              : isVoice
+              ? voiceHeaderMode
+              : isPicture
+              ? pictureHeaderMode
+              : mode
+          }
           game={gameName}
+          pictureKind={pictureKind}
         />
       )}
       {isHowToPopUpOpen && <HowToPopUp onClose={closeHowToPopUp} />}
@@ -533,6 +683,13 @@ function App() {
         <Styled.StyleRow>
           {isStudents ? (
             <StudentStyles game={studentWay} onChange={setStudentWay} />
+          ) : isPicture ? (
+            pictureMode !== "daily" && (
+              <PictureStyles
+                style={pictureStyle}
+                onChange={changePictureStyle}
+              />
+            )
           ) : isVoice ? (
             voiceMode !== "daily" && (
               <VoiceStyles style={voiceStyle} onChange={changeVoiceStyle} />
@@ -544,7 +701,10 @@ function App() {
           )}
         </Styled.StyleRow>
       </Styled.StyleBar>
-      <BirthdayNote students={birthdays} withIcons={isStudents || isVoice} />
+      <BirthdayNote
+        students={birthdays}
+        withIcons={isStudents || isVoice || isPicture}
+      />
       <Styled.Container $top={isStudents}>
         {isStudents ? (
           <StudentGame
@@ -559,6 +719,21 @@ function App() {
             onGiveUp={students.giveUp}
             onNext={students.next}
             onNewDay={students.refreshDay}
+            keyboardEnabled={!isPopUpOpen}
+          />
+        ) : isPictureTimeAttack ? (
+          <PictureTimeAttack
+            timeAttack={pictureTimeAttack}
+            onKindChange={changePictureKind}
+            keyboardEnabled={!isPopUpOpen}
+          />
+        ) : isPicture ? (
+          <PictureGame
+            // A new screen for each kind and mode, as for the OST.
+            key={`${pictureKind}-${pictureMode}`}
+            game={picture}
+            onKindChange={changePictureKind}
+            onSilhouetteChange={setPictureSilhouette}
             keyboardEnabled={!isPopUpOpen}
           />
         ) : isVoiceTimeAttack ? (

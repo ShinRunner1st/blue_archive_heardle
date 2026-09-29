@@ -155,6 +155,39 @@ describe("App mode switch", () => {
     expect(modeButton("4-Choice")?.getAttribute("aria-pressed")).toBe("false");
   });
 
+  it("plays the picture game, halo or weapon, and remembers which", () => {
+    localStorage.setItem("whatsNew", LATEST_UPDATE_ID);
+    mount();
+    act(() => {
+      container
+        .querySelector<HTMLButtonElement>('button[aria-label="Picture"]')!
+        .click();
+    });
+
+    expect(localStorage.getItem("game")).toBe("picture");
+    expect(container.querySelector('[aria-label="The halo"]')).not.toBeNull();
+    // Daily shows the picture itself, never its silhouette.
+    expect(modeButton("On")).toBeUndefined();
+
+    act(() => {
+      modeButton("Weapon")!.click();
+    });
+    expect(container.querySelector('[aria-label="The weapon"]')).not.toBeNull();
+    expect(localStorage.getItem("pictureKind")).toBe("weapon");
+
+    act(() => {
+      modeButton("Endless")!.click();
+    });
+    act(() => {
+      modeButton("On")!.click();
+    });
+    expect(localStorage.getItem("pictureStyle")).toBe("silhouette");
+    expect(
+      container.querySelector(`[aria-label="The weapon's silhouette"]`)
+    ).not.toBeNull();
+    expect(container.querySelector('[aria-label="The weapon"]')).toBeNull();
+  });
+
   it("plays four-choice, and goes back to it from Daily", () => {
     localStorage.setItem("whatsNew", LATEST_UPDATE_ID);
     mount();

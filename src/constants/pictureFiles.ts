@@ -6,6 +6,10 @@
  * GENERATED FILE - do not edit by hand. Run `npm run songs`.
  */
 export const pictureFiles: Record<string, string> = {
+  "guess/halos": "pictures/halos.4d0e3033.webp",
+  "guess/halo-shapes": "pictures/halo-shapes.316bfa2d.webp",
+  "guess/weapons": "pictures/weapons.6b3529ee.webp",
+  "guess/weapon-shapes": "pictures/weapon-shapes.c3037f04.webp",
   "seasons/christmas-day": "pictures/christmas-day.b1553fa7.webp",
   "seasons/christmas-night": "pictures/christmas-night.c8e48d7c.webp",
   "seasons/new-year-day": "pictures/new-year-day.95478ce3.webp",

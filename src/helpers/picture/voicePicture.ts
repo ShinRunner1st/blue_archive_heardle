@@ -69,6 +69,12 @@ export interface VoicePictureContent {
   stats: Array<{ label: string; value: string }>;
   /** The speaker, on endless pictures only: a daily one must spoil nothing. */
   answer: Student | null;
+  /** Before the squares: a speaker, or the picture game's halo or gun. */
+  symbol?: string;
+  /** In place of the answer on a daily picture. */
+  teaser?: string;
+  /** Under the answer's name: their school and club, unless told. */
+  detail?: string;
 }
 
 /**
@@ -148,7 +154,7 @@ export function drawVoicePicture(
   // A speaker, then a square for each try.
   ctx.fillStyle = COLORS.navy;
   ctx.font = `800 44px ${FONT}`;
-  ctx.fillText("🔊", LEFT, ROW_TOP + 50);
+  ctx.fillText(content.symbol ?? "🔊", LEFT, ROW_TOP + 50);
   const squaresLeft = LEFT + 70;
   content.tries.forEach((mark, index) => {
     ctx.fillStyle = MARK_COLORS[mark];
@@ -186,7 +192,7 @@ export function drawVoicePicture(
     ctx.fillStyle = COLORS.muted;
     fitText(
       ctx,
-      `${content.answer.school} · ${content.answer.club}`,
+      content.detail ?? `${content.answer.school} · ${content.answer.club}`,
       LEFT + 108,
       top + 76,
       600,
@@ -198,7 +204,7 @@ export function drawVoicePicture(
     ctx.fillStyle = COLORS.blue;
     fitText(
       ctx,
-      "Can you name today's voice?",
+      content.teaser ?? "Can you name today's voice?",
       LEFT,
       bottom - 8,
       640,

@@ -6,7 +6,12 @@ import { voiceNeighbours } from "../constants/voiceTones";
 import { GuessType } from "../types/guess";
 import { Round } from "../types/stats";
 import { Student } from "../types/student";
-import { SKIPPED, VoiceRound, VoiceRoundMode } from "../types/voice";
+import {
+  NamedRound,
+  SKIPPED,
+  VoiceRound,
+  VoiceRoundMode,
+} from "../types/voice";
 import { studentById } from "./studentRounds";
 
 /**
@@ -49,16 +54,16 @@ export const titlePool: Student[] = voicePool.filter(({ id }) =>
 );
 
 /** One pick for a four-choice or time attack round, four for the rest. */
-export function triesOf(round: VoiceRound): number {
+export function triesOf(round: NamedRound): number {
   return round.choices || round.run !== undefined ? 1 : VOICE_TRIES;
 }
 
 /** Saved guesses stop at the answer, so a win ends with it. */
-export function isWon(round: VoiceRound): boolean {
+export function isWon(round: NamedRound): boolean {
   return round.guesses[round.guesses.length - 1] === round.answer;
 }
 
-export function isOver(round: VoiceRound): boolean {
+export function isOver(round: NamedRound): boolean {
   return isWon(round) || round.guesses.length >= triesOf(round);
 }
 
@@ -66,7 +71,7 @@ export function isOver(round: VoiceRound): boolean {
  * How many hints show: one per miss, up to all three, and all of them once
  * the round is over. None in the no-hint mode.
  */
-export function hintsShown(round: VoiceRound, withHints: boolean): number {
+export function hintsShown(round: NamedRound, withHints: boolean): number {
   if (!withHints) return 0;
   if (isOver(round)) return HINTS.length;
   return Math.min(round.guesses.length, HINTS.length);
@@ -241,7 +246,7 @@ const NO_SONG = { artist: "", name: "", themeNo: "" };
  * A voice round in the OST's shape, so the streak, calendar and character
  * helpers count it the same way: each guess or skip is a try.
  */
-export function asRound(round: VoiceRound): Round {
+export function asRound(round: NamedRound): Round {
   return {
     solution: NO_SONG,
     currentTry: round.guesses.length,
@@ -254,7 +259,7 @@ export function asRound(round: VoiceRound): Round {
 }
 
 /** The round's guesses as the character reads them. */
-export function guessesForCharacter(round: VoiceRound): GuessType[] {
+export function guessesForCharacter(round: NamedRound): GuessType[] {
   return round.guesses.map((id) => ({
     song: id === SKIPPED ? undefined : NO_SONG,
     skipped: id === SKIPPED,
@@ -266,7 +271,7 @@ export function guessesForCharacter(round: VoiceRound): GuessType[] {
  * Tallies finished rounds for the stats: losses at index 0, then wins by
  * the try they came on, 1 to 4 (just 1 for a four-choice round).
  */
-export function voiceTally(rounds: VoiceRound[], tries: number): number[] {
+export function voiceTally(rounds: NamedRound[], tries: number): number[] {
   const tally = Array.from({ length: tries + 1 }, () => 0);
   for (const round of rounds) {
     if (!isOver(round)) continue;

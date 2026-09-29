@@ -106,7 +106,14 @@ export function SaveFile() {
   const replace = () => {
     if (!pending) return;
 
-    if (!replaceAllRounds(pending.rounds, pending.students, pending.voices)) {
+    if (
+      !replaceAllRounds(
+        pending.rounds,
+        pending.students,
+        pending.voices,
+        pending.pictures
+      )
+    ) {
       setPending(null);
       setError(
         "This browser wouldn't store the save. Check that site data is allowed."

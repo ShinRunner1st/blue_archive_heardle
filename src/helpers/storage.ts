@@ -24,6 +24,9 @@ import {
   SENSEI_TITLE_KEY,
   VOICE_STORAGE_KEYS,
   VOICE_STYLE_KEY,
+  PICTURE_KIND_KEY,
+  PICTURE_STYLE_KEY,
+  pictureStorageKey,
 } from "../constants/game";
 import { ColorScheme } from "../constants/theme";
 import { CharacterChoice, isCharacterChoice } from "../types/character";
@@ -38,7 +41,16 @@ import {
   StudentSlot,
 } from "../types/student";
 import {
+  isPictureKind,
+  isPictureStyle,
+  PictureKind,
+  PictureRound,
+  PictureSlot,
+  PictureStyle,
+} from "../types/picture";
+import {
   isVoiceStyle,
+  NamedRound,
   SKIPPED,
   VoiceMode,
   VoiceRound,
@@ -233,15 +245,16 @@ export function saveRounds(rounds: Round[], mode: GameMode = "endless"): void {
 }
 
 /**
- * Swaps the rounds of each mode given for the new ones, the student and
- * Voice games' too, as one change: if any write fails (storage full or
+ * Swaps the rounds of each mode given for the new ones, the student, Voice
+ * and picture games' too, as one change: if any write fails (storage full or
  * blocked), the ones already made are undone, so the player never ends up
  * with half a save. Returns whether it worked.
  */
 export function replaceAllRounds(
   histories: Partial<Record<GameMode, Round[]>>,
   studentHistories: Partial<Record<StudentSlot, StudentRound[]>> = {},
-  voiceHistories: Partial<Record<VoiceMode, VoiceRound[]>> = {}
+  voiceHistories: Partial<Record<VoiceMode, VoiceRound[]>> = {},
+  pictureHistories: Partial<Record<PictureSlot, PictureRound[]>> = {}
 ): boolean {
   const writes: Array<[key: string, rounds: unknown[]]> = [
     ...(Object.keys(histories) as GameMode[]).map(
@@ -257,6 +270,12 @@ export function replaceAllRounds(
       (mode): [string, unknown[]] => [
         VOICE_STORAGE_KEYS[mode],
         voiceHistories[mode] ?? [],
+      ]
+    ),
+    ...(Object.keys(pictureHistories) as PictureSlot[]).map(
+      (slot): [string, unknown[]] => [
+        slotKey(slot),
+        pictureHistories[slot] ?? [],
       ]
     ),
   ];
@@ -353,20 +372,15 @@ export function clearStudentRounds(slot: StudentSlot): void {
 }
 
 /**
- * Coerces a saved Voice round into a usable one, or null when it is too
- * damaged to repair. Whether the student and line exist is checked where the
- * lines are listed (see knownVoiceRounds), as for the student game.
+ * Coerces a saved round with one student to name (Voice's, the picture
+ * game's) into a usable one, or null when it is too damaged to repair.
+ * Whether the students exist is checked where the answers are listed (see
+ * knownVoiceRounds), as for the student game.
  */
-function toVoiceRound(value: unknown): VoiceRound | null {
+function toNamedRound(value: unknown): NamedRound | null {
   if (typeof value !== "object" || value === null) return null;
   const round = value as Record<string, unknown>;
   if (!isId(round.answer)) return null;
-  const line =
-    typeof round.line === "number" &&
-    Number.isInteger(round.line) &&
-    round.line >= 0
-      ? round.line
-      : 0;
 
   // Each student once, skips as often as they come, and nothing after the
   // answer: the round ended there.
@@ -399,15 +413,46 @@ function toVoiceRound(value: unknown): VoiceRound | null {
 
   return {
     answer: round.answer,
-    line,
     guesses: guesses.slice(0, tries),
     ...(day === undefined ? {} : { day }),
     ...(choices === undefined ? {} : { choices }),
     ...(run === undefined ? {} : { run }),
-    ...(run !== undefined && round.titles === true
+  };
+}
+
+/** A saved Voice round: one to name, with the line that plays. */
+function toVoiceRound(value: unknown): VoiceRound | null {
+  const named = toNamedRound(value);
+  if (!named) return null;
+  const round = value as Record<string, unknown>;
+  const line =
+    typeof round.line === "number" &&
+    Number.isInteger(round.line) &&
+    round.line >= 0
+      ? round.line
+      : 0;
+
+  return {
+    answer: named.answer,
+    line,
+    guesses: named.guesses,
+    ...(named.day === undefined ? {} : { day: named.day }),
+    ...(named.choices === undefined ? {} : { choices: named.choices }),
+    ...(named.run === undefined ? {} : { run: named.run }),
+    ...(named.run !== undefined && round.titles === true
       ? { titles: true as const }
       : {}),
   };
+}
+
+/** A saved picture round: one to name, and a time attack run's silhouettes. */
+function toPictureRound(value: unknown): PictureRound | null {
+  const named = toNamedRound(value);
+  if (!named) return null;
+  const round = value as Record<string, unknown>;
+  return named.run !== undefined && round.shape === true
+    ? { ...named, shape: true }
+    : named;
 }
 
 /** The usable Voice rounds in a parsed value; shared with save files. */
@@ -432,6 +477,56 @@ export function clearVoiceRounds(mode: VoiceMode): void {
   removeKey(VOICE_STORAGE_KEYS[mode]);
 }
 
+/** The usable picture rounds in a parsed value; shared with save files. */
+export function toPictureRounds(value: unknown): PictureRound[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map(toPictureRound)
+    .filter((round): round is PictureRound => round !== null);
+}
+
+const slotKey = (slot: PictureSlot) => {
+  const [kind, mode] = slot.split("-");
+  return pictureStorageKey(kind, mode);
+};
+
+/** A picture game slot's saved rounds; never throws, like loadRounds. */
+export function loadPictureRounds(slot: PictureSlot): PictureRound[] {
+  return toPictureRounds(readSaved(slotKey(slot)));
+}
+
+/** Saved scrambled, like the others, so the answer isn't in DevTools. */
+export function savePictureRounds(
+  slot: PictureSlot,
+  rounds: PictureRound[]
+): void {
+  writeKey(slotKey(slot), obscure(JSON.stringify(rounds)));
+}
+
+export function clearPictureRounds(slot: PictureSlot): void {
+  removeKey(slotKey(slot));
+}
+
+/** The picture game's kind picked last; halos to begin with. */
+export function loadPictureKind(): PictureKind {
+  const stored = readKey(PICTURE_KIND_KEY);
+  return isPictureKind(stored) ? stored : "halo";
+}
+
+export function savePictureKind(kind: PictureKind): void {
+  writeKey(PICTURE_KIND_KEY, kind);
+}
+
+/** The picture game's way to play Endless picked last; Classic to begin with. */
+export function loadPictureStyle(): PictureStyle {
+  const stored = readKey(PICTURE_STYLE_KEY);
+  return isPictureStyle(stored) ? stored : "endless";
+}
+
+export function savePictureStyle(style: PictureStyle): void {
+  writeKey(PICTURE_STYLE_KEY, style);
+}
+
 /** Voice mode's way to play Endless picked last; Classic to begin with. */
 export function loadVoiceStyle(): VoiceStyle {
   const stored = readKey(VOICE_STYLE_KEY);
@@ -445,7 +540,9 @@ export function saveVoiceStyle(style: VoiceStyle): void {
 /** Which game was played last: the OST, unless another was. */
 export function loadGame(): Game {
   const stored = readKey(GAME_KEY);
-  return stored === "students" || stored === "voice" ? stored : "ost";
+  return stored === "students" || stored === "voice" || stored === "picture"
+    ? stored
+    : "ost";
 }
 
 export function saveGame(game: Game): void {

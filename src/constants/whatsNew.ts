@@ -42,6 +42,22 @@ export interface NewsUpdate {
  */
 export const WHATS_NEW: NewsUpdate[] = [
   {
+    id: "2026-09-picture",
+    name: "Halos and weapons",
+    items: [
+      {
+        icon: IoSparkles,
+        title: "Picture",
+        text: "A fourth game on the switch: see a halo or a weapon and name its student. Halo or Weapon sits above the game. Costumes share a halo and most share a gun, so naming any student it belongs to is right.",
+      },
+      {
+        icon: IoGrid,
+        title: "Every way to play",
+        text: "A daily halo and a daily weapon, each with its own streak and calendar, and in Endless: Classic, with four tries and a hint after each miss (school, club, then their silhouette), or with the silhouette on, where you see only the picture's shape; 4-Choice; and Time Attack, with pictures or silhouettes. Share pictures and recaps too.",
+      },
+    ],
+  },
+  {
     id: "2026-09-voice",
     name: "Guess the voice",
     items: [

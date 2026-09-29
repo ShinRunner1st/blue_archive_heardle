@@ -4,6 +4,7 @@ import {
   IoInfinite,
   IoMic,
   IoPeople,
+  IoSparkles,
   IoStopwatch,
 } from "react-icons/io5";
 
@@ -138,6 +139,24 @@ export function HowToPopUp({ onClose }: Props) {
               name, then press Enter or Guess. In Endless, Classic can turn its
               hints off, 4-Choice is one pick from four, and Time Attack is as
               many as you can in three minutes, every line or title calls only.
+            </PopUpCardText>
+          </PopUpCardBody>
+        </PopUpCard>
+        <PopUpCard>
+          <PopUpCardIcon>
+            <IoSparkles aria-hidden="true" />
+          </PopUpCardIcon>
+          <PopUpCardBody>
+            <PopUpCardTitle>Picture</PopUpCardTitle>
+            <PopUpCardText>
+              Switch to Picture under the header and name the student from their
+              halo or their weapon, picked above the game. Costumes share a halo
+              and most share a gun, so naming any student it belongs to is
+              right. You get four tries, and each miss or skip shows a hint:
+              their school, then their club, then their silhouette. In Endless,
+              Classic can show only the picture&apos;s silhouette, 4-Choice is
+              one pick from four, and Time Attack is as many as you can in three
+              minutes, pictures or silhouettes.
             </PopUpCardText>
           </PopUpCardBody>
         </PopUpCard>

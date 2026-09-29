@@ -49,6 +49,24 @@ export const VOICE_STYLE_KEY = "voiceStyle";
 export const VOICE_TIME_ATTACK_SETTINGS_KEY = "voiceTimeAttack";
 
 /**
+ * localStorage key holding the picture game's rounds for a kind and mode,
+ * "guess.halo.daily" or "guess.weapon" (Classic). Time attack's are the
+ * pictures answered in its runs.
+ */
+export function pictureStorageKey(kind: string, mode: string): string {
+  return mode === "endless" ? `guess.${kind}` : `guess.${kind}.${mode}`;
+}
+
+/** localStorage key remembering the picture game's kind: halo or weapon. */
+export const PICTURE_KIND_KEY = "pictureKind";
+
+/** localStorage key remembering the picture game's way to play Endless. */
+export const PICTURE_STYLE_KEY = "pictureStyle";
+
+/** localStorage key holding the picture time attack settings picked last. */
+export const PICTURE_TIME_ATTACK_SETTINGS_KEY = "pictureTimeAttack";
+
+/**
  * localStorage key remembering which game was last played: the OST, the
  * students or their voices.
  */

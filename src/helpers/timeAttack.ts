@@ -147,6 +147,8 @@ export interface RunSummary {
   clip: number;
   /** A Voice run of title calls only. */
   titles?: boolean;
+  /** A picture game run of silhouettes. */
+  shapes?: boolean;
 }
 
 /** The saved rounds, as runs in the order they were played. */

@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { DAILY_STORAGE_KEY, STORAGE_KEY } from "../constants/game";
+import { PICTURE_SLOTS } from "../types/picture";
 import { Song } from "../types/song";
 import { obscure } from "./obscure";
 import { buildSaveFile, readSaveFile, saveFileName } from "./saveFile";
 import {
   emptyGuesses,
+  savePictureRounds,
   saveRounds,
   saveStudentRounds,
   saveVoiceRounds,
@@ -35,6 +37,8 @@ const NO_VOICES = {
   choice: [],
   timeattack: [],
 };
+
+const NO_PICTURES = Object.fromEntries(PICTURE_SLOTS.map((slot) => [slot, []]));
 
 function file(contents: Record<string, unknown>): string {
   return obscure(JSON.stringify({ app: "baheardle", version: 1, ...contents }));
@@ -69,6 +73,7 @@ describe("save files", () => {
           "lore-endless": [],
         },
         voices: NO_VOICES,
+        pictures: NO_PICTURES,
       },
     });
   });
@@ -89,6 +94,30 @@ describe("save files", () => {
     const result = readSaveFile(buildSaveFile());
     expect(result.ok && result.save.voices.daily).toEqual(rounds);
     expect(buildSaveFile()).not.toContain("10005");
+  });
+
+  it("carries the picture game's rounds too", () => {
+    const rounds = [
+      { answer: 10005, guesses: [0, 10000], day: 2 },
+      { answer: 10010, guesses: [10010], run: 5, shape: true as const },
+    ];
+    savePictureRounds("weapon-daily", rounds);
+
+    const result = readSaveFile(buildSaveFile());
+    expect(result.ok && result.save.pictures["weapon-daily"]).toEqual(rounds);
+    expect(buildSaveFile()).not.toContain("10005");
+  });
+
+  it("reads a save from before the picture game, and one with only it", () => {
+    const old = readSaveFile(file({ rounds: { endless: [round()] } }));
+    expect(old.ok && old.save.pictures).toEqual(NO_PICTURES);
+
+    const pictures = readSaveFile(
+      file({ pictures: { "halo-choice": [{ answer: 1, guesses: [] }] } })
+    );
+    expect(pictures.ok && pictures.save.pictures["halo-choice"]).toHaveLength(
+      1
+    );
   });
 
   it("reads a save from before Voice mode, and one with only it", () => {
@@ -166,6 +195,7 @@ describe("save files", () => {
           "lore-endless": [],
         },
         voices: NO_VOICES,
+        pictures: NO_PICTURES,
       },
     });
 

@@ -40,14 +40,14 @@ export function isVoiceStyle(value: unknown): value is VoiceStyle {
 export const SKIPPED = 0;
 
 /**
- * One voice line to name. The last round in a saved list is always the one
- * in progress, as in the other games.
+ * A round with one student to name and a few tries, the shape Voice mode and
+ * the picture game share, so they share the helpers that count them too.
+ * The last round in a saved list is always the one in progress, as in the
+ * other games.
  */
-export interface VoiceRound {
-  /** The speaker's student id. */
+export interface NamedRound {
+  /** The answer's student id. */
   answer: number;
-  /** Which of their lines plays: 0 is the title call, when they have one. */
-  line: number;
   /** The ids guessed, in order, SKIPPED for a skip; the answer last once found. */
   guesses: number[];
   /** Which daily puzzle the round belongs to; daily rounds only. */
@@ -59,6 +59,12 @@ export interface VoiceRound {
   choices?: number[];
   /** Which time attack run the round was part of: when the run started. */
   run?: number;
+}
+
+/** One voice line to name. */
+export interface VoiceRound extends NamedRound {
+  /** Which of their lines plays: 0 is the title call, when they have one. */
+  line: number;
   /** A time attack run of title calls only, the same words from everyone. */
   titles?: true;
 }

@@ -36,7 +36,8 @@ export const BADGE_MODES: RoundMode[] = ["daily", "endless"];
 
 /**
  * The games on the site: name the song, name the student from how their
- * attributes compare (see src/components/StudentGame), or name them from
- * their voice (see src/components/VoiceGame).
+ * attributes compare (see src/components/StudentGame), from their voice
+ * (see src/components/VoiceGame), or from their halo or weapon (see
+ * src/components/PictureGame).
  */
-export type Game = "ost" | "students" | "voice";
+export type Game = "ost" | "students" | "voice" | "picture";

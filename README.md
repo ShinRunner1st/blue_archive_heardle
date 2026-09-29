@@ -1,8 +1,8 @@
 # Blue Archive Heardle
 
 A Heardle-style game: guess the Blue Archive OST from a few seconds of music.
-Or switch to Students and find a Blue Archive student from how each guess
-compares.
+Or switch games and name a Blue Archive student from their voice, their halo
+or weapon, or how each guess compares.
 
 **Play it at [baheardle.com](https://baheardle.com/)**
 
@@ -121,6 +121,36 @@ Worker once the round is over, so the words can't be looked up while
 playing), and the line to play again and seek in. The share text is squares
 only; Share picture draws the round (a daily one names nobody) or the Time
 Attack run, and Stats has Share recap for every mode.
+
+### Picture: halos and weapons
+
+The fourth game on the switch: see a halo or a weapon and name its student.
+Halo or Weapon is picked above the game, in every mode, and each keeps its own
+rounds. A student's costumes share a halo, and most share a gun (Aru's rifle
+is the same in all three of her outfits), so each picture is one answer and
+naming any student it belongs to is right. The twins Hikari and Nozomi share
+a halo too. That makes 143 halos and 154 weapons. Type a name or pick from the
+grid, then press Enter or Guess, as in Voice; a wrong guess rules out everyone
+sharing its picture. You get four tries, and each miss or skip opens a hint:
+the school, then the club, then the student's silhouette (Voice's). The
+picture shows on a slate tile, which suits pale halos and dark guns alike.
+
+- **Daily** - one halo and one weapon a day, the same for everyone, from the
+  schedules in `src/constants/guessDailyOrder.ts`, only ever added to. Always
+  the picture itself.
+- **Endless**, with the OST's three:
+  - **Classic** - four tries with hints. A Silhouette switch above the game
+    shows only the picture's shape, white on the tile, with its own score and
+    stats; its last hint is then the picture itself.
+  - **4-Choice** - one pick from four students: for a halo, two from the
+    answer's school where there are; for a weapon, two with the same kind of
+    gun (SG, AR...); never another costume of the answer.
+  - **Time Attack** - as many as you can in three minutes, typed or from four,
+    pictures or silhouettes, each with its own best.
+
+The result shows whose it was (everyone sharing it, and a weapon's name), your
+record with the picture, and the picture itself. Share text is squares only;
+share pictures (a daily one names nobody) and Stats' recaps work as Voice's.
 
 ### Finding a song
 
@@ -492,6 +522,36 @@ and records each student's line count and version in
 (their line 0 is a lobby line), for Time Attack's title calls only. `check:audio` checks that file against
 `voices/`.
 
+### Halos and weapons
+
+`npm run students` runs `build:guess` (`scripts/build-guess-pictures.mjs`)
+after `build:voices`. It:
+
+- groups the student table by picture: halos by the name without the costume
+  (Hikari and Nozomi together, as their halos are the same), weapons by
+  SchaleDB's `WeaponImg`, which costumes mostly share. The one who stands for
+  a group is its default costume.
+- downloads the weapons from SchaleDB (`images/weapon/`) and the halos from
+  the Blue Archive Wiki on Fandom (`<Name> Halo.png`, asked for as the
+  original PNG), since SchaleDB has none. A few are filed under other names
+  there (Aris as Alice, Hatsune Miku as Miku), listed in the script. Each is
+  downloaded once, one at a time with a pause, into `.cache/`.
+- trims each to its edges (the wiki's canvases are any size), fits it to a
+  cell and draws two sheets per kind into `pictures/guess/`: the pictures
+  (`halos.webp`, `weapons.webp`, about 600 KB each: drawn at one and a half
+  times the size they show, with the transparency rounded to six steps as the
+  icon sheet's is) and their shapes in white (`halo-shapes.webp`,
+  `weapon-shapes.webp`, lossless). Each sheet has a shuffled order of its
+  own, so a place in one says nothing about the other; a silhouette round
+  loads only the shape sheet, until its last hint.
+- writes `src/constants/guessPictures.ts` (each picture's students, its cell
+  in both sheets, a weapon's name; scrambled) and appends new pictures to the
+  daily schedules.
+
+The layouts are in `src/constants/guessSheets.ts`. The game never asks the
+wiki or SchaleDB for anything; `npm run songs` puts the sheets on the Worker
+and R2.
+
 ### Characters
 
 The character is a Spine skeleton, drawn with the official Spine 4.2 runtime
@@ -624,8 +684,9 @@ interrupts play.
 [Blue Archive](https://bluearchive.nexon.com/) is developed by NEXON Games and
 published by NEXON and Yostar. Its music, characters and artwork belong to
 their rights holders. The soundtrack is by KARUT, Mitsukiyo, Nor, EmoCosine and
-others. The student data, icons and voice lines are from
-[SchaleDB](https://schaledb.com/).
+others. The student data, icons, weapons and voice lines are from
+[SchaleDB](https://schaledb.com/), and the halos from the
+[Blue Archive Wiki](https://blue-archive.fandom.com/) on Fandom.
 
 This is an unofficial fan game, not affiliated with or endorsed by NEXON Games,
 NEXON or Yostar.

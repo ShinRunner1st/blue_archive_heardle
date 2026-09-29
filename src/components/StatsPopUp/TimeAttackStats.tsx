@@ -6,9 +6,14 @@ import {
   recapPictureName,
 } from "../../helpers/picture/recapPicture";
 import {
+  guessRecapName,
+  makeGuessTimeAttackRecap,
+} from "../../helpers/picture/guessPicture";
+import {
   makeVoiceTimeAttackRecap,
   voiceRecapName,
 } from "../../helpers/picture/voicePicture";
+import { KIND_NAMES } from "../../helpers/pictureRounds";
 import { useBackdropSrc } from "../../hooks/useBackdropSrc";
 import { useSharePicture } from "../../hooks/useSharePicture";
 import logo from "../../image/BlueArchive-Heardle.png";
@@ -19,6 +24,8 @@ import {
   RunSummary,
   TimeAttackStats as Stats,
 } from "../../helpers/timeAttack";
+
+import { PictureKind } from "../../types/picture";
 
 import * as Styled from "./index.styled";
 
@@ -34,6 +41,8 @@ interface Props {
    * its own.
    */
   voice?: boolean;
+  /** The picture game's runs of a kind: halos or weapons, and a recap. */
+  picture?: PictureKind;
 }
 
 /** How many recent runs the list shows. */
@@ -41,6 +50,7 @@ const RECENT = 5;
 
 function runLine(run: RunSummary): string {
   if (run.clip > 0) return `${answersLabel(run.answers)} · ${run.clip}s clips`;
+  if (run.shapes) return `${answersLabel(run.answers)} · silhouettes`;
   return run.titles
     ? `${answersLabel(run.answers)} · title calls`
     : answersLabel(run.answers);
@@ -56,6 +66,7 @@ export function TimeAttackStats({
   runs,
   streak,
   voice = false,
+  picture,
 }: Props) {
   const recent = runs.slice(-RECENT).reverse();
   const rate =
@@ -64,17 +75,26 @@ export function TimeAttackStats({
   const backdrop = useBackdropSrc(streak);
   const makeRecap = React.useCallback(
     () =>
-      (voice ? makeVoiceTimeAttackRecap : makeTimeAttackRecap)(stats, runs, {
-        backdrop,
-        logo,
-      }),
-    [voice, stats, runs, backdrop]
+      picture
+        ? makeGuessTimeAttackRecap(picture, stats, runs, { backdrop, logo })
+        : (voice ? makeVoiceTimeAttackRecap : makeTimeAttackRecap)(
+            stats,
+            runs,
+            { backdrop, logo }
+          ),
+    [picture, voice, stats, runs, backdrop]
   );
-  const picture = useSharePicture(
+  // "Voice " or "Halo ", before "time attack".
+  const game = picture ? `${KIND_NAMES[picture]} ` : voice ? "Voice " : "";
+  const recap = useSharePicture(
     "Share recap",
     makeRecap,
-    voice ? voiceRecapName("timeattack") : recapPictureName("timeattack"),
-    `My Blue Archive Heardle ${voice ? "Voice " : ""}time attack recap
+    picture
+      ? guessRecapName(picture, "timeattack")
+      : voice
+      ? voiceRecapName("timeattack")
+      : recapPictureName("timeattack"),
+    `My Blue Archive Heardle ${game}time attack recap
 ${SITE_URL}`
   );
 
@@ -84,7 +104,7 @@ ${SITE_URL}`
       subtitle={
         stats.runs === 0
           ? "Finish a run and your history shows up here."
-          : `Across ${stats.runs} ${voice ? "Voice " : ""}time attack run${
+          : `Across ${stats.runs} ${game}time attack run${
               stats.runs === 1 ? "" : "s"
             }.`
       }
@@ -92,8 +112,8 @@ ${SITE_URL}`
       actions={
         <>
           {stats.runs > 0 && (
-            <Button variant="pink" onClick={picture.share}>
-              {picture.text}
+            <Button variant="pink" onClick={recap.share}>
+              {recap.text}
             </Button>
           )}
           <Button variant="green" onClick={onClose}>
@@ -125,7 +145,11 @@ ${SITE_URL}`
           <Styled.Tile>
             <Styled.TileValue>{stats.right}</Styled.TileValue>
             <Styled.TileLabel>
-              {voice ? "Voices right" : "Songs right"}
+              {picture
+                ? `${KIND_NAMES[picture]}s right`
+                : voice
+                ? "Voices right"
+                : "Songs right"}
             </Styled.TileLabel>
           </Styled.Tile>
           <Styled.Tile>

@@ -11,6 +11,7 @@ import {
   IoStopwatch,
   IoPeople,
   IoMic,
+  IoSparkles,
 } from "react-icons/io5";
 
 import { Button } from "../Button";
@@ -28,9 +29,11 @@ import { KOFI_URL, LAST_UPDATED } from "../../constants/game";
 import { songs } from "../../constants";
 import { artists } from "../../helpers/searchSong";
 import { Game, GameMode } from "../../types/mode";
+import { PictureKind } from "../../types/picture";
 
 const OFFICIAL_SITE = "https://bluearchive.nexon.com/";
 const SCHALEDB = "https://schaledb.com/";
+const FANDOM_WIKI = "https://blue-archive.fandom.com/";
 
 /**
  * The composers behind most of the soundtrack, read from the song list so the
@@ -52,6 +55,8 @@ interface Props {
   mode: GameMode;
   /** Which game the welcome is about; the OST unless told. */
   game?: Game;
+  /** The picture game's kind, halo or weapon. */
+  pictureKind?: PictureKind;
 }
 
 export function InfoPopUp({
@@ -60,11 +65,13 @@ export function InfoPopUp({
   onReset,
   mode,
   game = "ost",
+  pictureKind = "halo",
 }: Props) {
   const isDaily = mode === "daily";
   const isStudents = game === "students";
   const isVoice = game === "voice";
-  const answer = isStudents || isVoice ? "student" : "song";
+  const isPicture = game === "picture";
+  const answer = isStudents || isVoice || isPicture ? "student" : "song";
   const handleReset = React.useCallback(() => {
     onReset();
     onClose();
@@ -78,6 +85,8 @@ export function InfoPopUp({
           ? "Guess the Blue Archive student from how they compare."
           : isVoice
           ? "Guess the Blue Archive student from their voice."
+          : isPicture
+          ? `Guess the Blue Archive student from their ${pictureKind}.`
           : "Guess the Blue Archive OST from a few seconds of audio."
       }
       onClose={onClose}
@@ -106,6 +115,34 @@ export function InfoPopUp({
                 Each guess shows how its school, role, birthday and more compare
                 with the answer&apos;s. Arrows point higher or lower. Guess as
                 often as you like.
+              </PopUpCardText>
+            </PopUpCardBody>
+          </PopUpCard>
+        ) : isPicture ? (
+          <PopUpCard>
+            <PopUpCardIcon>
+              {mode === "timeattack" ? (
+                <IoStopwatch aria-hidden="true" />
+              ) : mode === "choice" ? (
+                <IoGrid aria-hidden="true" />
+              ) : (
+                <IoSparkles aria-hidden="true" />
+              )}
+            </PopUpCardIcon>
+            <PopUpCardBody>
+              <PopUpCardTitle>
+                {mode === "timeattack"
+                  ? "Three minutes, go"
+                  : mode === "choice"
+                  ? "One pick from four"
+                  : `Four tries, one ${pictureKind}`}
+              </PopUpCardTitle>
+              <PopUpCardText>
+                {mode === "timeattack"
+                  ? `Name as many students as you can by their ${pictureKind}, one try each. Pick pictures or silhouettes before you start.`
+                  : mode === "choice"
+                  ? `See a ${pictureKind}, then pick whose it is from four students.`
+                  : `See a ${pictureKind}, and name any student it belongs to. Each miss shows a hint: their school, then their club, then their silhouette. In Endless you can play with the ${pictureKind}'s silhouette instead.`}
               </PopUpCardText>
             </PopUpCardBody>
           </PopUpCard>
@@ -192,14 +229,18 @@ export function InfoPopUp({
                   ? "One student a day"
                   : isVoice
                   ? "One voice a day"
+                  : isPicture
+                  ? `One ${pictureKind} a day`
                   : "One track a day"
                 : "No repeats"}
             </PopUpCardTitle>
             <PopUpCardText>
               {isDaily
                 ? `Every Sensei gets the same ${
-                    isVoice ? "voice" : answer
+                    isVoice ? "voice" : isPicture ? pictureKind : answer
                   } today. Switch to Endless in the header to keep playing.`
+                : isPicture
+                ? `Every ${pictureKind} comes up once before any comes round again.`
                 : isStudents || isVoice
                 ? "Every student comes up once before any comes round again."
                 : `All ${songs.length} tracks play once before any comes round again.`}
@@ -268,12 +309,16 @@ export function InfoPopUp({
               </a>{" "}
               is developed by NEXON Games and published by NEXON and Yostar. Its
               music, characters, artwork and cursor belong to their rights
-              holders. Soundtrack by {composerCredit}. Student data, icons and
-              voice lines from{" "}
+              holders. Soundtrack by {composerCredit}. Student data, icons,
+              weapons and voice lines from{" "}
               <a href={SCHALEDB} target="_blank" rel="noopener noreferrer">
                 SchaleDB
               </a>
-              .
+              ; halos from the{" "}
+              <a href={FANDOM_WIKI} target="_blank" rel="noopener noreferrer">
+                Blue Archive Wiki
+              </a>{" "}
+              on Fandom.
             </PopUpCardText>
             <PopUpCardText>
               This is an unofficial fan game, not affiliated with or endorsed by

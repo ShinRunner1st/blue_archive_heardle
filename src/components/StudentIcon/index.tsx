@@ -134,6 +134,11 @@ export function ClueIcon({ iconKey, size }: { iconKey: string; size: number }) {
   return <Styled.ClueIcon aria-hidden="true" style={style} />;
 }
 
+/** Whether the silhouette sheet has the student: all with a voice line do. */
+export function hasSilhouette(id: number): boolean {
+  return SILHOUETTE_CELLS.has(id);
+}
+
 /**
  * A student's silhouette, Voice mode's last hint: their icon as a plain
  * shape, from a sheet drawn at build time (see voiceSheet.ts), on the same

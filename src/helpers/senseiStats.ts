@@ -3,10 +3,16 @@ import { students } from "../constants/students";
 import { BADGE_MODES, ROUND_MODES } from "../types/mode";
 import { STUDENT_SLOTS, StudentRound, StudentSlot } from "../types/student";
 import { VOICE_MODES } from "../types/voice";
+import { PICTURE_KINDS, PICTURE_SLOTS } from "../types/picture";
 import { badgeProgress, guessedThemes } from "./badges";
 import { isFinished } from "./calStats";
 import { dateOfDay, dayNumber } from "./daily";
-import { loadRounds, loadStudentRounds, loadVoiceRounds } from "./storage";
+import {
+  loadPictureRounds,
+  loadRounds,
+  loadStudentRounds,
+  loadVoiceRounds,
+} from "./storage";
 import { calStreaks } from "./streaks";
 import { asRound, isOver, isWon } from "./studentRounds";
 import { timeAttackStats } from "./timeAttack";
@@ -19,7 +25,7 @@ export interface SenseiStats {
   songsTotal: number;
   badgesEarned: number;
   badgesTotal: number;
-  /** The longest run of daily puzzles won, OST, student or Voice. */
+  /** The longest run of daily puzzles won, in any game. */
   bestDailyStreak: number;
   /** The longest run of Classic wins in a row. */
   bestWinStreak: number;
@@ -29,7 +35,8 @@ export interface SenseiStats {
   studentsFound: number;
   studentsTotal: number;
   /**
-   * Finished rounds in every mode, time attack's songs and voices included.
+   * Finished rounds in every mode, time attack's songs, voices and pictures
+   * included.
    */
   roundsPlayed: number;
   /** The day of the first daily puzzle played, if any. */
@@ -56,13 +63,22 @@ export function senseiStats(today: number = dayNumber()): SenseiStats {
   );
   const voiceRounds = VOICE_MODES.flatMap((mode) => loadVoiceRounds(mode));
   const voiceDaily = loadVoiceRounds("daily").map(voiceAsRound);
+  const pictureRounds = PICTURE_SLOTS.flatMap((slot) =>
+    loadPictureRounds(slot)
+  );
+  const pictureDailies = PICTURE_KINDS.map((kind) =>
+    loadPictureRounds(`${kind}-daily`).map(voiceAsRound)
+  );
 
   const guessed = guessedThemes(BADGE_MODES.flatMap((mode) => rounds[mode]));
   const badges = badgeProgress(guessed);
 
-  const dailyBests = [rounds.daily, ...studentDailies, voiceDaily].map(
-    (daily) => calStreaks(daily, today).max
-  );
+  const dailyBests = [
+    rounds.daily,
+    ...studentDailies,
+    voiceDaily,
+    ...pictureDailies,
+  ].map((daily) => calStreaks(daily, today).max);
 
   const found = new Set(
     studentRounds
@@ -71,7 +87,7 @@ export function senseiStats(today: number = dayNumber()): SenseiStats {
       .map(({ answer }) => answer)
   );
 
-  const days = [rounds.daily, ...studentDailies, voiceDaily]
+  const days = [rounds.daily, ...studentDailies, voiceDaily, ...pictureDailies]
     .flat()
     .filter(isFinished)
     .flatMap((round) => (typeof round.day === "number" ? [round.day] : []));
@@ -95,7 +111,8 @@ export function senseiStats(today: number = dayNumber()): SenseiStats {
       ) +
       timeAttack.answered +
       studentRounds.flat().filter(isOver).length +
-      voiceRounds.filter(isVoiceOver).length,
+      voiceRounds.filter(isVoiceOver).length +
+      pictureRounds.filter(isVoiceOver).length,
     since: days.length > 0 ? dateOfDay(Math.min(...days)) : null,
   };
 }

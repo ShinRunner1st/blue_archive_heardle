@@ -1,7 +1,8 @@
 import React from "react";
-import { IoMic, IoMusicalNotes, IoPeople } from "react-icons/io5";
+import { IoMic, IoMusicalNotes, IoPeople, IoSparkles } from "react-icons/io5";
 
 import { Game, GameMode } from "../../types/mode";
+import { PictureStyle } from "../../types/picture";
 import { StudentGame } from "../../types/student";
 import { VoiceStyle } from "../../types/voice";
 
@@ -10,6 +11,8 @@ import * as Styled from "./index.styled";
 interface Option<T extends string> {
   value: T;
   label: string;
+  /** In place of the label on a narrow phone, where it wouldn't fit. */
+  short?: string;
   hint: string;
   /** Shown beside the label, and in its place on a narrow phone. */
   icon?: React.ReactNode;
@@ -21,6 +24,47 @@ interface PillsProps<T extends string> {
   options: Array<Option<T>>;
   value: T;
   onChange: (value: T) => void;
+  /**
+   * Only the picked option's label shows, beside its icon; the rest are
+   * icons. Each pill is as wide as it needs, so the sliding pill follows the
+   * picked one's size.
+   */
+  compact?: boolean;
+}
+
+/**
+ * Where the picked option is, for a compact switch's sliding pill, measured
+ * after each change and whenever the switch changes size.
+ */
+function usePickedBox(
+  group: React.RefObject<HTMLDivElement | null>,
+  index: number,
+  enabled: boolean
+): { left: number; width: number } | null {
+  const [box, setBox] = React.useState<{ left: number; width: number } | null>(
+    null
+  );
+
+  React.useLayoutEffect(() => {
+    const element = group.current;
+    if (!enabled || !element) return;
+
+    const measure = () => {
+      const picked = element.querySelectorAll("button")[index];
+      if (!picked) return;
+      setBox({ left: picked.offsetLeft, width: picked.offsetWidth });
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    // Each pill too: one can change size, as the font loads, without the
+    // switch doing so.
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    element.querySelectorAll("button").forEach((b) => observer.observe(b));
+    return () => observer.disconnect();
+  }, [group, index, enabled]);
+
+  return box;
 }
 
 /**
@@ -32,32 +76,57 @@ export function Pills<T extends string>({
   options,
   value,
   onChange,
+  compact = false,
 }: PillsProps<T>) {
-  const index = options.findIndex((option) => option.value === value);
+  const index = Math.max(
+    options.findIndex((option) => option.value === value),
+    0
+  );
+  const group = React.useRef<HTMLDivElement>(null);
+  const box = usePickedBox(group, index, compact);
 
   return (
-    <Styled.Styles role="group" aria-label={label} $count={options.length}>
+    <Styled.Styles
+      ref={group}
+      role="group"
+      aria-label={label}
+      $count={options.length}
+      $compact={compact}
+    >
       <Styled.Thumb
         aria-hidden="true"
-        $index={Math.max(index, 0)}
+        $index={index}
         $count={options.length}
+        style={
+          compact && box
+            ? { left: box.left, width: box.width, transform: "none" }
+            : undefined
+        }
       />
-      {options.map((option) => (
-        <Styled.Style
-          key={option.value}
-          type="button"
-          $active={option.value === value}
-          aria-pressed={option.value === value}
-          title={option.hint}
-          aria-label={option.icon ? option.label : undefined}
-          onClick={() => onChange(option.value)}
-        >
-          {option.icon}
-          <Styled.Label $hideable={Boolean(option.icon)}>
-            {option.label}
-          </Styled.Label>
-        </Styled.Style>
-      ))}
+      {options.map((option) => {
+        const active = option.value === value;
+        return (
+          <Styled.Style
+            key={option.value}
+            type="button"
+            $active={active}
+            $iconOnly={Boolean(option.icon)}
+            aria-pressed={active}
+            title={option.hint}
+            aria-label={option.icon ? option.label : undefined}
+            onClick={() => onChange(option.value)}
+          >
+            {option.icon}
+            <Styled.Label
+              $hideable={Boolean(option.icon)}
+              $hidden={compact && !active}
+              data-short={option.short}
+            >
+              {option.label}
+            </Styled.Label>
+          </Styled.Style>
+        );
+      })}
     </Styled.Styles>
   );
 }
@@ -73,6 +142,7 @@ export const PLAY_STYLES: Array<Option<GameMode>> = [
   {
     value: "timeattack",
     label: "Time Attack",
+    short: "Timed",
     hint: "As many songs as you can in three minutes",
   },
 ];
@@ -118,9 +188,18 @@ const GAMES: Array<Option<Game>> = [
     hint: "Name the student from how they compare",
     icon: <IoPeople aria-hidden="true" />,
   },
+  {
+    value: "picture",
+    label: "Picture",
+    hint: "Name the student from their halo or weapon",
+    icon: <IoSparkles aria-hidden="true" />,
+  },
 ];
 
-/** Picks the game: the OST, the students' voices, or the students. */
+/**
+ * Picks the game: the OST, the students' voices, the students, or their
+ * halos and weapons.
+ */
 export function GameSwitch({
   game,
   onChange,
@@ -129,7 +208,13 @@ export function GameSwitch({
   onChange: (game: Game) => void;
 }) {
   return (
-    <Pills label="Game" options={GAMES} value={game} onChange={onChange} />
+    <Pills
+      label="Game"
+      options={GAMES}
+      value={game}
+      onChange={onChange}
+      compact
+    />
   );
 }
 
@@ -178,6 +263,7 @@ const VOICE_STYLES: Array<Option<Exclude<VoiceStyle, "nohint">>> = [
   {
     value: "timeattack",
     label: "Time Attack",
+    short: "Timed",
     hint: "As many voices as you can in three minutes",
   },
 ];
@@ -200,6 +286,47 @@ export function VoiceStyles({
       label="Way to play"
       options={VOICE_STYLES}
       value={style === "nohint" ? "endless" : style}
+      onChange={onChange}
+    />
+  );
+}
+
+const PICTURE_STYLES: Array<Option<Exclude<PictureStyle, "silhouette">>> = [
+  {
+    value: "endless",
+    label: "Classic",
+    hint: "Four tries, with a hint after each miss, or the silhouette only",
+  },
+  {
+    value: "choice",
+    label: "4-Choice",
+    hint: "One pick from four students",
+  },
+  {
+    value: "timeattack",
+    label: "Time Attack",
+    short: "Timed",
+    hint: "As many as you can in three minutes",
+  },
+];
+
+/**
+ * Picks how to play the picture game's Endless: the OST's three, as Voice
+ * mode's. Silhouette is Classic with the picture's shape in its place,
+ * turned on above the game (see PictureGame), as Voice's hints are.
+ */
+export function PictureStyles({
+  style,
+  onChange,
+}: {
+  style: PictureStyle;
+  onChange: (style: Exclude<PictureStyle, "silhouette">) => void;
+}) {
+  return (
+    <Pills
+      label="Way to play"
+      options={PICTURE_STYLES}
+      value={style === "silhouette" ? "endless" : style}
       onChange={onChange}
     />
   );
