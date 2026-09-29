@@ -42,3 +42,4 @@ bun.lockb
 
 # Now in Global: made by `npm run global-now`, served from Cloudflare
 /now-dist
+/check-pages-output

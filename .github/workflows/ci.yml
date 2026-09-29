@@ -44,3 +44,17 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      # Every page on both servers in Chrome (the runner has it), with the
+      # pictures from the Worker, so a sheet must be uploaded before its
+      # pull request (npm run songs).
+      - name: Check the pages in a browser
+        run: npm run check:pages
+
+      - name: Keep the screenshots of what broke
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: check-pages
+          path: check-pages-output/
+          if-no-files-found: ignore

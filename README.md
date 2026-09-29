@@ -335,8 +335,28 @@ npm run dev           # http://localhost:3000
 
 A pre-commit hook runs the format check, lint and type-check, and commit
 messages follow [Conventional Commits](https://www.conventionalcommits.org/).
-CI runs all of that plus the tests, `check:audio`, `check:pictures` and a build
-on every push and pull request.
+CI runs all of that plus the tests, `check:audio`, `check:pictures`, a build
+and the page check on every push to `main` and every pull request.
+
+### Page check
+
+`npm run check:pages` (after `npm run build`) opens the built site in a
+headless Chrome, through `vite preview`, and goes through it as a player
+would, on Global and then on JP: the hub, the OST, Voice, the student grid,
+and Picture's daily halo and weapon and Endless with and without
+silhouettes. It fails on an error on the page, a file that doesn't load,
+or a picture cut wrong from its sheet: every `<img>` must have loaded, and
+every cell drawn from a sheet must be cut at the sheet's own proportions,
+inside it, and not blank (about 600 pictures a run). That is what the unit
+tests can't see; it caught Global's squashed halo sheet when put back. On
+a failure it saves screenshots in `check-pages-output/`, which CI keeps as
+the run's `check-pages` artifact.
+
+The pictures come from the Worker, as on the live site, so a new sheet must
+be uploaded (`npm run songs`) before its pull request passes. Chrome is
+found at `CHROME_PATH` or where it usually installs; GitHub's runners have
+it. Only `puppeteer-core` is installed, which downloads no browser of its
+own.
 
 ### Weekly content update
 
@@ -357,8 +377,10 @@ date on its own, every Wednesday (and from the Actions tab by hand):
    again, and a portrait already in `pictures/` isn't made again, so a run
    on GitHub's ffmpeg doesn't change their bytes and send every player new
    copies.
-3. It runs the full check, uploads the new files to the Worker and R2, and
-   checks them there.
+3. It runs the full check, uploads the new files to the Worker and R2,
+   checks them there, and runs the [page check](#page-check) on them. If
+   anything fails, no pull request opens; the run's page shows why, with
+   screenshots.
 4. It opens a pull request, `auto/content-update`, listing what's new. It
    never pushes to `main`; merging the pull request is the release.
 

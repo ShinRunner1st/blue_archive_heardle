@@ -109,14 +109,30 @@ jobs:
           node scripts/check-audio.mjs --remote
           node scripts/check-pictures.mjs --remote
 
+      # Now the new pictures are on the Worker, go through every page on
+      # both servers in Chrome, as a player would. A failure stops here, with
+      # no pull request; the screenshots are attached to the run.
+      - name: Check the pages in a browser
+        if: steps.diff.outputs.changed == 'true'
+        run: npm run check:pages
+
+      - name: Keep the screenshots of what broke
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: check-pages
+          path: check-pages-output/
+          if-no-files-found: ignore
+
       - name: Say so in the pull request
         if: steps.diff.outputs.changed == 'true'
         run: |
           {
             echo
             echo "The new files are on the Worker and R2 already, and the full"
-            echo "check passed. Merging this deploys it. Check new songs' names"
-            echo "first: the wiki writes some differently from the list."
+            echo "check passed, pages in Chrome included. Merging this deploys"
+            echo "it. Check new songs' names first: the wiki writes some"
+            echo "differently from the list."
           } >> "$UPDATE_SUMMARY"
 
       - name: Open a pull request

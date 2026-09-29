@@ -87,8 +87,11 @@ What the project cares about:
   (`src/helpers/server.ts`, Global for new players); each server has its own
   pools, daily schedules (`*_JP` seeds, only ever appended to) and saves
   (`.jp` keys, a `jp` field in the save file).
-- CI (GitHub Actions) runs format, lint, typecheck, tests, `check:audio` and a
-  build on every push. `.github/workflows/content-update.yml` (Wednesdays)
+- CI (GitHub Actions) runs format, lint, typecheck, tests, `check:audio`, a
+  build and `npm run check:pages` (`scripts/check-pages.mjs`: every page on
+  Global and JP in headless Chrome, failing on page errors, failed loads and
+  any picture cut squashed, outside or blank from its sheet) on every push
+  to `main` and every pull request. `.github/workflows/content-update.yml` (Wednesdays)
   looks for new students, voice lines, halos and wiki tracks
   (`npm run find-updates`), builds and uploads them, and opens a pull request
   (`auto/content-update`) to review and merge; it never pushes to `main`.
@@ -295,6 +298,7 @@ What the project cares about:
 npm run dev          # local server
 npm test             # vitest
 npm run format:check && npm run lint && npm run typecheck && npm test && npm run build
+npm run check:pages  # after a build: every page on both servers in Chrome
 npm run students     # after a Global update: student data and icons, then songs
 ```
 
@@ -310,9 +314,9 @@ multi-line message write it to a file and use `git commit -F <file>`.
   group's branch (stacked), so releases stay rare. Push only when asked. Merge
   to `main` only when the user explicitly says so: merging deploys to
   production.
-- Before merging, run the full check above, and measure what the release adds in
-  Vercel requests, bandwidth and storage (check cache headers). The user watches
-  the Hobby limits closely.
+- Before merging, run the full check above and `check:pages`, and measure
+  what the release adds in Vercel requests, bandwidth and storage (check
+  cache headers). The user watches the Hobby limits closely.
 - When a release has something players should know, add an entry at the top of
   `WHATS_NEW` in `src/constants/whatsNew.ts` with a new id.
 - Don't commit raw art folders.

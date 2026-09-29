@@ -469,6 +469,17 @@ scripts no longer redraw a sheet whose contents are the same, or remake a
 portrait already made, so a run on GitHub's ffmpeg doesn't give players new
 copies of unchanged pictures.
 
+### Page check
+
+Asked for on 2026-09-29, after Global's halos broke in the 6.1-6.6
+release (the sheet held both servers' halos, but Global's pictures were
+cut from it by Global's count): unit tests can't see a picture cut wrong.
+`npm run check:pages` goes through every page on Global and JP in headless
+Chrome and fails on page errors, failed loads, and any picture cut
+squashed, outside or blank from its sheet. It runs in CI and in the weekly
+Action before its pull request opens (details in the README's "Page
+check"). Built on `ci/smoke-check`, off `main`.
+
 ### Multiplayer (Group 7): private rooms, played like AMQ
 
 - **Rooms and settings:** the host picks the settings, creates the room and
