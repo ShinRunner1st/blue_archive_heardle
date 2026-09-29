@@ -219,3 +219,64 @@ describe("SettingsPopUp save file", () => {
     expect(button("Replace")).toBeUndefined();
   });
 });
+
+describe("SettingsPopUp reset", () => {
+  const onReset = vi.fn();
+  const text = () => document.body.textContent ?? "";
+  const button = (label: string) =>
+    Array.from(document.querySelectorAll<HTMLButtonElement>("button")).find(
+      (b) => b.textContent === label
+    );
+
+  function mount(canReset = true, withTarget = true) {
+    harness.render(
+      React.createElement(SettingsPopUp, {
+        onClose,
+        reset: withTarget
+          ? { name: "Voice · 4-Choice", canReset, onReset }
+          : undefined,
+      })
+    );
+  }
+
+  beforeEach(() => {
+    harness = createHarness();
+    onReset.mockClear();
+  });
+
+  afterEach(() => {
+    harness.destroy();
+  });
+
+  it("names the game and mode it clears, and asks twice", () => {
+    mount();
+    expect(text()).toContain(
+      "Clears the rounds, stats and streak of Voice · 4-Choice"
+    );
+
+    act(() => button("Reset")!.click());
+    expect(onReset).not.toHaveBeenCalled();
+    expect(text()).toContain("can't be undone");
+
+    act(() => button("Cancel")!.click());
+    expect(button("Reset for good")).toBeUndefined();
+
+    act(() => button("Reset")!.click());
+    act(() => button("Reset for good")!.click());
+    expect(onReset).toHaveBeenCalledTimes(1);
+    expect(text()).toContain("Voice · 4-Choice starts over.");
+  });
+
+  it("has no button when there is nothing to clear", () => {
+    mount(false);
+
+    expect(button("Reset")).toBeUndefined();
+    expect(text()).toContain("Nothing to reset here yet.");
+  });
+
+  it("leaves the card out on the hub, which has no game on screen", () => {
+    mount(true, false);
+
+    expect(text()).not.toContain("Reset stats");
+  });
+});

@@ -57,9 +57,8 @@ naming against the clock) isn't the same test.
 
 ### Students
 
-A switch under the header picks the game: **OST**, or **Students**, a guess
-the student game in the style of other Blue Archive "-dle" games. The header's
-Daily and Endless work for both. Type a student's name (either name, in either
+The game at `/students`: guess the student, in the style of other Blue
+Archive "-dle" games. The header's Daily and Endless work here too. Type a student's name (either name, in either
 order: "armed hoshino" finds Hoshino (Armed)) and the guess goes straight into
 the table, newest on top, a column per attribute: green when it matches the
 answer, yellow when it's close, red when it doesn't, with an arrow for numbers
@@ -95,7 +94,7 @@ downloads the 450 KB icon sheet for it.
 
 ### Voice
 
-The third game on the switch under the header: hear a student's line and
+The game at `/voice`: hear a student's line and
 name them. Each round plays one line, whole: the student's title call ("Blue
 Archive!", about a second, and the same words for everyone) or one of four
 lobby lines, replayable as often as you like. Every costume is its own answer,
@@ -133,7 +132,7 @@ Attack run, and Stats has Share recap for every mode.
 
 ### Picture: halos and weapons
 
-The fourth game on the switch: see a halo or a weapon and name its student.
+The game at `/picture`: see a halo or a weapon and name its student.
 Halo or Weapon is picked above the game, in every mode, and each keeps its own
 rounds. A student's costumes share a halo, and most share a gun (Aru's rifle
 is the same in all three of her outfits), so each picture is one answer and
@@ -211,13 +210,15 @@ they need no more height than the OST, and every game fits a 1080p window.
   play the next song → repeat this song → off. Starting a song pauses any
   other playing on the page. Both lists draw their rows from one shared
   component (`src/components/SongRows`) with plain elements, fixed columns
-  and off-screen rows skipped, so they open and refilter quickly. In the
-  student game, which has no audio of its own, the music plays on after the
-  Jukebox closes, in a small player at the bottom right (play or pause, next
-  song, back to the Jukebox, stop). In the OST and Voice games closing it
-  stops the music, so it can't play over a round, and so does going back to
-  either.
+  and off-screen rows skipped, so they open and refilter quickly. The music
+  plays on after the Jukebox closes, on every page, in a small player at the
+  bottom right (play or pause, next song, back to the Jukebox, stop), until
+  something else plays: an OST clip, a voice line or a result's song stops
+  it. The Students and Picture games have no audio, so it plays on there
+  for as long as you like.
 - **Volume** - set it once; it's remembered. New players start at 20%.
+- **Reset stats** - ☰ → Settings clears the rounds, stats and streak of the
+  game and mode on screen, named on the card, and no other. It asks twice.
 - **Dark mode** - in the ☰ menu. Follows your device until you pick one.
 - **Blue Archive cursor** - the game's cursor, with its flash on every click
   and trail when you drag. Turn it off in ☰ → Settings to use your own.

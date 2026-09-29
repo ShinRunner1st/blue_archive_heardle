@@ -52,9 +52,14 @@ export const WHATS_NEW: NewsUpdate[] = [
         text: "baheardle.com now opens on every game at once, with how today's daily puzzles went and a button to carry on where you left off. Each game has its own page to bookmark or share (baheardle.com/voice, say); the bar under the header moves between them, and the logo brings you home.",
       },
       {
+        icon: IoMusicalNotes,
+        title: "Jukebox on every page",
+        text: "The Jukebox now plays on after you close it in every game, until a clip or a voice line starts. Resetting a mode's stats has moved from About to Settings, where it names the game and mode it clears.",
+      },
+      {
         icon: IoSparkles,
         title: "Picture",
-        text: "A fourth game on the switch: see a halo or a weapon and name its student. Halo or Weapon sits above the game. Costumes share a halo and most share a gun, so naming any student it belongs to is right.",
+        text: "A new game, beside Voice: see a halo or a weapon and name its student. Halo or Weapon sits above the game. Costumes share a halo and most share a gun, so naming any student it belongs to is right.",
       },
       {
         icon: IoGrid,

@@ -24,11 +24,14 @@ import {
 } from "../PopUp";
 import { Switch } from "../Switch";
 
+import { ResetStats, ResetTarget } from "./ResetStats";
 import { SaveFile } from "./SaveFile";
 import * as Styled from "./index.styled";
 
 interface Props {
   onClose: () => void;
+  /** The game and mode on screen, for the reset; none on the hub. */
+  reset?: ResetTarget;
 }
 
 const CHARACTERS: Array<{ value: CharacterChoice; label: string }> = [
@@ -37,7 +40,7 @@ const CHARACTERS: Array<{ value: CharacterChoice; label: string }> = [
   { value: "off", label: "Off" },
 ];
 
-export function SettingsPopUp({ onClose }: Props) {
+export function SettingsPopUp({ onClose, reset }: Props) {
   const customCursor = useCustomCursor();
   const character = useCharacterChoice();
   const characterLabel = React.useId();
@@ -149,6 +152,8 @@ export function SettingsPopUp({ onClose }: Props) {
         </PopUpCard>
 
         <SaveFile />
+
+        {reset && <ResetStats target={reset} />}
       </PopUpBody>
     </PopUp>
   );

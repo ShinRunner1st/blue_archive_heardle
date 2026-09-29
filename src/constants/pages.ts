@@ -69,8 +69,8 @@ export const PAGE_ORDER: Page[] = [
   "hub",
   "ost",
   "voice",
-  "students",
   "picture",
+  "students",
 ];
 
 /** The page's full address, for share texts and the canonical tag. */

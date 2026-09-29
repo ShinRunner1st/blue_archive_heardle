@@ -98,6 +98,8 @@ export function useJukeboxAudio(
     // eslint-disable-next-line jsx-a11y/media-has-caption
     <audio
       ref={audioRef}
+      // Tells the Jukebox its own audio from a game's (see Jukebox).
+      data-jukebox=""
       src={source.src}
       preload="auto"
       // The browser starts the song over by itself, with no gap.

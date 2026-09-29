@@ -25,6 +25,7 @@ import { useVoiceTimeAttack } from "./hooks/useVoiceTimeAttack";
 import { usePictureGame } from "./hooks/usePictureGame";
 import { usePictureTimeAttack } from "./hooks/usePictureTimeAttack";
 import { pictureRunsOf } from "./helpers/pictureTimeAttack";
+import { KIND_NAMES, PICTURE_MODE_NAMES } from "./helpers/pictureRounds";
 import { guessesForCharacter, isWon } from "./helpers/studentRounds";
 import { asRound as voiceAsRound } from "./helpers/voiceRounds";
 import { voiceRunsOf } from "./helpers/voiceTimeAttack";
@@ -74,6 +75,7 @@ import {
 } from "./components/PlayStyles";
 import { PictureGame, PictureTimeAttack } from "./components/PictureGame";
 import { PictureStats } from "./components/StatsPopUp/PictureStats";
+import { ResetTarget } from "./components/SettingsPopUp/ResetStats";
 import { BirthdayNote } from "./components/BirthdayNote";
 import { Hub } from "./components/Hub";
 import { StudentGame } from "./components/StudentGame";
@@ -84,6 +86,14 @@ import { TimeAttackStats } from "./components/StatsPopUp/TimeAttackStats";
 import { VoiceStats } from "./components/StatsPopUp/VoiceStats";
 
 import * as Styled from "./app.styled";
+
+/** How Settings' reset names a mode. */
+const MODE_NAMES: Record<GameMode, string> = {
+  daily: "Daily",
+  endless: "Classic",
+  choice: "4-Choice",
+  timeattack: "Time Attack",
+};
 
 /** Loaded when first opened, with the portrait list it needs. */
 const SenseiCard = React.lazy(() => import("./components/SenseiCard"));
@@ -494,6 +504,54 @@ function App() {
     setSelectedSong(undefined);
   }, [guess, selectedSong]);
 
+  // What Settings' reset clears: the game and mode on screen, named. The hub
+  // has no game on screen, so it has none.
+  const reset: ResetTarget | undefined = isHub
+    ? undefined
+    : {
+        name: isStudents
+          ? `Students · ${studentWay === "lore" ? "Lore" : "Gameplay"} · ${
+              studentMode === "daily" ? "Daily" : "Endless"
+            }`
+          : isPicture
+          ? `Picture · ${KIND_NAMES[pictureKind]} · ${
+              pictureMode === "timeattack"
+                ? "Time Attack"
+                : PICTURE_MODE_NAMES[pictureMode]
+            }`
+          : isVoice
+          ? `Voice · ${
+              voiceMode === "nohint" ? "No hints" : MODE_NAMES[voiceMode]
+            }`
+          : `OST · ${MODE_NAMES[mode]}`,
+        canReset: isStudents
+          ? students.hasHistory
+          : isPictureTimeAttack
+          ? pictureTimeAttack.stats.runs > 0
+          : isPicture
+          ? picture.hasHistory
+          : isVoiceTimeAttack
+          ? voiceTimeAttack.stats.runs > 0
+          : isVoice
+          ? voice.hasHistory
+          : isTimeAttack
+          ? timeAttack.stats.runs > 0
+          : hasHistory,
+        onReset: isStudents
+          ? students.reset
+          : isPictureTimeAttack
+          ? pictureTimeAttack.resetHistory
+          : isPicture
+          ? picture.reset
+          : isVoiceTimeAttack
+          ? voiceTimeAttack.resetHistory
+          : isVoice
+          ? voice.reset
+          : isTimeAttack
+          ? timeAttack.resetHistory
+          : resetScore,
+      };
+
   const isPopUpOpen =
     isInfoPopUpOpen ||
     isStatsPopUpOpen ||
@@ -649,39 +707,6 @@ function App() {
       {isInfoPopUpOpen && (
         <InfoPopUp
           onClose={closeInfoPopUp}
-          // The hub has no game on screen whose score it could mean.
-          canReset={
-            isHub
-              ? false
-              : isStudents
-              ? students.hasHistory
-              : isPictureTimeAttack
-              ? pictureTimeAttack.stats.runs > 0
-              : isPicture
-              ? picture.hasHistory
-              : isVoiceTimeAttack
-              ? voiceTimeAttack.stats.runs > 0
-              : isVoice
-              ? voice.hasHistory
-              : isTimeAttack
-              ? timeAttack.stats.runs > 0
-              : hasHistory
-          }
-          onReset={
-            isStudents
-              ? students.reset
-              : isPictureTimeAttack
-              ? pictureTimeAttack.resetHistory
-              : isPicture
-              ? picture.reset
-              : isVoiceTimeAttack
-              ? voiceTimeAttack.resetHistory
-              : isVoice
-              ? voice.reset
-              : isTimeAttack
-              ? timeAttack.resetHistory
-              : resetScore
-          }
           mode={
             isStudents
               ? studentMode
@@ -696,7 +721,9 @@ function App() {
         />
       )}
       {isHowToPopUpOpen && <HowToPopUp onClose={closeHowToPopUp} />}
-      {isSettingsOpen && <SettingsPopUp onClose={closeSettingsPopUp} />}
+      {isSettingsOpen && (
+        <SettingsPopUp onClose={closeSettingsPopUp} reset={reset} />
+      )}
       {isBadgesOpen && <BadgesPopUp onClose={closeBadges} badges={badges} />}
       {isWhatsNewOpen && <WhatsNewPopUp onClose={closeWhatsNew} />}
       {isCardOpen && (
@@ -835,15 +862,14 @@ function App() {
         roundKey={roundKey}
         tries={reactTo.tries}
       />
-      {/* Always there: in the student game its music plays on when it closes.
-          Last before the footer, where its corner player leaves room. */}
+      {/* Always there: its music plays on in the corner when it closes,
+          until a game's own audio plays. Last before the footer, where its
+          corner player leaves room. */}
       <Jukebox
         open={isJukeboxOpen}
         onOpen={openJukebox}
         onClose={closeJukebox}
         guessed={jukeboxGuessed}
-        // The hub has no audio of its own for it to make way for.
-        keepPlaying={isStudents || isHub}
       />
       <Footer />
     </Styled.BG>

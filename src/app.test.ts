@@ -145,6 +145,19 @@ describe("App hub", () => {
     expect(document.title).toContain("Guess the OST, Voices");
   });
 
+  it("lists the games in the same order on the bar and the cards", () => {
+    mount();
+    const bar = Array.from(
+      container.querySelectorAll<HTMLAnchorElement>("nav a")
+    ).map((link) => link.getAttribute("href"));
+    const cards = Array.from(
+      container.querySelectorAll<HTMLAnchorElement>("li a")
+    ).map((link) => link.getAttribute("href"));
+
+    expect(bar).toEqual(["/", "/ost", "/voice", "/picture", "/students"]);
+    expect(cards).toEqual(bar.slice(1));
+  });
+
   it("welcomes a new player on the first game, not the hub", () => {
     mount();
     expect(container.textContent).not.toContain("Welcome");

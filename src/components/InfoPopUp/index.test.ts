@@ -11,8 +11,6 @@ function mount() {
   harness.render(
     React.createElement(InfoPopUp, {
       onClose: vi.fn(),
-      canReset: false,
-      onReset: vi.fn(),
       mode: "daily",
     })
   );

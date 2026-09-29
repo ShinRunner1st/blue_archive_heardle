@@ -242,24 +242,24 @@ export const PAGE_LINKS: Array<Option<Page>> = (
       icon: <IoMic aria-hidden="true" />,
     },
     {
-      value: "students",
-      label: "Students",
-      hint: "Name the student from how they compare",
-      icon: <IoPeople aria-hidden="true" />,
-    },
-    {
       value: "picture",
       label: "Picture",
       hint: "Name the student from their halo or weapon",
       icon: <IoSparkles aria-hidden="true" />,
     },
+    {
+      value: "students",
+      label: "Students",
+      hint: "Name the student from how they compare",
+      icon: <IoPeople aria-hidden="true" />,
+    },
   ] satisfies Array<Option<Page>>
 ).map((option) => ({ ...option, href: PAGES[option.value].path }));
 
 /**
- * The site's navigation bar: the hub, then the games, the OST, the
- * students' voices, the students, and their halos and weapons. Each is a
- * link to its own page.
+ * The site's navigation bar: the hub, then the games in PAGE_ORDER's order,
+ * the OST, the students' voices, their halos and weapons, and the students
+ * by clues. Each is a link to its own page.
  */
 export function GameSwitch({
   page,

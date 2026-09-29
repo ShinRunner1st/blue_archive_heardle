@@ -36,15 +36,15 @@ const CARDS: GameCard[] = [
     modes: "Daily · Classic · 4-Choice · Time Attack",
   },
   {
+    game: "picture",
+    blurb: "Name the student from their halo or weapon, or only its shape.",
+    modes: "Daily · Classic · 4-Choice · Time Attack",
+  },
+  {
     game: "students",
     blurb:
       "Name the student: each guess shows how their school, role, weapon and more compare.",
     modes: "Daily · Endless · Gameplay or Lore",
-  },
-  {
-    game: "picture",
-    blurb: "Name the student from their halo or weapon, or only its shape.",
-    modes: "Daily · Classic · 4-Choice · Time Attack",
   },
 ];
 
@@ -114,8 +114,8 @@ export function Hub({ onOpen }: Props) {
     <Styled.Hub>
       <Styled.Intro>
         Guessing games for Blue Archive Sensei: name the song from its
-        soundtrack, or the student from their voice, a few clues, their halo or
-        their weapon. A new daily puzzle in each, and endless play.
+        soundtrack, or the student from their voice, their halo or weapon, or a
+        few clues. A new daily puzzle in each, and endless play.
       </Styled.Intro>
 
       {last && (

@@ -1,4 +1,3 @@
-import React from "react";
 import {
   IoCalendarNumber,
   IoGrid,
@@ -50,8 +49,6 @@ const composerCredit =
 
 interface Props {
   onClose: () => void;
-  canReset: boolean;
-  onReset: () => void;
   mode: GameMode;
   /** Which game the welcome is about; the OST unless told. */
   game?: Game;
@@ -61,8 +58,6 @@ interface Props {
 
 export function InfoPopUp({
   onClose,
-  canReset,
-  onReset,
   mode,
   game = "ost",
   pictureKind = "halo",
@@ -72,10 +67,6 @@ export function InfoPopUp({
   const isVoice = game === "voice";
   const isPicture = game === "picture";
   const answer = isStudents || isVoice || isPicture ? "student" : "song";
-  const handleReset = React.useCallback(() => {
-    onReset();
-    onClose();
-  }, [onReset, onClose]);
 
   return (
     <PopUp
@@ -91,16 +82,9 @@ export function InfoPopUp({
       }
       onClose={onClose}
       actions={
-        <>
-          <Button variant="green" onClick={onClose}>
-            Let&apos;s play
-          </Button>
-          {canReset && (
-            <Button variant="red" onClick={handleReset}>
-              {isDaily ? "Reset daily stats" : "Reset Score"}
-            </Button>
-          )}
-        </>
+        <Button variant="green" onClick={onClose}>
+          Let&apos;s play
+        </Button>
       }
     >
       <PopUpBody>

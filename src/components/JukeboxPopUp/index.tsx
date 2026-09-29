@@ -24,12 +24,6 @@ interface Props {
   onClose: () => void;
   /** Theme numbers guessed right at least once, in any mode. */
   guessed: Set<string>;
-  /**
-   * Whether the music plays on once the pop-up closes, in a small player at
-   * the corner: in the student game, which has no audio of its own. In the
-   * OST game it stops, so it can't play over a round.
-   */
-  keepPlaying: boolean;
 }
 
 const COUNTS = new Map(
@@ -46,13 +40,7 @@ const COUNTS = new Map(
  * A song is fetched when it is picked, from the audio Worker, which asks the
  * browser to keep it for a year: playing it again costs nothing.
  */
-export function Jukebox({
-  open,
-  onOpen,
-  onClose,
-  guessed,
-  keepPlaying,
-}: Props) {
+export function Jukebox({ open, onOpen, onClose, guessed }: Props) {
   const [filter, setFilter] = React.useState("");
   const filterRef = React.useRef<HTMLInputElement>(null);
   const [albums, setAlbums] = React.useState<string[]>([]);
@@ -91,10 +79,20 @@ export function Jukebox({
 
   const audio = useJukeboxAudio(playing, repeat, playNext);
 
-  // Closed where the music doesn't play on, or left for the OST game: stop.
+  // Closed, the music plays on in the corner, in every game, until something
+  // else plays: an OST clip, a voice line, a result's song. Then it stops,
+  // rather than wait in the corner, paused by playOneAtATime.
   React.useEffect(() => {
-    if (!open && !keepPlaying) setPlaying(undefined);
-  }, [open, keepPlaying]);
+    if (open || !playing) return;
+    const stopForOther = (event: Event) => {
+      const media = event.target;
+      if (media instanceof HTMLMediaElement && !("jukebox" in media.dataset)) {
+        setPlaying(undefined);
+      }
+    };
+    document.addEventListener("play", stopForOther, true);
+    return () => document.removeEventListener("play", stopForOther, true);
+  }, [open, playing]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // With the list narrowed to one song, Enter plays it.
@@ -228,13 +226,5 @@ export function JukeboxPopUp({
   onClose: () => void;
   guessed: Set<string>;
 }) {
-  return (
-    <Jukebox
-      open
-      onOpen={onClose}
-      onClose={onClose}
-      guessed={guessed}
-      keepPlaying={false}
-    />
-  );
+  return <Jukebox open onOpen={onClose} onClose={onClose} guessed={guessed} />;
 }

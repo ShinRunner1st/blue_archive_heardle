@@ -134,6 +134,12 @@ export const FileAction = styled.label<{ $tone?: "red" }>`
   }
 `;
 
+/** The game and mode a reset clears, picked out in its card's text. */
+export const Target = styled.strong`
+  font-weight: 800;
+  white-space: nowrap;
+`;
+
 export const Notice = styled.p`
   margin: 0;
 

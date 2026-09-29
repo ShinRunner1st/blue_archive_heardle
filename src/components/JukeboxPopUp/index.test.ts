@@ -221,20 +221,19 @@ describe("JukeboxPopUp", () => {
 describe("Jukebox, closed", () => {
   const onOpen = vi.fn();
 
-  function mountJukebox(open: boolean, keepPlaying: boolean) {
+  function mountJukebox(open: boolean) {
     harness.render(
       React.createElement(Jukebox, {
         open,
         onOpen,
         onClose,
         guessed: new Set<string>(),
-        keepPlaying,
       })
     );
   }
 
-  async function playOne(keepPlaying: boolean) {
-    mountJukebox(true, keepPlaying);
+  async function playOne() {
+    mountJukebox(true);
     click(songButton("Constant Moderato"));
     await songLoads();
     return document.querySelector("audio");
@@ -244,9 +243,9 @@ describe("Jukebox, closed", () => {
   const miniButton = (label: string) =>
     mini()?.querySelector<HTMLButtonElement>(`[aria-label="${label}"]`);
 
-  it("plays on in the corner in the student game, on the same audio", async () => {
-    const audio = await playOne(true);
-    mountJukebox(false, true);
+  it("plays on in the corner, on the same audio", async () => {
+    const audio = await playOne();
+    mountJukebox(false);
 
     expect(mini()?.textContent).toContain("Constant Moderato");
     // The same element: closing the pop-up didn't cut the music.
@@ -257,8 +256,8 @@ describe("Jukebox, closed", () => {
   });
 
   it("stops from the corner", async () => {
-    await playOne(true);
-    mountJukebox(false, true);
+    await playOne();
+    mountJukebox(false);
     const pause = vi.mocked(window.HTMLMediaElement.prototype.pause);
     pause.mockClear();
 
@@ -269,18 +268,25 @@ describe("Jukebox, closed", () => {
     expect(document.querySelector("audio")?.getAttribute("src")).toBeNull();
   });
 
-  it("stops on closing in the OST game, and on going back to it", async () => {
-    await playOne(false);
-    mountJukebox(false, false);
-    expect(mini()).toBeNull();
+  it("stops once a game's own audio plays, and not for its own", async () => {
+    const own = (await playOne())!;
+    mountJukebox(false);
 
-    await playOne(true);
-    mountJukebox(false, true);
+    act(() => {
+      own.dispatchEvent(new Event("play"));
+    });
     expect(mini()).not.toBeNull();
+
+    const clip = document.createElement("audio");
+    document.body.appendChild(clip);
     const pause = vi.mocked(window.HTMLMediaElement.prototype.pause);
     pause.mockClear();
-    mountJukebox(false, false);
+    act(() => {
+      clip.dispatchEvent(new Event("play"));
+    });
+
     expect(mini()).toBeNull();
     expect(pause).toHaveBeenCalled();
+    clip.remove();
   });
 });
