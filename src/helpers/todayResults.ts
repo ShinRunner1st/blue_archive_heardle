@@ -1,9 +1,11 @@
 import { PICTURE_KINDS } from "../types/picture";
 import { Game } from "../types/mode";
+import { Server } from "../types/server";
 import { Round } from "../types/stats";
 import { StudentGame, StudentRound } from "../types/student";
 import { isFinished, triesOf } from "./calStats";
 import { dayNumber } from "./daily";
+import { getServer } from "./server";
 import {
   loadPictureRounds,
   loadRounds,
@@ -56,7 +58,8 @@ function fromStudentRound(
  * the hub holds no game's state, and reads them afresh each time it shows.
  */
 export function todayResults(
-  today: number = dayNumber()
+  today: number = dayNumber(),
+  server: Server = getServer()
 ): Record<Game, DailyResult[]> {
   const isToday = (round: { day?: number }) => round.day === today;
 
@@ -64,18 +67,21 @@ export function todayResults(
     ost: [fromRound(loadRounds("daily").find(isToday))],
     voice: [
       fromRound(
-        loadVoiceRounds("daily").filter(isToday).map(namedAsRound).at(-1)
+        loadVoiceRounds("daily", server)
+          .filter(isToday)
+          .map(namedAsRound)
+          .at(-1)
       ),
     ],
     students: STUDENT_WAYS.map(([way, label]) =>
       fromStudentRound(
-        loadStudentRounds(`${way}-daily`).filter(isToday).at(-1),
+        loadStudentRounds(`${way}-daily`, server).filter(isToday).at(-1),
         label
       )
     ),
     picture: PICTURE_KINDS.map((kind) =>
       fromRound(
-        loadPictureRounds(`${kind}-daily`)
+        loadPictureRounds(`${kind}-daily`, server)
           .filter(isToday)
           .map(namedAsRound)
           .at(-1),

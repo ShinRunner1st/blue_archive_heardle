@@ -1,5 +1,7 @@
 import React from "react";
 
+import { useServer } from "./useServer";
+
 import { loadAudio } from "../helpers/audioSource";
 import { getVoiceUrl } from "../helpers/audioUrl";
 import {
@@ -49,15 +51,30 @@ function ended(run: VoiceRun, now: number): VoiceRun {
  * answered, tagged with its run, and the run itself is kept in memory only,
  * so a reload ends it rather than winning time back.
  */
-export function useVoiceTimeAttack() {
-  const [earlier, setEarlier] = React.useState<VoiceRound[]>(() =>
-    knownVoiceRounds(loadVoiceRounds("timeattack")).filter(
-      (round) => round.guesses.length > 0
-    )
+/** The lines answered in earlier runs, on the server played now. */
+function loadEarlier(): VoiceRound[] {
+  return knownVoiceRounds(loadVoiceRounds("timeattack")).filter(
+    (round) => round.guesses.length > 0
   );
+}
+
+export function useVoiceTimeAttack() {
+  const [earlier, setEarlier] = React.useState<VoiceRound[]>(loadEarlier);
   const [settings, setSettingsState] =
     React.useState<VoiceTimeAttackSettings>(loadVoiceSettings);
   const [run, setRun] = React.useState<VoiceRun | null>(null);
+
+  // Another server's saves: loaded while rendering, so no frame shows this
+  // server's pools with the other's rounds, and nothing else on the page
+  // starts over.
+  const server = useServer();
+  const [loadedFor, setLoadedFor] = React.useState(server);
+  if (loadedFor !== server) {
+    setLoadedFor(server);
+    setEarlier(loadEarlier());
+    // A run belongs to the server it was started on: it ends here.
+    setRun(null);
+  }
 
   const answered = run?.rounds;
   const history = React.useMemo(

@@ -25,8 +25,9 @@ export function getServer(): Server {
 }
 
 /**
- * Switches server. The app starts its student games over from the new
- * server's saves (see index.tsx), since every pool and history changes.
+ * Switches server. The student games' hooks load the new server's saves as
+ * they next render (see useStudentGame), since every pool and history
+ * changes.
  */
 export function setServer(next: Server): void {
   if (next === getServer()) return;
@@ -62,30 +63,4 @@ export function serverSuffix(): string {
 /** A share picture's tag, "VOICE · DAILY #3 · JP" on the JP server. */
 export function withServerTag(tag: string): string {
   return getServer() === "jp" ? `${tag} · JP` : tag;
-}
-
-const REOPEN_KEY = "reopenSettings";
-
-/**
- * Switches server from Settings: the app starts over on the new server (see
- * index.tsx), so Settings is marked to open again straight away.
- */
-export function setServerFromSettings(next: Server): void {
-  try {
-    sessionStorage.setItem(REOPEN_KEY, "1");
-  } catch {
-    // Settings just closes, then.
-  }
-  setServer(next);
-}
-
-/** Whether Settings should open as the app starts: once, after a switch. */
-export function takeReopenSettings(): boolean {
-  try {
-    const reopen = sessionStorage.getItem(REOPEN_KEY) === "1";
-    sessionStorage.removeItem(REOPEN_KEY);
-    return reopen;
-  } catch {
-    return false;
-  }
 }

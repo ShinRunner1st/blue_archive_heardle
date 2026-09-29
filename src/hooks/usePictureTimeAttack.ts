@@ -1,5 +1,7 @@
 import React from "react";
 
+import { useServer } from "./useServer";
+
 import { PICTURE_SHEETS, SHAPE_SHEETS } from "../constants/guessSheets";
 import { loadIconSheet } from "../helpers/iconSheet";
 import { asGuess, knownPictureRounds } from "../helpers/pictureRounds";
@@ -69,6 +71,18 @@ export function usePictureTimeAttack(kind: PictureKind) {
   const [settings, setSettingsState] =
     React.useState<PictureTimeAttackSettings>(loadPictureSettings);
   const [run, setRun] = React.useState<PictureRun | null>(null);
+
+  // Another server's saves: loaded while rendering, so no frame shows this
+  // server's pools with the other's rounds, and nothing else on the page
+  // starts over.
+  const server = useServer();
+  const [loadedFor, setLoadedFor] = React.useState(server);
+  if (loadedFor !== server) {
+    setLoadedFor(server);
+    setEarlier(loadHistories());
+    // A run belongs to the server it was started on: it ends here.
+    setRun(null);
+  }
 
   // The run's kind's history, with the run's answers.
   const answered = run?.rounds;

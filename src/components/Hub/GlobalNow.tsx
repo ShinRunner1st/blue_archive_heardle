@@ -7,6 +7,8 @@ import {
   runningAt,
 } from "../../helpers/globalNow";
 import { useGlobalNow } from "../../hooks/useGlobalNow";
+import { useServer } from "../../hooks/useServer";
+import { SERVER_NAMES } from "../../types/server";
 import { Portrait, usePortraits } from "../Portrait";
 
 import * as Styled from "./index.styled";
@@ -48,13 +50,14 @@ function Boss({ picture }: { picture: string }) {
 }
 
 /**
- * What is on in Blue Archive Global now: the pickup students, the event and
+ * What is on in Blue Archive now, on the server the student games follow: the pickup students, the event and
  * the raids, from SchaleDB by way of our own Worker (see useGlobalNow).
  * Anything that has ended is left out, and so is the panel when nothing is
  * left, or the file didn't come.
  */
 export function GlobalNow() {
   const data = useGlobalNow();
+  const server = useServer();
   const now = Date.now();
   const running = data && runningAt(data, now);
   const pickup = running?.banners.flatMap((banner) => banner.students) ?? [];
@@ -65,7 +68,9 @@ export function GlobalNow() {
   return (
     <Styled.Panel aria-labelledby="hub-global">
       <Styled.PanelHead>
-        <Styled.PanelTitle id="hub-global">Now in Global</Styled.PanelTitle>
+        <Styled.PanelTitle id="hub-global">
+          Now in {SERVER_NAMES[server]}
+        </Styled.PanelTitle>
         <Styled.Source
           href={SCHALEDB}
           target="_blank"

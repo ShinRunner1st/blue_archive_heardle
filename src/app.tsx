@@ -33,7 +33,6 @@ import { voiceRunsOf } from "./helpers/voiceTimeAttack";
 import { runsOf } from "./helpers/timeAttack";
 import { LATEST_UPDATE_ID } from "./constants/whatsNew";
 import { placeFor } from "./helpers/winStreak";
-import { takeReopenSettings } from "./helpers/server";
 import {
   hasSeenWhatsNew,
   isFirstRun,
@@ -106,9 +105,11 @@ function App() {
   // waits behind it, unseen, as the game played last.
   const [page, navigate] = usePage();
   const isHub = page === "hub";
-  // The student games' server: the app starts over when it changes (see
-  // index.tsx), and their taglines say when it's JP.
-  const onJp = useServer() === "jp" ? " · JP server" : "";
+  // The student games' server: their hooks load its saves when it changes,
+  // their screens start afresh (see the keys below), and their taglines say
+  // when it's JP.
+  const server = useServer();
+  const onJp = server === "jp" ? " · JP server" : "";
   const [lastGame, setLastGame] = React.useState<GameName>(loadGame);
   if (!isHub && lastGame !== page) setLastGame(page);
   const gameName: GameName = isHub ? lastGame : page;
@@ -350,10 +351,7 @@ function App() {
   const [isStatsPopUpOpen, setIsStatsPopUpOpen] = React.useState(false);
   const [isHowToPopUpOpen, setIsHowToPopUpOpen] = React.useState(false);
   const [isSongListOpen, setIsSongListOpen] = React.useState(false);
-  // Open straight away after a switch of server from Settings, which starts
-  // the app over.
-  const [isSettingsOpen, setIsSettingsOpen] =
-    React.useState(takeReopenSettings);
+  const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
   const [isBadgesOpen, setIsBadgesOpen] = React.useState(false);
   // Returning players see the latest news once; new players get the welcome,
   // which counts as having seen it.
@@ -412,23 +410,25 @@ function App() {
   const voiceRun = voiceTimeAttack.run;
   const pictureRun = pictureTimeAttack.run;
   const studentRound = students.round;
-  const roundKey = isHub
-    ? "hub"
-    : isStudents
-    ? `${students.slot}:${studentRound.day ?? ""}:${students.rounds.length}`
-    : isPictureTimeAttack
-    ? `picture-ta:${pictureRun?.id ?? ""}:${pictureRun?.rounds.length ?? 0}`
-    : isPicture
-    ? `${pictureKind}-${pictureMode}:${picture.round.day ?? ""}:${
-        picture.rounds.length
-      }`
-    : isVoiceTimeAttack
-    ? `voice-ta:${voiceRun?.id ?? ""}:${voiceRun?.rounds.length ?? 0}`
-    : isVoice
-    ? `voice-${voiceMode}:${voice.round.day ?? ""}:${voice.rounds.length}`
-    : isTimeAttack
-    ? `${mode}:${taRun?.id ?? ""}:${taRun?.rounds.length ?? 0}`
-    : `${mode}:${round.day ?? ""}:${solution.themeNo}`;
+  const roundKey = `${server}:${
+    isHub
+      ? "hub"
+      : isStudents
+      ? `${students.slot}:${studentRound.day ?? ""}:${students.rounds.length}`
+      : isPictureTimeAttack
+      ? `picture-ta:${pictureRun?.id ?? ""}:${pictureRun?.rounds.length ?? 0}`
+      : isPicture
+      ? `${pictureKind}-${pictureMode}:${picture.round.day ?? ""}:${
+          picture.rounds.length
+        }`
+      : isVoiceTimeAttack
+      ? `voice-ta:${voiceRun?.id ?? ""}:${voiceRun?.rounds.length ?? 0}`
+      : isVoice
+      ? `voice-${voiceMode}:${voice.round.day ?? ""}:${voice.rounds.length}`
+      : isTimeAttack
+      ? `${mode}:${taRun?.id ?? ""}:${taRun?.rounds.length ?? 0}`
+      : `${mode}:${round.day ?? ""}:${solution.themeNo}`
+  }`;
 
   // What the character reacts to: the round being played, or in time attack
   // the last song answered. In the student game each guess is a try, with no
@@ -781,7 +781,7 @@ function App() {
           ) : isStudents ? (
             <StudentGame
               // A new screen for each way to play and mode, as for the OST.
-              key={students.slot}
+              key={`${server}:${students.slot}`}
               game={studentWay}
               mode={studentMode}
               round={studentRound}
@@ -795,6 +795,7 @@ function App() {
             />
           ) : isPictureTimeAttack ? (
             <PictureTimeAttack
+              key={server}
               timeAttack={pictureTimeAttack}
               onKindChange={changePictureKind}
               keyboardEnabled={!isPopUpOpen}
@@ -802,7 +803,7 @@ function App() {
           ) : isPicture ? (
             <PictureGame
               // A new screen for each kind and mode, as for the OST.
-              key={`${pictureKind}-${pictureMode}`}
+              key={`${server}:${pictureKind}-${pictureMode}`}
               game={picture}
               onKindChange={changePictureKind}
               onOptionsChange={setPictureOptions}
@@ -810,13 +811,14 @@ function App() {
             />
           ) : isVoiceTimeAttack ? (
             <VoiceTimeAttack
+              key={server}
               timeAttack={voiceTimeAttack}
               keyboardEnabled={!isPopUpOpen}
             />
           ) : isVoice ? (
             <VoiceGame
               // A new screen for each mode, as for the OST.
-              key={voiceMode}
+              key={`${server}:${voiceMode}`}
               mode={voice.mode}
               game={voice}
               onHintsChange={setVoiceHints}

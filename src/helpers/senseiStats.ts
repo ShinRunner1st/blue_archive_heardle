@@ -1,6 +1,7 @@
 import { songs } from "../constants";
 
 import { BADGE_MODES, ROUND_MODES } from "../types/mode";
+import { Server } from "../types/server";
 import { STUDENT_SLOTS, StudentRound, StudentSlot } from "../types/student";
 import { VOICE_MODES } from "../types/voice";
 import { PICTURE_KINDS, PICTURE_SLOTS } from "../types/picture";
@@ -17,6 +18,7 @@ import { calStreaks } from "./streaks";
 import { asRound, isOver, isWon, onServer } from "./studentRounds";
 import { timeAttackStats } from "./timeAttack";
 import { asRound as voiceAsRound, isOver as isVoiceOver } from "./voiceRounds";
+import { getServer } from "./server";
 import { bestWinStreak } from "./winStreak";
 
 /** A player's record across every mode, for the Sensei card. */
@@ -47,7 +49,10 @@ export interface SenseiStats {
  * Reads every mode's saves, as they are now: the card is made on demand, so
  * it reads the saves rather than holding every mode's state itself.
  */
-export function senseiStats(today: number = dayNumber()): SenseiStats {
+export function senseiStats(
+  today: number = dayNumber(),
+  server: Server = getServer()
+): SenseiStats {
   const rounds = Object.fromEntries(
     [...ROUND_MODES, "timeattack" as const].map((mode) => [
       mode,
@@ -55,19 +60,21 @@ export function senseiStats(today: number = dayNumber()): SenseiStats {
     ])
   );
   const bySlot = Object.fromEntries(
-    STUDENT_SLOTS.map((slot) => [slot, loadStudentRounds(slot)])
+    STUDENT_SLOTS.map((slot) => [slot, loadStudentRounds(slot, server)])
   ) as Record<StudentSlot, StudentRound[]>;
   const studentRounds = Object.values(bySlot);
   const studentDailies = [bySlot["gameplay-daily"], bySlot["lore-daily"]].map(
     (daily) => daily.map(asRound)
   );
-  const voiceRounds = VOICE_MODES.flatMap((mode) => loadVoiceRounds(mode));
-  const voiceDaily = loadVoiceRounds("daily").map(voiceAsRound);
+  const voiceRounds = VOICE_MODES.flatMap((mode) =>
+    loadVoiceRounds(mode, server)
+  );
+  const voiceDaily = loadVoiceRounds("daily", server).map(voiceAsRound);
   const pictureRounds = PICTURE_SLOTS.flatMap((slot) =>
-    loadPictureRounds(slot)
+    loadPictureRounds(slot, server)
   );
   const pictureDailies = PICTURE_KINDS.map((kind) =>
-    loadPictureRounds(`${kind}-daily`).map(voiceAsRound)
+    loadPictureRounds(`${kind}-daily`, server).map(voiceAsRound)
   );
 
   const guessed = guessedThemes(BADGE_MODES.flatMap((mode) => rounds[mode]));
@@ -104,7 +111,7 @@ export function senseiStats(today: number = dayNumber()): SenseiStats {
     timeAttackBest: Math.max(timeAttack.best.typed, timeAttack.best.choice),
     studentsFound: found.size,
     // The server the student games follow now, whose saves these are.
-    studentsTotal: onServer().length,
+    studentsTotal: onServer(server).length,
     roundsPlayed:
       ROUND_MODES.reduce(
         (total, mode) => total + rounds[mode].filter(isFinished).length,

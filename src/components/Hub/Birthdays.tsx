@@ -1,6 +1,7 @@
 import React from "react";
 
 import { birthdaysWithin } from "../../helpers/birthdays";
+import { useServer } from "../../hooks/useServer";
 import { Portrait, usePortraits } from "../Portrait";
 
 import * as Styled from "./index.styled";
@@ -31,7 +32,11 @@ function dayLabel(date: Date, today: Date): string {
  */
 export function Birthdays() {
   const today = React.useMemo(() => new Date(), []);
-  const soon = React.useMemo(() => birthdaysWithin(7, today), [today]);
+  const server = useServer();
+  const soon = React.useMemo(
+    () => birthdaysWithin(7, today, server),
+    [today, server]
+  );
   const portraits = usePortraits(soon.map(({ student }) => student.id));
 
   if (soon.length === 0) return null;

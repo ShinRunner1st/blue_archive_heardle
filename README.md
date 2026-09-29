@@ -504,7 +504,8 @@ from the Worker when the hub shows.
 
 ### Now in Global
 
-The hub's Now in Global panel reads one small file, `now.json`, from a second
+The hub's Now in Global panel ("Now in JP" on the JP server) reads one small
+file, `now.json`, holding both servers' schedules, from a second
 Worker, `ba-heardle-now` (`now-worker/`), apart from the audio one so it can
 be published without the audio, which is built only on the maker's computer.
 Like the audio Worker it only serves static files, so its requests are free.
@@ -593,9 +594,11 @@ follows JP's soundtrack either way.
   appended to, and its own rounds: JP's are saved under Global's keys with
   `.jp` after them, and in a `jp` field of the save file, so a switch never
   touches the other server's.
-- **A switch starts the app over** (`key` on `App` in `index.tsx`), since
-  every pool and history changes; Settings opens again if that's where it was
-  switched.
+- **A switch reloads only the games.** Each student game's hook loads the
+  new server's saves as it next renders, and their screens are keyed by the
+  server, so nothing else on the page (the background, the character, the
+  Jukebox) starts over. The hub's record, daily labels, birthdays and "Now
+  in" panel follow it too; the panel reads both servers from one file.
 - **Marked where it's shared.** On JP the games' taglines end "· JP server",
   share texts "(JP)", and share pictures' tags "· JP".
 - **JP-only students** come with SchaleDB's English name, their lines with

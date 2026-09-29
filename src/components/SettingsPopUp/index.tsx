@@ -12,7 +12,7 @@ import { usePlayerName, useSenseiTitle } from "../../hooks/usePlayerName";
 import { useCharacterChoice } from "../../hooks/useCharacterChoice";
 import { useCustomCursor } from "../../hooks/useCustomCursor";
 import { useServer } from "../../hooks/useServer";
-import { setServerFromSettings } from "../../helpers/server";
+import { setServer } from "../../helpers/server";
 import { SERVER_NAMES, SERVERS } from "../../types/server";
 import { CharacterChoice } from "../../types/character";
 import { Button } from "../Button";
@@ -87,7 +87,7 @@ export function SettingsPopUp({ onClose, reset }: Props) {
                   role="radio"
                   aria-checked={server === value}
                   $active={server === value}
-                  onClick={() => setServerFromSettings(value)}
+                  onClick={() => setServer(value)}
                 >
                   {SERVER_NAMES[value]}
                 </Styled.Choice>

@@ -2,6 +2,7 @@ import React from "react";
 import { IoIdCard } from "react-icons/io5";
 
 import { senseiStats } from "../../helpers/senseiStats";
+import { useServer } from "../../hooks/useServer";
 
 import * as Styled from "./index.styled";
 
@@ -11,7 +12,8 @@ import * as Styled from "./index.styled";
  * there is nothing to show them yet.
  */
 export function Record({ onSenseiCard }: { onSenseiCard: () => void }) {
-  const stats = React.useMemo(() => senseiStats(), []);
+  const server = useServer();
+  const stats = React.useMemo(() => senseiStats(undefined, server), [server]);
   if (stats.roundsPlayed === 0) return null;
 
   const tiles = [

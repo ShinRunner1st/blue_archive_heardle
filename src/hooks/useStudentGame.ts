@@ -1,5 +1,7 @@
 import React from "react";
 
+import { useServer } from "./useServer";
+
 import { dayNumber } from "../helpers/daily";
 import { dailyOutcomes } from "../helpers/dailyCalendar";
 import {
@@ -95,6 +97,16 @@ function initialHistories(): Histories {
  */
 export function useStudentGame(game: StudentGame, mode: StudentMode) {
   const [histories, setHistories] = React.useState<Histories>(initialHistories);
+
+  // Another server's saves: loaded while rendering, so no frame shows this
+  // server's pools with the other's rounds, and nothing else on the page
+  // starts over.
+  const server = useServer();
+  const [loadedFor, setLoadedFor] = React.useState(server);
+  if (loadedFor !== server) {
+    setLoadedFor(server);
+    setHistories(initialHistories());
+  }
 
   const gameplayDaily = histories["gameplay-daily"];
   const gameplayEndless = histories["gameplay-endless"];

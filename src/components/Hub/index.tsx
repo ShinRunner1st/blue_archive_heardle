@@ -119,7 +119,10 @@ export function Hub({ onOpen, onSenseiCard }: Props) {
   const server = useServer();
   // Read once each time the hub shows: coming back from a game brings them
   // up to date. A new player has no game to continue.
-  const results = React.useMemo(() => todayResults(), []);
+  const results = React.useMemo(
+    () => todayResults(undefined, server),
+    [server]
+  );
   const lastGame = React.useMemo(
     () => (isFirstRun() ? undefined : loadGame()),
     []

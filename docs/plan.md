@@ -436,8 +436,11 @@ too, about 14 students ahead of Global then (277 against 263). Agreed:
 - The OST already follows JP (the wiki's tracklist) and stays one game.
 - **Built** (details in the README's "JP server"): 13 JP-only students then
   (275 on JP, 262 on Global). Global's pools, schedules and saves are exactly
-  as before; JP's are new (`.jp` keys, a `jp` field in the save file). A
-  switch starts the app over. Anna and Erina had no voice lines on SchaleDB
+  as before; JP's are new (`.jp` keys, a `jp` field in the save file).
+- **First feedback** (2026-09-29): switching made the whole page flash and
+  reload, as it started the app over; now only the games' saves reload.
+  "Now in Global" becomes "Now in JP" on JP, from JP's schedule in the same
+  file, and the hub's record, labels and birthdays follow the server. Anna and Erina had no voice lines on SchaleDB
   or halos on the Fandom wiki yet, so they wait for a later run.
 
 ### Weekly content update (6.6)

@@ -1,7 +1,8 @@
 /**
- * Copies what is on in Blue Archive Global right now - the pickup banners,
- * the event and the raids, each with its start and end - from SchaleDB into
- * now-dist/now.json, for the hub's "Now in Global" panel. `npm run
+ * Copies what is on in Blue Archive right now, on Global and on JP - the
+ * pickup banners, the event and the raids, each with its start and end -
+ * from SchaleDB into now-dist/now.json, for the hub's "Now in Global" panel
+ * ("Now in JP" when the student games follow JP). `npm run
  * global-now` then puts it on its own Worker (now-worker/), where requests
  * are free; the game reads it from there and never asks SchaleDB itself.
  *
@@ -89,11 +90,22 @@ function byId(list) {
   return new Map(entries.map((entry) => [entry.Id, entry]));
 }
 
-function buildNow(config, localization, raids, students) {
-  const global = config.Regions?.find((region) => region.Name === "Global");
-  check(global, "no Global region in config");
+/**
+ * The servers the hub can follow: SchaleDB's name for each, and the language
+ * of the event logos there.
+ */
+const SERVERS = {
+  global: { region: "Global", logo: "En" },
+  jp: { region: "Jp", logo: "Jp" },
+};
+
+/** What is on in one server now, as the hub shows it. */
+function buildNow(config, server, localization, raids, students) {
+  const { region, logo } = SERVERS[server];
+  const global = config.Regions?.find((entry) => entry.Name === region);
+  check(global, `no ${region} region in config`);
   for (const key of ["CurrentGacha", "CurrentEvents", "CurrentRaid"]) {
-    check(Array.isArray(global[key]), `Global.${key} is not a list`);
+    check(Array.isArray(global[key]), `${region}.${key} is not a list`);
   }
   check(localization.EventName, "no EventName in localization");
 
@@ -127,7 +139,7 @@ function buildNow(config, localization, raids, students) {
       name: current.event >= 10000 ? `${name} (Rerun)` : name,
       ...span(current, "an event's"),
       // Resolved to a file of ours in main(), or dropped.
-      logo: `eventlogo/${base}_En.webp`,
+      logo: `eventlogo/${base}_${logo}.webp`,
     };
   });
 
@@ -193,23 +205,31 @@ async function main() {
     getJson("en/raids.min.json"),
     getJson("en/students.min.json"),
   ]);
-  const now = buildNow(config, localization, raids, students);
+  // Each server's, by the name the game uses: { global: ..., jp: ... }.
+  const now = Object.fromEntries(
+    Object.keys(SERVERS).map((server) => [
+      server,
+      buildNow(config, server, localization, raids, students),
+    ])
+  );
 
   // Only this run's pictures: the Worker would otherwise keep old ones.
   rmSync(join(NOW_DIR, "img"), { recursive: true, force: true });
   mkdirSync(join(NOW_DIR, "img"), { recursive: true });
   const work = mkdtempSync(join(tmpdir(), "global-now-"));
   try {
-    for (const event of now.events) {
-      const logo = await copyImage(event.logo, null, work);
-      if (logo) event.logo = logo;
-      else delete event.logo;
-    }
-    for (const raid of now.raids) {
-      if (!raid.picture) continue;
-      const picture = await copyImage(raid.picture, RAID_WIDTH, work);
-      if (picture) raid.picture = picture;
-      else delete raid.picture;
+    for (const { events, raids: raidsNow } of Object.values(now)) {
+      for (const event of events) {
+        const logo = await copyImage(event.logo, null, work);
+        if (logo) event.logo = logo;
+        else delete event.logo;
+      }
+      for (const raid of raidsNow) {
+        if (!raid.picture) continue;
+        const picture = await copyImage(raid.picture, RAID_WIDTH, work);
+        if (picture) raid.picture = picture;
+        else delete raid.picture;
+      }
     }
   } finally {
     rmSync(work, { recursive: true, force: true });
@@ -217,9 +237,13 @@ async function main() {
 
   writeFileSync(join(NOW_DIR, "now.json"), JSON.stringify(now));
   writeFileSync(join(NOW_DIR, "_headers"), HEADERS);
-  console.log(
-    `${NOW_DIR}/now.json: ${now.banners.length} banner(s), ${now.events.length} event(s), ${now.raids.length} raid(s).`
-  );
+  for (const [server, { banners, events, raids: raidsNow }] of Object.entries(
+    now
+  )) {
+    console.log(
+      `${server}: ${banners.length} banner(s), ${events.length} event(s), ${raidsNow.length} raid(s).`
+    );
+  }
 
   if (process.argv.includes("--if-changed")) {
     let live = null;

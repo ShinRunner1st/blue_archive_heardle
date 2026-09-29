@@ -236,6 +236,11 @@ describe("App hub", () => {
     // Over already: left out.
     expect(container.textContent).not.toContain("Total Assault");
 
+    // The JP server's, from the same file, with no new request.
+    act(() => setServer("jp"));
+    expect(container.textContent).not.toContain("Now in");
+    setServer("global");
+
     harness.unmount();
     vi.stubGlobal(
       "fetch",
@@ -278,9 +283,10 @@ describe("App hub", () => {
     expect(container.textContent).not.toContain("JP server");
     expect(names()).not.toContain(jpOnly.name);
 
-    harness.unmount();
-    setServer("jp");
-    mount();
+    // Switched in place: the page doesn't start over, the game does.
+    const page = container.firstElementChild;
+    act(() => setServer("jp"));
+    expect(container.firstElementChild).toBe(page);
     expect(container.textContent).toContain("JP server");
     expect(names()).toContain(jpOnly.name);
   });

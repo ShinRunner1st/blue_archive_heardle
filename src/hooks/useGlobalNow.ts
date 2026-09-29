@@ -1,22 +1,29 @@
 import React from "react";
 
-import { GlobalNow, nowUrl, parseNow } from "../helpers/globalNow";
+import { GlobalNow, nowUrl, parseNowFile } from "../helpers/globalNow";
+import { Server } from "../types/server";
+import { useServer } from "./useServer";
 
 /**
- * What is on in Global, read once each time the hub shows, from the Worker
- * (the browser keeps it for fifteen minutes). Null until it comes, and if
- * it doesn't: the panel is a nicety, so it just stays away. No R2 backup,
- * so a Worker outage can't run up R2 reads for it.
+ * What is on in the server the student games follow, Global or JP, read
+ * once each time the hub shows, from the Worker (the browser keeps it for
+ * fifteen minutes); a switch of server changes it with no new request. Null
+ * until it comes, and if it doesn't: the panel is a nicety, so it just stays
+ * away. No R2 backup, so a Worker outage can't run up R2 reads for it.
  */
 export function useGlobalNow(): GlobalNow | null {
-  const [data, setData] = React.useState<GlobalNow | null>(null);
+  const server = useServer();
+  const [data, setData] = React.useState<Record<
+    Server,
+    GlobalNow | null
+  > | null>(null);
 
   React.useEffect(() => {
     let live = true;
     fetch(nowUrl())
       .then((response) => (response.ok ? response.json() : null))
       .then((json: unknown) => {
-        if (live) setData(parseNow(json));
+        if (live) setData(parseNowFile(json));
       })
       .catch(() => undefined);
     return () => {
@@ -24,5 +31,5 @@ export function useGlobalNow(): GlobalNow | null {
     };
   }, []);
 
-  return data;
+  return data?.[server] ?? null;
 }

@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { formatLeft, isEmpty, parseNow, runningAt } from "./globalNow";
+import {
+  formatLeft,
+  isEmpty,
+  parseNow,
+  parseNowFile,
+  runningAt,
+} from "./globalNow";
 
 const DAY = 86_400;
 const NOW = 1_790_000_000;
@@ -110,5 +116,22 @@ describe("parseNow pictures", () => {
       "img/Boss_Portrait_EN0022_Lobby.a1c2.webp",
       undefined,
     ]);
+  });
+});
+
+describe("parseNowFile", () => {
+  it("reads each server's schedule", () => {
+    const jp = { events: [{ name: "JP", start: NOW, end: NOW + DAY }] };
+    const both = parseNowFile({ global: file, jp })!;
+
+    expect(both.global?.raids).toHaveLength(2);
+    expect(both.jp?.events.map(({ name }) => name)).toEqual(["JP"]);
+  });
+
+  it("reads a file from before JP as Global's", () => {
+    const old = parseNowFile(file)!;
+
+    expect(old.global?.banners).toHaveLength(1);
+    expect(old.jp).toBeNull();
   });
 });

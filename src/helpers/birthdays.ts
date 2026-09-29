@@ -1,4 +1,6 @@
+import { Server } from "../types/server";
 import { Student } from "../types/student";
+import { getServer } from "./server";
 import { onServer } from "./studentRounds";
 
 /** Whether it is the student's birthday on the player's own calendar. */
@@ -34,7 +36,8 @@ export function birthdaysOn(date: Date = new Date()): Student[] {
  */
 export function birthdaysWithin(
   days: number,
-  from: Date = new Date()
+  from: Date = new Date(),
+  server: Server = getServer()
 ): Array<{ student: Student; date: Date }> {
   const found: Array<{ student: Student; date: Date }> = [];
   for (let offset = 0; offset < days; offset++) {
@@ -43,7 +46,7 @@ export function birthdaysWithin(
       from.getMonth(),
       from.getDate() + offset
     );
-    for (const student of onServer()) {
+    for (const student of onServer(server)) {
       if (student.lore && isBirthday(student, date)) {
         found.push({ student, date });
       }

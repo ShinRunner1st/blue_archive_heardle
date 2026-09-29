@@ -6,9 +6,7 @@ import {
   resetServerState,
   serverSuffix,
   setServer,
-  setServerFromSettings,
   subscribeServer,
-  takeReopenSettings,
   withServerTag,
 } from "./server";
 import { loadStudentRounds, saveStudentRounds } from "./storage";
@@ -52,13 +50,5 @@ describe("server", () => {
     setServer("jp");
     expect(serverSuffix()).toBe(" (JP)");
     expect(withServerTag("VOICE · DAILY #3")).toBe("VOICE · DAILY #3 · JP");
-  });
-
-  it("opens Settings again once after a switch made there", () => {
-    setServerFromSettings("jp");
-
-    expect(getServer()).toBe("jp");
-    expect(takeReopenSettings()).toBe(true);
-    expect(takeReopenSettings()).toBe(false);
   });
 });

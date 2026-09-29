@@ -1,7 +1,10 @@
+import { Server } from "../types/server";
+
 /**
- * What is on in Blue Archive Global, for the hub: copied from SchaleDB by
- * scripts/build-global-now.mjs to its own Worker, and read from there, never
- * from SchaleDB. Times are in seconds since 1970, as SchaleDB gives them.
+ * What is on in Blue Archive, on Global and on JP, for the hub: copied from
+ * SchaleDB by scripts/build-global-now.mjs to its own Worker, and read from
+ * there, never from SchaleDB. Times are in seconds since 1970, as SchaleDB
+ * gives them.
  */
 export interface TimeSpan {
   start: number;
@@ -62,6 +65,26 @@ const isText = (value: unknown): value is string =>
  * at all.
  */
 export function parseNow(value: unknown): GlobalNow | null {
+  return parseSchedule(value);
+}
+
+/**
+ * The whole file: each server's schedule, `{ global, jp }`. A file from
+ * before JP came in held Global's alone, at the top; it still reads, as
+ * Global's. Null when it isn't the file at all.
+ */
+export function parseNowFile(
+  value: unknown
+): Record<Server, GlobalNow | null> | null {
+  if (!isRecord(value)) return null;
+  if (!("global" in value) && !("jp" in value)) {
+    return { global: parseSchedule(value), jp: null };
+  }
+  return { global: parseSchedule(value.global), jp: parseSchedule(value.jp) };
+}
+
+/** One server's schedule, checked. */
+function parseSchedule(value: unknown): GlobalNow | null {
   if (!isRecord(value)) return null;
   const list = (key: string) =>
     Array.isArray(value[key]) ? (value[key] as unknown[]).filter(isRecord) : [];
