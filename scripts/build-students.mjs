@@ -11,17 +11,22 @@
  *   play on each server. Like the OST's, it is only ever appended to, so a
  *   new student can't change a day already played.
  * - pictures/students/icons.webp: every icon in one sheet, in the table's
- *   order (see src/constants/studentIcons.ts). The icons themselves are kept
- *   in .cache/, which isn't committed, and only new ones are downloaded, one
- *   at a time.
+ *   order (see src/constants/studentIcons.ts): each student's picture from
+ *   the game's files, cut square (scripts/lib/studentPictures.mjs), or
+ *   SchaleDB's for the few older costumes the game's files don't name.
  * - pictures/students/clues.webp: the school, role and gift icons for the
  *   table's cells, with src/constants/clueIcons.ts saying which is where.
  *   A school SchaleDB has no icon for (Sakugawa) gets ETC's, which is
  *   Schale's emblem. Attack and armour types are the sword and the shield on
  *   a circle of the type's colour (scripts/lib/typeColors.mjs).
  * - pictures/portraits/<id>.webp: each student's portrait, for the photo on
- *   the Sensei card. A file each, since a card shows one; the game never
- *   asks for one during a round, so they give nothing away.
+ *   the Sensei card, from the game's files like the icons. A file each, since
+ *   a card shows one; the game never asks for one during a round, so they
+ *   give nothing away.
+ *
+ * A sheet or portrait is drawn again only when the pictures it's drawn from
+ * change (pictures/sources.json), so a run elsewhere, on another ffmpeg,
+ * doesn't give players new copies of the same pictures.
  *
  * SchaleDB's FAQ allows reusing its data and images. Only the official
  * English text is used, never community translations.
@@ -58,8 +63,18 @@ import {
   ICON_SHEET_KEY,
   ICON_SIZE,
 } from "../src/constants/studentIcons.ts";
+import {
+  drawnFrom,
+  recordDrawnFrom,
+  reportFallbacks,
+  sha1,
+} from "./lib/gameFiles.mjs";
 import { shuffled } from "./lib/shuffle.mjs";
-import { loadStudentTable } from "./lib/studentTable.mjs";
+import {
+  PICTURE_SOURCES,
+  studentIcons,
+  studentPortraits,
+} from "./lib/studentPictures.mjs";
 import { TYPE_COLORS, UNKNOWN_TYPE_COLOR } from "./lib/typeColors.mjs";
 
 const run = promisify(execFile);
@@ -70,14 +85,16 @@ const HEADERS = { "User-Agent": "baheardle.com build script" };
 
 const TABLE_PATH = "src/constants/students.ts";
 const ORDER_PATH = "src/constants/studentDailyOrder.ts";
-const ICON_CACHE = ".cache/student-icons";
 const SHEET_PATH = `pictures/${ICON_SHEET_KEY}.webp`;
 const CLUE_CACHE = ".cache/clue-icons";
 const CLUE_SHEET_PATH = `pictures/${CLUE_SHEET_KEY}.webp`;
 const CLUE_MANIFEST_PATH = "src/constants/clueIcons.ts";
-const PORTRAIT_CACHE = ".cache/student-portraits";
 const PORTRAIT_DIR = "pictures/portraits";
-/** About 10 KB a portrait, 200x226 as SchaleDB has them. */
+/**
+ * About 10 KB a portrait, at 200x226 as SchaleDB had them: the game's are
+ * twice that, which the card, drawn small, doesn't need.
+ */
+const PORTRAIT_SIZE = "200:226";
 const PORTRAIT_QUALITY = 75;
 /**
  * WebP quality for the sheet: about 450 KB for 262 students, where their
@@ -141,13 +158,10 @@ if (onGlobal.length < 200 || lore.length < 100) {
   process.exit(1);
 }
 
-// What the sheets were drawn from last time: a sheet whose students or icons
-// haven't changed isn't drawn again, so its bytes, its name on the Worker and
+// What the clue sheet was drawn from last time: a sheet whose icons haven't
+// changed isn't drawn again, so its bytes, its name on the Worker and
 // players' copies of it stay as they are (the weekly Action runs this on
 // another ffmpeg, which would encode the same picture a little differently).
-const before = existsSync(TABLE_PATH)
-  ? (await loadStudentTable()).map(({ id }) => id).join(",")
-  : "";
 const cluesBefore = existsSync(CLUE_MANIFEST_PATH)
   ? (await import(`../${CLUE_MANIFEST_PATH}`)).clueIcons
   : [];
@@ -224,16 +238,12 @@ export const loreOrderJp: number[] = ids(LORE_JP);
 `
 );
 
-// Icons: only the ones not downloaded before, one at a time.
-mkdirSync(ICON_CACHE, { recursive: true });
-const iconPath = (id) => join(ICON_CACHE, `${id}.webp`);
-const missing = students.filter(({ id }) => !existsSync(iconPath(id)));
-for (const { id, name } of missing) {
-  if (!(await downloadOnce(`student/icon/${id}.webp`, iconPath(id)))) {
-    throw new Error(`No icon for ${name}`);
-  }
-}
-console.log(`${missing.length} new icon(s) downloaded.`);
+// Icons: each student's picture from the game's files, cut square.
+const entryOf = (id) => raw[String(id)];
+const icons = await studentIcons(students, entryOf);
+const iconSources = sha1(
+  ...students.map(({ id }) => `${id}:${icons.get(id).hash};`)
+);
 
 // The sheet: each icon scaled into its cell, keeping its transparency, and
 // tiled. The icons' see-through pixels are black underneath, and scaling
@@ -242,17 +252,14 @@ console.log(`${missing.length} new icon(s) downloaded.`);
 // black) and the transparency on its own, then divided back apart.
 const rows = Math.ceil(students.length / ICON_COLUMNS);
 const margin = (ICON_CELL - ICON_SIZE) / 2;
-const sameIcons =
-  existsSync(SHEET_PATH) &&
-  before === students.map(({ id }) => id).join(",") &&
-  missing.length === 0;
+const sameIcons = existsSync(SHEET_PATH) && drawnFrom("icons") === iconSources;
 const work = mkdtempSync(join(tmpdir(), "student-icons-"));
 try {
   if (sameIcons) throw new Unchanged();
   students.forEach(({ id }, index) => {
     copyFileSync(
-      iconPath(id),
-      join(work, `${String(index).padStart(4, "0")}.webp`)
+      icons.get(id).file,
+      join(work, `${String(index).padStart(4, "0")}.png`)
     );
   });
   mkdirSync(join("pictures", ICON_SHEET_KEY, ".."), { recursive: true });
@@ -271,7 +278,7 @@ try {
     `tile=${ICON_COLUMNS}x${rows}:color=black@0`,
   ].join("");
   await run("ffmpeg", [
-    ...["-v", "error", "-y", "-i", join(work, "%04d.webp")],
+    ...["-v", "error", "-y", "-i", join(work, "%04d.png")],
     ...["-filter_complex", filters, "-frames:v", "1"],
     ...["-c:v", "libwebp", "-quality", String(SHEET_QUALITY)],
     ...["-compression_level", "6"],
@@ -279,10 +286,11 @@ try {
   ]);
 } catch (error) {
   if (!(error instanceof Unchanged)) throw error;
-  console.log(`${SHEET_PATH}: the same students, not drawn again.`);
+  console.log(`${SHEET_PATH}: the same pictures, not drawn again.`);
 } finally {
   rmSync(work, { recursive: true, force: true });
 }
+recordDrawnFrom("icons", iconSources);
 
 const kb = (statSync(SHEET_PATH).size / 1024).toFixed(1);
 console.log(
@@ -394,26 +402,25 @@ export const clueIcons: string[] = ${clueKeys};
 const clueKb = (statSync(CLUE_SHEET_PATH).size / 1024).toFixed(1);
 console.log(`${CLUE_SHEET_PATH}: ${clues.length} icons, ${clueKb} KB.`);
 
-// Portraits: downloaded once each, then made into small WebPs, and never
-// made again once they are in pictures/ (committed), so a run elsewhere
-// leaves them as they are. One no longer in the table is removed, so an old
-// one can't linger on the Worker.
-mkdirSync(PORTRAIT_CACHE, { recursive: true });
+// Portraits: the game's, made into small WebPs, and made again only when
+// the game's picture changes, so a run elsewhere leaves them as they are.
+// One no longer in the table is removed, so an old one can't linger on the
+// Worker.
 mkdirSync(PORTRAIT_DIR, { recursive: true });
+const portraits = await studentPortraits(students, entryOf);
 let newPortraits = 0;
-for (const { id, name } of students) {
-  const source = join(PORTRAIT_CACHE, `${id}.webp`);
+for (const { id } of students) {
   const output = join(PORTRAIT_DIR, `${id}.webp`);
-  if (existsSync(output)) continue;
-  if (!(await downloadOnce(`student/collection/${id}.webp`, source))) {
-    throw new Error(`No portrait for ${name}`);
-  }
+  const { file, hash } = portraits.get(id);
+  if (existsSync(output) && drawnFrom(`portrait/${id}`) === hash) continue;
   newPortraits += 1;
   await run("ffmpeg", [
-    ...["-v", "error", "-y", "-i", source],
+    ...["-v", "error", "-y", "-i", file],
+    ...["-vf", `scale=${PORTRAIT_SIZE}:flags=lanczos`],
     ...["-c:v", "libwebp", "-quality", String(PORTRAIT_QUALITY)],
     ...["-compression_level", "6", "-map_metadata", "-1", output],
   ]);
+  recordDrawnFrom(`portrait/${id}`, hash);
 }
 const ids = new Set(students.map(({ id }) => `${id}.webp`));
 for (const file of readdirSync(PORTRAIT_DIR)) {
@@ -428,3 +435,5 @@ console.log(
     students.length
   } portraits (${newPortraits} new), ${portraitKb.toFixed(0)} KB.`
 );
+
+reportFallbacks(PICTURE_SOURCES);

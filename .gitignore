@@ -43,3 +43,6 @@ bun.lockb
 # Now in Global: made by `npm run global-now`, served from Cloudflare
 /now-dist
 /check-pages-output
+
+# Python's compiled files, from scripts/extract-game-files.py
+__pycache__/

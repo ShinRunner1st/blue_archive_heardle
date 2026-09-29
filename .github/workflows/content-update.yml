@@ -47,32 +47,56 @@ jobs:
       - name: Install ffmpeg
         run: sudo apt-get update && sudo apt-get install -y ffmpeg
 
-      # Icons and voice tones already downloaded or measured, so SchaleDB
-      # isn't asked for them again every week, and the game's music (about
-      # 435 MB), so BA-AD downloads only what's new.
+      # UnityPy, which unpacks the game's pictures (scripts/requirements.txt,
+      # pinned with the libraries that decode them).
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: scripts/requirements.txt
+
+      - run: pip install -r scripts/requirements.txt
+
+      # What's been downloaded, unpacked or measured before, so it isn't
+      # again: the game's music (about 435 MB; BA-AD skips media it has), the
+      # pictures unpacked from the game, SchaleDB's icons and voice tones.
+      # Not BA-AD's asset bundles, which it downloads again every run anyway.
       - uses: actions/cache@v4
         with:
-          path: .cache
+          path: |
+            .cache
+            !.cache/baad-ui
+            !.cache/baad-sprites
           key: content-cache-${{ github.run_id }}
           restore-keys: content-cache-
 
-      # The game's music, from JP's servers, with BA-AD
-      # (https://github.com/Deathemonic/BA-AD), pinned to one release and
-      # checked against its SHA-256, so a new release can't change this
-      # Action unseen. Its download is kept in .cache with the rest, so only
-      # new files come down. If it fails (the game in maintenance, say), the
-      # wiki alone is used this week.
+      # BA-AD (https://github.com/Deathemonic/BA-AD), which downloads the
+      # game's files from JP's servers, and BA-AX
+      # (https://github.com/Deathemonic/BA-AX), which opens its voice zips:
+      # each pinned to one release and checked against its SHA-256, so a new
+      # release can't change this Action unseen. The scripts find them by
+      # BAAD and BAAX.
+      - name: Install BA-AD and BA-AX
+        env:
+          BAAD_URL: https://github.com/Deathemonic/BA-AD/releases/download/v3.1.0/baad-linux-x86_64.zip
+          BAAD_SHA256: e1550a45bf21a53f5cc45ad626107073d4288f983e76d76a3ac637347fbbfe4b
+          BAAX_URL: https://github.com/Deathemonic/BA-AX/releases/download/v3.0.0/baax-linux-x86_64.zip
+          BAAX_SHA256: f9fa335d65075815d3e89665aee6ab14055e3a5f29c1983bce4148a2f0091228
+        run: |
+          for tool in baad baax; do
+            url_var="${tool^^}_URL"; sum_var="${tool^^}_SHA256"
+            curl -sSfL -o "$RUNNER_TEMP/$tool.zip" "${!url_var}"
+            echo "${!sum_var}  $RUNNER_TEMP/$tool.zip" | sha256sum -c -
+            unzip -o -q "$RUNNER_TEMP/$tool.zip" -d "$RUNNER_TEMP/$tool"
+            chmod +x "$RUNNER_TEMP/$tool/$tool"
+            echo "${tool^^}=$RUNNER_TEMP/$tool/$tool" >> "$GITHUB_ENV"
+          done
+
+      # The game's music. If it fails (the game in maintenance, say), the
+      # download kept from before and the wiki are used this week.
       - name: Download the game's music
         continue-on-error: true
-        env:
-          BAAD_VERSION: v3.1.0
-          BAAD_SHA256: e1550a45bf21a53f5cc45ad626107073d4288f983e76d76a3ac637347fbbfe4b
-        run: |
-          curl -sSfL -o "$RUNNER_TEMP/baad.zip"             "https://github.com/Deathemonic/BA-AD/releases/download/$BAAD_VERSION/baad-linux-x86_64.zip"
-          echo "$BAAD_SHA256  $RUNNER_TEMP/baad.zip" | sha256sum -c -
-          unzip -o -q "$RUNNER_TEMP/baad.zip" -d "$RUNNER_TEMP/baad"
-          chmod +x "$RUNNER_TEMP/baad/baad"
-          BAAD="$RUNNER_TEMP/baad/baad" npm run download:music
+        run: npm run download:music
 
       - name: Look for anything new
         id: find

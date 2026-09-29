@@ -480,6 +480,41 @@ squashed, outside or blank from its sheet. It runs in CI and in the weekly
 Action before its pull request opens (details in the README's "Page
 check"). Built on `ci/smoke-check`, off `main`.
 
+### The game's own files
+
+Asked for on 2026-09-29. The user downloads the game's media with BA-AD
+(https://github.com/Deathemonic/BA-AD); the weekly Action now does too, from
+JP's servers, so a new student's pictures and lines and a new track come on
+the day of the update. Details in the README's "The game's files".
+
+- **Songs** (on `fix/song-artists`): a new track's file comes from the
+  game's music (all 345 were byte for byte the game's), its name from the
+  wiki. A song with either half still blank ("Theme N" or "Unknown")
+  follows the wiki for both title and artist; a song named in full is never
+  changed by it (the wiki has typos and Japanese titles). 269, 271 and 314
+  are the game's `_Title`, `_Title` and `_Short` files, not on the wiki's
+  Music page. #102 and #170 are by Nor, #106 and #152 by Mitsukiyo, checked
+  by the user against the OST album.
+- **Everything else from the game too** (the user's "B", on
+  `feat/game-assets`): icons, Sensei card portraits, weapons and voice
+  lines, with BA-AX for the voice zips and UnityPy for the asset bundles,
+  all pinned. The icons and portraits are the game's current art, which
+  differs a little from SchaleDB's copies. Lines already made stay; new
+  ones (Anna's and Erina's first) come from the game, with SchaleDB's text,
+  Japanese until the English is out.
+- **Data stays with SchaleDB**: the game's tables are encrypted (their key
+  isn't published, and digging it out of the app was ruled out) and
+  Japanese only; SchaleDB also names the files.
+- **Halos stay the Fandom wiki's**, drawn flat by its editors: the game's
+  sprites only have them in perspective, some nearly edge-on (Hare, Yuuka,
+  Chihiro), which would be hard to name. A new student's halo is drawn from
+  their sprite until the wiki has one. The user to decide whether they'd
+  rather have every halo the game's way.
+- **Safe on its own**: a missing picture or line falls back to SchaleDB or
+  the wiki, listed in the pull request; the build stops if the game's
+  pictures aren't there at all or over a tenth of a kind are missing;
+  sheets are redrawn only when their pictures' pixels change.
+
 ### Multiplayer (Group 7): private rooms, played like AMQ
 
 - **Rooms and settings:** the host picks the settings, creates the room and

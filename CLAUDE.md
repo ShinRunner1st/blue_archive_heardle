@@ -75,6 +75,19 @@ What the project cares about:
   `pictures/students/icons.webp`, on the Worker. State lives in
   `src/hooks/useStudentGame.ts`, a localStorage key for each way to play and
   mode.
+- **The game's own files** give the pictures, voice lines and music
+  (`scripts/lib/gameFiles.mjs`, README "The game's files"): BA-AD downloads
+  them from JP's servers, BA-AX opens the voice zips and UnityPy
+  (`scripts/extract-game-files.py`) the asset bundles, all pinned; SchaleDB
+  names them (DevName, PathName) and gives the data and lines' text. Halos
+  stay the Fandom wiki's (flat; the game's sit in perspective), a new one
+  drawn from the student's sprite (`scripts/lib/spineHalo.mjs`) until the
+  wiki has it. A missing picture or line falls back to SchaleDB or the wiki
+  and is listed in the pull request; the build stops if the game's pictures
+  aren't there at all or over a tenth of a kind are missing. Sheets and
+  portraits are redrawn only when their pictures' pixels change
+  (`pictures/sources.json`). Locally: `pip install -r
+scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
 - **Characters** are Spine 4.2 skeletons in `public/spine/`, drawn by
   `src/helpers/spineStage.ts`, loaded only on wide screens.
 - **Now in Global** (the hub) reads `now.json`, both servers' pickups, event
@@ -167,7 +180,8 @@ What the project cares about:
   with a warning); Sakugawa has ETC's icon, Schale's emblem.
 - **Voice** (`/voice`): hear a student's line
   and name them. One line a round, whole and replayable: the title call or
-  one of four lobby lines (`voices/`, 1,358 in all, from SchaleDB; on the
+  one of four lobby lines (`voices/`, 1,368 in all, from the game's files,
+  picked by SchaleDB's voice.json; on the
   Worker under hashed names). Each costume is its own answer. Daily and
   Classic give four tries, each miss or skip opening a hint: school, club,
   then a silhouette (its own sheet in a shuffled order; nothing of the
@@ -182,8 +196,9 @@ What the project cares about:
   every mode; each picture's tag names its game and mode. State in
   `src/hooks/useVoiceGame.ts` and `useVoiceTimeAttack.ts`, a key per mode,
   in the save file.
-- **Picture** (`/picture`): name the student from a halo (Fandom wiki) or a
-  weapon (SchaleDB), Halo or Weapon picked above the game. One answer per
+- **Picture** (`/picture`): name the student from a halo (Fandom wiki, or
+  the game's sprite until the wiki has it) or a weapon (the game's files),
+  Halo or Weapon picked above the game. One answer per
   picture, any student it belongs to is right. Daily, Classic with Voice's
   hints (or none), 4-Choice and Time Attack, each with a Silhouette toggle;
   sheets on the Worker (`scripts/build-guess-pictures.mjs`).

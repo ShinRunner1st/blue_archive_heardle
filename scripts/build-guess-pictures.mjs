@@ -16,12 +16,18 @@
  * halo, most share a weapon, and the twins Hikari and Nozomi share a halo.
  * Each picture is one answer, and naming any of its students is right.
  *
- * Weapons come from SchaleDB, like the icons. SchaleDB has no halos, so they
- * come from the Blue Archive Wiki on Fandom, as "<Name> Halo.png". Both are
- * downloaded once, one at a time, and kept in .cache/, which isn't committed.
+ * Weapons come from the game's files (scripts/lib/gameFiles.mjs), or
+ * SchaleDB's for one they don't have. Halos come from the Blue Archive Wiki
+ * on Fandom, as "<Name> Halo.png", where its editors draw them flat, facing
+ * us; a halo the wiki doesn't have yet (a new student's) is drawn from the
+ * student's sprite in the game's files, as it sits on them, in perspective,
+ * and the wiki's replaces it once it's there. Downloads are kept in .cache/,
+ * which isn't committed. A sheet is drawn again only when its cells or its
+ * pictures change.
  */
 import { execFile } from "node:child_process";
 import {
+  appendFileSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
@@ -40,8 +46,19 @@ import {
   PICTURE_SHEETS,
   SHAPE_SHEETS,
 } from "../src/constants/guessSheets.ts";
+import {
+  drawnFrom,
+  gameHalos,
+  gameNames,
+  noteFallback,
+  recordDrawnFrom,
+  reportFallbacks,
+  sha1,
+} from "./lib/gameFiles.mjs";
 import { shuffled } from "./lib/shuffle.mjs";
 import { haloKey, wikiName } from "./lib/halos.mjs";
+import { readPixels } from "./lib/rawImage.mjs";
+import { loadGamePictures, PICTURE_SOURCES } from "./lib/studentPictures.mjs";
 import { loadStudentTable } from "./lib/studentTable.mjs";
 
 const run = promisify(execFile);
@@ -199,35 +216,80 @@ if (needHalos.length > 0) {
   }
 }
 
-const weaponFile = (image) => join(CACHE.weapon, `${image}.webp`);
-for (const { key } of weapons) {
-  if (!(await downloadOnce(`${WEAPON_URL}/${key}.webp`, weaponFile(key)))) {
-    throw new Error(`No weapon picture for ${key}`);
+/** Each group's picture, by kind and key: { file, hash } of what it's drawn from. */
+const pictureFiles = { halo: new Map(), weapon: new Map() };
+const fileHash = (file) => sha1(readFileSync(file));
+
+for (const { key } of halos) {
+  if (existsSync(haloFile(key))) {
+    pictureFiles.halo.set(key, {
+      file: haloFile(key),
+      hash: fileHash(haloFile(key)),
+    });
   }
 }
 
-/** A picture's pixels, as RGBA bytes. */
-async function pixels(file) {
-  const { stdout: probe } = await run("ffprobe", [
-    ...["-v", "error", "-select_streams", "v:0"],
-    ...["-show_entries", "stream=width,height", "-of", "csv=p=0", file],
-  ]);
-  const [width, height] = probe.trim().split(",").map(Number);
-  const { stdout } = await run(
-    "ffmpeg",
-    [
-      ...["-v", "error", "-i", file, "-frames:v", "1"],
-      ...["-f", "rawvideo", "-pix_fmt", "rgba", "-"],
-    ],
-    { encoding: "buffer", maxBuffer: 1 << 30 }
+// A halo the wiki doesn't have yet (a new student's): drawn from the sprite
+// of the first of the group's students whose sprite has one.
+const unhaloed = halos.filter(({ key }) => !pictureFiles.halo.has(key));
+const fromGame = [];
+if (unhaloed.length > 0) {
+  const drawn = await gameHalos(
+    unhaloed.map(({ key, members }) => ({
+      key,
+      names: members.flatMap(({ id }) => gameNames(schale[String(id)])),
+    }))
   );
-  return { width, height, data: stdout };
+  for (const [key, picture] of drawn) {
+    pictureFiles.halo.set(key, picture);
+    fromGame.push(key);
+  }
 }
+if (fromGame.length > 0) {
+  const line = `- Halos drawn from the game's files, as the wiki has none yet: ${fromGame.join(
+    ", "
+  )}`;
+  console.log(line);
+  if (process.env.UPDATE_SUMMARY) {
+    appendFileSync(process.env.UPDATE_SUMMARY, `${line}\n`);
+  }
+}
+// Which, so the weekly Action (find-updates.mjs) looks for them on the wiki.
+recordDrawnFrom("guess/halos-from-game", fromGame.join(","));
+
+// Weapons: the game's pictures, or SchaleDB's for one it doesn't name.
+const game = loadGamePictures();
+const weaponFile = (image) => join(CACHE.weapon, `${image}.webp`);
+const noWeapon = [];
+for (const { key } of weapons) {
+  const picture = game.weapon(key);
+  if (picture) {
+    pictureFiles.weapon.set(key, { file: picture.file, hash: picture.hash });
+    continue;
+  }
+  if (!(await downloadOnce(`${WEAPON_URL}/${key}.webp`, weaponFile(key)))) {
+    throw new Error(`No weapon picture for ${key}, in the game or SchaleDB`);
+  }
+  pictureFiles.weapon.set(key, {
+    file: weaponFile(key),
+    hash: fileHash(weaponFile(key)),
+  });
+  noWeapon.push(key);
+}
+// Many missing means the game renamed them: stop, rather than take them all
+// from SchaleDB.
+if (noWeapon.length > weapons.length * 0.1) {
+  console.error(
+    `${noWeapon.length} of ${weapons.length} weapons aren't in the game's files: stopping.`
+  );
+  process.exit(1);
+}
+for (const key of noWeapon) noteFallback("weapon", key);
 
 /**
  * The box round everything that isn't transparent: the wiki's halos sit in
- * canvases of any size, some with the halo small in the middle, and
- * SchaleDB's weapons have room round them for the longest rifle.
+ * canvases of any size, some with the halo small in the middle, and the
+ * weapons have room round them for the longest rifle.
  */
 function edges({ width, height, data }) {
   let left = width;
@@ -252,12 +314,12 @@ async function trimAll(kind, groups) {
   const out = [];
   const missing = [];
   for (const group of groups) {
-    const file = kind === "halo" ? haloFile(group.key) : weaponFile(group.key);
-    if (!existsSync(file)) {
+    const file = pictureFiles[kind].get(group.key)?.file;
+    if (!file || !existsSync(file)) {
       missing.push(group.key);
       continue;
     }
-    const box = edges(await pixels(file));
+    const box = edges(await readPixels(file));
     if (!box) {
       missing.push(group.key);
       continue;
@@ -357,8 +419,12 @@ for (const kind of PICTURE_KINDS) {
       ].join(":")
     )
     .join(",");
+  const sources = sha1(
+    ...pictures.map(({ key }) => `${key}:${pictureFiles[kind].get(key).hash};`)
+  );
   const same =
     cellsBefore[kind] === cellsNow &&
+    drawnFrom(`guess/${kind}`) === sources &&
     existsSync(sheetFile(PICTURE_SHEETS[kind])) &&
     existsSync(sheetFile(SHAPE_SHEETS[kind]));
   const picturePath = same
@@ -368,6 +434,7 @@ for (const kind of PICTURE_KINDS) {
     ? sheetFile(SHAPE_SHEETS[kind])
     : await drawSheet(inShapeSheet, SHAPE_SHEETS[kind], true);
   cellsAfter[kind] = cellsNow;
+  recordDrawnFrom(`guess/${kind}`, sources);
   if (same) console.log(`${kind}: the same pictures, not drawn again.`);
   console.log(
     `${kind}: ${pictures.length} pictures, ${kb(picturePath).toFixed(
@@ -496,3 +563,5 @@ export const haloOrderJp: number[] = read(HALOS_JP);
 export const weaponOrderJp: number[] = read(WEAPONS_JP);
 `
 );
+
+reportFallbacks(PICTURE_SOURCES);

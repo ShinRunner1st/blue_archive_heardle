@@ -363,15 +363,17 @@ own.
 A GitHub Action, `.github/workflows/content-update.yml`, keeps the game up to
 date on its own, every Wednesday (and from the Actions tab by hand):
 
-1. It downloads the game's music from JP's servers with
-   [BA-AD](https://github.com/Deathemonic/BA-AD) (`npm run download:music`,
-   a pinned release checked against its SHA-256), into `.cache/baad`, kept
-   between runs so only new files come down. If that fails, the wiki alone
-   is used that week.
+1. It installs Python with UnityPy and pinned releases of BA-AD and BA-AX
+   (see [The game's files](#the-games-files)), and downloads the game's
+   music (`npm run download:music`) into `.cache/baad`, kept between runs so
+   only new files come down. If that fails, the download kept from before
+   and the wiki are used that week.
 2. `npm run find-updates` looks, without building anything, for students
    SchaleDB has that the table doesn't (JP covers Global's upcoming ones) or
    that have come out on Global, voice lines and halos that have come out for
-   a student without them, and tracks in the game's music or on the Blue
+   a student without them (in the game's files, or from SchaleDB and the
+   wiki), halos the wiki now has for a student whose halo was drawn from the
+   game's files meanwhile, and tracks in the game's music or on the Blue
    Archive wiki's Music page that the song list doesn't have (not the
    10000-range specials), or titles
    and artists for songs still half named. A song with either half still
@@ -392,12 +394,13 @@ date on its own, every Wednesday (and from the Actions tab by hand):
    BA-AD download of your own (its `output` folder) to use it.
 
 3. Only if there is something, it runs `build:students`, `build:voices` and
-   `build:guess`, adds the songs (`npm run build:new-songs`, which checks each
-   file against the wiki's SHA-1), and builds the audio and pictures as
-   `npm run songs` does. A sheet whose contents haven't changed isn't drawn
-   again, and a portrait already in `pictures/` isn't made again, so a run
-   on GitHub's ffmpeg doesn't change their bytes and send every player new
-   copies.
+   `build:guess`, adds the songs (`npm run build:new-songs`), and builds the
+   audio and pictures as `npm run songs` does. A sheet or portrait is drawn
+   again only when the pictures it's drawn from change
+   (`pictures/sources.json`, by their pixels), so a run on GitHub's ffmpeg
+   doesn't change their bytes and send every player new copies. The pull
+   request lists anything that came from SchaleDB or the wiki because the
+   game's files didn't have it.
 4. It runs the full check, uploads the new files to the Worker and R2,
    checks them there, and runs the [page check](#page-check) on them. If
    anything fails, no pull request opens; the run's page shows why, with
@@ -578,6 +581,57 @@ there is no R2 copy, so an outage can't run up R2 reads.
 - SchaleDB updates a few hours after the game does, so a new banner can take
   that long to show; one that has ended hides on time.
 
+### The game's files
+
+The pictures, voice lines and music come from the game's own files, from JP's
+servers, on the day of an update. SchaleDB still gives the data (the game's
+tables are encrypted, and Japanese only) and each voice line's text, and
+names the files: a student's `DevName` and `PathName` are the game's names
+for them. Three community tools do the work, each pinned:
+
+- [BA-AD](https://github.com/Deathemonic/BA-AD) downloads the files
+  (`scripts/lib/baad.mjs`): the music and voice lines (Android's media), the
+  student pictures and weapons (three groups of Android's UI pictures, about
+  50 MB), and the students' Spine sprites for their halos (Windows', whose
+  textures are full size).
+- [BA-AX](https://github.com/Deathemonic/BA-AX) opens the voice zips.
+- [UnityPy](https://github.com/K0lb3/UnityPy) (`scripts/extract-game-files.py`,
+  `scripts/requirements.txt`) unpacks the pictures, sprites' atlases and
+  skeletons from Unity's asset bundles into `.cache/game/`, with a hash of
+  each picture's pixels.
+
+`scripts/lib/gameFiles.mjs` puts them together for the build scripts:
+
+- **Icons** are the middle of each student's `Student_Portrait_<name>`,
+  cut square, as SchaleDB's icons were; the **Sensei card's portraits** are
+  `Student_Portrait_<name>_Collection` (with its background), made 200x226;
+  **weapons** are `Weapon_Icon_<WeaponImg>`. A few older costumes' pictures
+  aren't under any name we know (Hasumi, Yuuka, Suzumi, Ayane, Chinatsu,
+  Wakamo, Hoshino (Armed) and Shun (Swimsuit)'s icons, Hoshino (Armed)'s
+  portrait); theirs come from SchaleDB. Names that differ are in
+  `NAME_FIXES`.
+- **Voice lines**: the title call from `Prologue/Audio/VOC_JP/JP_<name>/`,
+  the rest from `GameData/Audio/VOC_JP/JP_<name>.zip`, by SchaleDB's name
+  for each line.
+- **Halos** stay the Fandom wiki's, whose editors draw them flat, facing us.
+  The game only has them as they sit on each student's sprite, in
+  perspective, some nearly edge-on (Hare's, Yuuka's), which would be hard to
+  name. A halo the wiki doesn't have yet (a new student's) is drawn from the
+  sprite (`scripts/lib/spineHalo.mjs`, with spine-core: every halo piece in
+  its resting pose, its glow copies left out), and the wiki's replaces it
+  once it's there.
+
+Nothing breaks when the game's files can't be had: a picture or line they
+don't have comes from SchaleDB or the wiki, as before, and the pull request
+lists it. But pictures come from the game now, so a build stops rather than
+take every picture from SchaleDB: when the game's pictures aren't there at
+all (BA-AD or UnityPy missing), or more than a tenth of a kind are missing
+(the game renamed them).
+
+To run the student scripts locally: `pip install -r scripts/requirements.txt`,
+and put `baad` and `baax` on the PATH, or their paths in `BAAD` and `BAAX`
+(`PYTHON` picks the Python; `python3`, or `python` on Windows, otherwise).
+
 ### Student data
 
 The student game's data comes from [SchaleDB](https://schaledb.com/), copied
@@ -596,9 +650,10 @@ and R2. `build:students`:
   alone has SchaleDB's English name for them.
 - appends new students to each way to play's daily schedule on each server,
   shuffled among themselves, so no day already played changes.
-- downloads the icons it doesn't have yet into `.cache/` (not committed), one
-  at a time, and draws them all into one sheet, `pictures/students/icons.webp`
-  (80 px cells, transparent round each student; about 450 KB), in the table's order
+- takes each student's icon from the game's files (see
+  [The game's files](#the-games-files)) and draws them all into one sheet,
+  `pictures/students/icons.webp` (80 px cells, transparent round each
+  student; about 470 KB), in the table's order
   (`src/constants/studentIcons.ts`). One file means one request, and no file
   name per student to give the answer away in DevTools. A new student changes
   the whole sheet, so players download it again after each update.
@@ -612,8 +667,8 @@ armour type is SchaleDB's sword (`Type_Attack`) or shield (`Type_Defense`)
 drawn on a circle of the type's colour, from
 `scripts/lib/typeColors.mjs`, keyed by SchaleDB's codes. A type the game adds
 later comes into the sheet by itself, on grey, and the script says to add
-its colour there. And it makes each student's portrait (SchaleDB's
-collection picture, about 7.5 KB as WebP) into `pictures/portraits/`, for the
+its colour there. And it makes each student's portrait (the game's
+collection picture, about 8 KB as WebP) into `pictures/portraits/`, for the
 Sensei card; their names on the Worker are listed in
 `src/constants/portraitFiles.ts`, apart from `pictureFiles.ts`, so the page
 doesn't carry 262 of them.
@@ -648,13 +703,15 @@ follows JP's soundtrack either way.
   share texts "(JP)", and share pictures' tags "· JP".
 - **JP-only students** come with SchaleDB's English name, their lines with
   their Japanese text (the line picker also checks the Japanese name, so no
-  line gives it away), and a halo once the Fandom wiki has one. A student
-  whose lines or halo aren't out yet waits for the next `npm run students`.
+  line gives it away), and a halo drawn from their sprite until the Fandom
+  wiki has one. Their lines and pictures come from the game's files on the
+  day of the update.
 
 ### Voice lines
 
-Voice mode's lines come from SchaleDB too (SchaleDB was told before they
-were first downloaded). `npm run students` runs `build:voices` after
+Voice mode's lines come from the game's files, picked and titled by
+SchaleDB's `voice.json` (SchaleDB was told before lines were first
+downloaded from it). `npm run students` runs `build:voices` after
 `build:students`; on its own, `npm run voices` runs it and then `npm run
 songs`. `build:voices`:
 
@@ -664,12 +721,15 @@ songs`. `build:voices`:
   says their own name. Newer students' lines are cut into parts, each with
   its own text; the longest part that fits (20 to 140 characters of text) is
   taken from each line.
-- downloads the lines it doesn't have yet, one at a time with a pause, and
-  converts each once to mono Ogg Vorbis in `voices/<student id>/`, which is
-  committed like `audio/` (about 66 MB for 1,358 lines). The MP3s stay in
-  `.cache/`. `voices/lines.json` lists each student's lines and their text.
+- takes the lines it doesn't have yet from the game's files (or, for one
+  they don't have, SchaleDB's MP3, one at a time with a pause) and converts
+  each once to mono Ogg Vorbis in `voices/<student id>/`, which is committed
+  like `audio/` (about 66 MB for 1,368 lines). Lines made before, from
+  SchaleDB's MP3s, stay as they are. `voices/lines.json` lists each
+  student's lines and their text: SchaleDB's English, or Japanese until it
+  has the English.
 - appends new students to the daily schedule.
-- draws every student's icon as a white shape into
+- draws every student's icon (the icon sheet's) as a white shape into
   `pictures/voices/silhouettes.webp`, in a shuffled order of its own
   (`src/constants/silhouettes.ts`, scrambled), so a silhouette's place in its
   sheet doesn't match the icon sheet's.
@@ -703,11 +763,12 @@ after `build:voices`. It:
   (Hikari and Nozomi together, as their halos are the same), weapons by
   SchaleDB's `WeaponImg`, which costumes mostly share. The one who stands for
   a group is its default costume.
-- downloads the weapons from SchaleDB (`images/weapon/`) and the halos from
-  the Blue Archive Wiki on Fandom (`<Name> Halo.png`, asked for as the
-  original PNG), since SchaleDB has none. A few are filed under other names
-  there (Aris as Alice, Hatsune Miku as Miku), listed in the script. Each is
-  downloaded once, one at a time with a pause, into `.cache/`.
+- takes the weapons from the game's files and the halos from the Blue
+  Archive Wiki on Fandom (`<Name> Halo.png`, asked for as the original PNG,
+  downloaded once each into `.cache/`), drawing a halo the wiki doesn't have
+  yet from the student's sprite (see [The game's files](#the-games-files)).
+  A few are filed under other names on the wiki (Aris as Alice, Hatsune Miku
+  as Miku), listed in `scripts/lib/halos.mjs`.
 - trims each to its edges (the wiki's canvases are any size), fits it to a
   cell and draws two sheets per kind into `pictures/guess/`: the pictures
   (`halos.webp`, `weapons.webp`, about 600 KB each: drawn at one and a half
@@ -720,8 +781,8 @@ after `build:voices`. It:
   in both sheets, a weapon's name; scrambled) and appends new pictures to the
   daily schedules.
 
-The layouts are in `src/constants/guessSheets.ts`. The game never asks the
-wiki or SchaleDB for anything; `npm run songs` puts the sheets on the Worker
+The layouts are in `src/constants/guessSheets.ts`. The page never asks the
+game's servers, the wiki or SchaleDB for anything; `npm run songs` puts the sheets on the Worker
 and R2.
 
 ### Characters
@@ -900,8 +961,11 @@ interrupts play.
 [Blue Archive](https://bluearchive.nexon.com/) is developed by NEXON Games and
 published by NEXON and Yostar. Its music, characters and artwork belong to
 their rights holders. The soundtrack is by KARUT, Mitsukiyo, Nor, EmoCosine and
-others. The student data, icons, weapons and voice lines are from
-[SchaleDB](https://schaledb.com/), and the halos from the
+others. The student pictures, weapons, voice lines and music come from the
+game's own files, downloaded with [BA-AD](https://github.com/Deathemonic/BA-AD)
+and opened with [BA-AX](https://github.com/Deathemonic/BA-AX) and
+[UnityPy](https://github.com/K0lb3/UnityPy); the student data and the lines'
+text are from [SchaleDB](https://schaledb.com/), and the halos from the
 [Blue Archive Wiki](https://blue-archive.fandom.com/) on Fandom.
 
 This is an unofficial fan game, not affiliated with or endorsed by NEXON Games,

@@ -293,8 +293,10 @@ export function InfoPopUp({
               </a>{" "}
               is developed by NEXON Games and published by NEXON and Yostar. Its
               music, characters, artwork and cursor belong to their rights
-              holders. Soundtrack by {composerCredit}. Student data, icons,
-              weapons, voice lines and what&apos;s on in Global from{" "}
+              holders. Soundtrack by {composerCredit}. Student pictures,
+              weapons, voice lines and music from the game&apos;s own files;
+              student data, the lines&apos; text and what&apos;s on in Global
+              from{" "}
               <a href={SCHALEDB} target="_blank" rel="noopener noreferrer">
                 SchaleDB
               </a>

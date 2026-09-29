@@ -1,25 +1,29 @@
 /**
- * Picks the voice lines for Voice mode, gets any new ones from SchaleDB, and
- * draws the silhouette sheet. Run `npm run voices` after `npm run students`
- * (`npm run students` runs it too); `npm run songs` then puts the lines on
- * the Worker and R2.
+ * Picks the voice lines for Voice mode, gets any new ones from the game's
+ * files, and draws the silhouette sheet. Run `npm run voices` after
+ * `npm run students` (`npm run students` runs it too); `npm run songs` then
+ * puts the lines on the Worker and R2.
  *
- * - voices/<student id>/<name>.ogg: each line, converted once from
- *   SchaleDB's MP3 to mono Ogg Vorbis, like the OST's originals in audio/.
- *   They are committed, so the files on the Worker can be rebuilt without
- *   asking SchaleDB again. Which lines are picked is up to
+ * - voices/<student id>/<name>.ogg: each line, converted once to mono Ogg
+ *   Vorbis, like the OST's originals in audio/: from the game's own Ogg
+ *   (scripts/lib/gameFiles.mjs; the title call from its Prologue folder, the
+ *   rest from the student's voice zip), or SchaleDB's MP3 for a line the
+ *   game's files don't have. Lines already here aren't made again. They are
+ *   committed, so the files on the Worker can be rebuilt without downloading
+ *   them again. Which lines are picked, and their text (Japanese until
+ *   SchaleDB has the English), is up to SchaleDB's voice.json and
  *   src/helpers/voiceData.ts.
  * - voices/lines.json: each student's lines in the table's order, the title
  *   call first, with their English text.
  * - src/constants/voiceDailyOrder.ts: each server's daily schedule, by
  *   student id, only ever appended to.
- * - pictures/voices/silhouettes.webp: every student's icon as a plain
- *   shape, for the last hint, in an order of its own
- *   (src/constants/silhouettes.ts), so its place in the sheet doesn't match
- *   the icon sheet's.
+ * - pictures/voices/silhouettes.webp: every student's icon (the icon
+ *   sheet's, scripts/lib/studentPictures.mjs) as a plain shape, for the last
+ *   hint, in an order of its own (src/constants/silhouettes.ts), so its
+ *   place in the sheet doesn't match the icon sheet's.
  *
- * SchaleDB was told before the lines were first downloaded. Only lines not in
- * voices/ yet are downloaded, one at a time with a pause, and the MP3s are
+ * SchaleDB was told before the lines were first downloaded. A line taken
+ * from SchaleDB is downloaded one at a time with a pause, and the MP3s are
  * kept in .cache/ so a change of settings doesn't download them again.
  */
 import { execFile } from "node:child_process";
@@ -46,7 +50,16 @@ import {
   SILHOUETTE_SHEET_KEY,
   SILHOUETTE_SIZE,
 } from "../src/constants/voiceSheet.ts";
+import {
+  drawnFrom,
+  gameVoices,
+  noteFallback,
+  recordDrawnFrom,
+  reportFallbacks,
+  sha1,
+} from "./lib/gameFiles.mjs";
 import { shuffled } from "./lib/shuffle.mjs";
+import { PICTURE_SOURCES, studentIcons } from "./lib/studentPictures.mjs";
 import { loadStudentTable } from "./lib/studentTable.mjs";
 import { VOICE_DIR, VOICE_LIST_PATH } from "./lib/voices.mjs";
 
@@ -56,13 +69,11 @@ const DATA_URL = "https://schaledb.com/data/en/voice.json";
 /** For the students' Japanese names: a JP-only student's lines are Japanese. */
 const JP_STUDENTS_URL = "https://schaledb.com/data/jp/students.json";
 const VOICE_URL = "https://r2.schaledb.com/voice";
-const IMAGES_URL = "https://schaledb.com/images";
 const HEADERS = { "User-Agent": "baheardle.com build script" };
 /** Between downloads, so SchaleDB never sees more than a trickle. */
 const PAUSE_MS = 500;
 
 const MP3_CACHE = ".cache/voices";
-const ICON_CACHE = ".cache/student-icons";
 const SHEET_PATH = `pictures/${SILHOUETTE_SHEET_KEY}.webp`;
 const ORDER_PATH = "src/constants/silhouettes.ts";
 const DAILY_ORDER_PATH = "src/constants/voiceDailyOrder.ts";
@@ -72,7 +83,7 @@ const SILHOUETTE_SEED = 20261001;
 const DAILY_SEEDS = { VOICES: 20261002, VOICES_JP: 20261012 };
 /**
  * Vorbis quality for the lines, mono: about 40 KB for a five-second line,
- * and a voice sounds no different from SchaleDB's MP3.
+ * and a voice sounds no different from the game's own.
  */
 const VORBIS_QUALITY = 3;
 /**
@@ -138,21 +149,27 @@ console.log(
   `${picked.length} lines for ${lines.size} students, ${needed.length} new.`
 );
 
-// A line SchaleDB lists but doesn't have yet is left out, with a warning, so
-// a run on its own (the weekly Action) isn't stopped by one missing file.
+// Each new line from the game's files, or else SchaleDB's. A line neither
+// has yet is left out, with a warning, so a run on its own (the weekly
+// Action) isn't stopped by one missing file.
+const fromGame = gameVoices(needed.map(({ clip }) => clip));
 const failed = new Set();
 let done = 0;
 for (const { id, clip } of needed) {
-  const mp3 = join(MP3_CACHE, clip);
-  if (!(await downloadOnce(`${VOICE_URL}/${clip}`, mp3, "audio/"))) {
-    console.warn(`  Could not download ${clip}: left out.`);
-    failed.add(clip);
-    continue;
+  let source = fromGame(clip);
+  if (!source) {
+    source = join(MP3_CACHE, clip);
+    if (!(await downloadOnce(`${VOICE_URL}/${clip}`, source, "audio/"))) {
+      console.warn(`  Could not download ${clip}: left out.`);
+      failed.add(clip);
+      continue;
+    }
+    noteFallback("voice line", clip);
   }
   const ogg = oggOf(id, clip);
   mkdirSync(dirname(ogg), { recursive: true });
   await run("ffmpeg", [
-    ...["-v", "error", "-y", "-i", mp3, "-map", "0:a", "-ac", "1"],
+    ...["-v", "error", "-y", "-i", source, "-map", "0:a", "-ac", "1"],
     ...["-c:a", "libvorbis", "-q:a", String(VORBIS_QUALITY)],
     ...["-map_metadata", "-1", "-fflags", "+bitexact", ogg],
   ]);
@@ -256,45 +273,43 @@ console.log(
 );
 
 // The silhouettes: each icon's shape in white, which the game colours to
-// suit the page, in a shuffled order.
-mkdirSync(ICON_CACHE, { recursive: true });
+// suit the page, in a shuffled order. The icons are the icon sheet's; their
+// missing ones were noted by build-students.mjs already.
 const ids = [...lines.keys()];
-for (const id of ids) {
-  const icon = join(ICON_CACHE, `${id}.webp`);
-  if (
-    !(await downloadOnce(
-      `${IMAGES_URL}/student/icon/${id}.webp`,
-      icon,
-      "image/"
-    ))
-  ) {
-    throw new Error(`No icon for student ${id}`);
-  }
-}
+const icons = await studentIcons(
+  students.filter(({ id }) => lines.has(id)),
+  (id) => jpStudents[String(id)],
+  { note: false }
+);
 const order = shuffled(ids, SILHOUETTE_SEED);
 const rows = Math.ceil(order.length / SILHOUETTE_COLUMNS);
 const margin = (SILHOUETTE_CELL - SILHOUETTE_SIZE) / 2;
-// The same students in the same cells: the sheet isn't drawn again, so its
-// bytes and its name on the Worker stay as they are.
+// The same students in the same cells, from the same pictures: the sheet
+// isn't drawn again, so its bytes and its name on the Worker stay as they
+// are.
+const silhouetteSources = sha1(
+  ...order.map((id) => `${id}:${icons.get(id).hash};`)
+);
 const storedSilhouettes = existsSync(ORDER_PATH)
   ? readFileSync(ORDER_PATH, "utf8").match(/const ORDER =\s*"([^"]*)"/)
   : null;
 const sameSilhouettes =
   existsSync(SHEET_PATH) &&
   storedSilhouettes !== null &&
-  reveal(storedSilhouettes[1]) === order.join(",");
+  reveal(storedSilhouettes[1]) === order.join(",") &&
+  drawnFrom("silhouettes") === silhouetteSources;
 const work = mkdtempSync(join(tmpdir(), "silhouettes-"));
 try {
   if (sameSilhouettes) throw new Error("unchanged");
   order.forEach((id, index) => {
     copyFileSync(
-      join(ICON_CACHE, `${id}.webp`),
-      join(work, `${String(index).padStart(4, "0")}.webp`)
+      icons.get(id).file,
+      join(work, `${String(index).padStart(4, "0")}.png`)
     );
   });
   mkdirSync(dirname(SHEET_PATH), { recursive: true });
   await run("ffmpeg", [
-    ...["-v", "error", "-y", "-i", join(work, "%04d.webp")],
+    ...["-v", "error", "-y", "-i", join(work, "%04d.png")],
     ...["-filter_complex"],
     [
       "format=rgba,",
@@ -312,6 +327,7 @@ try {
 } finally {
   rmSync(work, { recursive: true, force: true });
 }
+recordDrawnFrom("silhouettes", silhouetteSources);
 
 writeFileSync(
   ORDER_PATH,
@@ -335,3 +351,5 @@ export const silhouetteOrder: number[] = (reveal(ORDER) ?? "")
 console.log(
   `${SHEET_PATH}: ${order.length} silhouettes, ${kb(SHEET_PATH).toFixed(1)} KB.`
 );
+
+reportFallbacks(PICTURE_SOURCES);

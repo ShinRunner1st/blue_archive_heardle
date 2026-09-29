@@ -9,5 +9,5 @@
  */
 import { downloadGameTracks, GAME_DIR, gameTracks } from "./lib/gameTracks.mjs";
 
-downloadGameTracks();
+if (!downloadGameTracks()) process.exitCode = 1;
 console.log(`${gameTracks().size} themes in the game's files, in ${GAME_DIR}.`);

@@ -11,12 +11,13 @@
  * or `_Short`, `_Short_Inst` and so on. On 2026-09-29 all 345 songs in the
  * list were byte for byte the same as the game's.
  */
-import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
-/** Where the weekly Action keeps BA-AD's download; BAAD_OUTPUT overrides. */
-export const GAME_DIR = process.env.BAAD_OUTPUT || ".cache/baad";
+import { baad, MEDIA_DIR } from "./baad.mjs";
+
+/** Where BA-AD's download of the media is (BAAD_OUTPUT overrides). */
+export const GAME_DIR = MEDIA_DIR;
 
 /**
  * Themes 1 to 9999 and their variants: the 10000-range specials are left out,
@@ -34,29 +35,15 @@ const variantRank = (variant) => {
 };
 
 /**
- * Downloads the game's music into `dir` with BA-AD (the `baad` program, or
- * BAAD). BA-AD skips a file it already has with the same hash, so with the
- * folder kept between runs only new files come down.
+ * Downloads the game's music into `dir` with BA-AD; only new files come
+ * down. False if BA-AD couldn't run, and the download already here is used.
  */
 export function downloadGameTracks(dir = GAME_DIR) {
-  const result = spawnSync(
-    process.env.BAAD || "baad",
-    [
-      "download",
-      "japan",
-      "--media",
-      "--filter",
-      "^Theme_\\d{1,4}(_[A-Za-z0-9_]+)?\\.ogg$",
-      "--filter-method",
-      "regex",
-      "--output",
-      dir,
-    ],
-    { stdio: "inherit" }
-  );
-  if (result.status !== 0) {
-    throw new Error(`BA-AD failed (${result.error?.message ?? result.status})`);
-  }
+  return baad({
+    media: true,
+    filter: "^Theme_d{1,4}(_[A-Za-z0-9_]+)?.ogg$",
+    dir,
+  });
 }
 
 /**
