@@ -66,8 +66,10 @@ voice lines and card scenes on the Worker and R2. The two Actions run from
 
 7. **Group 7: Multiplayer.** The user checks the Durable Objects and
    PartyServer free-tier limits first (see "Multiplayer" below).
-8. **Group 8: move the site to Cloudflare Pages** (see "Moving off Vercel"
-   below).
+8. **Group 8: move the site to Cloudflare** (see "Moving off Vercel"
+   below). _Built on `feat/cloudflare-site`, off `main` (Group 7 isn't
+   built yet, and this doesn't need it); the switch of the domain is still
+   to do._
 
 Any time: `npm run songs` when new OSTs come out.
 
@@ -569,6 +571,36 @@ limits stop being a worry. To check when planning:
 - The switch: deploy there first, test it on its own address, then point
   baheardle.com at it; saves are per domain, so the domain must not
   change.
+
+Built on `feat/cloudflare-site` (details in the README's "Deploying"):
+
+- **Workers static assets, not Pages.** Both serve static requests free
+  and unlimited, with 20,000 files of up to 25 MiB (the site is about 70
+  files, 5 MB) and a `_headers` file. Workers is where Cloudflare points
+  new sites, and the audio and Now Workers already use it, so one tool and
+  one kind of config for all three. Pages' 500 builds a month don't come
+  into it: CI builds on GitHub.
+- **CI deploys `main`**, as the last step of the check, so a push that
+  fails a check never goes live (Vercel deployed whatever reached `main`).
+  It uses the Cloudflare secrets the Now in Global Action already has.
+- **Headers** in `public/_headers`, the same as `vercel.json`'s, plus
+  `Strict-Transport-Security`, which Vercel added by itself. `npm run
+  preview` and the page check serve the build with `wrangler dev`
+  (pinned as a dev dependency), so the check now runs under the real
+  Content-Security-Policy.
+- **Addresses:** `/voice` serves `voice.html`, and `/voice/` and
+  `/voice.html` redirect there (307, where Vercel sent 308). An unknown
+  path gets the hub with a 404 status, where Vercel showed its own error
+  page. The workers.dev address stays on for testing, marked `noindex`.
+- **The old domain** has its DNS on Vercel, so it stays on the old Vercel
+  project until it expires, its last deployment still redirecting; the
+  project is only disconnected from GitHub. `vercel.json` is gone.
+- **Still to do, the switch** (the user, in the dashboards, with Claude):
+  deploy by hand and test on the workers.dev address; disconnect GitHub
+  from the Vercel project; swap baheardle.com's DNS records for the
+  Worker's Custom Domain (declared in `site-worker/wrangler.jsonc` then)
+  and www's for a Redirect Rule to the apex; turn on Always Use HTTPS;
+  merge; after a day, take baheardle.com off the Vercel project.
 
 ## Still considering
 

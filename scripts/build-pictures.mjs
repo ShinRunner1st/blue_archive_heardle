@@ -1,7 +1,7 @@
 /**
  * Copies the pictures in pictures/ to audio-dist/pictures/, so `npm run
  * upload:audio` puts them on the Worker with the audio: requests for them are
- * free there, where Vercel would count every one.
+ * free there, and they stay out of the site's own deployment.
  *
  * Each is named after its fingerprint (see scripts/lib/pictures.mjs), and
  * src/constants/pictureFiles.ts records the names for the game. Anything else

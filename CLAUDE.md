@@ -25,8 +25,8 @@ What the project cares about:
 - **Private**: no accounts, cookies, ads, analytics or tracking. Everything is
   kept in the player's browser. The About box and README Privacy section
   promise this, so don't add anything that breaks it.
-- **Cheap to run**: free tiers only (Vercel Hobby, Cloudflare Workers and
-  R2), so every change is checked for requests, bandwidth and storage.
+- **Cheap to run**: free tiers only (Cloudflare Workers and R2), so every
+  change is checked for requests, bandwidth and storage.
 - **Fair**: the answer is kept out of the page source, DevTools requests and
   saves, so it isn't a glance away.
 - **Polished**: works on phones, keyboard-only play, well tested.
@@ -39,11 +39,17 @@ What the project cares about:
   the hub at `/` and `/ost`, `/voice`, `/picture`, `/students`, each with its
   own title, description and link preview. `usePage` moves between them with
   the History API, so there's no reload or new request.
-- **Site** on Vercel Hobby (project "ba-ost-guess"), deploying from `main` only.
-  Long cache headers in `vercel.json` to spare requests. It also sends
-  security headers: a Content-Security-Policy allowing only the site, the
-  two Workers and R2 (a new outside address must be added there, or it's
-  blocked), no framing by other sites, nosniff, no-referrer.
+- **Site** on a Cloudflare Worker with only static files (`site-worker/`,
+  `ba-heardle-site`, baheardle.com as its Custom Domain; www redirects by
+  a Redirect Rule). CI deploys it from `main` only, after every check
+  passes (`npm run deploy:site` by hand). Long cache headers in
+  `public/_headers` to spare requests. It also sends security headers: a
+  Content-Security-Policy allowing only the site, the two Workers and R2 (a
+  new outside address must be added there, or it's blocked), no framing by
+  other sites, nosniff, no-referrer, HSTS. `npm run preview` and the page
+  check serve the build with `wrangler dev`, headers and all. It moved
+  from Vercel Hobby (Group 8); the old Vercel project stays, unconnected to
+  GitHub, only for the old domain's redirect.
 - **Audio** on a Cloudflare Worker
   (`https://ba-heardle-audio.shinrunner1st.workers.dev`, set in
   `.env.production`). Originals in `audio/`; `npm run build:audio` makes a
@@ -347,8 +353,9 @@ multi-line message write it to a file and use `git commit -F <file>`.
   to `main` only when the user explicitly says so: merging deploys to
   production.
 - Before merging, run the full check above and `check:pages`, and measure
-  what the release adds in Vercel requests, bandwidth and storage (check
-  cache headers). The user watches the Hobby limits closely.
+  what the release adds in requests, bandwidth and storage (check cache
+  headers): files per Worker (20,000 on the free plan) and anything on R2,
+  which can charge. The user watches the free limits closely.
 - When a release has something players should know, add an entry at the top of
   `WHATS_NEW` in `src/constants/whatsNew.ts` with a new id. Only what players
   notice (a new game or mode, new students, a change to how something
@@ -363,8 +370,8 @@ multi-line message write it to a file and use `git commit -F <file>`.
 ## Dates to remember
 
 - **After 2026-12-10**, when bluearchive-heardle.xyz expires (not being renewed):
-  remove the two host `redirects` from `vercel.json` and the README note about
-  the old address; the user removes the old domain from Vercel and deletes its
+  remove the README note about the old address; the user deletes the old
+  Vercel project (it only redirects the old domain) and the old domain's
   Google Search Console property.
 
 ## Plan

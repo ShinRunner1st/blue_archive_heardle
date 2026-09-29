@@ -6,7 +6,9 @@
  *
  *   npm run build && npm run check:pages
  *
- * It serves build/ with `vite preview`, so the pictures come from the Worker
+ * It serves build/ with `wrangler dev` and the site's own Worker config, so
+ * the pages get the live site's headers (a picture or request blocked by the
+ * Content-Security-Policy fails here) and the pictures come from the Worker
  * like on the live site: a sheet not uploaded yet (`npm run songs`) fails
  * here too. Chrome is found at CHROME_PATH or the usual places; GitHub's
  * Ubuntu runners have it. On a failure it saves screenshots in
@@ -45,7 +47,21 @@ const fail = (where, message) => failures.push(`${where}: ${message}`);
 
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-/** Serves build/ until the check is over. */
+/**
+ * Stops the server and what it started: on Windows, killing wrangler alone
+ * would leave its workerd running.
+ */
+function stopPreview(preview) {
+  if (process.platform === "win32") {
+    spawn("taskkill", ["/pid", String(preview.pid), "/t", "/f"], {
+      stdio: "ignore",
+    });
+  } else {
+    preview.kill();
+  }
+}
+
+/** Serves build/ as the live site does, until the check is over. */
 async function startPreview() {
   if (!existsSync("build/index.html")) {
     throw new Error("No build/ - run `npm run build` first.");
@@ -53,15 +69,17 @@ async function startPreview() {
   const preview = spawn(
     process.execPath,
     [
-      "node_modules/vite/bin/vite.js",
-      "preview",
+      "node_modules/wrangler/bin/wrangler.js",
+      "dev",
+      "--config",
+      "site-worker/wrangler.jsonc",
       "--port",
       String(PORT),
-      "--strictPort",
+      "--show-interactive-dev-session=false",
     ],
-    { stdio: "ignore" }
+    { stdio: "ignore", env: { ...process.env, WRANGLER_SEND_METRICS: "false" } }
   );
-  for (let tries = 0; tries < 60; tries++) {
+  for (let tries = 0; tries < 120; tries++) {
     try {
       if ((await fetch(BASE)).ok) return preview;
     } catch {
@@ -69,8 +87,8 @@ async function startPreview() {
     }
     await wait(500);
   }
-  preview.kill();
-  throw new Error("vite preview didn't start");
+  stopPreview(preview);
+  throw new Error("wrangler dev didn't start");
 }
 
 /** Waits for the page to settle after a click or a load. */
@@ -321,7 +339,7 @@ try {
   for (const server of SERVERS) await checkServer(browser, server);
 } finally {
   await browser.close();
-  preview.kill();
+  stopPreview(preview);
 }
 
 if (failures.length > 0) {

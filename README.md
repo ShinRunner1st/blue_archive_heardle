@@ -314,7 +314,8 @@ npm run dev           # http://localhost:3000
 | --------------------------- | ----------------------------------------------------- |
 | `npm run dev`               | Start the dev server                                  |
 | `npm run build`             | Type-check, then build to `build/`                    |
-| `npm run preview`           | Serve the production build locally                    |
+| `npm run preview`           | Serve the build as the live site does, headers too    |
+| `npm run deploy:site`       | Publish the build to Cloudflare (CI does, from main)  |
 | `npm test`                  | Run the test suite                                    |
 | `npm run lint`              | ESLint, warnings included                             |
 | `npm run typecheck`         | `tsc --noEmit`                                        |
@@ -342,7 +343,9 @@ and the page check on every push to `main` and every pull request.
 ### Page check
 
 `npm run check:pages` (after `npm run build`) opens the built site in a
-headless Chrome, through `vite preview`, and goes through it as a player
+headless Chrome, through `wrangler dev` with the site's own Worker config
+(so with the live site's headers: anything the Content-Security-Policy
+blocks fails the check), and goes through it as a player
 would, on Global and then on JP: the hub, the OST, Voice, the student grid,
 and Picture's daily halo and weapon and Endless with and without
 silhouettes. It fails on an error on the page, a file that doesn't load,
@@ -447,10 +450,10 @@ and so does a test.
 
 ### Audio
 
-The audio is served by Cloudflare, not Vercel: a Cloudflare Worker that only
-serves files (`audio-worker/`). Requests for its files are free and
-unlimited, and keeping 450 MB of audio out of every Vercel deployment keeps
-Vercel's deployment storage small.
+The audio is served by a Cloudflare Worker that only serves files
+(`audio-worker/`), apart from the site's own. Requests for its files are
+free and unlimited, and keeping 450 MB of audio out of the site means a
+deployment of the site doesn't upload it again.
 
 The originals live in `audio/`, named by theme number, and are never served.
 `npm run build:audio` turns each one into two files in `audio-dist/`, which
@@ -528,7 +531,7 @@ the rest of the session.
 ### Pictures on the Worker
 
 Pictures that only show at times, like the seasonal backgrounds, are served by
-the same Worker as the audio, so they cost Vercel nothing. They live in
+the same Worker as the audio, not with the site. They live in
 `pictures/<folder>/`, already made; `npm run build:pictures` copies them into
 `audio-dist/pictures/` named after a fingerprint of their bytes, so they can
 be cached for a year and a changed picture still reaches everyone at once.
@@ -859,6 +862,7 @@ audio/          The OST originals, one Ogg file per theme number
 voices/         Voice mode's lines, a folder per student, and lines.json
 pictures/       Pictures served from the Worker: the seasonal backdrops, the
                 student icon sheets and the silhouettes
+site-worker/    The Cloudflare Worker that serves the site, build/
 audio-worker/   The Cloudflare Worker that serves the built audio and pictures
 now-worker/     The Worker that serves now.json, what is on in Global
 scripts/        build-audio, check-audio, build-pictures, check-pictures,
@@ -879,37 +883,47 @@ Save files (`src/helpers/saveFile.ts`) go through the same checks.
 
 ## Deploying
 
-The site is hosted on [Vercel](https://vercel.com/) and deploys from GitHub:
-every push to `main` goes to production. The build settings are in
-`vercel.json`. The audio is deployed separately, to Cloudflare, by
-`npm run songs`, which also copies it to the backup on R2.
+The site is served from Cloudflare, like the audio: `site-worker/` is a
+Worker that only serves the files in `build/`, with no code of its own, so
+requests for them are free and unlimited. It moved there from Vercel's
+Hobby plan, whose request and bandwidth limits it had to watch. The free
+plan allows 20,000 files of up to 25 MiB each
+per deployment; the site is about 70 files and 5 MB.
 
-The audio is on Cloudflare (see [Audio](#audio)), so a deployment is about
-5 MB. To keep Vercel's deployment storage low on the Hobby plan:
-
-- **Only `main` deploys** (`git.deploymentEnabled` in `vercel.json`); other
-  branches get no preview deployments. Test with `npm run build` and
-  `npm run preview` instead. A branch that needs testing on Vercel itself
-  can be let in there for a while; take it out again before it merges. Vercel marks preview addresses
-  `noindex`, so search engines leave them alone.
-- **Delete merged branches.** Vercel keeps the latest deployment of every
-  branch that still exists.
-- **Caching** is set in `vercel.json`, to spare requests as well as bandwidth.
-  Built files under `/assets/` carry a hash in their name, so browsers keep
-  them for a year without asking again. The characters, cursor, icons and
-  link preview keep their names, so browsers keep them for a week, then go on using them while they
-  check in the background. A replaced file under the same name can take up to
-  a week to reach everyone; give it a new name to reach them at once.
-- **Security headers** go on every page from `vercel.json`. The
+- **Only `main` deploys**, from CI (`.github/workflows/ci.yml`), and only
+  once the format check, lint, type-check, tests, build and page check have
+  all passed. It needs the `CLOUDFLARE_API_TOKEN` and
+  `CLOUDFLARE_ACCOUNT_ID` secrets the Now in Global Action uses. Other
+  branches don't deploy: test them with `npm run build` and
+  `npm run preview`, which serves the build with `wrangler dev` as the live
+  site does, headers and all. `npm run deploy:site` deploys by hand.
+- **The workers.dev address** (`ba-heardle-site.shinrunner1st.workers.dev`)
+  stays on, to test a deployment on the real network; it sends
+  `X-Robots-Tag: noindex`, so search engines index only baheardle.com.
+- **The domain** is a Custom Domain on the Worker; `www.baheardle.com`
+  goes to it by a Redirect Rule in the Cloudflare dashboard.
+- **Caching** is set in `public/_headers`, which the build copies to
+  `build/` and Cloudflare reads (it isn't served itself), to spare requests
+  as well as bandwidth. Built files under `/assets/` carry a hash in their
+  name, so browsers keep them for a year without asking again. The
+  characters, cursor, icons and link preview keep their names, so browsers
+  keep them for a week, then go on using them while they check in the
+  background. A replaced file under the same name can take up to a week to
+  reach everyone; give it a new name to reach them at once. Pages are
+  checked each visit (`max-age=0` with an ETag), so a deployment reaches
+  everyone at once.
+- **Security headers** go on every page from `public/_headers`. The
   Content-Security-Policy lets the page load and fetch only from itself, the
-  audio Worker and the R2 backup, so the privacy promise is enforced by the
-  browser too: a new outside address has to be added there, or it's
-  blocked. Styles may be inline (styled-components writes them); scripts may
-  not. `frame-ancestors 'none'` and `X-Frame-Options` stop other sites
-  framing the game to trick clicks, `nosniff` stops browsers guessing file
-  types, and `Referrer-Policy: no-referrer` tells the Worker, R2 and linked
-  sites nothing about where a visit came from. If the Worker's address or
-  the R2 domain changes, change it in the policy as well.
+  audio Worker, the R2 backup and the Now in Global Worker, so the privacy
+  promise is enforced by the browser too: a new outside address has to be
+  added there, or it's blocked (and the page check fails). Styles may be
+  inline (styled-components writes them); scripts may not.
+  `frame-ancestors 'none'` and `X-Frame-Options` stop other sites framing
+  the game to trick clicks, `nosniff` stops browsers guessing file types,
+  `Referrer-Policy: no-referrer` tells the Worker, R2 and linked sites
+  nothing about where a visit came from, and `Strict-Transport-Security`
+  keeps browsers on HTTPS. If a Worker's address or the R2 domain changes,
+  change it in the policy as well.
 
 ### Pages
 
@@ -919,8 +933,10 @@ per game (`ost.html`, `voice.html`, `students.html`, `picture.html`). The
 its `{{page.title}}`, `{{page.description}}` and `{{page.url}}` fields from
 `src/constants/pages.ts`, so each page's title, description, canonical address
 and link preview are in the file itself: X, Discord and LINE read those
-without running any JavaScript. `cleanUrls` in `vercel.json` serves
-`voice.html` at `/voice` and `trailingSlash: false` sends `/voice/` there too.
+without running any JavaScript. `html_handling` in
+`site-worker/wrangler.jsonc` serves `voice.html` at `/voice` and sends
+`/voice/` and `/voice.html` there too. Any other path gets `404.html`, a
+copy of the hub the plugin also writes, with a 404 status.
 The app reads the path to pick the game (`usePage`); moving between pages
 uses the History API, so it costs no request and the music and characters
 carry on. Every page is in `public/sitemap.xml`. The ways to play (Daily,
@@ -934,10 +950,11 @@ sitemap.
 The game moved from `bluearchive-heardle.xyz` to `baheardle.com` on
 27 September 2026. Progress wasn't carried over: a browser keeps each
 address's saves apart, so everyone started fresh, and daily mode restarted at
-#1 that day. The old address stays attached to the Vercel project and sends
-every visit on with a permanent redirect (`redirects` in `vercel.json`) until
-it expires on 10 December 2026; it won't be renewed. After that the redirect
-rules can go.
+#1 that day. Its DNS is on Vercel, so it stays attached to the old Vercel
+project, whose last deployment sends every visit on with a permanent
+redirect, until it expires on 10 December 2026; it won't be renewed. The
+project is no longer connected to GitHub, so nothing deploys there. After
+that date the Vercel project can be deleted.
 
 ## Privacy
 
@@ -948,9 +965,8 @@ sent anywhere; the clipboard is only written when a player presses Share.
 Result pictures are drawn in the browser and go only where the player sends
 them from the share sheet, or to their downloads; the player name in Settings
 is only ever drawn on those pictures.
-Like any website, the hosts - Vercel for the site, Cloudflare for the audio,
-voice lines, pictures and the hub's Global schedule -
-see standard connection details such as IP addresses to serve the files.
+Like any website, the host - Cloudflare, for the site, audio, voice lines,
+pictures and the hub's Global schedule - sees standard connection details such as IP addresses to serve the files.
 The Global schedule is copied from SchaleDB to our own Worker; the page
 never asks SchaleDB for anything.
 Players see the same in About this game.

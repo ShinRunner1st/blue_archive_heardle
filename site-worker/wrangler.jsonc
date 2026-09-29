@@ -1,0 +1,22 @@
+// The site itself: build/, made by `npm run build`, served from Cloudflare
+// as static files - no Worker code runs, and requests for static files are
+// free and unlimited. CI publishes it from `main` once every check has
+// passed (.github/workflows/ci.yml); `npm run deploy:site` does it by hand.
+// Headers and caching are in public/_headers, which the build copies here.
+{
+  "name": "ba-heardle-site",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "../build",
+    // voice.html is served at /voice, and /voice/ and /voice.html are sent
+    // there, so each page has one address.
+    "html_handling": "drop-trailing-slash",
+    // An unknown path gets the hub (404.html, written by the build) with a
+    // 404 status, so a mistyped link still lands somewhere to play.
+    "not_found_handling": "404-page"
+  },
+  // The workers.dev address stays on for testing a deployment before it
+  // has a domain; _headers keeps search engines off it.
+  "workers_dev": true,
+  "preview_urls": false
+}

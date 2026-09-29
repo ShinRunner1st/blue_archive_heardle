@@ -16,18 +16,19 @@
     "dev": "vite",
     "start": "vite",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview",
+    "preview": "wrangler dev --config site-worker/wrangler.jsonc --port 4173",
     "test": "vitest run",
     "test:watch": "vitest",
     "check:audio": "node scripts/check-audio.mjs",
     "check:pictures": "node scripts/check-pictures.mjs",
     "build:audio": "node scripts/build-audio.mjs && prettier --write src/constants/audioClips.ts",
     "build:pictures": "node scripts/build-pictures.mjs && prettier --write src/constants/pictureFiles.ts src/constants/portraitFiles.ts",
-    "upload:audio": "npx --yes wrangler deploy --config audio-worker/wrangler.jsonc",
+    "upload:audio": "wrangler deploy --config audio-worker/wrangler.jsonc",
+    "deploy:site": "wrangler deploy --config site-worker/wrangler.jsonc",
     "build:global-now": "node scripts/build-global-now.mjs",
     "find-updates": "node scripts/find-updates.mjs",
     "build:new-songs": "node scripts/build-new-songs.mjs && prettier --write src/constants/songs.ts",
-    "global-now": "node scripts/build-global-now.mjs && npx --yes wrangler deploy --config now-worker/wrangler.jsonc",
+    "global-now": "node scripts/build-global-now.mjs && wrangler deploy --config now-worker/wrangler.jsonc",
     "upload:backup": "node scripts/upload-backup.mjs",
     "build:daily-order": "node scripts/build-daily-order.mjs && prettier --write src/constants/dailyOrder.ts",
     "build:students": "node scripts/build-students.mjs && prettier --write src/constants/students.ts src/constants/studentDailyOrder.ts src/constants/clueIcons.ts",
@@ -79,7 +80,8 @@
     "typescript": "^5.6.3",
     "typescript-eslint": "^8.70.0",
     "vite": "^7.3.6",
-    "vitest": "^5.0.1"
+    "vitest": "^5.0.1",
+    "wrangler": "4.143.1"
   },
   "engines": {
     "node": ">=20"

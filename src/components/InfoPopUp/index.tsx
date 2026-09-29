@@ -256,10 +256,10 @@ export function InfoPopUp({
               and never sent anywhere.
             </PopUpCardText>
             <PopUpCardText>
-              Like any website, the services that deliver it — Vercel for the
-              game, Cloudflare for the music, voices, pictures and what&apos;s
-              on in Global — see basic connection details, such as your IP
-              address, to send you the pages.
+              Like any website, the service that delivers it — Cloudflare, for
+              the game, its music, voices, pictures and what&apos;s on in Global
+              — sees basic connection details, such as your IP address, to send
+              you the pages.
             </PopUpCardText>
           </PopUpCardBody>
         </PopUpCard>

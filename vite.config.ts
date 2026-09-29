@@ -69,7 +69,8 @@ export function fillPage(html: string, page: Page): string {
 /**
  * Writes the hub and a page for each game from index.html, each with its
  * own title, description and link preview, all loading the one bundle.
- * Vercel serves voice.html at /voice (cleanUrls in vercel.json). In
+ * Cloudflare serves voice.html at /voice (site-worker/wrangler.jsonc), and
+ * 404.html, a copy of the hub, for any path that isn't a page. In
  * development every path gets index.html, filled for the page asked for.
  */
 const gamePages: Plugin = {
@@ -88,6 +89,8 @@ const gamePages: Plugin = {
       if (page === "hub") index.source = source;
       else this.emitFile({ type: "asset", fileName: PAGES[page].file, source });
     }
+    const hub = fillPage(template, "hub");
+    this.emitFile({ type: "asset", fileName: "404.html", source: hub });
   },
 };
 

@@ -13,7 +13,7 @@ export type Page = "hub" | Game;
 export interface PageInfo {
   /** Where the page lives, with no slash at the end but the root's. */
   path: string;
-  /** The built file, served at `path` by Vercel's clean URLs. */
+  /** The built file, served at `path` (html_handling in site-worker/). */
   file: string;
   title: string;
   /**
@@ -79,8 +79,8 @@ export function pageUrl(page: Page): string {
 }
 
 /**
- * Which page a path is. Anything unknown is the hub: Vercel answers unknown
- * paths with a 404 before the app runs, so this only matters in development.
+ * Which page a path is. Anything unknown is the hub, as the site answers
+ * an unknown path with the hub's page (404.html) and a 404 status.
  */
 export function pageOfPath(pathname: string): Page {
   const path = pathname.replace(/\.html$/, "").replace(/\/+$/, "") || "/";
