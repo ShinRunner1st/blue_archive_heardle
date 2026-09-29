@@ -1,0 +1,130 @@
+name: Weekly content update
+
+# Once a week, looks for new students (SchaleDB's JP and Global), voice
+# lines, halos and songs (the Blue Archive wiki's Music page), without
+# building anything (scripts/find-updates.mjs). When there are some, it
+# builds them in with the same scripts as `npm run students`, adds the songs
+# (scripts/build-new-songs.mjs), runs the full check, puts the new files on
+# the Worker and R2 as `npm run songs` does, and opens a pull request to
+# review and merge. It never pushes to main: merging is what deploys.
+#
+# Needs the CLOUDFLARE_API_TOKEN secret with Workers Scripts and Workers R2
+# Storage edit rights, CLOUDFLARE_ACCOUNT_ID, and Settings > Actions >
+# General > "Allow GitHub Actions to create and approve pull requests".
+on:
+  schedule:
+    # Wednesdays, a day after the game's Tuesday updates, once SchaleDB and
+    # the wiki have caught up.
+    - cron: "0 12 * * 3"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: content-update
+  cancel-in-progress: false
+
+env:
+  UPDATE_SUMMARY: /tmp/update-summary.md
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Install ffmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      # Icons and voice tones already downloaded or measured, so SchaleDB
+      # isn't asked for them again every week.
+      - uses: actions/cache@v4
+        with:
+          path: .cache
+          key: content-cache-${{ github.run_id }}
+          restore-keys: content-cache-
+
+      - name: Look for anything new
+        id: find
+        run: |
+          printf 'The weekly content update found:\n\n' > "$UPDATE_SUMMARY"
+          node scripts/find-updates.mjs
+
+      - name: Build it in
+        if: steps.find.outputs.changed == 'true'
+        run: |
+          npm run build:students
+          npm run build:voices
+          npm run build:guess
+          node scripts/build-new-songs.mjs
+          npx prettier --write src/constants/songs.ts
+          npm run build:daily-order
+          npm run build:audio
+          npm run build:voice-audio
+          npm run build:pictures
+
+      - name: See whether anything changed
+        if: steps.find.outputs.changed == 'true'
+        id: diff
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --cached --stat
+          fi
+          git reset -q
+
+      - name: Check it
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          npm run format:check
+          npm run lint
+          npm run typecheck
+          npm test
+          npm run check:audio
+          npm run check:pictures
+          npm run build
+
+      - name: Put the new files on the Worker and R2
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npm run upload:audio
+          npm run upload:backup
+          node scripts/check-audio.mjs --remote
+          node scripts/check-pictures.mjs --remote
+
+      - name: Say so in the pull request
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          {
+            echo
+            echo "The new files are on the Worker and R2 already, and the full"
+            echo "check passed. Merging this deploys it. Check new songs' names"
+            echo "first: the wiki writes some differently from the list."
+          } >> "$UPDATE_SUMMARY"
+
+      - name: Open a pull request
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: auto/content-update
+          delete-branch: true
+          commit-message: "chore: add this week's students, voices, pictures and songs"
+          title: "Weekly content update"
+          body-path: ${{ env.UPDATE_SUMMARY }}

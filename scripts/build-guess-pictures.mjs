@@ -41,6 +41,7 @@ import {
   SHAPE_SHEETS,
 } from "../src/constants/guessSheets.ts";
 import { shuffled } from "./lib/shuffle.mjs";
+import { haloKey, wikiName } from "./lib/halos.mjs";
 import { loadStudentTable } from "./lib/studentTable.mjs";
 
 const run = promisify(execFile);
@@ -55,6 +56,17 @@ const PAUSE_MS = 300;
 const CACHE = { halo: ".cache/halos", weapon: ".cache/weapons" };
 const DATA_PATH = "src/constants/guessPictures.ts";
 const DAILY_ORDER_PATH = "src/constants/guessDailyOrder.ts";
+/**
+ * Which picture was in which cell of each sheet last time, by the picture's
+ * key: a sheet whose cells are the same isn't drawn again. Committed, and not
+ * put on the Worker (only .webp files are).
+ */
+const CELLS_PATH = "pictures/guess/cells.json";
+const cellsBefore = existsSync(CELLS_PATH)
+  ? JSON.parse(readFileSync(CELLS_PATH, "utf8"))
+  : {};
+const cellsAfter = {};
+const sheetFile = (layout) => `pictures/${layout.key}.webp`;
 
 /** Fixed seeds, so the same pictures always land in the same cells. */
 const SEEDS = {
@@ -66,19 +78,6 @@ const SEEDS = {
     jp: 20261204,
   },
 };
-
-/** The wiki's name for a halo where it isn't the student's. */
-const WIKI_NAMES = {
-  Aris: "Alice",
-  "Shiroko*Terror": "Shiroko Terror",
-  "Hatsune Miku": "Miku",
-};
-
-/**
- * Students whose halos are the same picture: the wiki has a file for each,
- * but they can't be told apart, so they are one answer.
- */
-const SHARED_HALOS = [["Hikari", "Nozomi"]];
 
 /** WebP quality for the pictures; the shapes are lossless. */
 const PICTURE_QUALITY = 70;
@@ -107,7 +106,6 @@ async function downloadOnce(url, file) {
 }
 
 /** A student's name without the costume: "Hoshino (Swimsuit)" is "Hoshino". */
-const baseName = (name) => name.replace(/ \(.*\)$/, "");
 
 const students = await loadStudentTable();
 const tablePlace = new Map(students.map(({ id }, index) => [id, index]));
@@ -138,13 +136,7 @@ function groupBy(keyOf) {
 }
 
 // Halos: one per student, costumes and all, and one for twins who share one.
-const haloOwner = new Map(
-  SHARED_HALOS.flatMap(([first, ...rest]) => rest.map((name) => [name, first]))
-);
-const halos = groupBy(({ name }) => {
-  const base = baseName(name);
-  return haloOwner.get(base) ?? base;
-});
+const halos = groupBy(({ name }) => haloKey(name));
 
 // Weapons: SchaleDB's picture for each, which costumes mostly share.
 const weaponOf = new Map();
@@ -188,7 +180,6 @@ async function haloUrls(names) {
   return urls;
 }
 
-const wikiName = (name) => WIKI_NAMES[name] ?? name;
 const haloFile = (name) => join(CACHE.halo, `${wikiName(name)}.png`);
 
 const needHalos = halos
@@ -355,12 +346,29 @@ for (const kind of PICTURE_KINDS) {
   // Each sheet in a shuffled order of its own.
   const inPictureSheet = shuffled(pictures, SEEDS[kind].pictures);
   const inShapeSheet = shuffled(pictures, SEEDS[kind].shapes);
-  const picturePath = await drawSheet(
-    inPictureSheet,
-    PICTURE_SHEETS[kind],
-    false
-  );
-  const shapePath = await drawSheet(inShapeSheet, SHAPE_SHEETS[kind], true);
+  // The same pictures in the same cells as last time: the sheets aren't
+  // drawn again, so their bytes and names on the Worker stay as they are.
+  const cellsNow = pictures
+    .map((picture) =>
+      [
+        picture.key,
+        inPictureSheet.indexOf(picture),
+        inShapeSheet.indexOf(picture),
+      ].join(":")
+    )
+    .join(",");
+  const same =
+    cellsBefore[kind] === cellsNow &&
+    existsSync(sheetFile(PICTURE_SHEETS[kind])) &&
+    existsSync(sheetFile(SHAPE_SHEETS[kind]));
+  const picturePath = same
+    ? sheetFile(PICTURE_SHEETS[kind])
+    : await drawSheet(inPictureSheet, PICTURE_SHEETS[kind], false);
+  const shapePath = same
+    ? sheetFile(SHAPE_SHEETS[kind])
+    : await drawSheet(inShapeSheet, SHAPE_SHEETS[kind], true);
+  cellsAfter[kind] = cellsNow;
+  if (same) console.log(`${kind}: the same pictures, not drawn again.`);
   console.log(
     `${kind}: ${pictures.length} pictures, ${kb(picturePath).toFixed(
       0
@@ -416,6 +424,12 @@ for (const kind of PICTURE_KINDS) {
     );
   }
 }
+
+writeFileSync(
+  CELLS_PATH,
+  `${JSON.stringify(cellsAfter, null, 1)}
+`
+);
 
 writeFileSync(
   DATA_PATH,

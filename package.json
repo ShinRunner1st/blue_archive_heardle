@@ -25,6 +25,8 @@
     "build:pictures": "node scripts/build-pictures.mjs && prettier --write src/constants/pictureFiles.ts src/constants/portraitFiles.ts",
     "upload:audio": "npx --yes wrangler deploy --config audio-worker/wrangler.jsonc",
     "build:global-now": "node scripts/build-global-now.mjs",
+    "find-updates": "node scripts/find-updates.mjs",
+    "build:new-songs": "node scripts/build-new-songs.mjs && prettier --write src/constants/songs.ts",
     "global-now": "node scripts/build-global-now.mjs && npx --yes wrangler deploy --config now-worker/wrangler.jsonc",
     "upload:backup": "node scripts/upload-backup.mjs",
     "build:daily-order": "node scripts/build-daily-order.mjs && prettier --write src/constants/dailyOrder.ts",

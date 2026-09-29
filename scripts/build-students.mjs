@@ -59,6 +59,7 @@ import {
   ICON_SIZE,
 } from "../src/constants/studentIcons.ts";
 import { shuffled } from "./lib/shuffle.mjs";
+import { loadStudentTable } from "./lib/studentTable.mjs";
 import { TYPE_COLORS, UNKNOWN_TYPE_COLOR } from "./lib/typeColors.mjs";
 
 const run = promisify(execFile);
@@ -113,6 +114,9 @@ async function downloadOnce(path, file) {
   return true;
 }
 
+/** Thrown to skip drawing a sheet whose contents haven't changed. */
+class Unchanged extends Error {}
+
 async function fetchJson(name) {
   const response = await fetch(`${DATA_URL}/${name}.json`, {
     headers: HEADERS,
@@ -136,6 +140,17 @@ if (onGlobal.length < 200 || lore.length < 100) {
   );
   process.exit(1);
 }
+
+// What the sheets were drawn from last time: a sheet whose students or icons
+// haven't changed isn't drawn again, so its bytes, its name on the Worker and
+// players' copies of it stay as they are (the weekly Action runs this on
+// another ffmpeg, which would encode the same picture a little differently).
+const before = existsSync(TABLE_PATH)
+  ? (await loadStudentTable()).map(({ id }) => id).join(",")
+  : "";
+const cluesBefore = existsSync(CLUE_MANIFEST_PATH)
+  ? (await import(`../${CLUE_MANIFEST_PATH}`)).clueIcons
+  : [];
 
 writeFileSync(
   TABLE_PATH,
@@ -227,8 +242,13 @@ console.log(`${missing.length} new icon(s) downloaded.`);
 // black) and the transparency on its own, then divided back apart.
 const rows = Math.ceil(students.length / ICON_COLUMNS);
 const margin = (ICON_CELL - ICON_SIZE) / 2;
+const sameIcons =
+  existsSync(SHEET_PATH) &&
+  before === students.map(({ id }) => id).join(",") &&
+  missing.length === 0;
 const work = mkdtempSync(join(tmpdir(), "student-icons-"));
 try {
+  if (sameIcons) throw new Unchanged();
   students.forEach(({ id }, index) => {
     copyFileSync(
       iconPath(id),
@@ -257,6 +277,9 @@ try {
     ...["-compression_level", "6"],
     ...["-map_metadata", "-1", SHEET_PATH],
   ]);
+} catch (error) {
+  if (!(error instanceof Unchanged)) throw error;
+  console.log(`${SHEET_PATH}: the same students, not drawn again.`);
 } finally {
   rmSync(work, { recursive: true, force: true });
 }
@@ -307,7 +330,9 @@ function typeFilter(type) {
   const inRing = `gt(${distance},${ring})`;
   const circle =
     `geq=r='if(${inRing},255,${r})':g='if(${inRing},255,${g})'` +
-    `:b='if(${inRing},255,${b})':a='if(lte(${distance},${CLUE_SIZE / 2}),255,0)'`;
+    `:b='if(${inRing},255,${b})':a='if(lte(${distance},${
+      CLUE_SIZE / 2
+    }),255,0)'`;
   const icon = Math.round(CLUE_SIZE * 0.58);
   const offset = (CLUE_CELL - icon) / 2;
   return [
@@ -319,8 +344,12 @@ function typeFilter(type) {
 }
 
 const clueRows = Math.ceil(clues.length / CLUE_COLUMNS);
+const clueKeys = JSON.stringify(clues.map(({ key }) => key));
+const sameClues =
+  existsSync(CLUE_SHEET_PATH) && JSON.stringify(cluesBefore) === clueKeys;
 const clueWork = mkdtempSync(join(tmpdir(), "clue-icons-"));
 try {
+  if (sameClues) throw new Unchanged();
   // One at a time first: the icons come as PNG and WebP, in all sizes.
   for (const [index, { file, type }] of clues.entries()) {
     const output = join(clueWork, `${String(index).padStart(4, "0")}.png`);
@@ -343,6 +372,9 @@ try {
     ...["-frames:v", "1", "-c:v", "libwebp", "-quality", "80"],
     ...["-compression_level", "6", "-map_metadata", "-1", CLUE_SHEET_PATH],
   ]);
+} catch (error) {
+  if (!(error instanceof Unchanged)) throw error;
+  console.log(`${CLUE_SHEET_PATH}: the same icons, not drawn again.`);
 } finally {
   rmSync(clueWork, { recursive: true, force: true });
 }
@@ -355,27 +387,28 @@ writeFileSync(
  *
  * GENERATED FILE - do not edit by hand. Run \`npm run students\`.
  */
-export const clueIcons: string[] = ${JSON.stringify(clues.map(({ key }) => key))};
+export const clueIcons: string[] = ${clueKeys};
 `
 );
 
 const clueKb = (statSync(CLUE_SHEET_PATH).size / 1024).toFixed(1);
 console.log(`${CLUE_SHEET_PATH}: ${clues.length} icons, ${clueKb} KB.`);
 
-// Portraits: downloaded once each, then made into small WebPs. One no longer
-// in the table is removed, so an old one can't linger on the Worker.
+// Portraits: downloaded once each, then made into small WebPs, and never
+// made again once they are in pictures/ (committed), so a run elsewhere
+// leaves them as they are. One no longer in the table is removed, so an old
+// one can't linger on the Worker.
 mkdirSync(PORTRAIT_CACHE, { recursive: true });
 mkdirSync(PORTRAIT_DIR, { recursive: true });
 let newPortraits = 0;
 for (const { id, name } of students) {
   const source = join(PORTRAIT_CACHE, `${id}.webp`);
   const output = join(PORTRAIT_DIR, `${id}.webp`);
-  const had = existsSync(source);
+  if (existsSync(output)) continue;
   if (!(await downloadOnce(`student/collection/${id}.webp`, source))) {
     throw new Error(`No portrait for ${name}`);
   }
-  if (!had) newPortraits += 1;
-  if (existsSync(output) && had) continue;
+  newPortraits += 1;
   await run("ffmpeg", [
     ...["-v", "error", "-y", "-i", source],
     ...["-c:v", "libwebp", "-quality", String(PORTRAIT_QUALITY)],
@@ -391,5 +424,7 @@ const portraitKb = readdirSync(PORTRAIT_DIR).reduce(
   0
 );
 console.log(
-  `${PORTRAIT_DIR}: ${students.length} portraits (${newPortraits} new), ${portraitKb.toFixed(0)} KB.`
+  `${PORTRAIT_DIR}: ${
+    students.length
+  } portraits (${newPortraits} new), ${portraitKb.toFixed(0)} KB.`
 );

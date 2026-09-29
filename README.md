@@ -336,7 +336,38 @@ messages follow [Conventional Commits](https://www.conventionalcommits.org/).
 CI runs all of that plus the tests, `check:audio`, `check:pictures` and a build
 on every push and pull request.
 
+### Weekly content update
+
+A GitHub Action, `.github/workflows/content-update.yml`, keeps the game up to
+date on its own, every Wednesday (and from the Actions tab by hand):
+
+1. `npm run find-updates` looks, without building anything, for students
+   SchaleDB has that the table doesn't (JP covers Global's upcoming ones) or
+   that have come out on Global, voice lines and halos that have come out for
+   a student without them, and tracks on the Blue Archive wiki's Music page
+   that the song list doesn't have (not the 10000-range specials), or titles
+   and artists for songs still named "Theme N" or by "Unknown". The wiki's
+   files are the originals in `audio/`, byte for byte.
+2. Only if there is something, it runs `build:students`, `build:voices` and
+   `build:guess`, adds the songs (`npm run build:new-songs`, which checks each
+   file against the wiki's SHA-1), and builds the audio and pictures as
+   `npm run songs` does. A sheet whose contents haven't changed isn't drawn
+   again, and a portrait already in `pictures/` isn't made again, so a run
+   on GitHub's ffmpeg doesn't change their bytes and send every player new
+   copies.
+3. It runs the full check, uploads the new files to the Worker and R2, and
+   checks them there.
+4. It opens a pull request, `auto/content-update`, listing what's new. It
+   never pushes to `main`; merging the pull request is the release.
+
+It needs the `CLOUDFLARE_API_TOKEN` secret to have both Workers Scripts and
+Workers R2 Storage edit rights, `CLOUDFLARE_ACCOUNT_ID`, and Settings →
+Actions → General → "Allow GitHub Actions to create and approve pull
+requests". GitHub runs scheduled workflows from `main` only.
+
 ### Adding a song
+
+Songs are added by the weekly Action. To add one by hand:
 
 1. Put its audio in `audio/Theme_{themeNo}.ogg`. Themes below 10 are
    zero-padded: `Theme_01.ogg`.

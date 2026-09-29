@@ -1,0 +1,123 @@
+/**
+ * The soundtrack as the Blue Archive wiki lists it on its Music page: JP's
+ * tracklist, which the song list follows, and whose files are the originals
+ * in audio/ byte for byte. Read by scripts/build-new-songs.mjs and the weekly
+ * Action's check (scripts/find-updates.mjs).
+ */
+const WIKI_API = "https://bluearchive.wiki/w/api.php";
+const HEADERS = { "User-Agent": "baheardle.com build script" };
+
+/** The special tracks (10000 and up) are left out, as they always were. */
+const MAX_THEME = 9999;
+
+async function api(params) {
+  const url = new URL(WIKI_API);
+  url.search = new URLSearchParams({ format: "json", ...params });
+  const response = await fetch(url, { headers: HEADERS });
+  if (!response.ok) throw new Error(`The wiki answered ${response.status}`);
+  return response.json();
+}
+
+/** Wiki markup down to plain text: "[[Clear Morning]]" is "Clear Morning". */
+export function plainText(text) {
+  return text
+    .replace(/\[\[(?:[^\]|]*\|)?([^\]]*)\]\]/g, "$1")
+    .replace(/'{2,}/g, "")
+    .replace(/<[^>]*>/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * The in-game tracks, by theme number: title and artist (either can be empty
+ * while the wiki doesn't know yet) and the file's name there. Stops if the
+ * page no longer has the tracks it had, so a changed page can't empty the
+ * list.
+ */
+export async function wikiTracks() {
+  const data = await api({ action: "parse", page: "Music", prop: "wikitext" });
+  const text = data?.parse?.wikitext?.["*"];
+  if (typeof text !== "string") throw new Error("No Music page on the wiki");
+
+  const tracks = [];
+  for (const [, body] of text.matchAll(/\{\{Track([^}]*)\}\}/g)) {
+    const fields = {};
+    for (const part of body.split("|").slice(1)) {
+      const at = part.indexOf("=");
+      if (at > 0) fields[part.slice(0, at).trim()] = part.slice(at + 1).trim();
+    }
+    const id = Number(fields.Id);
+    if (!Number.isInteger(id) || id < 1 || id > MAX_THEME) continue;
+    tracks.push({
+      themeNo: String(id),
+      title: plainText(fields.Title ?? ""),
+      artist: plainText(fields.Artist ?? ""),
+      file: (fields.File ?? "").trim(),
+    });
+  }
+  if (tracks.length < 300) {
+    throw new Error(`The Music page lists only ${tracks.length} tracks`);
+  }
+  return tracks;
+}
+
+/** Where each file is on the wiki and its SHA-1, fifty at a time. */
+export async function wikiFiles(names) {
+  const found = new Map();
+  for (let i = 0; i < names.length; i += 50) {
+    const batch = names.slice(i, i + 50);
+    const data = await api({
+      action: "query",
+      prop: "imageinfo",
+      iiprop: "url|sha1",
+      titles: batch.map((name) => `File:${name}`).join("|"),
+    });
+    // The API gives names with spaces; the page writes them with underscores.
+    const byTitle = new Map(
+      batch.map((name) => [`File:${name.replace(/_/g, " ")}`, name])
+    );
+    for (const page of Object.values(data?.query?.pages ?? {})) {
+      const info = page.imageinfo?.[0];
+      const name = byTitle.get(page.title);
+      if (info?.url && info?.sha1 && name) {
+        found.set(name, { url: info.url, sha1: info.sha1 });
+      }
+    }
+  }
+  return found;
+}
+
+/** A song still waiting for the wiki to name it, or its composer. */
+export const isPlaceholderName = (song) =>
+  song.name === `Theme ${song.themeNo}`;
+export const isPlaceholderArtist = (song) => song.artist === "Unknown";
+
+/**
+ * What the wiki has that the song list doesn't: tracks to add (with a file
+ * on the wiki to download), and titles and artists for songs still named
+ * "Theme N" or by "Unknown".
+ */
+export async function trackChanges(songs) {
+  const tracks = await wikiTracks();
+  const have = new Map(songs.map((song) => [song.themeNo, song]));
+
+  const candidates = tracks.filter(
+    (track) => !have.has(track.themeNo) && track.file
+  );
+  const files = await wikiFiles(candidates.map(({ file }) => file));
+  const added = candidates.flatMap((track) => {
+    const file = files.get(track.file);
+    return file ? [{ ...track, ...file }] : [];
+  });
+
+  const named = tracks.flatMap((track) => {
+    const song = have.get(track.themeNo);
+    if (!song) return [];
+    const name = isPlaceholderName(song) && track.title ? track.title : null;
+    const artist =
+      isPlaceholderArtist(song) && track.artist ? track.artist : null;
+    return name || artist ? [{ song, name, artist }] : [];
+  });
+
+  return { added, named };
+}

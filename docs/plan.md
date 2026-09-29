@@ -61,7 +61,7 @@ before (the first off `main`):
   merge._
 - **6.6. A weekly content Action** that adds new students, voice lines,
   pictures and OSTs and opens a pull request (see "Weekly content update"
-  below). On `feat/weekly-update`, off `feat/jp-server`.
+  below). _Done on `feat/weekly-update`, off `feat/jp-server`, not merged._
 
 **Future**, after the planned ones:
 
@@ -452,6 +452,14 @@ be edited in the pull request), runs the full check, uploads the new files
 to the Worker and R2, and opens a pull request to review and merge. It
 never pushes to `main`. Needs the Cloudflare token to have R2 edit rights,
 and Actions allowed to open pull requests.
+
+Built (details in the README's "Weekly content update"): Wednesdays at
+12:00 UTC. Our audio files matched the wiki's byte for byte, and the song
+list's placeholders ("Theme N" by "Unknown") are its convention for tracks
+the wiki hasn't named, which the Action fills in once it does. The build
+scripts no longer redraw a sheet whose contents are the same, or remake a
+portrait already made, so a run on GitHub's ffmpeg doesn't give players new
+copies of unchanged pictures.
 
 ### Multiplayer (Group 7): private rooms, played like AMQ
 

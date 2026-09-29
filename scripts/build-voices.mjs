@@ -274,8 +274,18 @@ for (const id of ids) {
 const order = shuffled(ids, SILHOUETTE_SEED);
 const rows = Math.ceil(order.length / SILHOUETTE_COLUMNS);
 const margin = (SILHOUETTE_CELL - SILHOUETTE_SIZE) / 2;
+// The same students in the same cells: the sheet isn't drawn again, so its
+// bytes and its name on the Worker stay as they are.
+const storedSilhouettes = existsSync(ORDER_PATH)
+  ? readFileSync(ORDER_PATH, "utf8").match(/const ORDER =\s*"([^"]*)"/)
+  : null;
+const sameSilhouettes =
+  existsSync(SHEET_PATH) &&
+  storedSilhouettes !== null &&
+  reveal(storedSilhouettes[1]) === order.join(",");
 const work = mkdtempSync(join(tmpdir(), "silhouettes-"));
 try {
+  if (sameSilhouettes) throw new Error("unchanged");
   order.forEach((id, index) => {
     copyFileSync(
       join(ICON_CACHE, `${id}.webp`),
@@ -296,6 +306,9 @@ try {
     ...["-frames:v", "1", "-c:v", "libwebp", "-lossless", "1"],
     ...["-compression_level", "6", "-map_metadata", "-1", SHEET_PATH],
   ]);
+} catch (error) {
+  if (!sameSilhouettes) throw error;
+  console.log(`${SHEET_PATH}: the same silhouettes, not drawn again.`);
 } finally {
   rmSync(work, { recursive: true, force: true });
 }
