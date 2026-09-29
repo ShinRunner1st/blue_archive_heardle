@@ -54,6 +54,11 @@ before (the first off `main`):
   `feat/preview-picture`, off `feat/seo-text`, not merged._
 - **6.4. A page for each game and a hub** (see "Game pages and the hub"
   below). On `feat/game-pages`, off `feat/preview-picture`.
+- **6.5. JP server mode** for Students, Voice and Picture (see "JP server
+  mode" below). On `feat/jp-server`, off `feat/game-pages`.
+- **6.6. A weekly content Action** that adds new students, voice lines,
+  pictures and OSTs and opens a pull request (see "Weekly content update"
+  below). On `feat/weekly-update`, off `feat/jp-server`.
 
 **Future**, after the planned ones:
 
@@ -413,6 +418,32 @@ rank for one broad topic, and a new player met a switch of four icons. Agreed:
     chunk on Vercel, cached for a year, as for the birthday note).
   - **A scene behind each card**, from the game's scenario backgrounds
     (`scripts/make-card.mjs`, 86 KB for the four, on the Worker and R2).
+
+### JP server mode (6.5)
+
+Asked for on 2026-09-29, once an Action could keep the data current (JP was
+left out before because it was hard to maintain by hand). SchaleDB has JP
+too, about 14 students ahead of Global then (277 against 263). Agreed:
+
+- **One choice for all three student games**, Server: Global or JP, in
+  Settings and on the hub; the games show a small JP tag when it's on. New
+  players start on **Global**.
+- Each server is its own pool, with its own daily schedule (only ever
+  appended to), rounds and stats, so a Global player's saves are untouched.
+- The OST already follows JP (the wiki's tracklist) and stays one game.
+
+### Weekly content update (6.6)
+
+Asked for on 2026-09-29. A GitHub Action, weekly, that checks SchaleDB for
+new students (JP covers Global's upcoming ones) and the Blue Archive wiki's
+Music page (JP's tracklist, which the song list follows) for new tracks,
+skipping the 10000-range special tracks. Only when something is new: it
+runs the student, voice and picture scripts and adds the songs (the wiki's
+title and artist; its format differs a little from the list's, so they can
+be edited in the pull request), runs the full check, uploads the new files
+to the Worker and R2, and opens a pull request to review and merge. It
+never pushes to `main`. Needs the Cloudflare token to have R2 edit rights,
+and Actions allowed to open pull requests.
 
 ### Multiplayer (Group 7): private rooms, played like AMQ
 
