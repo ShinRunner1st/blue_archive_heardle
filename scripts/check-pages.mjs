@@ -98,11 +98,19 @@ async function startPreview() {
   throw new Error("wrangler dev didn't start");
 }
 
-/** Waits for the page to settle after a click or a load. */
+/** Requests still loading, to name them when a page won't settle. */
+const inFlight = new Set();
+
+/**
+ * Waits for the page to settle after a click or a load. A slow download
+ * (a cold runner far from the Worker) only earns a warning naming it: a
+ * picture that never loads still fails the check.
+ */
 async function settle(page) {
-  await page
-    .waitForNetworkIdle({ idleTime: 500, timeout: 20000 })
-    .catch(() => undefined);
+  await page.waitForNetworkIdle({ idleTime: 500, timeout: 20000 }).catch(() => {
+    const urls = [...inFlight].map((request) => request.url());
+    console.warn(`Still loading after 20 s: ${urls.join(", ")}`);
+  });
   await wait(400);
 }
 
@@ -265,7 +273,10 @@ async function checkServer(browser, server) {
   page.on("console", (message) => {
     if (message.type() === "error") fail(where, `console: ${message.text()}`);
   });
+  page.on("request", (request) => inFlight.add(request));
+  page.on("requestfinished", (request) => inFlight.delete(request));
   page.on("requestfailed", (request) => {
+    inFlight.delete(request);
     const reason = request.failure()?.errorText ?? "";
     // A player cut short by the next page is not a fault.
     if (reason.includes("ERR_ABORTED")) return;
@@ -302,7 +313,9 @@ async function checkServer(browser, server) {
   };
 
   await step("hub", async () => {
-    await page.goto(`${BASE}/`, { waitUntil: "networkidle2" });
+    // Waiting for the network to go quiet here timed out the whole check
+    // on a slow runner; settle() waits for it without failing.
+    await page.goto(`${BASE}/`, { waitUntil: "load", timeout: 60000 });
     await settle(page);
   });
   await step("ost", () => openPage(page, "/ost"));
