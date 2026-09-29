@@ -481,7 +481,10 @@ Like the audio Worker it only serves static files, so its requests are free.
 (Global's `CurrentGacha`, `CurrentEvents` and `CurrentRaid`, with their start
 and end times) and its English names for students, events and raids; it
 stops with an error if the format changes, and the live file stays as it
-was. The page never asks SchaleDB for anything, leaves out whatever has
+was. The event's logo and each raid boss's lobby picture come along,
+converted to WebP (ffmpeg) in `now-dist/img/` and named after their source's
+bytes, so they are cached for a year while `now.json` is kept for fifteen
+minutes. The page never asks SchaleDB for anything, leaves out whatever has
 ended by the player's clock, and hides the panel if the file doesn't come:
 there is no R2 copy, so an outage can't run up R2 reads.
 

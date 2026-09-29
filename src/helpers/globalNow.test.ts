@@ -78,3 +78,37 @@ describe("formatLeft", () => {
     expect(formatLeft(30_000)).toBe("1m");
   });
 });
+
+describe("parseNow pictures", () => {
+  it("keeps only pictures the build script copied", () => {
+    const data = parseNow({
+      events: [
+        { name: "A", start: NOW, end: NOW + DAY, logo: "img/858_En.0fca.webp" },
+        { name: "B", start: NOW, end: NOW + DAY, logo: "https://x.io/a.webp" },
+      ],
+      raids: [
+        {
+          kind: "Total Assault",
+          start: NOW,
+          end: NOW + DAY,
+          picture: "img/Boss_Portrait_EN0022_Lobby.a1c2.webp",
+        },
+        {
+          kind: "Grand Assault",
+          start: NOW,
+          end: NOW + DAY,
+          picture: "../secret.webp",
+        },
+      ],
+    })!;
+
+    expect(data.events.map((event) => event.logo)).toEqual([
+      "img/858_En.0fca.webp",
+      undefined,
+    ]);
+    expect(data.raids.map((raid) => raid.picture)).toEqual([
+      "img/Boss_Portrait_EN0022_Lobby.a1c2.webp",
+      undefined,
+    ]);
+  });
+});

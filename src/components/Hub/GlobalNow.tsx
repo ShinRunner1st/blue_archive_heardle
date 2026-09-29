@@ -1,4 +1,11 @@
-import { formatLeft, isEmpty, runningAt } from "../../helpers/globalNow";
+import React from "react";
+
+import {
+  formatLeft,
+  isEmpty,
+  nowFile,
+  runningAt,
+} from "../../helpers/globalNow";
 import { useGlobalNow } from "../../hooks/useGlobalNow";
 import { Portrait, usePortraits } from "../Portrait";
 
@@ -9,6 +16,35 @@ const SCHALEDB = "https://schaledb.com/";
 /** "Ends in 3d 4h". */
 function Ends({ end, now }: { end: number; now: number }) {
   return <Styled.Ends>ends in {formatLeft(end * 1000 - now)}</Styled.Ends>;
+}
+
+/** The event's logo, which carries its name; the name if it doesn't load. */
+function EventName({ name, logo }: { name: string; logo?: string }) {
+  const [failed, setFailed] = React.useState(false);
+  if (!logo || failed) return <Styled.RowText>{name}</Styled.RowText>;
+  return (
+    <Styled.EventLogo
+      src={nowFile(logo)}
+      alt={name}
+      title={name}
+      width={180}
+      height={60}
+      onError={() => setFailed(true)}
+    />
+  );
+}
+
+/** The raid boss, faded in behind its row; nothing if it doesn't load. */
+function Boss({ picture }: { picture: string }) {
+  const [failed, setFailed] = React.useState(false);
+  if (failed) return null;
+  return (
+    <Styled.Boss
+      src={nowFile(picture)}
+      alt=""
+      onError={() => setFailed(true)}
+    />
+  );
 }
 
 /**
@@ -65,12 +101,13 @@ export function GlobalNow() {
             <Styled.Kind>Event</Styled.Kind>
             <Ends end={event.end} now={now} />
           </Styled.RowHead>
-          <Styled.RowText>{event.name}</Styled.RowText>
+          <EventName name={event.name} logo={event.logo} />
         </Styled.Row>
       ))}
 
       {running.raids.map((raid, index) => (
-        <Styled.Row key={`raid-${index}`}>
+        <Styled.Row key={`raid-${index}`} $raid>
+          {raid.picture && <Boss picture={raid.picture} />}
           <Styled.RowHead>
             <Styled.Kind>{raid.kind}</Styled.Kind>
             <Ends end={raid.end} now={now} />

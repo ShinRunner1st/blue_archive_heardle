@@ -14,6 +14,8 @@ export interface NowBanner extends TimeSpan {
 
 export interface NowEvent extends TimeSpan {
   name: string;
+  /** Its logo on the Worker, as nowFile takes it. */
+  logo?: string;
 }
 
 export interface NowRaid extends TimeSpan {
@@ -22,6 +24,8 @@ export interface NowRaid extends TimeSpan {
   /** The boss, where SchaleDB names it. */
   name?: string;
   terrain?: string;
+  /** The boss's picture on the Worker, as nowFile takes it. */
+  picture?: string;
 }
 
 export interface GlobalNow {
@@ -30,10 +34,18 @@ export interface GlobalNow {
   raids: NowRaid[];
 }
 
-/** Where now.json is: the Worker in production, `/now` in development. */
-export function nowUrl(): string {
-  return `${import.meta.env.VITE_NOW_URL || "/now"}/now.json`;
+/** A file beside now.json: the Worker in production, `/now` in development. */
+export function nowFile(path: string): string {
+  return `${import.meta.env.VITE_NOW_URL || "/now"}/${path}`;
 }
+
+export function nowUrl(): string {
+  return nowFile("now.json");
+}
+
+/** A picture the build script copied: only ever img/<name>.webp. */
+const isPicture = (value: unknown): value is string =>
+  typeof value === "string" && /^img\/[\w.-]+\.webp$/.test(value);
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null;
@@ -72,6 +84,7 @@ export function parseNow(value: unknown): GlobalNow | null {
       start: event.start as number,
       end: event.end as number,
       name: event.name as string,
+      ...(isPicture(event.logo) ? { logo: event.logo } : {}),
     }));
 
   const raids = list("raids")
@@ -82,6 +95,7 @@ export function parseNow(value: unknown): GlobalNow | null {
       kind: raid.kind as string,
       ...(isText(raid.name) ? { name: raid.name } : {}),
       ...(isText(raid.terrain) ? { terrain: raid.terrain } : {}),
+      ...(isPicture(raid.picture) ? { picture: raid.picture } : {}),
     }));
 
   return { banners, events, raids };

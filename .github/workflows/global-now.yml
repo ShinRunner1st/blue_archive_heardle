@@ -25,6 +25,10 @@ jobs:
         with:
           node-version-file: .nvmrc
 
+      # For the event logo and raid pictures, converted to WebP.
+      - name: Install ffmpeg
+        run: command -v ffmpeg || (sudo apt-get update && sudo apt-get install -y ffmpeg)
+
       - name: Build now.json from SchaleDB
         id: build
         run: node scripts/build-global-now.mjs --if-changed

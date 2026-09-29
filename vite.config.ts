@@ -19,11 +19,15 @@ import {
  * read them from VITE_AUDIO_BASE_URL in .env.production instead.
  */
 const serveLocalAudio: Connect.NextHandleFunction = (req, res, next) => {
-  if (req.url === "/now/now.json") {
+  const now = req.url?.match(/^\/now\/(now\.json|img\/[\w.-]+\.webp)$/);
+  if (now) {
     // Now in Global, from `npm run build:global-now`.
-    const file = join("now-dist", "now.json");
+    const file = join("now-dist", now[1]);
     if (!existsSync(file)) return next();
-    res.setHeader("Content-Type", "application/json");
+    res.setHeader(
+      "Content-Type",
+      file.endsWith(".json") ? "application/json" : "image/webp"
+    );
     createReadStream(file).pipe(res);
     return;
   }

@@ -308,6 +308,7 @@ export const Panel = styled.section<{ $wide?: boolean }>`
 export const Panels = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  align-items: start;
   gap: 12px;
   width: 100%;
 
@@ -407,10 +408,16 @@ export const TileLabel = styled.span`
   opacity: 0.65;
 `;
 
-export const Row = styled.div`
+export const Row = styled.div<{ $raid?: boolean }>`
+  /* A raid's boss sits behind its words, in the row's own layer. */
+  position: relative;
+  isolation: isolate;
+
   display: flex;
   flex-direction: column;
   gap: 4px;
+  ${({ $raid }) =>
+    $raid ? "min-height: 52px; text-shadow: 0 1px 3px #000, 0 0 8px #000;" : ""}
 
   & + & {
     padding-top: 8px;
@@ -431,12 +438,18 @@ export const Kind = styled.span`
   color: #6cb8ff;
 `;
 
+/** On a small dark pill, so it reads over a raid boss too. */
 export const Ends = styled.span`
+  padding: 1px 7px;
+
   font-size: 0.7rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-  opacity: 0.6;
+  color: rgba(255, 255, 255, 0.75);
+
+  background-color: rgba(0, 0, 0, 0.45);
+  border-radius: 999px;
 `;
 
 export const RowText = styled.p`
@@ -446,15 +459,42 @@ export const RowText = styled.p`
   font-weight: 700;
 `;
 
+/** The event's logo from the game, its name drawn in. */
+export const EventLogo = styled.img`
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: 60px;
+  object-fit: contain;
+  object-position: left center;
+`;
+
+/** A raid boss's lobby picture, fading in from the left behind the row. */
+export const Boss = styled.img`
+  position: absolute;
+  right: -14px;
+  bottom: 0;
+  z-index: -1;
+  height: 100%;
+  max-height: 72px;
+  width: auto;
+
+  opacity: 0.55;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 55%);
+  mask-image: linear-gradient(to right, transparent, #000 55%);
+  pointer-events: none;
+`;
+
 export const Terrain = styled.span`
   font-weight: 600;
   opacity: 0.6;
 `;
 
+/** As many a row as fit, sharing it evenly: five fit beside birthdays. */
 export const Pickup = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 6px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(48px, 1fr));
+  gap: 8px 4px;
 `;
 
 export const PickupStudent = styled.span`
@@ -462,7 +502,7 @@ export const PickupStudent = styled.span`
   flex-direction: column;
   align-items: center;
   gap: 3px;
-  width: 58px;
+  min-width: 0;
 
   font-size: 0.66rem;
   font-weight: 700;
