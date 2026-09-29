@@ -68,8 +68,8 @@ voice lines and card scenes on the Worker and R2. The two Actions run from
    PartyServer free-tier limits first (see "Multiplayer" below).
 8. **Group 8: move the site to Cloudflare** (see "Moving off Vercel"
    below). _Built on `feat/cloudflare-site`, off `main` (Group 7 isn't
-   built yet, and this doesn't need it); the switch of the domain is still
-   to do._
+   built yet, and this doesn't need it). baheardle.com moved to the Worker
+   on 2026-09-29; www, HTTPS and the merge are still to do._
 
 Any time: `npm run songs` when new OSTs come out.
 
@@ -595,12 +595,15 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
 - **The old domain** has its DNS on Vercel, so it stays on the old Vercel
   project until it expires, its last deployment still redirecting; the
   project is only disconnected from GitHub. `vercel.json` is gone.
-- **Still to do, the switch** (the user, in the dashboards, with Claude):
-  deploy by hand and test on the workers.dev address; disconnect GitHub
-  from the Vercel project; swap baheardle.com's DNS records for the
-  Worker's Custom Domain (declared in `site-worker/wrangler.jsonc` then)
-  and www's for a Redirect Rule to the apex; turn on Always Use HTTPS;
-  merge; after a day, take baheardle.com off the Vercel project.
+- **The switch**, 2026-09-29: tested on the workers.dev address (the page
+  check went through it with `--url`), GitHub disconnected from the Vercel
+  project, and baheardle.com's DNS records swapped for the Worker's Custom
+  Domain (in `site-worker/wrangler.jsonc`). The page check on the domain
+  found Cloudflare's Web Analytics beacon injected into every page (blocked
+  by the CSP, but it breaks the no-analytics promise); it must stay off for
+  the zone. Still to do: www's record and a Redirect Rule to the apex,
+  Always Use HTTPS, the merge, and after a day taking baheardle.com off the
+  Vercel project.
 
 ## Still considering
 

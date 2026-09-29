@@ -15,8 +15,11 @@
     // 404 status, so a mistyped link still lands somewhere to play.
     "not_found_handling": "404-page"
   },
-  // The workers.dev address stays on for testing a deployment before it
-  // has a domain; _headers keeps search engines off it.
+  // Cloudflare makes the DNS record and certificate for it. www is sent to
+  // it by a Redirect Rule in the dashboard.
+  "routes": [{ "pattern": "baheardle.com", "custom_domain": true }],
+  // The workers.dev address stays on for testing a deployment on the real
+  // network; _headers keeps search engines off it.
   "workers_dev": true,
   "preview_urls": false
 }
