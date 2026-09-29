@@ -309,6 +309,20 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   for a year), and 2 KB to the Vercel deployment (four small HTML pages; the
   favicon shrank). Previews on Vercel were never used; send the sitemap
   again in Search Console.
+- **29 Sep 2026, hotfix** (`fix/halo-sheet`, main baf14f1): Global's halo
+  and silhouette pictures were cut from the sheet by Global's count; sheets
+  hold both servers' pictures, so they're sized by the sheet's count.
+- **29 Sep 2026, the game's own files released** (fast-forward of
+  `feat/model-halos`, stacked on `ci/smoke-check`, `fix/song-artists` and
+  `feat/game-assets`): the Chrome page check in CI and the weekly Action;
+  Nor credited for #102 and #170, half-named songs following the wiki, and
+  new tracks from the game's music; icons, portraits, weapons and new voice
+  lines from the game's files (BA-AD, BA-AX, UnityPy), with Anna's and
+  Erina's lines and halos; a new halo from the sprite or 3D model until
+  the wiki has one; SchaleDB as the fallback for every picture. `npm run
+songs` put the new files on the Worker and R2 first. About 0.3 KB gzipped
+  more on the first load, no new requests or files on Vercel. The weekly
+  Action's first run with the game's tools is Wednesday 30 Sep.
 
 ## Commands
 

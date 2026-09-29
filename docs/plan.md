@@ -478,11 +478,13 @@ cut from it by Global's count): unit tests can't see a picture cut wrong.
 Chrome and fails on page errors, failed loads, and any picture cut
 squashed, outside or blank from its sheet. It runs in CI and in the weekly
 Action before its pull request opens (details in the README's "Page
-check"). Built on `ci/smoke-check`, off `main`.
+check"). Built on `ci/smoke-check`, off `main`. _Released on 2026-09-29
+with the game's own files below._
 
 ### The game's own files
 
-Asked for on 2026-09-29. The user downloads the game's media with BA-AD
+_Released on 2026-09-29 (fast-forward of `feat/model-halos`)._ Asked for
+on 2026-09-29. The user downloads the game's media with BA-AD
 (https://github.com/Deathemonic/BA-AD); the weekly Action now does too, from
 JP's servers, so a new student's pictures and lines and a new track come on
 the day of the update. Details in the README's "The game's files".
@@ -510,7 +512,7 @@ the day of the update. Details in the README's "The game's files".
   Chihiro), which would be hard to name. The user chose (2026-09-29) the
   order Fandom, then the sprite, then the 3D model: a new student's halo is
   drawn from their sprite, or from their chibi model's halo mesh when the
-  sprite has none (on `feat/model-halos`), until the wiki has one. The wiki
+  sprite has none, until the wiki has one. The wiki
   draws its halos from those meshes too; drawn square on they match it.
 - **Safe on its own**: a missing picture or line falls back to SchaleDB or
   the wiki, listed in the pull request. If the game's pictures aren't
