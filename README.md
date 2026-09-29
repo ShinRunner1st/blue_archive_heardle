@@ -627,12 +627,14 @@ for them. Three community tools do the work, each pinned:
   wiki draws them; checked against 141 of the wiki's, they match but for a
   few the wiki draws tilted, and the colours come out a little duller.
 
-Nothing breaks when the game's files can't be had: a picture or line they
-don't have comes from SchaleDB or the wiki, as before, and the pull request
-lists it. But pictures come from the game now, so a build stops rather than
-take every picture from SchaleDB: when the game's pictures aren't there at
-all (BA-AD or UnityPy missing), or more than a tenth of a kind are missing
-(the game renamed them).
+Nothing breaks when the game's files can't be had: every picture, line or
+track they don't have comes from SchaleDB or the wiki, as before, and the
+pull request lists it. When the game's pictures aren't there at all (BA-AD
+or UnityPy missing, the game in maintenance), or more than a tenth of a kind
+are missing (the game renamed them), they still come from SchaleDB, so the
+update isn't held up, but the pull request warns in bold: merging it swaps
+those pictures for SchaleDB's art, and players download the sheets again.
+Waiting a week for the game's files is the other choice.
 
 To run the student scripts locally: `pip install -r scripts/requirements.txt`,
 and put `baad` and `baax` on the PATH, or their paths in `BAAD` and `BAAX`

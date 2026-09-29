@@ -2,9 +2,10 @@
  * The game's own files for the build scripts: student pictures, portraits,
  * weapons, halos and voice lines, downloaded from JP's servers with BA-AD
  * (scripts/lib/baad.mjs), the pictures unpacked by
- * scripts/extract-game-files.py (UnityPy) and the voice zips by BA-AX. SchaleDB still gives the data (the game's tables are encrypted)
- * and each line's text, and names the files: each student's DevName and
- * PathName are the game's names for them.
+ * scripts/extract-game-files.py (UnityPy) and the voice zips by BA-AX.
+ * SchaleDB still gives the data (the game's tables are encrypted) and each
+ * line's text, and names the files: each student's DevName and PathName are
+ * the game's names for them.
  *
  * Every function here gives what it found and nothing else: a picture or line
  * the game's files don't have (BA-AD not installed, Python without UnityPy, a
@@ -105,6 +106,17 @@ export function reportFallbacks(source) {
     appendFileSync(process.env.UPDATE_SUMMARY, `${lines.join("\n")}\n`);
   }
   fallbacks.clear();
+}
+
+/**
+ * Something the pull request's reader should see before merging: printed,
+ * and added to UPDATE_SUMMARY in bold.
+ */
+export function warnInSummary(text) {
+  console.warn(`Warning: ${text}`);
+  if (process.env.UPDATE_SUMMARY) {
+    appendFileSync(process.env.UPDATE_SUMMARY, `- **Warning:** ${text}\n`);
+  }
 }
 
 // --- Unpacking ---

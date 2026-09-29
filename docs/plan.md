@@ -513,9 +513,11 @@ the day of the update. Details in the README's "The game's files".
   sprite has none (on `feat/model-halos`), until the wiki has one. The wiki
   draws its halos from those meshes too; drawn square on they match it.
 - **Safe on its own**: a missing picture or line falls back to SchaleDB or
-  the wiki, listed in the pull request; the build stops if the game's
-  pictures aren't there at all or over a tenth of a kind are missing;
-  sheets are redrawn only when their pictures' pixels change.
+  the wiki, listed in the pull request. If the game's pictures aren't
+  there at all or over a tenth of a kind are missing, they come from
+  SchaleDB too and the pull request warns in bold (the user asked on
+  2026-09-29 for a fallback everywhere, not a stop); sheets are redrawn
+  only when their pictures' pixels change.
 
 ### Multiplayer (Group 7): private rooms, played like AMQ
 

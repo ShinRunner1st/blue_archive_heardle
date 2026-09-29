@@ -50,7 +50,6 @@ import {
   drawnFrom,
   gameHalos,
   gameNames,
-  noteFallback,
   recordDrawnFrom,
   reportFallbacks,
   sha1,
@@ -58,7 +57,11 @@ import {
 import { shuffled } from "./lib/shuffle.mjs";
 import { haloKey, wikiName } from "./lib/halos.mjs";
 import { readPixels } from "./lib/rawImage.mjs";
-import { loadGamePictures, PICTURE_SOURCES } from "./lib/studentPictures.mjs";
+import {
+  checkMissing,
+  loadGamePictures,
+  PICTURE_SOURCES,
+} from "./lib/studentPictures.mjs";
 import { loadStudentTable } from "./lib/studentTable.mjs";
 
 const run = promisify(execFile);
@@ -277,15 +280,9 @@ for (const { key } of weapons) {
   });
   noWeapon.push(key);
 }
-// Many missing means the game renamed them: stop, rather than take them all
-// from SchaleDB.
-if (noWeapon.length > weapons.length * 0.1) {
-  console.error(
-    `${noWeapon.length} of ${weapons.length} weapons aren't in the game's files: stopping.`
-  );
-  process.exit(1);
-}
-for (const key of noWeapon) noteFallback("weapon", key);
+// Noted for the pull request, with a warning if many are (the game may
+// have renamed them).
+checkMissing("weapon", noWeapon, weapons.length);
 
 /**
  * The box round everything that isn't transparent: the wiki's halos sit in

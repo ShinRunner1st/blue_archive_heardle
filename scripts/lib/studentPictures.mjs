@@ -5,10 +5,11 @@
  * under any name we know (Hasumi, Yuuka, Hoshino (Armed)...); theirs come
  * from SchaleDB, as every one did before, and are noted for the pull request.
  *
- * Pictures come from the game now, so the build stops, rather than quietly
- * falling back to SchaleDB for everyone, if the game's pictures aren't there
- * (BA-AD not installed, Python without UnityPy) or many are missing (the
- * game renamed them): a pull request would otherwise change every icon.
+ * If the game's pictures aren't there at all (BA-AD or UnityPy missing, the
+ * game in maintenance) or many are missing (the game renamed them), every
+ * missing one still comes from SchaleDB, so the update isn't held up, but
+ * the pull request warns in bold: merging it swaps those pictures for
+ * SchaleDB's art, and players download the sheets again.
  */
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
@@ -18,6 +19,7 @@ import {
   gamePictures,
   noteFallback,
   squareIcon,
+  warnInSummary,
 } from "./gameFiles.mjs";
 
 const IMAGES_URL = "https://schaledb.com/images";
@@ -25,7 +27,7 @@ const HEADERS = { "User-Agent": "baheardle.com build script" };
 const ICON_CACHE = ".cache/student-icons";
 const PORTRAIT_CACHE = ".cache/student-portraits";
 
-/** More than this share of students without the game's picture stops it. */
+/** More than this share of a kind from SchaleDB is warned about. */
 const MOST_MISSING = 0.1;
 
 /** Where the pictures came from, for reportFallbacks. */
@@ -54,33 +56,42 @@ export async function schaleDbPicture(path, file) {
 }
 
 let pictures;
+/** Whether the game's pictures were there at all (else that's warned of). */
+let gameFound = false;
 
-/** The game's pictures, loaded once a run; stops the build without them. */
+/**
+ * The game's pictures, loaded once a run. Without them (BA-AD or UnityPy
+ * missing), none is found, and each comes from SchaleDB.
+ */
 export function loadGamePictures() {
-  if (pictures === undefined) pictures = gamePictures();
-  if (!pictures) {
-    console.error(
-      "The game's pictures aren't here: install BA-AD (BAAD) and UnityPy " +
-        "(pip install -r scripts/requirements.txt), see the README."
-    );
-    process.exit(1);
+  if (pictures === undefined) {
+    pictures = gamePictures();
+    gameFound = Boolean(pictures);
+    if (!pictures) {
+      warnInSummary(
+        "the game's pictures couldn't be had (BA-AD or UnityPy didn't run), " +
+          "so every icon, portrait and weapon is SchaleDB's this time."
+      );
+      pictures = { icon: () => null, portrait: () => null, weapon: () => null };
+    }
   }
   return pictures;
 }
 
 /**
- * Stops the build if too many pictures of a kind came from elsewhere, and
- * notes the rest for the pull request (unless `note` is false).
+ * Notes the pictures of a kind that came from SchaleDB for the pull request
+ * (unless `note` is false), warning when there are many: the game may have
+ * renamed them.
  */
-function checkMissing(what, missing, total, note = true) {
-  if (missing.length > total * MOST_MISSING) {
-    console.error(
+export function checkMissing(what, missing, total, note = true) {
+  if (missing.length > total * MOST_MISSING && gameFound) {
+    warnInSummary(
       `${missing.length} of ${total} ${what}s aren't in the game's files ` +
-        "(were they renamed?): stopping, rather than take them all from SchaleDB."
+        "(were they renamed?), so they're SchaleDB's."
     );
-    process.exit(1);
   }
-  if (note) for (const name of missing) noteFallback(what, name);
+  // Without the game's pictures at all, the warning says it for every one.
+  if (note && gameFound) for (const name of missing) noteFallback(what, name);
 }
 
 /**

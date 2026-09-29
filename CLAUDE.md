@@ -83,11 +83,11 @@ What the project cares about:
   stay the Fandom wiki's (flat; the game's sit in perspective), a new one
   drawn from the student's sprite (`scripts/lib/spineHalo.mjs`), or their
   3D model's halo mesh when the sprite has none (`modelHalo.mjs`), until
-  the wiki has it. A missing picture or line falls back to SchaleDB or the wiki
-  and is listed in the pull request; the build stops if the game's pictures
-  aren't there at all or over a tenth of a kind are missing. Sheets and
-  portraits are redrawn only when their pictures' pixels change
-  (`pictures/sources.json`). Locally: `pip install -r
+  the wiki has it. A missing picture or line falls back to SchaleDB or
+  the wiki and is listed in the pull request, which warns in bold if the
+  game's pictures aren't there at all or over a tenth of a kind are
+  missing. Sheets and portraits are redrawn only when their pictures'
+  pixels change (`pictures/sources.json`). Locally: `pip install -r
 scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
 - **Characters** are Spine 4.2 skeletons in `public/spine/`, drawn by
   `src/helpers/spineStage.ts`, loaded only on wide screens.
