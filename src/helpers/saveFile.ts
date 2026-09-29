@@ -1,5 +1,6 @@
 import { GAME_MODES, GameMode } from "../types/mode";
 import { Round } from "../types/stats";
+import { Server } from "../types/server";
 import { STUDENT_SLOTS, StudentRound, StudentSlot } from "../types/student";
 import { VOICE_MODES, VoiceMode, VoiceRound } from "../types/voice";
 import { PICTURE_SLOTS, PictureRound, PictureSlot } from "../types/picture";
@@ -23,8 +24,8 @@ const SAVE_APP = "baheardle";
 /**
  * Raised when the file's shape changes. A file from a newer game is refused
  * rather than half read; older ones stay readable. The student, Voice and
- * picture games' rounds came later, each in a field of their own, so files
- * without them are still version 1.
+ * picture games' rounds came later, each in a field of their own, and so
+ * did the JP server's (`jp`), so files without them are still version 1.
  */
 const SAVE_VERSION = 1;
 
@@ -34,14 +35,62 @@ const SAVE_VERSION = 1;
  */
 export const MAX_SAVE_FILE_BYTES = 8 * 1024 * 1024;
 
-export interface SaveFile {
-  /** When the file was made, as an ISO timestamp. */
-  exported: string;
-  rounds: Record<GameMode, Round[]>;
+/** One server's student game, Voice and picture rounds. */
+export interface ServerSave {
   students: Record<StudentSlot, StudentRound[]>;
   voices: Record<VoiceMode, VoiceRound[]>;
   pictures: Record<PictureSlot, PictureRound[]>;
 }
+
+export interface SaveFile extends ServerSave {
+  /** When the file was made, as an ISO timestamp. */
+  exported: string;
+  rounds: Record<GameMode, Round[]>;
+  /** The JP server's; Global's are the fields above, as they always were. */
+  jp: ServerSave;
+}
+
+function serverSave(server: Server): ServerSave {
+  return {
+    students: Object.fromEntries(
+      STUDENT_SLOTS.map((slot) => [slot, loadStudentRounds(slot, server)])
+    ) as ServerSave["students"],
+    voices: Object.fromEntries(
+      VOICE_MODES.map((mode) => [mode, loadVoiceRounds(mode, server)])
+    ) as ServerSave["voices"],
+    pictures: Object.fromEntries(
+      PICTURE_SLOTS.map((slot) => [slot, loadPictureRounds(slot, server)])
+    ) as ServerSave["pictures"],
+  };
+}
+
+const asObject = (value: unknown): Record<string, unknown> =>
+  typeof value === "object" && value !== null
+    ? (value as Record<string, unknown>)
+    : {};
+
+/** One server's rounds as a file holds them, checked like the saves. */
+function readServerSave(file: Record<string, unknown>): ServerSave {
+  const students = asObject(file.students);
+  const voices = asObject(file.voices);
+  const pictures = asObject(file.pictures);
+  return {
+    students: Object.fromEntries(
+      STUDENT_SLOTS.map((slot) => [slot, toStudentRounds(students[slot])])
+    ) as ServerSave["students"],
+    voices: Object.fromEntries(
+      VOICE_MODES.map((mode) => [mode, toVoiceRounds(voices[mode])])
+    ) as ServerSave["voices"],
+    pictures: Object.fromEntries(
+      PICTURE_SLOTS.map((slot) => [slot, toPictureRounds(pictures[slot])])
+    ) as ServerSave["pictures"],
+  };
+}
+
+const isEmptyServer = ({ students, voices, pictures }: ServerSave) =>
+  STUDENT_SLOTS.every((slot) => students[slot].length === 0) &&
+  VOICE_MODES.every((mode) => voices[mode].length === 0) &&
+  PICTURE_SLOTS.every((slot) => pictures[slot].length === 0);
 
 export type SaveFileResult =
   | { ok: true; save: SaveFile }
@@ -56,25 +105,14 @@ export function buildSaveFile(now: Date = new Date()): string {
   const rounds = Object.fromEntries(
     GAME_MODES.map((mode) => [mode, loadRounds(mode)])
   );
-  const students = Object.fromEntries(
-    STUDENT_SLOTS.map((slot) => [slot, loadStudentRounds(slot)])
-  );
-  const voices = Object.fromEntries(
-    VOICE_MODES.map((mode) => [mode, loadVoiceRounds(mode)])
-  );
-  const pictures = Object.fromEntries(
-    PICTURE_SLOTS.map((slot) => [slot, loadPictureRounds(slot)])
-  );
-
   return obscure(
     JSON.stringify({
       app: SAVE_APP,
       version: SAVE_VERSION,
       exported: now.toISOString(),
       rounds,
-      students,
-      voices,
-      pictures,
+      ...serverSave("global"),
+      jp: serverSave("jp"),
     })
   );
 }
@@ -125,35 +163,13 @@ export function readSaveFile(text: string): SaveFileResult {
     GAME_MODES.map((mode) => [mode, toRounds(saved[mode])])
   ) as Record<GameMode, Round[]>;
 
-  const savedStudents =
-    typeof file.students === "object" && file.students !== null
-      ? (file.students as Record<string, unknown>)
-      : {};
-  const students = Object.fromEntries(
-    STUDENT_SLOTS.map((slot) => [slot, toStudentRounds(savedStudents[slot])])
-  ) as Record<StudentSlot, StudentRound[]>;
-
-  const savedVoices =
-    typeof file.voices === "object" && file.voices !== null
-      ? (file.voices as Record<string, unknown>)
-      : {};
-  const voices = Object.fromEntries(
-    VOICE_MODES.map((mode) => [mode, toVoiceRounds(savedVoices[mode])])
-  ) as Record<VoiceMode, VoiceRound[]>;
-
-  const savedPictures =
-    typeof file.pictures === "object" && file.pictures !== null
-      ? (file.pictures as Record<string, unknown>)
-      : {};
-  const pictures = Object.fromEntries(
-    PICTURE_SLOTS.map((slot) => [slot, toPictureRounds(savedPictures[slot])])
-  ) as Record<PictureSlot, PictureRound[]>;
+  const global = readServerSave(file);
+  const jp = readServerSave(asObject(file.jp));
 
   if (
     GAME_MODES.every((mode) => rounds[mode].length === 0) &&
-    STUDENT_SLOTS.every((slot) => students[slot].length === 0) &&
-    VOICE_MODES.every((mode) => voices[mode].length === 0) &&
-    PICTURE_SLOTS.every((slot) => pictures[slot].length === 0)
+    isEmptyServer(global) &&
+    isEmptyServer(jp)
   ) {
     return { ok: false, error: "That save has no rounds in it." };
   }
@@ -166,7 +182,7 @@ export function readSaveFile(text: string): SaveFileResult {
 
   return {
     ok: true,
-    save: { exported, rounds, students, voices, pictures },
+    save: { exported, rounds, ...global, jp },
   };
 }
 

@@ -36,6 +36,7 @@ import {
   drawTimeAttackPicture,
   TimeAttackPictureContent,
 } from "./timeAttackPicture";
+import { withServerTag } from "../server";
 
 /** Each mode's name, as the tag and a recap's title give it. */
 const MODE_NAMES: Record<VoiceRoundMode, string> = {
@@ -94,10 +95,11 @@ export function voicePictureContent({
   const count = round.guesses.length;
 
   return {
-    tag:
+    tag: withServerTag(
       isDaily && typeof round.day === "number"
         ? `VOICE · DAILY #${round.day}`
-        : tagOf(mode),
+        : tagOf(mode)
+    ),
     title: withoutEmoji(resultTitle(won, count, tries)),
     subtitle: !won
       ? "The voice got away this time"
@@ -262,7 +264,7 @@ export function voiceRecapContent(
   const onePick = tally.length === 2;
 
   return {
-    tag: `${tagOf(stats.mode)} RECAP`,
+    tag: withServerTag(`${tagOf(stats.mode)} RECAP`),
     title: `Voice ${MODE_NAMES[stats.mode]} report`,
     subtitle: reportDate(now),
     tiles: [
@@ -282,7 +284,7 @@ export function voiceRecapContent(
       })),
       { label: "X", count: tally[0], lost: true },
     ],
-    footer: `${stats.found} of ${voicePool.length} voices named`,
+    footer: `${stats.found} of ${voicePool().length} voices named`,
   };
 }
 
@@ -320,7 +322,7 @@ export function voiceTimeAttackPictureContent({
 }: VoiceTimeAttackPictureInput): TimeAttackPictureContent {
   const score = rounds.filter(isWon).length;
   return {
-    tag: "VOICE · TIME ATTACK",
+    tag: withServerTag("VOICE · TIME ATTACK"),
     title: `${score} ${score === 1 ? "voice" : "voices"} in ${formatClock(
       TIME_ATTACK_MS
     )}`,
@@ -370,7 +372,7 @@ export function voiceTimeAttackRecapContent(
     );
 
   return {
-    tag: "VOICE · TIME ATTACK RECAP",
+    tag: withServerTag("VOICE · TIME ATTACK RECAP"),
     title: "Voice Time Attack report",
     subtitle: reportDate(now),
     tiles: [

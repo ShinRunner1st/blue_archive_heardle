@@ -188,7 +188,7 @@ export function VoiceGame({
       />
       <Styled.SearchRow>
         <StudentSearch
-          pool={voicePool}
+          pool={voicePool()}
           guessed={guessed}
           onGuess={guess}
           selected={selected}
@@ -220,7 +220,7 @@ export function VoiceGame({
       </Styled.Buttons>
       {listOpen && (
         <StudentListPopUp
-          pool={voicePool}
+          pool={voicePool()}
           guessed={guessed}
           onPick={pickFromList}
           onClose={() => setListOpen(false)}

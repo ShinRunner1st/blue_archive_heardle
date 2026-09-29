@@ -44,9 +44,23 @@ function seeded(seed: number): () => number {
 }
 
 describe("the voice pool", () => {
-  it("is everyone with lines, nearly the whole table", () => {
-    expect(voicePool.length).toBeGreaterThan(students.length - 5);
-    for (const { id } of voicePool) expect(lineCount(id)).toBeGreaterThan(0);
+  it("is everyone with lines on the server, nearly all its students", () => {
+    for (const server of ["global", "jp"] as const) {
+      const out = students.filter((student) => student[server]);
+      expect(voicePool(server).length).toBeGreaterThan(out.length - 5);
+      for (const { id } of voicePool(server)) {
+        expect(lineCount(id)).toBeGreaterThan(0);
+      }
+    }
+    expect(voicePool()).toEqual(voicePool("global"));
+    expect(voicePool("jp").length).toBeGreaterThan(voicePool().length);
+  });
+
+  it("deals each server's daily from its own students", () => {
+    const jp = new Set(voicePool("jp").map(({ id }) => id));
+    for (let day = 1; day <= 40; day++) {
+      expect(jp.has(dailyVoice(day, "jp").answer)).toBe(true);
+    }
   });
 });
 
@@ -83,8 +97,8 @@ describe("dailyVoice", () => {
   });
 
   it("deals every student before any comes round again", () => {
-    const answers = voicePool.map((_, index) => dailyVoice(index + 1).answer);
-    expect(new Set(answers).size).toBe(voicePool.length);
+    const answers = voicePool().map((_, index) => dailyVoice(index + 1).answer);
+    expect(new Set(answers).size).toBe(voicePool().length);
   });
 
   it("spreads the days over a student's lines", () => {
@@ -100,11 +114,11 @@ describe("pickVoice", () => {
   it("deals every student once before any comes round again", () => {
     const random = seeded(7);
     const rounds: VoiceRound[] = [];
-    for (let i = 0; i < voicePool.length; i += 1) {
+    for (let i = 0; i < voicePool().length; i += 1) {
       rounds.push({ ...pickVoice(rounds, random), guesses: [] });
     }
     expect(new Set(rounds.map(({ answer }) => answer)).size).toBe(
-      voicePool.length
+      voicePool().length
     );
     for (const { answer, line } of rounds) {
       expect(line).toBeLessThan(lineCount(answer));
@@ -125,7 +139,7 @@ describe("nearestVoices", () => {
   });
 
   it("lists other students' voices, never the student's own", () => {
-    for (const student of voicePool) {
+    for (const student of voicePool()) {
       const near = nearestVoices(student.id);
       expect(near.length).toBeGreaterThanOrEqual(3);
       expect(near.every(({ fullName }) => fullName !== student.fullName)).toBe(

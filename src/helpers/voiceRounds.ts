@@ -1,9 +1,10 @@
 import { pageUrl } from "../constants/pages";
 import { students } from "../constants/students";
-import { voiceOrder } from "../constants/voiceDailyOrder";
+import { voiceOrder, voiceOrderJp } from "../constants/voiceDailyOrder";
 import { NO_TITLE_CALL, voiceLines } from "../constants/voiceLines";
 import { voiceNeighbours } from "../constants/voiceTones";
 import { GuessType } from "../types/guess";
+import { Server } from "../types/server";
 import { Round } from "../types/stats";
 import { Student } from "../types/student";
 import {
@@ -12,7 +13,8 @@ import {
   VoiceRound,
   VoiceRoundMode,
 } from "../types/voice";
-import { studentById } from "./studentRounds";
+import { getServer, serverSuffix } from "./server";
+import { onServer, studentById } from "./studentRounds";
 
 /**
  * Tries in Daily and Classic: the voice alone, then a hint with each miss,
@@ -28,13 +30,16 @@ export const HINTS = ["school", "club", "silhouette"] as const;
 export type Hint = (typeof HINTS)[number];
 
 /**
- * Every student with a line to play, in the table's order: all of them but
- * any new student SchaleDB doesn't have the voice of yet. Each costume is its
- * own answer, as each has its own recording.
+ * Every student with a line to play on a server, in the table's order: all
+ * of them but any new student SchaleDB doesn't have the voice of yet. Each
+ * costume is its own answer, as each has its own recording.
  */
-export const voicePool: Student[] = students.filter(({ id }) => lineCount(id));
+export function voicePool(server: Server = getServer()): Student[] {
+  return VOICE_POOLS[server];
+}
 
-const inPool = new Set(voicePool.map(({ id }) => id));
+/** Whether a student is one of the server's answers now. */
+const inPool = (id: number) => VOICE_IDS[getServer()].has(id);
 
 /** How many lines a student has, or 0 for none. */
 export function lineCount(id: number): number {
@@ -48,10 +53,20 @@ export function hasTitleCall(id: number): boolean {
   return lineCount(id) > 0 && !noTitle.has(id);
 }
 
+const VOICE_POOLS: Record<Server, Student[]> = {
+  global: onServer("global").filter(({ id }) => lineCount(id)),
+  jp: onServer("jp").filter(({ id }) => lineCount(id)),
+};
+
+const VOICE_IDS: Record<Server, Set<number>> = {
+  global: new Set(VOICE_POOLS.global.map(({ id }) => id)),
+  jp: new Set(VOICE_POOLS.jp.map(({ id }) => id)),
+};
+
 /** Everyone with a title call, for a time attack run of only those. */
-export const titlePool: Student[] = voicePool.filter(({ id }) =>
-  hasTitleCall(id)
-);
+export function titlePool(): Student[] {
+  return voicePool().filter(({ id }) => hasTitleCall(id));
+}
 
 /** One pick for a four-choice or time attack round, four for the rest. */
 export function triesOf(round: NamedRound): number {
@@ -94,15 +109,19 @@ export function dayLine(day: number, count: number): number {
  * The daily puzzle, the same for every player: the student from a
  * checked-in schedule, only ever appended to (see voiceDailyOrder.ts).
  */
-export function dailyVoice(day: number): { answer: number; line: number } {
-  const index =
-    (((day - 1) % voiceOrder.length) + voiceOrder.length) % voiceOrder.length;
-  const scheduled = voiceOrder[index];
+export function dailyVoice(
+  day: number,
+  server: Server = getServer()
+): { answer: number; line: number } {
+  const order = server === "jp" ? voiceOrderJp : voiceOrder;
+  const pool = voicePool(server);
+  const index = (((day - 1) % order.length) + order.length) % order.length;
+  const scheduled = order[index];
 
   // The scheduled student has no lines any more: this day only falls back.
-  const answer = inPool.has(scheduled)
+  const answer = VOICE_IDS[server].has(scheduled)
     ? scheduled
-    : voicePool[index % voicePool.length].id;
+    : pool[index % pool.length].id;
   return { answer, line: dayLine(day, lineCount(answer)) };
 }
 
@@ -119,7 +138,7 @@ export function pickVoice(
   random: Random = Math.random,
   titles = false
 ): { answer: number; line: number } {
-  const pool = titles ? titlePool : voicePool;
+  const pool = titles ? titlePool() : voicePool();
   const ids = new Set(pool.map(({ id }) => id));
   let dealt = new Set<number>();
   for (const { answer } of rounds) {
@@ -180,11 +199,11 @@ export function makeVoiceChoices(
   answer: Student,
   random: Random = Math.random
 ): number[] {
-  const others = voicePool.filter(
+  const others = voicePool().filter(
     ({ fullName }) => fullName !== answer.fullName
   );
   const near = nearestVoices(answer.id).filter(
-    ({ id, fullName }) => inPool.has(id) && fullName !== answer.fullName
+    ({ id, fullName }) => inPool(id) && fullName !== answer.fullName
   );
   const sameSchool = shuffle(
     others.filter(({ school }) => school === answer.school),
@@ -216,7 +235,7 @@ export function makeVoiceChoices(
  */
 export function knownVoiceRounds(rounds: VoiceRound[]): VoiceRound[] {
   return rounds
-    .filter((round) => inPool.has(round.answer))
+    .filter((round) => inPool(round.answer))
     .map((round) => {
       const count = lineCount(round.answer);
       const line = round.line < count ? round.line : round.line % count;
@@ -224,7 +243,7 @@ export function knownVoiceRounds(rounds: VoiceRound[]): VoiceRound[] {
         (id) => id === SKIPPED || studentById.has(id)
       );
       const choices =
-        round.choices?.every((id) => inPool.has(id)) === false
+        round.choices?.every((id) => inPool(id)) === false
           ? undefined
           : round.choices;
       if (
@@ -323,8 +342,8 @@ export function buildVoiceShareText(
 
   const title =
     mode === "daily" && typeof round.day === "number"
-      ? `Blue Archive Heardle · Voice #${round.day}`
-      : `Blue Archive Heardle · Voice (${MODE_NAMES[mode]})`;
+      ? `Blue Archive Heardle · Voice #${round.day}${serverSuffix()}`
+      : `Blue Archive Heardle · Voice (${MODE_NAMES[mode]})${serverSuffix()}`;
   const lines = [title, `🔊${squares.join("")}`];
   if (mode !== "daily") lines.push(`Score: ${score}`);
   lines.push(pageUrl("voice"));

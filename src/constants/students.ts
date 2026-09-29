@@ -1,9 +1,9 @@
 import { Student } from "../types/student";
 
 /**
- * Every student and costume out on Global, in release order, copied from
- * SchaleDB. The icon sheet (see studentIcons.ts) holds their icons in the
- * same order.
+ * Every student and costume out on JP or Global, in release order, copied
+ * from SchaleDB, each marked with the servers it is out on. The icon sheet
+ * (see studentIcons.ts) holds their icons in the same order.
  *
  * GENERATED FILE - do not edit by hand. Run `npm run students`.
  */
@@ -11,6 +11,8 @@ export const students: Student[] = [
   {
     id: 10000,
     name: "Aru",
+    global: true,
+    jp: true,
     fullName: "Rikuhachima Aru",
     lore: true,
     school: "Gehenna",
@@ -29,6 +31,8 @@ export const students: Student[] = [
   {
     id: 10001,
     name: "Eimi",
+    global: true,
+    jp: true,
     fullName: "Izumimoto Eimi",
     lore: true,
     school: "Millennium",
@@ -47,6 +51,8 @@ export const students: Student[] = [
   {
     id: 10002,
     name: "Haruna",
+    global: true,
+    jp: true,
     fullName: "Kurodate Haruna",
     lore: true,
     school: "Gehenna",
@@ -65,6 +71,8 @@ export const students: Student[] = [
   {
     id: 10003,
     name: "Hifumi",
+    global: true,
+    jp: true,
     fullName: "Ajitani Hifumi",
     lore: true,
     school: "Trinity",
@@ -83,6 +91,8 @@ export const students: Student[] = [
   {
     id: 10004,
     name: "Hina",
+    global: true,
+    jp: true,
     fullName: "Sorasaki Hina",
     lore: true,
     school: "Gehenna",
@@ -101,6 +111,8 @@ export const students: Student[] = [
   {
     id: 10005,
     name: "Hoshino",
+    global: true,
+    jp: true,
     fullName: "Takanashi Hoshino",
     lore: true,
     school: "Abydos",
@@ -119,6 +131,8 @@ export const students: Student[] = [
   {
     id: 10006,
     name: "Iori",
+    global: true,
+    jp: true,
     fullName: "Shiromi Iori",
     lore: true,
     school: "Gehenna",
@@ -137,6 +151,8 @@ export const students: Student[] = [
   {
     id: 10007,
     name: "Maki",
+    global: true,
+    jp: true,
     fullName: "Konuri Maki",
     lore: true,
     school: "Millennium",
@@ -155,6 +171,8 @@ export const students: Student[] = [
   {
     id: 10008,
     name: "Neru",
+    global: true,
+    jp: true,
     fullName: "Mikamo Neru",
     lore: true,
     school: "Millennium",
@@ -173,6 +191,8 @@ export const students: Student[] = [
   {
     id: 10009,
     name: "Izumi",
+    global: true,
+    jp: true,
     fullName: "Shishidou Izumi",
     lore: true,
     school: "Gehenna",
@@ -191,6 +211,8 @@ export const students: Student[] = [
   {
     id: 10010,
     name: "Shiroko",
+    global: true,
+    jp: true,
     fullName: "Sunaookami Shiroko",
     lore: true,
     school: "Abydos",
@@ -209,6 +231,8 @@ export const students: Student[] = [
   {
     id: 10011,
     name: "Shun",
+    global: true,
+    jp: true,
     fullName: "Sunohara Shun",
     lore: true,
     school: "Shanhaijing",
@@ -227,6 +251,8 @@ export const students: Student[] = [
   {
     id: 10012,
     name: "Sumire",
+    global: true,
+    jp: true,
     fullName: "Otohana Sumire",
     lore: true,
     school: "Millennium",
@@ -245,6 +271,8 @@ export const students: Student[] = [
   {
     id: 10013,
     name: "Tsurugi",
+    global: true,
+    jp: true,
     fullName: "Kenzaki Tsurugi",
     lore: true,
     school: "Trinity",
@@ -263,6 +291,8 @@ export const students: Student[] = [
   {
     id: 13000,
     name: "Akane",
+    global: true,
+    jp: true,
     fullName: "Murokasa Akane",
     lore: true,
     school: "Millennium",
@@ -281,6 +311,8 @@ export const students: Student[] = [
   {
     id: 13001,
     name: "Chise",
+    global: true,
+    jp: true,
     fullName: "Waraku Chise",
     lore: true,
     school: "Hyakkiyako",
@@ -299,6 +331,8 @@ export const students: Student[] = [
   {
     id: 13002,
     name: "Akari",
+    global: true,
+    jp: true,
     fullName: "Wanibuchi Akari",
     lore: true,
     school: "Gehenna",
@@ -317,6 +351,8 @@ export const students: Student[] = [
   {
     id: 13003,
     name: "Hasumi",
+    global: true,
+    jp: true,
     fullName: "Hanekawa Hasumi",
     lore: true,
     school: "Trinity",
@@ -335,6 +371,8 @@ export const students: Student[] = [
   {
     id: 13004,
     name: "Nonomi",
+    global: true,
+    jp: true,
     fullName: "Izayoi Nonomi",
     lore: true,
     school: "Abydos",
@@ -353,6 +391,8 @@ export const students: Student[] = [
   {
     id: 13005,
     name: "Kayoko",
+    global: true,
+    jp: true,
     fullName: "Onikata Kayoko",
     lore: true,
     school: "Gehenna",
@@ -371,6 +411,8 @@ export const students: Student[] = [
   {
     id: 13006,
     name: "Mutsuki",
+    global: true,
+    jp: true,
     fullName: "Asagi Mutsuki",
     lore: true,
     school: "Gehenna",
@@ -389,6 +431,8 @@ export const students: Student[] = [
   {
     id: 13007,
     name: "Junko",
+    global: true,
+    jp: true,
     fullName: "Akashi Junko",
     lore: true,
     school: "Gehenna",
@@ -407,6 +451,8 @@ export const students: Student[] = [
   {
     id: 13008,
     name: "Serika",
+    global: true,
+    jp: true,
     fullName: "Kuromi Serika",
     lore: true,
     school: "Abydos",
@@ -425,6 +471,8 @@ export const students: Student[] = [
   {
     id: 13009,
     name: "Tsubaki",
+    global: true,
+    jp: true,
     fullName: "Kasuga Tsubaki",
     lore: true,
     school: "Hyakkiyako",
@@ -443,6 +491,8 @@ export const students: Student[] = [
   {
     id: 13010,
     name: "Yuuka",
+    global: true,
+    jp: true,
     fullName: "Hayase Yuuka",
     lore: true,
     school: "Millennium",
@@ -461,6 +511,8 @@ export const students: Student[] = [
   {
     id: 16000,
     name: "Haruka",
+    global: true,
+    jp: true,
     fullName: "Igusa Haruka",
     lore: true,
     school: "Gehenna",
@@ -479,6 +531,8 @@ export const students: Student[] = [
   {
     id: 16001,
     name: "Asuna",
+    global: true,
+    jp: true,
     fullName: "Ichinose Asuna",
     lore: true,
     school: "Millennium",
@@ -497,6 +551,8 @@ export const students: Student[] = [
   {
     id: 16002,
     name: "Kotori",
+    global: true,
+    jp: true,
     fullName: "Toyomi Kotori",
     lore: true,
     school: "Millennium",
@@ -515,6 +571,8 @@ export const students: Student[] = [
   {
     id: 16003,
     name: "Suzumi",
+    global: true,
+    jp: true,
     fullName: "Morizuki Suzumi",
     lore: true,
     school: "Trinity",
@@ -533,6 +591,8 @@ export const students: Student[] = [
   {
     id: 16004,
     name: "Pina",
+    global: true,
+    jp: true,
     fullName: "Asahina Pina",
     lore: true,
     school: "Hyakkiyako",
@@ -551,6 +611,8 @@ export const students: Student[] = [
   {
     id: 20000,
     name: "Hibiki",
+    global: true,
+    jp: true,
     fullName: "Nekozuka Hibiki",
     lore: true,
     school: "Millennium",
@@ -569,6 +631,8 @@ export const students: Student[] = [
   {
     id: 20001,
     name: "Karin",
+    global: true,
+    jp: true,
     fullName: "Kakudate Karin",
     lore: true,
     school: "Millennium",
@@ -587,6 +651,8 @@ export const students: Student[] = [
   {
     id: 20002,
     name: "Saya",
+    global: true,
+    jp: true,
     fullName: "Yakushi Saya",
     lore: true,
     school: "Shanhaijing",
@@ -605,6 +671,8 @@ export const students: Student[] = [
   {
     id: 23000,
     name: "Airi",
+    global: true,
+    jp: true,
     fullName: "Kurimura Airi",
     lore: true,
     school: "Trinity",
@@ -623,6 +691,8 @@ export const students: Student[] = [
   {
     id: 23001,
     name: "Fuuka",
+    global: true,
+    jp: true,
     fullName: "Aikiyo Fuuka",
     lore: true,
     school: "Gehenna",
@@ -641,6 +711,8 @@ export const students: Student[] = [
   {
     id: 23002,
     name: "Hanae",
+    global: true,
+    jp: true,
     fullName: "Asagao Hanae",
     lore: true,
     school: "Trinity",
@@ -659,6 +731,8 @@ export const students: Student[] = [
   {
     id: 23003,
     name: "Hare",
+    global: true,
+    jp: true,
     fullName: "Omagari Hare",
     lore: true,
     school: "Millennium",
@@ -677,6 +751,8 @@ export const students: Student[] = [
   {
     id: 23004,
     name: "Utaha",
+    global: true,
+    jp: true,
     fullName: "Shiraishi Utaha",
     lore: true,
     school: "Millennium",
@@ -695,6 +771,8 @@ export const students: Student[] = [
   {
     id: 23005,
     name: "Ayane",
+    global: true,
+    jp: true,
     fullName: "Okusora Ayane",
     lore: true,
     school: "Abydos",
@@ -713,6 +791,8 @@ export const students: Student[] = [
   {
     id: 26000,
     name: "Chinatsu",
+    global: true,
+    jp: true,
     fullName: "Hinomiya Chinatsu",
     lore: true,
     school: "Gehenna",
@@ -731,6 +811,8 @@ export const students: Student[] = [
   {
     id: 26001,
     name: "Kotama",
+    global: true,
+    jp: true,
     fullName: "Otose Kotama",
     lore: true,
     school: "Millennium",
@@ -749,6 +831,8 @@ export const students: Student[] = [
   {
     id: 26002,
     name: "Juri",
+    global: true,
+    jp: true,
     fullName: "Ushimaki Juri",
     lore: true,
     school: "Gehenna",
@@ -767,6 +851,8 @@ export const students: Student[] = [
   {
     id: 26003,
     name: "Serina",
+    global: true,
+    jp: true,
     fullName: "Sumi Serina",
     lore: true,
     school: "Trinity",
@@ -785,6 +871,8 @@ export const students: Student[] = [
   {
     id: 26004,
     name: "Shimiko",
+    global: true,
+    jp: true,
     fullName: "Endou Shimiko",
     lore: true,
     school: "Trinity",
@@ -803,6 +891,8 @@ export const students: Student[] = [
   {
     id: 26005,
     name: "Yoshimi",
+    global: true,
+    jp: true,
     fullName: "Ibaragi Yoshimi",
     lore: true,
     school: "Trinity",
@@ -821,6 +911,8 @@ export const students: Student[] = [
   {
     id: 20003,
     name: "Mashiro",
+    global: true,
+    jp: true,
     fullName: "Shizuyama Mashiro",
     lore: true,
     school: "Trinity",
@@ -839,6 +931,8 @@ export const students: Student[] = [
   {
     id: 10014,
     name: "Izuna",
+    global: true,
+    jp: true,
     fullName: "Kuda Izuna",
     lore: true,
     school: "Hyakkiyako",
@@ -857,6 +951,8 @@ export const students: Student[] = [
   {
     id: 23006,
     name: "Shizuko",
+    global: true,
+    jp: true,
     fullName: "Kawawa Shizuko",
     lore: true,
     school: "Hyakkiyako",
@@ -875,6 +971,8 @@ export const students: Student[] = [
   {
     id: 10015,
     name: "Aris",
+    global: true,
+    jp: true,
     fullName: "Tendou Aris",
     lore: true,
     school: "Millennium",
@@ -893,6 +991,8 @@ export const students: Student[] = [
   {
     id: 10016,
     name: "Midori",
+    global: true,
+    jp: true,
     fullName: "Saiba Midori",
     lore: true,
     school: "Millennium",
@@ -911,6 +1011,8 @@ export const students: Student[] = [
   {
     id: 13011,
     name: "Momoi",
+    global: true,
+    jp: true,
     fullName: "Saiba Momoi",
     lore: true,
     school: "Millennium",
@@ -929,6 +1031,8 @@ export const students: Student[] = [
   {
     id: 10017,
     name: "Cherino",
+    global: true,
+    jp: true,
     fullName: "Renkawa Cherino",
     lore: true,
     school: "Red Winter",
@@ -947,6 +1051,8 @@ export const students: Student[] = [
   {
     id: 26006,
     name: "Nodoka",
+    global: true,
+    jp: true,
     fullName: "Amami Nodoka",
     lore: true,
     school: "Red Winter",
@@ -965,6 +1071,8 @@ export const students: Student[] = [
   {
     id: 10018,
     name: "Yuzu",
+    global: true,
+    jp: true,
     fullName: "Hanaoka Yuzu",
     lore: true,
     school: "Millennium",
@@ -983,6 +1091,8 @@ export const students: Student[] = [
   {
     id: 10019,
     name: "Azusa",
+    global: true,
+    jp: true,
     fullName: "Shirasu Azusa",
     lore: true,
     school: "Trinity",
@@ -1001,6 +1111,8 @@ export const students: Student[] = [
   {
     id: 23007,
     name: "Hanako",
+    global: true,
+    jp: true,
     fullName: "Urawa Hanako",
     lore: true,
     school: "Trinity",
@@ -1019,6 +1131,8 @@ export const students: Student[] = [
   {
     id: 10020,
     name: "Koharu",
+    global: true,
+    jp: true,
     fullName: "Shimoe Koharu",
     lore: true,
     school: "Trinity",
@@ -1037,6 +1151,8 @@ export const students: Student[] = [
   {
     id: 10021,
     name: "Azusa (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Shirasu Azusa",
     lore: false,
     school: "Trinity",
@@ -1055,6 +1171,8 @@ export const students: Student[] = [
   {
     id: 20004,
     name: "Mashiro (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Shizuyama Mashiro",
     lore: false,
     school: "Trinity",
@@ -1073,6 +1191,8 @@ export const students: Student[] = [
   {
     id: 16005,
     name: "Tsurugi (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Kenzaki Tsurugi",
     lore: false,
     school: "Trinity",
@@ -1091,6 +1211,8 @@ export const students: Student[] = [
   {
     id: 20005,
     name: "Hifumi (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Ajitani Hifumi",
     lore: false,
     school: "Trinity",
@@ -1109,6 +1231,8 @@ export const students: Student[] = [
   {
     id: 10022,
     name: "Hina (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Sorasaki Hina",
     lore: false,
     school: "Gehenna",
@@ -1127,6 +1251,8 @@ export const students: Student[] = [
   {
     id: 10023,
     name: "Iori (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Shiromi Iori",
     lore: false,
     school: "Gehenna",
@@ -1145,6 +1271,8 @@ export const students: Student[] = [
   {
     id: 16006,
     name: "Izumi (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Shishidou Izumi",
     lore: false,
     school: "Gehenna",
@@ -1163,6 +1291,8 @@ export const students: Student[] = [
   {
     id: 10024,
     name: "Shiroko (Cycling)",
+    global: true,
+    jp: true,
     fullName: "Sunaookami Shiroko",
     lore: false,
     school: "Abydos",
@@ -1181,6 +1311,8 @@ export const students: Student[] = [
   {
     id: 10025,
     name: "Shun (Small)",
+    global: true,
+    jp: true,
     fullName: "Sunohara Shun",
     lore: false,
     school: "Shanhaijing",
@@ -1199,6 +1331,8 @@ export const students: Student[] = [
   {
     id: 13012,
     name: "Kirino",
+    global: true,
+    jp: true,
     fullName: "Nakatsukasa Kirino",
     lore: true,
     school: "Valkyrie",
@@ -1217,6 +1351,8 @@ export const students: Student[] = [
   {
     id: 20006,
     name: "Saya (Casual)",
+    global: true,
+    jp: true,
     fullName: "Yakushi Saya",
     lore: false,
     school: "Shanhaijing",
@@ -1235,6 +1371,8 @@ export const students: Student[] = [
   {
     id: 10026,
     name: "Neru (Bunny)",
+    global: true,
+    jp: true,
     fullName: "Mikamo Neru",
     lore: false,
     school: "Millennium",
@@ -1253,6 +1391,8 @@ export const students: Student[] = [
   {
     id: 10027,
     name: "Karin (Bunny)",
+    global: true,
+    jp: true,
     fullName: "Kakudate Karin",
     lore: false,
     school: "Millennium",
@@ -1271,6 +1411,8 @@ export const students: Student[] = [
   {
     id: 10028,
     name: "Asuna (Bunny)",
+    global: true,
+    jp: true,
     fullName: "Ichinose Asuna",
     lore: false,
     school: "Millennium",
@@ -1289,6 +1431,8 @@ export const students: Student[] = [
   {
     id: 10029,
     name: "Natsu",
+    global: true,
+    jp: true,
     fullName: "Yutori Natsu",
     lore: true,
     school: "Trinity",
@@ -1307,6 +1451,8 @@ export const students: Student[] = [
   {
     id: 23008,
     name: "Mari",
+    global: true,
+    jp: true,
     fullName: "Iochi Mari",
     lore: true,
     school: "Trinity",
@@ -1325,6 +1471,8 @@ export const students: Student[] = [
   {
     id: 20007,
     name: "Hatsune Miku",
+    global: true,
+    jp: true,
     fullName: "Hatsune Miku",
     lore: true,
     school: "Etc.",
@@ -1343,6 +1491,8 @@ export const students: Student[] = [
   {
     id: 20008,
     name: "Ako",
+    global: true,
+    jp: true,
     fullName: "Amau Ako",
     lore: true,
     school: "Gehenna",
@@ -1361,6 +1511,8 @@ export const students: Student[] = [
   {
     id: 20009,
     name: "Cherino (Hot Spring)",
+    global: true,
+    jp: true,
     fullName: "Renkawa Cherino",
     lore: false,
     school: "Red Winter",
@@ -1379,6 +1531,8 @@ export const students: Student[] = [
   {
     id: 10030,
     name: "Chinatsu (Hot Spring)",
+    global: true,
+    jp: true,
     fullName: "Hinomiya Chinatsu",
     lore: false,
     school: "Gehenna",
@@ -1397,6 +1551,8 @@ export const students: Student[] = [
   {
     id: 16007,
     name: "Tomoe",
+    global: true,
+    jp: true,
     fullName: "Sashiro Tomoe",
     lore: true,
     school: "Red Winter",
@@ -1415,6 +1571,8 @@ export const students: Student[] = [
   {
     id: 20010,
     name: "Nodoka (Hot Spring)",
+    global: true,
+    jp: true,
     fullName: "Amami Nodoka",
     lore: false,
     school: "Red Winter",
@@ -1433,6 +1591,8 @@ export const students: Student[] = [
   {
     id: 10031,
     name: "Aru (New Year)",
+    global: true,
+    jp: true,
     fullName: "Rikuhachima Aru",
     lore: false,
     school: "Gehenna",
@@ -1451,6 +1611,8 @@ export const students: Student[] = [
   {
     id: 10032,
     name: "Mutsuki (New Year)",
+    global: true,
+    jp: true,
     fullName: "Asagi Mutsuki",
     lore: false,
     school: "Gehenna",
@@ -1469,6 +1631,8 @@ export const students: Student[] = [
   {
     id: 20011,
     name: "Serika (New Year)",
+    global: true,
+    jp: true,
     fullName: "Kuromi Serika",
     lore: false,
     school: "Abydos",
@@ -1487,6 +1651,8 @@ export const students: Student[] = [
   {
     id: 10033,
     name: "Wakamo",
+    global: true,
+    jp: true,
     fullName: "Kosaka Wakamo",
     lore: true,
     school: "Hyakkiyako",
@@ -1505,6 +1671,8 @@ export const students: Student[] = [
   {
     id: 16008,
     name: "Fubuki",
+    global: true,
+    jp: true,
     fullName: "Nemugaki Fubuki",
     lore: true,
     school: "Valkyrie",
@@ -1523,6 +1691,8 @@ export const students: Student[] = [
   {
     id: 20012,
     name: "Sena",
+    global: true,
+    jp: true,
     fullName: "Himuro Sena",
     lore: true,
     school: "Gehenna",
@@ -1541,6 +1711,8 @@ export const students: Student[] = [
   {
     id: 20013,
     name: "Chihiro",
+    global: true,
+    jp: true,
     fullName: "Kagami Chihiro",
     lore: true,
     school: "Millennium",
@@ -1559,6 +1731,8 @@ export const students: Student[] = [
   {
     id: 10034,
     name: "Mimori",
+    global: true,
+    jp: true,
     fullName: "Mizuha Mimori",
     lore: true,
     school: "Hyakkiyako",
@@ -1577,6 +1751,8 @@ export const students: Student[] = [
   {
     id: 10035,
     name: "Ui",
+    global: true,
+    jp: true,
     fullName: "Kozeki Ui",
     lore: true,
     school: "Trinity",
@@ -1595,6 +1771,8 @@ export const students: Student[] = [
   {
     id: 10036,
     name: "Hinata",
+    global: true,
+    jp: true,
     fullName: "Wakaba Hinata",
     lore: true,
     school: "Trinity",
@@ -1613,6 +1791,8 @@ export const students: Student[] = [
   {
     id: 10037,
     name: "Marina",
+    global: true,
+    jp: true,
     fullName: "Ikekura Marina",
     lore: true,
     school: "Red Winter",
@@ -1631,6 +1811,8 @@ export const students: Student[] = [
   {
     id: 10038,
     name: "Miyako",
+    global: true,
+    jp: true,
     fullName: "Tsukiyuki Miyako",
     lore: true,
     school: "SRT",
@@ -1649,6 +1831,8 @@ export const students: Student[] = [
   {
     id: 20014,
     name: "Saki",
+    global: true,
+    jp: true,
     fullName: "Sorai Saki",
     lore: true,
     school: "SRT",
@@ -1667,6 +1851,8 @@ export const students: Student[] = [
   {
     id: 10039,
     name: "Miyu",
+    global: true,
+    jp: true,
     fullName: "Kasumizawa Miyu",
     lore: true,
     school: "SRT",
@@ -1685,6 +1871,8 @@ export const students: Student[] = [
   {
     id: 20015,
     name: "Kaede",
+    global: true,
+    jp: true,
     fullName: "Isami Kaede",
     lore: true,
     school: "Hyakkiyako",
@@ -1703,6 +1891,8 @@ export const students: Student[] = [
   {
     id: 20016,
     name: "Iroha",
+    global: true,
+    jp: true,
     fullName: "Natsume Iroha",
     lore: true,
     school: "Gehenna",
@@ -1721,6 +1911,8 @@ export const students: Student[] = [
   {
     id: 16009,
     name: "Michiru",
+    global: true,
+    jp: true,
     fullName: "Chidori Michiru",
     lore: true,
     school: "Hyakkiyako",
@@ -1739,6 +1931,8 @@ export const students: Student[] = [
   {
     id: 10040,
     name: "Tsukuyo",
+    global: true,
+    jp: true,
     fullName: "Ono Tsukuyo",
     lore: true,
     school: "Hyakkiyako",
@@ -1757,6 +1951,8 @@ export const students: Student[] = [
   {
     id: 10041,
     name: "Misaki",
+    global: true,
+    jp: true,
     fullName: "Imashino Misaki",
     lore: true,
     school: "Arius",
@@ -1775,6 +1971,8 @@ export const students: Student[] = [
   {
     id: 20017,
     name: "Hiyori",
+    global: true,
+    jp: true,
     fullName: "Tsuchinaga Hiyori",
     lore: true,
     school: "Arius",
@@ -1793,6 +1991,8 @@ export const students: Student[] = [
   {
     id: 10042,
     name: "Atsuko",
+    global: true,
+    jp: true,
     fullName: "Hakari Atsuko",
     lore: true,
     school: "Arius",
@@ -1811,6 +2011,8 @@ export const students: Student[] = [
   {
     id: 10043,
     name: "Wakamo (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Kosaka Wakamo",
     lore: false,
     school: "Hyakkiyako",
@@ -1829,6 +2031,8 @@ export const students: Student[] = [
   {
     id: 10044,
     name: "Nonomi (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Izayoi Nonomi",
     lore: false,
     school: "Abydos",
@@ -1847,6 +2051,8 @@ export const students: Student[] = [
   {
     id: 26007,
     name: "Ayane (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Okusora Ayane",
     lore: false,
     school: "Abydos",
@@ -1865,6 +2071,8 @@ export const students: Student[] = [
   {
     id: 10045,
     name: "Hoshino (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Takanashi Hoshino",
     lore: false,
     school: "Abydos",
@@ -1883,6 +2091,8 @@ export const students: Student[] = [
   {
     id: 26008,
     name: "Shizuko (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Kawawa Shizuko",
     lore: false,
     school: "Hyakkiyako",
@@ -1901,6 +2111,8 @@ export const students: Student[] = [
   {
     id: 10046,
     name: "Izuna (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Kuda Izuna",
     lore: false,
     school: "Hyakkiyako",
@@ -1919,6 +2131,8 @@ export const students: Student[] = [
   {
     id: 10047,
     name: "Chise (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Waraku Chise",
     lore: false,
     school: "Hyakkiyako",
@@ -1937,6 +2151,8 @@ export const students: Student[] = [
   {
     id: 10048,
     name: "Saori",
+    global: true,
+    jp: true,
     fullName: "Joumae Saori",
     lore: true,
     school: "Arius",
@@ -1955,6 +2171,8 @@ export const students: Student[] = [
   {
     id: 20018,
     name: "Moe",
+    global: true,
+    jp: true,
     fullName: "Kazekura Moe",
     lore: true,
     school: "SRT",
@@ -1973,6 +2191,8 @@ export const students: Student[] = [
   {
     id: 10049,
     name: "Kazusa",
+    global: true,
+    jp: true,
     fullName: "Kyoyama Kazusa",
     lore: true,
     school: "Trinity",
@@ -1991,6 +2211,8 @@ export const students: Student[] = [
   {
     id: 10050,
     name: "Kokona",
+    global: true,
+    jp: true,
     fullName: "Sunohara Kokona",
     lore: true,
     school: "Shanhaijing",
@@ -2009,6 +2231,8 @@ export const students: Student[] = [
   {
     id: 10051,
     name: "Utaha (Cheer Squad)",
+    global: true,
+    jp: true,
     fullName: "Shiraishi Utaha",
     lore: false,
     school: "Millennium",
@@ -2027,6 +2251,8 @@ export const students: Student[] = [
   {
     id: 10052,
     name: "Noa",
+    global: true,
+    jp: true,
     fullName: "Ushio Noa",
     lore: true,
     school: "Millennium",
@@ -2045,6 +2271,8 @@ export const students: Student[] = [
   {
     id: 16010,
     name: "Hibiki (Cheer Squad)",
+    global: true,
+    jp: true,
     fullName: "Nekozuka Hibiki",
     lore: false,
     school: "Millennium",
@@ -2063,6 +2291,8 @@ export const students: Student[] = [
   {
     id: 20019,
     name: "Akane (Bunny)",
+    global: true,
+    jp: true,
     fullName: "Murokasa Akane",
     lore: false,
     school: "Millennium",
@@ -2081,6 +2311,8 @@ export const students: Student[] = [
   {
     id: 10053,
     name: "Yuuka (Track)",
+    global: true,
+    jp: true,
     fullName: "Hayase Yuuka",
     lore: false,
     school: "Millennium",
@@ -2099,6 +2331,8 @@ export const students: Student[] = [
   {
     id: 10054,
     name: "Mari (Track)",
+    global: true,
+    jp: true,
     fullName: "Iochi Mari",
     lore: false,
     school: "Trinity",
@@ -2117,6 +2351,8 @@ export const students: Student[] = [
   {
     id: 16011,
     name: "Hasumi (Track)",
+    global: true,
+    jp: true,
     fullName: "Hanekawa Hasumi",
     lore: false,
     school: "Trinity",
@@ -2135,6 +2371,8 @@ export const students: Student[] = [
   {
     id: 20020,
     name: "Himari",
+    global: true,
+    jp: true,
     fullName: "Akeboshi Himari",
     lore: true,
     school: "Millennium",
@@ -2153,6 +2391,8 @@ export const students: Student[] = [
   {
     id: 10055,
     name: "Shigure",
+    global: true,
+    jp: true,
     fullName: "Mayoi Shigure",
     lore: true,
     school: "Red Winter",
@@ -2171,6 +2411,8 @@ export const students: Student[] = [
   {
     id: 10056,
     name: "Serina (Christmas)",
+    global: true,
+    jp: true,
     fullName: "Sumi Serina",
     lore: false,
     school: "Trinity",
@@ -2189,6 +2431,8 @@ export const students: Student[] = [
   {
     id: 20021,
     name: "Hanae (Christmas)",
+    global: true,
+    jp: true,
     fullName: "Asagao Hanae",
     lore: false,
     school: "Trinity",
@@ -2207,6 +2451,8 @@ export const students: Student[] = [
   {
     id: 10057,
     name: "Haruna (New Year)",
+    global: true,
+    jp: true,
     fullName: "Kurodate Haruna",
     lore: false,
     school: "Gehenna",
@@ -2225,6 +2471,8 @@ export const students: Student[] = [
   {
     id: 20022,
     name: "Fuuka (New Year)",
+    global: true,
+    jp: true,
     fullName: "Aikiyo Fuuka",
     lore: false,
     school: "Gehenna",
@@ -2243,6 +2491,8 @@ export const students: Student[] = [
   {
     id: 16012,
     name: "Junko (New Year)",
+    global: true,
+    jp: true,
     fullName: "Akashi Junko",
     lore: false,
     school: "Gehenna",
@@ -2261,6 +2511,8 @@ export const students: Student[] = [
   {
     id: 10058,
     name: "Mine",
+    global: true,
+    jp: true,
     fullName: "Aomori Mine",
     lore: true,
     school: "Trinity",
@@ -2279,6 +2531,8 @@ export const students: Student[] = [
   {
     id: 10059,
     name: "Mika",
+    global: true,
+    jp: true,
     fullName: "Misono Mika",
     lore: true,
     school: "Trinity",
@@ -2297,6 +2551,8 @@ export const students: Student[] = [
   {
     id: 10060,
     name: "Megu",
+    global: true,
+    jp: true,
     fullName: "Shimokura Megu",
     lore: true,
     school: "Gehenna",
@@ -2315,6 +2571,8 @@ export const students: Student[] = [
   {
     id: 20023,
     name: "Kanna",
+    global: true,
+    jp: true,
     fullName: "Ogata Kanna",
     lore: true,
     school: "Valkyrie",
@@ -2333,6 +2591,8 @@ export const students: Student[] = [
   {
     id: 10061,
     name: "Sakurako",
+    global: true,
+    jp: true,
     fullName: "Utazumi Sakurako",
     lore: true,
     school: "Trinity",
@@ -2351,6 +2611,8 @@ export const students: Student[] = [
   {
     id: 10062,
     name: "Toki",
+    global: true,
+    jp: true,
     fullName: "Asuma Toki",
     lore: true,
     school: "Millennium",
@@ -2369,6 +2631,8 @@ export const students: Student[] = [
   {
     id: 20024,
     name: "Nagisa",
+    global: true,
+    jp: true,
     fullName: "Kirifuji Nagisa",
     lore: true,
     school: "Trinity",
@@ -2387,6 +2651,8 @@ export const students: Student[] = [
   {
     id: 10063,
     name: "Koyuki",
+    global: true,
+    jp: true,
     fullName: "Kurosaki Koyuki",
     lore: true,
     school: "Millennium",
@@ -2405,6 +2671,8 @@ export const students: Student[] = [
   {
     id: 10064,
     name: "Kayoko (New Year)",
+    global: true,
+    jp: true,
     fullName: "Onikata Kayoko",
     lore: false,
     school: "Gehenna",
@@ -2423,6 +2691,8 @@ export const students: Student[] = [
   {
     id: 20025,
     name: "Haruka (New Year)",
+    global: true,
+    jp: true,
     fullName: "Igusa Haruka",
     lore: false,
     school: "Gehenna",
@@ -2441,6 +2711,8 @@ export const students: Student[] = [
   {
     id: 10065,
     name: "Kaho",
+    global: true,
+    jp: true,
     fullName: "Kuwakami Kaho",
     lore: true,
     school: "Hyakkiyako",
@@ -2459,6 +2731,8 @@ export const students: Student[] = [
   {
     id: 10066,
     name: "Aris (Maid)",
+    global: true,
+    jp: true,
     fullName: "Tendou Aris",
     lore: false,
     school: "Millennium",
@@ -2477,6 +2751,8 @@ export const students: Student[] = [
   {
     id: 10067,
     name: "Toki (Bunny)",
+    global: true,
+    jp: true,
     fullName: "Asuma Toki",
     lore: false,
     school: "Millennium",
@@ -2495,6 +2771,8 @@ export const students: Student[] = [
   {
     id: 26009,
     name: "Yuzu (Maid)",
+    global: true,
+    jp: true,
     fullName: "Hanaoka Yuzu",
     lore: false,
     school: "Millennium",
@@ -2513,6 +2791,8 @@ export const students: Student[] = [
   {
     id: 10068,
     name: "Reisa",
+    global: true,
+    jp: true,
     fullName: "Uzawa Reisa",
     lore: true,
     school: "Trinity",
@@ -2531,6 +2811,8 @@ export const students: Student[] = [
   {
     id: 10069,
     name: "Rumi",
+    global: true,
+    jp: true,
     fullName: "Akeshiro Rumi",
     lore: true,
     school: "Shanhaijing",
@@ -2549,6 +2831,8 @@ export const students: Student[] = [
   {
     id: 10070,
     name: "Mina",
+    global: true,
+    jp: true,
     fullName: "Konoe Mina",
     lore: true,
     school: "Shanhaijing",
@@ -2567,6 +2851,8 @@ export const students: Student[] = [
   {
     id: 20026,
     name: "Minori",
+    global: true,
+    jp: true,
     fullName: "Yasumori Minori",
     lore: true,
     school: "Red Winter",
@@ -2585,6 +2871,8 @@ export const students: Student[] = [
   {
     id: 10071,
     name: "Miyako (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Tsukiyuki Miyako",
     lore: false,
     school: "SRT",
@@ -2603,6 +2891,8 @@ export const students: Student[] = [
   {
     id: 10072,
     name: "Saki (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Sorai Saki",
     lore: false,
     school: "SRT",
@@ -2621,6 +2911,8 @@ export const students: Student[] = [
   {
     id: 26010,
     name: "Miyu (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Kasumizawa Miyu",
     lore: false,
     school: "SRT",
@@ -2639,6 +2931,8 @@ export const students: Student[] = [
   {
     id: 20027,
     name: "Shiroko (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Sunaookami Shiroko",
     lore: false,
     school: "Abydos",
@@ -2657,6 +2951,8 @@ export const students: Student[] = [
   {
     id: 10073,
     name: "Ui (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Kozeki Ui",
     lore: false,
     school: "Trinity",
@@ -2675,6 +2971,8 @@ export const students: Student[] = [
   {
     id: 20028,
     name: "Hinata (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Wakaba Hinata",
     lore: false,
     school: "Trinity",
@@ -2693,6 +2991,8 @@ export const students: Student[] = [
   {
     id: 16013,
     name: "Koharu (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Shimoe Koharu",
     lore: false,
     school: "Trinity",
@@ -2711,6 +3011,8 @@ export const students: Student[] = [
   {
     id: 10074,
     name: "Hanako (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Urawa Hanako",
     lore: false,
     school: "Trinity",
@@ -2729,6 +3031,8 @@ export const students: Student[] = [
   {
     id: 20029,
     name: "Mimori (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Mizuha Mimori",
     lore: false,
     school: "Hyakkiyako",
@@ -2747,6 +3051,8 @@ export const students: Student[] = [
   {
     id: 10075,
     name: "Meru",
+    global: true,
+    jp: true,
     fullName: "Himeki Meru",
     lore: true,
     school: "Red Winter",
@@ -2765,6 +3071,8 @@ export const students: Student[] = [
   {
     id: 13013,
     name: "Momiji",
+    global: true,
+    jp: true,
     fullName: "Akiizumi Momiji",
     lore: true,
     school: "Red Winter",
@@ -2783,6 +3091,8 @@ export const students: Student[] = [
   {
     id: 10076,
     name: "Kotori (Cheer Squad)",
+    global: true,
+    jp: true,
     fullName: "Toyomi Kotori",
     lore: false,
     school: "Millennium",
@@ -2801,6 +3111,8 @@ export const students: Student[] = [
   {
     id: 20030,
     name: "Haruna (Track)",
+    global: true,
+    jp: true,
     fullName: "Kurodate Haruna",
     lore: false,
     school: "Gehenna",
@@ -2819,6 +3131,8 @@ export const students: Student[] = [
   {
     id: 10077,
     name: "Ichika",
+    global: true,
+    jp: true,
     fullName: "Nakamasa Ichika",
     lore: true,
     school: "Trinity",
@@ -2837,6 +3151,8 @@ export const students: Student[] = [
   {
     id: 10078,
     name: "Kasumi",
+    global: true,
+    jp: true,
     fullName: "Kinugawa Kasumi",
     lore: true,
     school: "Gehenna",
@@ -2855,6 +3171,8 @@ export const students: Student[] = [
   {
     id: 20031,
     name: "Shigure (Hot Spring)",
+    global: true,
+    jp: true,
     fullName: "Mayoi Shigure",
     lore: false,
     school: "Red Winter",
@@ -2873,6 +3191,8 @@ export const students: Student[] = [
   {
     id: 10079,
     name: "Misaka Mikoto",
+    global: true,
+    jp: true,
     fullName: "Misaka Mikoto",
     lore: true,
     school: "Tokiwadai",
@@ -2891,6 +3211,8 @@ export const students: Student[] = [
   {
     id: 10080,
     name: "Shokuhou Misaki",
+    global: true,
+    jp: true,
     fullName: "Shokuhou Misaki",
     lore: true,
     school: "Tokiwadai",
@@ -2909,6 +3231,8 @@ export const students: Student[] = [
   {
     id: 26011,
     name: "Saten Ruiko",
+    global: true,
+    jp: true,
     fullName: "Saten Ruiko",
     lore: true,
     school: "Sakugawa",
@@ -2927,6 +3251,8 @@ export const students: Student[] = [
   {
     id: 10081,
     name: "Yukari",
+    global: true,
+    jp: true,
     fullName: "Kadenokouji Yukari",
     lore: true,
     school: "Hyakkiyako",
@@ -2945,6 +3271,8 @@ export const students: Student[] = [
   {
     id: 10082,
     name: "Renge",
+    global: true,
+    jp: true,
     fullName: "Fuwa Renge",
     lore: true,
     school: "Hyakkiyako",
@@ -2963,6 +3291,8 @@ export const students: Student[] = [
   {
     id: 10083,
     name: "Kikyou",
+    global: true,
+    jp: true,
     fullName: "Kiryuu Kikyou",
     lore: true,
     school: "Hyakkiyako",
@@ -2981,6 +3311,8 @@ export const students: Student[] = [
   {
     id: 20032,
     name: "Eimi (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Izumimoto Eimi",
     lore: false,
     school: "Millennium",
@@ -2999,6 +3331,8 @@ export const students: Student[] = [
   {
     id: 10084,
     name: "Kotama (Camp)",
+    global: true,
+    jp: true,
     fullName: "Otose Kotama",
     lore: false,
     school: "Millennium",
@@ -3017,6 +3351,8 @@ export const students: Student[] = [
   {
     id: 10085,
     name: "Hare (Camp)",
+    global: true,
+    jp: true,
     fullName: "Omagari Hare",
     lore: false,
     school: "Millennium",
@@ -3035,6 +3371,8 @@ export const students: Student[] = [
   {
     id: 10087,
     name: "Ako (Dress)",
+    global: true,
+    jp: true,
     fullName: "Amau Ako",
     lore: false,
     school: "Gehenna",
@@ -3053,6 +3391,8 @@ export const students: Student[] = [
   {
     id: 16014,
     name: "Ibuki",
+    global: true,
+    jp: true,
     fullName: "Tanga Ibuki",
     lore: true,
     school: "Gehenna",
@@ -3071,6 +3411,8 @@ export const students: Student[] = [
   {
     id: 20033,
     name: "Makoto",
+    global: true,
+    jp: true,
     fullName: "Hanuma Makoto",
     lore: true,
     school: "Gehenna",
@@ -3089,6 +3431,8 @@ export const students: Student[] = [
   {
     id: 10086,
     name: "Hina (Dress)",
+    global: true,
+    jp: true,
     fullName: "Sorasaki Hina",
     lore: false,
     school: "Gehenna",
@@ -3107,6 +3451,8 @@ export const students: Student[] = [
   {
     id: 10088,
     name: "Kayoko (Dress)",
+    global: true,
+    jp: true,
     fullName: "Onikata Kayoko",
     lore: false,
     school: "Gehenna",
@@ -3125,6 +3471,8 @@ export const students: Student[] = [
   {
     id: 10089,
     name: "Aru (Dress)",
+    global: true,
+    jp: true,
     fullName: "Rikuhachima Aru",
     lore: false,
     school: "Gehenna",
@@ -3143,6 +3491,8 @@ export const students: Student[] = [
   {
     id: 20034,
     name: "Akari (New Year)",
+    global: true,
+    jp: true,
     fullName: "Wanibuchi Akari",
     lore: false,
     school: "Gehenna",
@@ -3161,6 +3511,8 @@ export const students: Student[] = [
   {
     id: 10090,
     name: "Umika",
+    global: true,
+    jp: true,
     fullName: "Satohama Umika",
     lore: true,
     school: "Hyakkiyako",
@@ -3179,6 +3531,8 @@ export const students: Student[] = [
   {
     id: 20035,
     name: "Tsubaki (Guide)",
+    global: true,
+    jp: true,
     fullName: "Kasuga Tsubaki",
     lore: false,
     school: "Hyakkiyako",
@@ -3197,6 +3551,8 @@ export const students: Student[] = [
   {
     id: 10091,
     name: "Kazusa (Band)",
+    global: true,
+    jp: true,
     fullName: "Kyoyama Kazusa",
     lore: false,
     school: "Trinity",
@@ -3215,6 +3571,8 @@ export const students: Student[] = [
   {
     id: 10092,
     name: "Yoshimi (Band)",
+    global: true,
+    jp: true,
     fullName: "Ibaragi Yoshimi",
     lore: false,
     school: "Trinity",
@@ -3233,6 +3591,8 @@ export const students: Student[] = [
   {
     id: 16015,
     name: "Airi (Band)",
+    global: true,
+    jp: true,
     fullName: "Kurimura Airi",
     lore: false,
     school: "Trinity",
@@ -3251,6 +3611,8 @@ export const students: Student[] = [
   {
     id: 10093,
     name: "Kirara",
+    global: true,
+    jp: true,
     fullName: "Yozakura Kirara",
     lore: true,
     school: "Gehenna",
@@ -3269,6 +3631,8 @@ export const students: Student[] = [
   {
     id: 10094,
     name: "Momoi (Maid)",
+    global: true,
+    jp: true,
     fullName: "Saiba Momoi",
     lore: false,
     school: "Millennium",
@@ -3287,6 +3651,8 @@ export const students: Student[] = [
   {
     id: 10095,
     name: "Midori (Maid)",
+    global: true,
+    jp: true,
     fullName: "Saiba Midori",
     lore: false,
     school: "Millennium",
@@ -3305,6 +3671,8 @@ export const students: Student[] = [
   {
     id: 20036,
     name: "Serika (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Kuromi Serika",
     lore: false,
     school: "Abydos",
@@ -3323,6 +3691,8 @@ export const students: Student[] = [
   {
     id: 10096,
     name: "Kanna (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Ogata Kanna",
     lore: false,
     school: "Valkyrie",
@@ -3341,6 +3711,8 @@ export const students: Student[] = [
   {
     id: 20037,
     name: "Fubuki (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Nemugaki Fubuki",
     lore: false,
     school: "Valkyrie",
@@ -3359,6 +3731,8 @@ export const students: Student[] = [
   {
     id: 26012,
     name: "Kirino (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Nakatsukasa Kirino",
     lore: false,
     school: "Valkyrie",
@@ -3377,6 +3751,8 @@ export const students: Student[] = [
   {
     id: 10097,
     name: "Moe (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Kazekura Moe",
     lore: false,
     school: "SRT",
@@ -3395,6 +3771,8 @@ export const students: Student[] = [
   {
     id: 10098,
     name: "Hoshino (Armed)",
+    global: true,
+    jp: true,
     fullName: "Takanashi Hoshino",
     lore: false,
     school: "Abydos",
@@ -3413,6 +3791,8 @@ export const students: Student[] = [
   {
     id: 10100,
     name: "Shiroko*Terror",
+    global: true,
+    jp: true,
     fullName: "Sunaookami Shiroko",
     lore: true,
     school: "Abydos",
@@ -3431,6 +3811,8 @@ export const students: Student[] = [
   {
     id: 26013,
     name: "Atsuko (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Hakari Atsuko",
     lore: false,
     school: "Arius",
@@ -3449,6 +3831,8 @@ export const students: Student[] = [
   {
     id: 10101,
     name: "Saori (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Joumae Saori",
     lore: false,
     school: "Arius",
@@ -3467,6 +3851,8 @@ export const students: Student[] = [
   {
     id: 10102,
     name: "Hiyori (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Tsuchinaga Hiyori",
     lore: false,
     school: "Arius",
@@ -3485,6 +3871,8 @@ export const students: Student[] = [
   {
     id: 10103,
     name: "Marina (Qipao)",
+    global: true,
+    jp: true,
     fullName: "Ikekura Marina",
     lore: false,
     school: "Red Winter",
@@ -3503,6 +3891,8 @@ export const students: Student[] = [
   {
     id: 20038,
     name: "Tomoe (Qipao)",
+    global: true,
+    jp: true,
     fullName: "Sashiro Tomoe",
     lore: false,
     school: "Red Winter",
@@ -3521,6 +3911,8 @@ export const students: Student[] = [
   {
     id: 10104,
     name: "Reijo",
+    global: true,
+    jp: true,
     fullName: "Kayama Reijo",
     lore: true,
     school: "Shanhaijing",
@@ -3539,6 +3931,8 @@ export const students: Student[] = [
   {
     id: 20039,
     name: "Kisaki",
+    global: true,
+    jp: true,
     fullName: "Ryuuge Kisaki",
     lore: true,
     school: "Shanhaijing",
@@ -3557,6 +3951,8 @@ export const students: Student[] = [
   {
     id: 10105,
     name: "Mari (Pop Idol)",
+    global: true,
+    jp: true,
     fullName: "Iochi Mari",
     lore: false,
     school: "Trinity",
@@ -3575,6 +3971,8 @@ export const students: Student[] = [
   {
     id: 10106,
     name: "Sakurako (Pop Idol)",
+    global: true,
+    jp: true,
     fullName: "Utazumi Sakurako",
     lore: false,
     school: "Trinity",
@@ -3593,6 +3991,8 @@ export const students: Student[] = [
   {
     id: 16016,
     name: "Mine (Pop Idol)",
+    global: true,
+    jp: true,
     fullName: "Aomori Mine",
     lore: false,
     school: "Trinity",
@@ -3611,6 +4011,8 @@ export const students: Student[] = [
   {
     id: 10107,
     name: "Chiaki",
+    global: true,
+    jp: true,
     fullName: "Motomiya Chiaki",
     lore: true,
     school: "Gehenna",
@@ -3629,6 +4031,8 @@ export const students: Student[] = [
   {
     id: 20040,
     name: "Satsuki",
+    global: true,
+    jp: true,
     fullName: "Kyougoku Satsuki",
     lore: true,
     school: "Gehenna",
@@ -3647,6 +4051,8 @@ export const students: Student[] = [
   {
     id: 10108,
     name: "Yuuka (Pajamas)",
+    global: true,
+    jp: true,
     fullName: "Hayase Yuuka",
     lore: false,
     school: "Millennium",
@@ -3665,6 +4071,8 @@ export const students: Student[] = [
   {
     id: 10109,
     name: "Noa (Pajamas)",
+    global: true,
+    jp: true,
     fullName: "Ushio Noa",
     lore: false,
     school: "Millennium",
@@ -3683,6 +4091,8 @@ export const students: Student[] = [
   {
     id: 10110,
     name: "Seia",
+    global: true,
+    jp: true,
     fullName: "Yurizono Seia",
     lore: true,
     school: "Trinity",
@@ -3701,6 +4111,8 @@ export const students: Student[] = [
   {
     id: 10112,
     name: "Asuna (School)",
+    global: true,
+    jp: true,
     fullName: "Ichinose Asuna",
     lore: false,
     school: "Millennium",
@@ -3719,6 +4131,8 @@ export const students: Student[] = [
   {
     id: 26014,
     name: "Karin (School)",
+    global: true,
+    jp: true,
     fullName: "Kakudate Karin",
     lore: false,
     school: "Millennium",
@@ -3737,6 +4151,8 @@ export const students: Student[] = [
   {
     id: 10111,
     name: "Neru (School)",
+    global: true,
+    jp: true,
     fullName: "Mikamo Neru",
     lore: false,
     school: "Millennium",
@@ -3755,6 +4171,8 @@ export const students: Student[] = [
   {
     id: 20041,
     name: "Rio",
+    global: true,
+    jp: true,
     fullName: "Tsukatsuki Rio",
     lore: true,
     school: "Millennium",
@@ -3773,6 +4191,8 @@ export const students: Student[] = [
   {
     id: 20042,
     name: "Maki (Camp)",
+    global: true,
+    jp: true,
     fullName: "Konuri Maki",
     lore: false,
     school: "Millennium",
@@ -3791,6 +4211,8 @@ export const students: Student[] = [
   {
     id: 10113,
     name: "Sena (Casual)",
+    global: true,
+    jp: true,
     fullName: "Himuro Sena",
     lore: false,
     school: "Gehenna",
@@ -3809,6 +4231,8 @@ export const students: Student[] = [
   {
     id: 10114,
     name: "Juri (Part-Timer)",
+    global: true,
+    jp: true,
     fullName: "Ushimaki Juri",
     lore: false,
     school: "Gehenna",
@@ -3827,6 +4251,8 @@ export const students: Student[] = [
   {
     id: 20043,
     name: "Izumi (New Year)",
+    global: true,
+    jp: true,
     fullName: "Shishidou Izumi",
     lore: false,
     school: "Gehenna",
@@ -3845,6 +4271,8 @@ export const students: Student[] = [
   {
     id: 10115,
     name: "Rei",
+    global: true,
+    jp: true,
     fullName: "Nomasa Rei",
     lore: true,
     school: "Millennium",
@@ -3863,6 +4291,8 @@ export const students: Student[] = [
   {
     id: 20044,
     name: "Sumire (Part-Timer)",
+    global: true,
+    jp: true,
     fullName: "Otohana Sumire",
     lore: false,
     school: "Millennium",
@@ -3881,6 +4311,8 @@ export const students: Student[] = [
   {
     id: 10116,
     name: "Saori (Dress)",
+    global: true,
+    jp: true,
     fullName: "Joumae Saori",
     lore: false,
     school: "Arius",
@@ -3899,6 +4331,8 @@ export const students: Student[] = [
   {
     id: 10117,
     name: "Hikari",
+    global: true,
+    jp: true,
     fullName: "Tachibana Hikari",
     lore: true,
     school: "Highlander",
@@ -3917,6 +4351,8 @@ export const students: Student[] = [
   {
     id: 10118,
     name: "Nozomi",
+    global: true,
+    jp: true,
     fullName: "Tachibana Nozomi",
     lore: true,
     school: "Highlander",
@@ -3935,6 +4371,8 @@ export const students: Student[] = [
   {
     id: 16017,
     name: "Aoba",
+    global: true,
+    jp: true,
     fullName: "Utsumi Aoba",
     lore: true,
     school: "Highlander",
@@ -3953,6 +4391,8 @@ export const students: Student[] = [
   {
     id: 20045,
     name: "Pina (Guide)",
+    global: true,
+    jp: true,
     fullName: "Asahina Pina",
     lore: false,
     school: "Hyakkiyako",
@@ -3971,6 +4411,8 @@ export const students: Student[] = [
   {
     id: 10119,
     name: "Nagusa",
+    global: true,
+    jp: true,
     fullName: "Goryou Nagusa",
     lore: true,
     school: "Hyakkiyako",
@@ -3989,6 +4431,8 @@ export const students: Student[] = [
   {
     id: 20046,
     name: "Niya",
+    global: true,
+    jp: true,
     fullName: "Amachi Niya",
     lore: true,
     school: "Hyakkiyako",
@@ -4007,6 +4451,8 @@ export const students: Student[] = [
   {
     id: 10120,
     name: "Natsu (Band)",
+    global: true,
+    jp: true,
     fullName: "Yutori Natsu",
     lore: false,
     school: "Trinity",
@@ -4025,6 +4471,8 @@ export const students: Student[] = [
   {
     id: 10121,
     name: "Yukari (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Kadenokouji Yukari",
     lore: false,
     school: "Hyakkiyako",
@@ -4043,6 +4491,8 @@ export const students: Student[] = [
   {
     id: 13014,
     name: "Renge (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Fuwa Renge",
     lore: false,
     school: "Hyakkiyako",
@@ -4061,6 +4511,8 @@ export const students: Student[] = [
   {
     id: 20047,
     name: "Kikyou (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Kiryuu Kikyou",
     lore: false,
     school: "Hyakkiyako",
@@ -4079,6 +4531,8 @@ export const students: Student[] = [
   {
     id: 10123,
     name: "Seia (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Yurizono Seia",
     lore: false,
     school: "Trinity",
@@ -4097,6 +4551,8 @@ export const students: Student[] = [
   {
     id: 10124,
     name: "Hasumi (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Hanekawa Hasumi",
     lore: false,
     school: "Trinity",
@@ -4115,6 +4571,8 @@ export const students: Student[] = [
   {
     id: 26015,
     name: "Ichika (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Nakamasa Ichika",
     lore: false,
     school: "Trinity",
@@ -4133,6 +4591,8 @@ export const students: Student[] = [
   {
     id: 20048,
     name: "Nagisa (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Kirifuji Nagisa",
     lore: false,
     school: "Trinity",
@@ -4151,6 +4611,8 @@ export const students: Student[] = [
   {
     id: 10122,
     name: "Mika (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Misono Mika",
     lore: false,
     school: "Trinity",
@@ -4169,6 +4631,8 @@ export const students: Student[] = [
   {
     id: 10125,
     name: "Eri",
+    global: true,
+    jp: true,
     fullName: "Shirao Eri",
     lore: true,
     school: "Wildhunt",
@@ -4187,6 +4651,8 @@ export const students: Student[] = [
   {
     id: 10126,
     name: "Kanoe",
+    global: true,
+    jp: true,
     fullName: "Itagaki Kanoe",
     lore: true,
     school: "Wildhunt",
@@ -4205,6 +4671,8 @@ export const students: Student[] = [
   {
     id: 20049,
     name: "Misaki (Swimsuit)",
+    global: true,
+    jp: true,
     fullName: "Imashino Misaki",
     lore: false,
     school: "Arius",
@@ -4223,6 +4691,8 @@ export const students: Student[] = [
   {
     id: 10127,
     name: "Miyo",
+    global: true,
+    jp: true,
     fullName: "Sakurai Miyo",
     lore: true,
     school: "Wildhunt",
@@ -4241,6 +4711,8 @@ export const students: Student[] = [
   {
     id: 10128,
     name: "Fuyu",
+    global: true,
+    jp: true,
     fullName: "Wakasa Fuyu",
     lore: true,
     school: "Wildhunt",
@@ -4259,6 +4731,8 @@ export const students: Student[] = [
   {
     id: 20050,
     name: "Ritsu",
+    global: true,
+    jp: true,
     fullName: "Usuba Ritsu",
     lore: true,
     school: "Wildhunt",
@@ -4277,6 +4751,8 @@ export const students: Student[] = [
   {
     id: 20051,
     name: "Reisa (Magical)",
+    global: true,
+    jp: true,
     fullName: "Uzawa Reisa",
     lore: false,
     school: "Trinity",
@@ -4295,6 +4771,8 @@ export const students: Student[] = [
   {
     id: 10129,
     name: "Suzumi (Magical)",
+    global: true,
+    jp: true,
     fullName: "Morizuki Suzumi",
     lore: false,
     school: "Trinity",
@@ -4313,6 +4791,8 @@ export const students: Student[] = [
   {
     id: 16018,
     name: "Rabu",
+    global: true,
+    jp: true,
     fullName: "Komakaze Rabu",
     lore: true,
     school: "Trinity",
@@ -4331,6 +4811,8 @@ export const students: Student[] = [
   {
     id: 10130,
     name: "Subaru",
+    global: true,
+    jp: true,
     fullName: "Kakehashi Subaru",
     lore: true,
     school: "Arius",
@@ -4349,6 +4831,8 @@ export const students: Student[] = [
   {
     id: 10131,
     name: "Takane",
+    global: true,
+    jp: true,
     fullName: "Miyoshi Takane",
     lore: true,
     school: "Red Winter",
@@ -4367,6 +4851,8 @@ export const students: Student[] = [
   {
     id: 20052,
     name: "Yakumo",
+    global: true,
+    jp: true,
     fullName: "Aramaki Yakumo",
     lore: true,
     school: "Red Winter",
@@ -4385,6 +4871,8 @@ export const students: Student[] = [
   {
     id: 10132,
     name: "Tsukuyo (Dress)",
+    global: true,
+    jp: true,
     fullName: "Ono Tsukuyo",
     lore: false,
     school: "Hyakkiyako",
@@ -4403,6 +4891,8 @@ export const students: Student[] = [
   {
     id: 20053,
     name: "Michiru (Dress)",
+    global: true,
+    jp: true,
     fullName: "Chidori Michiru",
     lore: false,
     school: "Hyakkiyako",
@@ -4421,6 +4911,8 @@ export const students: Student[] = [
   {
     id: 10133,
     name: "Rio (Armed)",
+    global: true,
+    jp: true,
     fullName: "Tsukatsuki Rio",
     lore: false,
     school: "Millennium",
@@ -4439,6 +4931,8 @@ export const students: Student[] = [
   {
     id: 16019,
     name: "Toki (Armed)",
+    global: true,
+    jp: true,
     fullName: "Asuma Toki",
     lore: false,
     school: "Millennium",
@@ -4457,6 +4951,8 @@ export const students: Student[] = [
   {
     id: 20054,
     name: "Himari (Armed)",
+    global: true,
+    jp: true,
     fullName: "Akeboshi Himari",
     lore: false,
     school: "Millennium",
@@ -4475,6 +4971,8 @@ export const students: Student[] = [
   {
     id: 10134,
     name: "Aris (Armed)",
+    global: true,
+    jp: true,
     fullName: "Tendou Aris",
     lore: false,
     school: "Millennium",
@@ -4493,6 +4991,8 @@ export const students: Student[] = [
   {
     id: 10135,
     name: "Kei",
+    global: true,
+    jp: true,
     fullName: "Kei",
     lore: true,
     school: "Millennium",
@@ -4511,6 +5011,8 @@ export const students: Student[] = [
   {
     id: 10136,
     name: "Eimi (Armed)",
+    global: true,
+    jp: true,
     fullName: "Izumimoto Eimi",
     lore: false,
     school: "Millennium",
@@ -4529,6 +5031,8 @@ export const students: Student[] = [
   {
     id: 20055,
     name: "Yuzu (Armed)",
+    global: true,
+    jp: true,
     fullName: "Hanaoka Yuzu",
     lore: false,
     school: "Millennium",
@@ -4547,6 +5051,8 @@ export const students: Student[] = [
   {
     id: 20056,
     name: "Koyuki (Pajamas)",
+    global: true,
+    jp: true,
     fullName: "Kurosaki Koyuki",
     lore: false,
     school: "Millennium",
@@ -4565,6 +5071,8 @@ export const students: Student[] = [
   {
     id: 10137,
     name: "Konoka",
+    global: true,
+    jp: true,
     fullName: "Shima Konoka",
     lore: true,
     school: "Valkyrie",
@@ -4583,6 +5091,8 @@ export const students: Student[] = [
   {
     id: 10138,
     name: "Rena",
+    global: true,
+    jp: true,
     fullName: "Kinui Rena",
     lore: true,
     school: "Wildhunt",
@@ -4601,6 +5111,8 @@ export const students: Student[] = [
   {
     id: 20057,
     name: "Akane (School)",
+    global: true,
+    jp: true,
     fullName: "Murokasa Akane",
     lore: false,
     school: "Millennium",
@@ -4619,6 +5131,8 @@ export const students: Student[] = [
   {
     id: 10139,
     name: "Niko",
+    global: true,
+    jp: true,
     fullName: "Yoshino Niko",
     lore: true,
     school: "SRT",
@@ -4637,6 +5151,8 @@ export const students: Student[] = [
   {
     id: 10140,
     name: "Kurumi",
+    global: true,
+    jp: true,
     fullName: "Takakura Kurumi",
     lore: true,
     school: "SRT",
@@ -4655,6 +5171,8 @@ export const students: Student[] = [
   {
     id: 16020,
     name: "Otogi",
+    global: true,
+    jp: true,
     fullName: "Tenjinyama Otogi",
     lore: true,
     school: "SRT",
@@ -4673,6 +5191,8 @@ export const students: Student[] = [
   {
     id: 20058,
     name: "Erika",
+    global: true,
+    jp: true,
     fullName: "Hatami Erika",
     lore: true,
     school: "Gehenna",
@@ -4691,6 +5211,8 @@ export const students: Student[] = [
   {
     id: 10141,
     name: "Haruka (Dress)",
+    global: true,
+    jp: true,
     fullName: "Igusa Haruka",
     lore: false,
     school: "Gehenna",
@@ -4709,6 +5231,8 @@ export const students: Student[] = [
   {
     id: 20059,
     name: "Mutsuki (Dress)",
+    global: true,
+    jp: true,
     fullName: "Asagi Mutsuki",
     lore: false,
     school: "Gehenna",
@@ -4723,5 +5247,265 @@ export const students: Student[] = [
     year: "2nd Year",
     club: "Problem Solver 68",
     gifts: ['Board Game "The Life"'],
+  },
+  {
+    id: 10142,
+    name: "Nagusa (Swimsuit)",
+    global: false,
+    jp: true,
+    fullName: "Goryou Nagusa",
+    lore: false,
+    school: "Hyakkiyako",
+    role: "Support",
+    damage: "Explosive",
+    defense: "Heavy",
+    weapon: "SR",
+    exCost: 3,
+    order: 263,
+    height: 161,
+    birthday: [12, 7],
+    year: "3rd Year",
+    club: "Hyakkaryouran Resolution Council",
+    gifts: ["Sophisticated Hairbrush"],
+  },
+  {
+    id: 10143,
+    name: "Shun (Swimsuit)",
+    global: false,
+    jp: true,
+    fullName: "Sunohara Shun",
+    lore: false,
+    school: "Shanhaijing",
+    role: "Dealer",
+    damage: "Sonic",
+    defense: "Light",
+    weapon: "SR",
+    exCost: 3,
+    order: 264,
+    height: 174,
+    birthday: [2, 5],
+    year: "3rd Year",
+    club: "Plum Blossom Garden",
+    gifts: ["Nutrient-Packed Multivitamin Gummies"],
+  },
+  {
+    id: 10145,
+    name: "Kisaki (Swimsuit)",
+    global: false,
+    jp: true,
+    fullName: "Ryuuge Kisaki",
+    lore: false,
+    school: "Shanhaijing",
+    role: "Support",
+    damage: "Sonic",
+    defense: "Elastic",
+    weapon: "SMG",
+    exCost: 2,
+    order: 266,
+    height: 142,
+    birthday: [2, 19],
+    year: "3rd Year",
+    club: "Genryumon",
+    gifts: ["Antique Egg Handicraft"],
+  },
+  {
+    id: 10146,
+    name: "Makoto (Swimsuit)",
+    global: false,
+    jp: true,
+    fullName: "Hanuma Makoto",
+    lore: false,
+    school: "Gehenna",
+    role: "Dealer",
+    damage: "Mystic",
+    defense: "Heavy",
+    weapon: "SR",
+    exCost: 6,
+    order: 267,
+    height: 169,
+    birthday: [3, 19],
+    year: "3rd Year",
+    club: "Pandemonium Society",
+    gifts: ["Sophisticated Hairbrush"],
+  },
+  {
+    id: 10147,
+    name: "Satsuki (Swimsuit)",
+    global: false,
+    jp: true,
+    fullName: "Kyougoku Satsuki",
+    lore: false,
+    school: "Gehenna",
+    role: "Healer",
+    damage: "Sonic",
+    defense: "Elastic",
+    weapon: "HG",
+    exCost: 2,
+    order: 268,
+    height: 172,
+    birthday: [4, 10],
+    year: "3rd Year",
+    club: "Pandemonium Society",
+    gifts: ["Antique Egg Handicraft"],
+  },
+  {
+    id: 26016,
+    name: "Chiaki (Swimsuit)",
+    global: false,
+    jp: true,
+    fullName: "Motomiya Chiaki",
+    lore: false,
+    school: "Gehenna",
+    role: "Dealer",
+    damage: "Piercing",
+    defense: "Heavy",
+    weapon: "AR",
+    exCost: 4,
+    order: 269,
+    height: 167,
+    birthday: [9, 22],
+    year: "2nd Year",
+    club: "Pandemonium Society",
+    gifts: ["Airbook Rare"],
+  },
+  {
+    id: 10148,
+    name: "Iroha (Swimsuit)",
+    global: false,
+    jp: true,
+    fullName: "Natsume Iroha",
+    lore: false,
+    school: "Gehenna",
+    role: "Dealer",
+    damage: "Explosive",
+    defense: "Special",
+    weapon: "HG",
+    exCost: 4,
+    order: 270,
+    height: 151,
+    birthday: [11, 16],
+    year: "2nd Year",
+    club: "Pandemonium Society",
+    gifts: ["Streets of Thugs Vol. 1"],
+  },
+  {
+    id: 20060,
+    name: "Ibuki (Swimsuit)",
+    global: false,
+    jp: true,
+    fullName: "Tanga Ibuki",
+    lore: false,
+    school: "Gehenna",
+    role: "Support",
+    damage: "Explosive",
+    defense: "Special",
+    weapon: "AR",
+    exCost: 0,
+    order: 271,
+    height: 128,
+    birthday: [4, 14],
+    year: "1st Year",
+    club: "Pandemonium Society",
+    gifts: ['Board Game "The Life"'],
+  },
+  {
+    id: 10149,
+    name: "Kokoro",
+    global: false,
+    jp: true,
+    fullName: "Toumi Kokoro",
+    lore: true,
+    school: "Odyssey",
+    role: "Support",
+    damage: "Mystic",
+    defense: "Special",
+    weapon: "AR",
+    exCost: 2,
+    order: 272,
+    height: 165,
+    birthday: [6, 11],
+    year: "2nd Year",
+    club: "Diving Club",
+    gifts: ["Three Times a Day Dumbbell Set"],
+  },
+  {
+    id: 10150,
+    name: "Kotone",
+    global: false,
+    jp: true,
+    fullName: "Fuchigami Kotone",
+    lore: true,
+    school: "Odyssey",
+    role: "Tank",
+    damage: "Explosive",
+    defense: "Special",
+    weapon: "AR",
+    exCost: 2,
+    order: 273,
+    height: 171,
+    birthday: [10, 16],
+    year: "2nd Year",
+    club: "Diving Club",
+    gifts: ["Airbook Rare"],
+  },
+  {
+    id: 20061,
+    name: "Kasumi (Swimsuit)",
+    global: false,
+    jp: true,
+    fullName: "Kinugawa Kasumi",
+    lore: false,
+    school: "Gehenna",
+    role: "Support",
+    damage: "Piercing",
+    defense: "Special",
+    weapon: "HG",
+    exCost: 3,
+    order: 274,
+    height: 148,
+    birthday: [5, 24],
+    year: "2nd Year",
+    club: "Hot Springs Department",
+    gifts: ["Airbook Rare"],
+  },
+  {
+    id: 10151,
+    name: "Anna",
+    global: false,
+    jp: true,
+    fullName: "Niki Anna",
+    lore: true,
+    school: "Red Winter",
+    role: "Dealer",
+    damage: "Piercing",
+    defense: "Light",
+    weapon: "HG",
+    exCost: 6,
+    order: 275,
+    height: 165,
+    birthday: [3, 10],
+    year: "2nd Year",
+    club: "Spec Ops No. 183",
+    gifts: ["Streets of Thugs Vol. 1"],
+  },
+  {
+    id: 20062,
+    name: "Erina",
+    global: false,
+    jp: true,
+    fullName: "Niki Erina",
+    lore: true,
+    school: "Red Winter",
+    role: "Support",
+    damage: "Sonic",
+    defense: "Light",
+    weapon: "HG",
+    exCost: 3,
+    order: 276,
+    height: 165,
+    birthday: [2, 8],
+    year: "2nd Year",
+    club: "Spec Ops No. 183",
+    gifts: ["Streets of Thugs Vol. 1"],
   },
 ];

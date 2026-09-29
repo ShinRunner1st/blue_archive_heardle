@@ -55,7 +55,10 @@ before (the first off `main`):
 - **6.4. A page for each game and a hub** (see "Game pages and the hub"
   below). On `feat/game-pages`, off `feat/preview-picture`.
 - **6.5. JP server mode** for Students, Voice and Picture (see "JP server
-  mode" below). On `feat/jp-server`, off `feat/game-pages`.
+  mode" below). _Done on `feat/jp-server`, off `feat/game-pages`, not
+  merged: its new icon sheets, portraits, voice lines and halo and weapon
+  sheets are not on the Worker or R2 yet, so run `npm run songs` before the
+  merge._
 - **6.6. A weekly content Action** that adds new students, voice lines,
   pictures and OSTs and opens a pull request (see "Weekly content update"
   below). On `feat/weekly-update`, off `feat/jp-server`.
@@ -431,6 +434,11 @@ too, about 14 students ahead of Global then (277 against 263). Agreed:
 - Each server is its own pool, with its own daily schedule (only ever
   appended to), rounds and stats, so a Global player's saves are untouched.
 - The OST already follows JP (the wiki's tracklist) and stays one game.
+- **Built** (details in the README's "JP server"): 13 JP-only students then
+  (275 on JP, 262 on Global). Global's pools, schedules and saves are exactly
+  as before; JP's are new (`.jp` keys, a `jp` field in the save file). A
+  switch starts the app over. Anna and Erina had no voice lines on SchaleDB
+  or halos on the Fandom wiki yet, so they wait for a later run.
 
 ### Weekly content update (6.6)
 

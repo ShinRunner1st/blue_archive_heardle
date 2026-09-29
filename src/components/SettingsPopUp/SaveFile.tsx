@@ -30,14 +30,13 @@ function plural(count: number, one: string, many: string): string {
 function describe(save: SaveFileData): string {
   const daily = calStats(save.rounds.daily)[7];
   const endless = calStats(save.rounds.endless)[7];
-  const students = Object.values(save.students).reduce(
-    (sum, rounds) => sum + rounds.length,
-    0
-  );
-  const voices = Object.values(save.voices).reduce(
-    (sum, rounds) => sum + rounds.length,
-    0
-  );
+  // Both servers' rounds: a JP round is a round played all the same.
+  const count = (lists: Array<Record<string, unknown[]>>) =>
+    lists
+      .flatMap((list) => Object.values(list))
+      .reduce((sum, rounds) => sum + rounds.length, 0);
+  const students = count([save.students, save.jp.students]);
+  const voices = count([save.voices, save.jp.voices]);
   const songs = `${plural(daily, "daily puzzle", "daily puzzles")} and ${plural(
     endless,
     "endless song",
@@ -111,7 +110,8 @@ export function SaveFile() {
         pending.rounds,
         pending.students,
         pending.voices,
-        pending.pictures
+        pending.pictures,
+        pending.jp
       )
     ) {
       setPending(null);

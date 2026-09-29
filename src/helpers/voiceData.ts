@@ -125,18 +125,27 @@ export function saysName(text: string, names: string[]): boolean {
 }
 
 /**
+ * A student as the line picker sees them: their English names, and their
+ * Japanese ones (given name, family name and its reading), for lines that
+ * come only in Japanese, as a student out on JP alone has.
+ */
+export type VoiceStudent = Pick<Student, "name" | "fullName"> & {
+  nativeNames?: string[];
+};
+
+/**
  * The lines Voice mode plays for one student: the title call first, if they
  * have one, then up to LOBBY_LINES lobby lines, one from each line picked.
  */
-export function pickLines(
-  entry: unknown,
-  student: Pick<Student, "name" | "fullName">
-): VoiceLine[] {
+export function pickLines(entry: unknown, student: VoiceStudent): VoiceLine[] {
   const name = student.name;
   if (!isObject(entry)) {
     throw new FormatError(`${name} has no entry of lines`);
   }
   const names = namesOf(student);
+  const native = (student.nativeNames ?? []).filter(Boolean);
+  const says = (text: string) =>
+    saysName(text, names) || native.some((word) => text.includes(word));
 
   const title = clipsOf(entry, "Normal", name).find(({ group }) =>
     group.startsWith("UITitle")
@@ -152,7 +161,7 @@ export function pickLines(
           line.group === group &&
           line.text.length >= MIN_TEXT &&
           line.text.length <= MAX_TEXT &&
-          !saysName(line.text, names)
+          !says(line.text)
       )
       .sort((a, b) => b.text.length - a.text.length)[0];
     if (best) picked.push({ clip: best.clip, text: best.text });
@@ -168,7 +177,7 @@ export function pickLines(
  */
 export function pickAllLines(
   voices: unknown,
-  students: Array<Pick<Student, "id" | "name" | "fullName">>
+  students: Array<VoiceStudent & Pick<Student, "id">>
 ): { lines: Map<number, VoiceLine[]>; missing: string[] } {
   if (!isObject(voices)) throw new FormatError("voice.json is not a table");
 

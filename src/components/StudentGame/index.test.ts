@@ -326,7 +326,9 @@ describe("StudentGame student list", () => {
     openList();
 
     const names = tiles().map((tile) => tile.title);
-    expect(names).toHaveLength(students.filter(({ lore }) => lore).length);
+    expect(names).toHaveLength(
+      students.filter(({ lore, global }) => lore && global).length
+    );
     expect(names).toEqual([...names].sort((a, b) => a.localeCompare(b)));
   });
 

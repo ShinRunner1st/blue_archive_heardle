@@ -11,6 +11,7 @@ import {
   TimeAttackStats,
 } from "./timeAttack";
 import { isWon, makeVoiceChoices, pickVoice } from "./voiceRounds";
+import { serverSuffix } from "./server";
 
 /**
  * Every line, or title calls only: "Blue Archive!" from everyone, so only
@@ -152,7 +153,7 @@ export function voiceTimeAttackShareText(
   const more = rounds.length > MAX_SQUARES ? "…" : "";
 
   return [
-    "Blue Archive Heardle 🔊 Voice Time Attack",
+    `Blue Archive Heardle 🔊 Voice Time Attack${serverSuffix()}`,
     `${score} right in ${formatClock(TIME_ATTACK_MS)} · ${answersLabel(
       settings.answers
     )} · ${linesLabel(settings.lines)}`,

@@ -6,12 +6,14 @@ import {
   CUSTOM_CURSOR_KEY,
   PLAYER_NAME_KEY,
   SENSEI_TITLE_KEY,
+  SERVER_KEY,
   VOLUME_KEY,
 } from "../constants/game";
 import { resetPlayerNameState } from "../helpers/playerName";
 import { resetCharacterChoiceState } from "../helpers/characterChoice";
 import { resetColorSchemeState } from "../helpers/colorScheme";
 import { resetCustomCursorState } from "../helpers/customCursor";
+import { resetServerState } from "../helpers/server";
 import { resetVolumeState } from "../helpers/volume";
 
 // React 19 requires this flag before `act` will run without warning.
@@ -30,9 +32,11 @@ beforeEach(() => {
   localStorage.removeItem(CHARACTER_KEY);
   localStorage.removeItem(PLAYER_NAME_KEY);
   localStorage.removeItem(SENSEI_TITLE_KEY);
+  localStorage.removeItem(SERVER_KEY);
   resetPlayerNameState();
   resetVolumeState();
   resetColorSchemeState();
   resetCustomCursorState();
   resetCharacterChoiceState();
+  resetServerState();
 });

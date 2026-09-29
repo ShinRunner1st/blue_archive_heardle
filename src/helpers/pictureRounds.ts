@@ -1,5 +1,10 @@
 import { pageUrl } from "../constants/pages";
-import { haloOrder, weaponOrder } from "../constants/guessDailyOrder";
+import {
+  haloOrder,
+  haloOrderJp,
+  weaponOrder,
+  weaponOrderJp,
+} from "../constants/guessDailyOrder";
 import {
   HALOS,
   readPictureTable,
@@ -14,8 +19,10 @@ import {
   PictureRound,
   PictureRoundMode,
 } from "../types/picture";
+import { Server, SERVERS } from "../types/server";
 import { Student } from "../types/student";
 import { SKIPPED } from "../types/voice";
+import { getServer, serverSuffix } from "./server";
 import { studentById } from "./studentRounds";
 import { isOver, isWon, triesOf } from "./voiceRounds";
 
@@ -73,43 +80,100 @@ function readAnswers(scrambled: string, names: string[] = []): PictureAnswer[] {
   });
 }
 
-const ANSWERS: Record<PictureKind, PictureAnswer[]> = {
+const tablePlace = new Map(students.map(({ id }, index) => [id, index]));
+
+/**
+ * A kind's answers on a server: each picture with only the students out
+ * there, led by the first default costume among them, or the first of them,
+ * as the build script leads each server's daily schedule. A picture with
+ * nobody out there yet is left out.
+ */
+function onServer(all: PictureAnswer[], server: Server): PictureAnswer[] {
+  const place = (id: number) => tablePlace.get(id) ?? Infinity;
+  return all
+    .flatMap((answer) => {
+      const out = answer.members
+        .map((id) => studentById.get(id))
+        .filter((student): student is Student => Boolean(student?.[server]))
+        .sort((a, b) => place(a.id) - place(b.id));
+      const lead = out.find(({ lore }) => lore) ?? out[0];
+      if (!lead) return [];
+      const members = [
+        lead.id,
+        ...out.flatMap(({ id }) => (id === lead.id ? [] : [id])),
+      ];
+      return [{ ...answer, lead: lead.id, members }];
+    })
+    .sort((a, b) => place(a.lead) - place(b.lead));
+}
+
+const ALL_ANSWERS: Record<PictureKind, PictureAnswer[]> = {
   halo: readAnswers(HALOS),
   weapon: readAnswers(WEAPONS, WEAPON_NAMES),
 };
 
-/** Each student's answer for each kind, by id: the lead's own and the rest. */
-const ANSWER_OF: Record<PictureKind, Map<number, PictureAnswer>> = {
-  halo: new Map(ANSWERS.halo.flatMap((a) => a.members.map((id) => [id, a]))),
-  weapon: new Map(
-    ANSWERS.weapon.flatMap((a) => a.members.map((id) => [id, a]))
-  ),
-};
+type ByKind<T> = Record<PictureKind, T>;
 
-/** Every answer of a kind, in the student table's order. */
-export function pictureAnswers(kind: PictureKind): PictureAnswer[] {
-  return ANSWERS[kind];
+const ANSWERS = Object.fromEntries(
+  SERVERS.map((server) => [
+    server,
+    {
+      halo: onServer(ALL_ANSWERS.halo, server),
+      weapon: onServer(ALL_ANSWERS.weapon, server),
+    },
+  ])
+) as Record<Server, ByKind<PictureAnswer[]>>;
+
+const byMember = (answers: PictureAnswer[]) =>
+  new Map(answers.flatMap((a) => a.members.map((id) => [id, a])));
+
+/** Each student's answer for each kind, by id: the lead's own and the rest. */
+const ANSWER_OF = Object.fromEntries(
+  SERVERS.map((server) => [
+    server,
+    {
+      halo: byMember(ANSWERS[server].halo),
+      weapon: byMember(ANSWERS[server].weapon),
+    },
+  ])
+) as Record<Server, ByKind<Map<number, PictureAnswer>>>;
+
+/** Every answer of a kind on the server, in the student table's order. */
+export function pictureAnswers(
+  kind: PictureKind,
+  server: Server = getServer()
+): PictureAnswer[] {
+  return ANSWERS[server][kind];
 }
 
-/** The answer a student belongs to, for a kind. */
+/** The answer a student belongs to, for a kind, on the server. */
 export function answerOf(
   kind: PictureKind,
-  id: number
+  id: number,
+  server: Server = getServer()
 ): PictureAnswer | undefined {
-  return ANSWER_OF[kind].get(id);
+  return ANSWER_OF[server][kind].get(id);
 }
 
 /**
- * Everyone the search offers: every costume with a picture, since any of
- * them can be named.
+ * Everyone the search offers on each server: every costume with a picture,
+ * since any of them can be named.
  */
-const POOLS: Record<PictureKind, Student[]> = {
-  halo: students.filter(({ id }) => ANSWER_OF.halo.has(id)),
-  weapon: students.filter(({ id }) => ANSWER_OF.weapon.has(id)),
-};
+const POOLS = Object.fromEntries(
+  SERVERS.map((server) => [
+    server,
+    {
+      halo: students.filter(({ id }) => ANSWER_OF[server].halo.has(id)),
+      weapon: students.filter(({ id }) => ANSWER_OF[server].weapon.has(id)),
+    },
+  ])
+) as Record<Server, ByKind<Student[]>>;
 
-export function picturePool(kind: PictureKind): Student[] {
-  return POOLS[kind];
+export function picturePool(
+  kind: PictureKind,
+  server: Server = getServer()
+): Student[] {
+  return POOLS[server][kind];
 }
 
 /**
@@ -162,9 +226,9 @@ export function pictureHints(
   return hasSilhouette ? ["school", "club", "silhouette"] : ["school", "club"];
 }
 
-const ORDERS: Record<PictureKind, number[]> = {
-  halo: haloOrder,
-  weapon: weaponOrder,
+const ORDERS: Record<Server, ByKind<number[]>> = {
+  global: { halo: haloOrder, weapon: weaponOrder },
+  jp: { halo: haloOrderJp, weapon: weaponOrderJp },
 };
 
 /**
@@ -172,8 +236,8 @@ const ORDERS: Record<PictureKind, number[]> = {
  * checked-in schedule, only ever appended to (see guessDailyOrder.ts).
  */
 export function dailyPicture(kind: PictureKind, day: number): number {
-  const answers = ANSWERS[kind];
-  const order = ORDERS[kind];
+  const answers = pictureAnswers(kind);
+  const order = ORDERS[getServer()][kind];
   if (order.length === 0) return answers[0]?.lead ?? 0;
   const index = (((day - 1) % order.length) + order.length) % order.length;
   const scheduled = order[index];
@@ -195,7 +259,7 @@ export function pickPicture(
   rounds: PictureRound[],
   random: Random = Math.random
 ): number {
-  const pool = ANSWERS[kind];
+  const pool = pictureAnswers(kind);
   const leads = new Set(pool.map(({ lead }) => lead));
   let dealt = new Set<number>();
   for (const { answer } of rounds) {
@@ -235,7 +299,7 @@ export function makePictureChoices(
 ): number[] {
   const student = studentById.get(answer);
   if (!student) return [];
-  const others = ANSWERS[kind]
+  const others = pictureAnswers(kind)
     .map(({ lead }) => studentById.get(lead))
     .filter(
       (other): other is Student =>
@@ -344,8 +408,12 @@ export function buildPictureShareText(
 
   const title =
     mode === "daily" && typeof round.day === "number"
-      ? `Blue Archive Heardle · ${KIND_NAMES[kind]} #${round.day}`
-      : `Blue Archive Heardle · ${KIND_NAMES[kind]} (${PICTURE_MODE_NAMES[mode]})`;
+      ? `Blue Archive Heardle · ${KIND_NAMES[kind]} #${
+          round.day
+        }${serverSuffix()}`
+      : `Blue Archive Heardle · ${KIND_NAMES[kind]} (${
+          PICTURE_MODE_NAMES[mode]
+        })${serverSuffix()}`;
   const lines = [title, `${KIND_SYMBOLS[kind]}${squares.join("")}`];
   if (mode !== "daily") lines.push(`Score: ${score}`);
   lines.push(pageUrl("picture"));

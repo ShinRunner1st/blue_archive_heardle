@@ -7,6 +7,7 @@ import {
 } from "../types/student";
 import { compareStudents, Verdict } from "./studentClues";
 import { isWon, roundTime, studentById } from "./studentRounds";
+import { serverSuffix } from "./server";
 
 const SQUARES: Record<Verdict, string> = {
   right: "🟩",
@@ -63,7 +64,9 @@ export function buildStudentShareText({
         ]
       : rows;
 
-  const name = `Blue Archive Heardle · Students (${GAME_NAMES[game]})`;
+  const name = `Blue Archive Heardle · Students (${
+    GAME_NAMES[game]
+  })${serverSuffix()}`;
   const count = round.guesses.length;
   const time = roundTime(round);
   const lines = [

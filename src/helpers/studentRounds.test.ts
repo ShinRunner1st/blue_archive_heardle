@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { gameplayOrder, loreOrder } from "../constants/studentDailyOrder";
 import { students } from "../constants/students";
 import { StudentRound } from "../types/student";
+import { setServer } from "./server";
 import { calStreaks } from "./streaks";
 import { dailyOutcomes } from "./dailyCalendar";
 import {
@@ -24,9 +25,34 @@ const [first, second] = students;
 
 describe("poolOf", () => {
   it("has every costume in Gameplay and default costumes in Lore", () => {
-    expect(poolOf("gameplay")).toHaveLength(students.length);
+    const onGlobal = students.filter((student) => student.global);
+    expect(poolOf("gameplay")).toEqual(onGlobal);
     expect(poolOf("lore").every(({ lore }) => lore)).toBe(true);
     expect(poolOf("lore").some(({ name }) => name.includes("("))).toBe(false);
+  });
+
+  it("follows the server: Global's students, or JP's, which has more", () => {
+    const jpOnly = students.filter((student) => !student.global);
+    expect(jpOnly.length).toBeGreaterThan(0);
+    expect(poolOf("gameplay", "global")).not.toContain(jpOnly[0]);
+    expect(poolOf("gameplay", "jp")).toContain(jpOnly[0]);
+
+    setServer("jp");
+    expect(poolOf("gameplay")).toHaveLength(
+      students.filter((student) => student.jp).length
+    );
+    setServer("global");
+  });
+});
+
+describe("dailyAnswer on each server", () => {
+  it("deals each server's daily from its own pool", () => {
+    const jp = new Set(poolOf("lore", "jp").map(({ id }) => id));
+    const global = new Set(poolOf("lore", "global").map(({ id }) => id));
+    for (let day = 1; day <= 40; day++) {
+      expect(jp.has(dailyAnswer("lore", day, "jp"))).toBe(true);
+      expect(global.has(dailyAnswer("lore", day, "global"))).toBe(true);
+    }
   });
 });
 

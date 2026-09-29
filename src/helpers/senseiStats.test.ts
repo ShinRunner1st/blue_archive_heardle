@@ -27,7 +27,8 @@ describe("senseiStats", () => {
       songsGuessed: 0,
       songsTotal: songs.length,
       studentsFound: 0,
-      studentsTotal: students.length,
+      // Global's, the server new players start on.
+      studentsTotal: students.filter((student) => student.global).length,
       roundsPlayed: 0,
       since: null,
     });

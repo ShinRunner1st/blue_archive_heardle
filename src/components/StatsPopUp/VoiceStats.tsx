@@ -18,6 +18,7 @@ import { CalendarBands, DailyCalendar } from "./DailyCalendar";
 import { StatRow } from "./index";
 
 import * as Styled from "./index.styled";
+import { serverSuffix } from "../../helpers/server";
 
 interface Props {
   onClose: () => void;
@@ -88,7 +89,7 @@ export function VoiceStats({
     "Share recap",
     makeRecap,
     voiceRecapName(mode),
-    `My Blue Archive Heardle Voice recap
+    `My Blue Archive Heardle Voice recap${serverSuffix()}
 ${pageUrl("voice")}`
   );
 
@@ -160,7 +161,7 @@ ${pageUrl("voice")}`
         <Styled.Tiles $columns={1}>
           <Styled.Tile>
             <Styled.TileValue>
-              {found}/{voicePool.length}
+              {found}/{voicePool().length}
             </Styled.TileValue>
             <Styled.TileLabel>Voices known</Styled.TileLabel>
           </Styled.Tile>

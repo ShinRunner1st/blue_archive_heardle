@@ -15,6 +15,10 @@ export interface Student {
   fullName: string;
   /** A default costume, so one of Lore mode's answers. */
   lore: boolean;
+  /** Out on Global, so in the Global server's pools (see types/server.ts). */
+  global: boolean;
+  /** Out on JP, so in the JP server's pools. */
+  jp: boolean;
 
   school: string;
   role: string;

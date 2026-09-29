@@ -15,7 +15,8 @@ import type { Birthday, Student } from "../types/student";
 
 type Json = Record<string, unknown>;
 
-/** Global is the second server in SchaleDB's lists: Japan, Global, China. */
+/** SchaleDB's lists of servers go Japan, Global, China. */
+const JP = 0;
 const GLOBAL = 1;
 
 class FormatError extends Error {
@@ -137,11 +138,11 @@ function localize(
   return name;
 }
 
-/** The SSR gifts out on Global, by name and tags. */
-function ssrGifts(items: unknown): Gift[] {
+/** The SSR gifts out on a server (JP or GLOBAL), by name and tags. */
+function ssrGifts(items: unknown, server: number): Gift[] {
   return entriesOf(items, "items.json")
     .filter((item) => item.Category === "Favor" && item.Rarity === "SSR")
-    .filter((item) => field(item, "IsReleased", isBooleans, "a list")[GLOBAL])
+    .filter((item) => field(item, "IsReleased", isBooleans, "a list")[server])
     .map((item) => ({
       name: field(item, "Name", isString, "text"),
       tags: field(item, "Tags", isStrings, "a list of tags"),
@@ -150,9 +151,13 @@ function ssrGifts(items: unknown): Gift[] {
 }
 
 /**
- * The student table: every student and costume out on Global, in release
- * order. A student listed twice under one name (Hoshino (Armed), once per
- * form) keeps the first.
+ * The student table: every student and costume out on JP or Global, in
+ * release order, each marked with the servers it is out on. A student listed
+ * twice under one name (Hoshino (Armed), once per form) keeps the first.
+ *
+ * A student's favourite gifts are counted among Global's gifts once they are
+ * out on Global, so JP's newer gifts never change a Global clue, and among
+ * JP's until then.
  */
 export function convertStudents(
   students: unknown,
@@ -162,14 +167,18 @@ export function convertStudents(
   if (!isObject(localization)) {
     throw new FormatError("localization.json is not an object");
   }
-  const gifts = ssrGifts(items);
-  if (gifts.length === 0) throw new FormatError("items.json has no SSR gifts");
+  const giftsOn = { global: ssrGifts(items, GLOBAL), jp: ssrGifts(items, JP) };
+  if (giftsOn.global.length === 0) {
+    throw new FormatError("items.json has no SSR gifts");
+  }
 
   const seen = new Set<string>();
   const table: Student[] = [];
 
+  const released = (entry: Json) =>
+    field(entry, "IsReleased", isBooleans, "a list");
   const entries = entriesOf(students, "students.json")
-    .filter((entry) => field(entry, "IsReleased", isBooleans, "a list")[GLOBAL])
+    .filter((entry) => released(entry)[JP] || released(entry)[GLOBAL])
     .sort(
       (a, b) =>
         field(a, "Id", isNumber, "a number") -
@@ -190,9 +199,12 @@ export function convertStudents(
       ...field(entry, "FavorItemUniqueTags", isStrings, "a list of tags"),
     ];
 
+    const onGlobal = released(entry)[GLOBAL];
     table.push({
       id: field(entry, "Id", isNumber, "a number"),
       name,
+      global: onGlobal,
+      jp: released(entry)[JP],
       fullName: `${text("FamilyName")} ${text("PersonalName")}`.trim(),
       // Costumes carry theirs in brackets; Shiroko*Terror is her own student.
       lore: !name.includes("("),
@@ -209,7 +221,7 @@ export function convertStudents(
       birthday: parseBirthday(text("BirthDay")),
       year: schoolYear(text("SchoolYear")),
       club: localize(localization, "Club", text("Club"), name),
-      gifts: favouriteGifts(tags, gifts),
+      gifts: favouriteGifts(tags, onGlobal ? giftsOn.global : giftsOn.jp),
     });
   }
 
@@ -279,7 +291,8 @@ export function clueIconFiles(
       });
     }
   }
-  for (const gift of ssrGifts(items)) {
+  // JP's gifts are Global's and more, as a JP-only student's may be.
+  for (const gift of ssrGifts(items, JP)) {
     const key = `gift/${gift.name}`;
     if (used.has(key)) {
       files.set(key, { key, path: `item/icon/${gift.icon}.webp` });

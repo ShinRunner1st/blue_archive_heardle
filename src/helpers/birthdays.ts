@@ -1,5 +1,5 @@
-import { students } from "../constants/students";
 import { Student } from "../types/student";
+import { onServer } from "./studentRounds";
 
 /** Whether it is the student's birthday on the player's own calendar. */
 export function isBirthday(student: Student, date: Date = new Date()): boolean {
@@ -22,7 +22,10 @@ export function birthdaysOn(date: Date = new Date()): Student[] {
     const match = forced && /^(\d{1,2})-(\d{1,2})$/.exec(forced);
     if (match) day = new Date(2024, Number(match[1]) - 1, Number(match[2]));
   }
-  return students.filter((student) => student.lore && isBirthday(student, day));
+  // Only the server's students: a JP-only one would be a stranger on Global.
+  return onServer().filter(
+    (student) => student.lore && isBirthday(student, day)
+  );
 }
 
 /**
@@ -40,7 +43,7 @@ export function birthdaysWithin(
       from.getMonth(),
       from.getDate() + offset
     );
-    for (const student of students) {
+    for (const student of onServer()) {
       if (student.lore && isBirthday(student, date)) {
         found.push({ student, date });
       }

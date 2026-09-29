@@ -42,6 +42,13 @@ export const VOICE_STORAGE_KEYS = {
   timeattack: "voice.timeattack",
 } as const;
 
+/**
+ * localStorage key remembering which server the student games follow:
+ * "global" or "jp" (see src/helpers/server.ts). JP's rounds are kept under
+ * the same keys as Global's with ".jp" after them.
+ */
+export const SERVER_KEY = "server";
+
 /** localStorage key remembering Voice mode's way to play Endless. */
 export const VOICE_STYLE_KEY = "voiceStyle";
 

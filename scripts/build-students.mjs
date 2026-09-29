@@ -3,12 +3,13 @@
  * icon sheet. Run `npm run students` after each Global update: it runs this,
  * then `npm run songs` to put the new sheet on the Worker and R2.
  *
- * - src/constants/students.ts: every student and costume out on Global, cut
- *   down to the fields the game compares (see src/helpers/studentData.ts,
- *   which stops the script if SchaleDB's format has changed).
+ * - src/constants/students.ts: every student and costume out on JP or
+ *   Global, marked with which, cut down to the fields the game compares (see
+ *   src/helpers/studentData.ts, which stops the script if SchaleDB's format
+ *   has changed).
  * - src/constants/studentDailyOrder.ts: the daily schedule for each way to
- *   play. Like the OST's, it is only ever appended to, so a new student can't
- *   change a day already played.
+ *   play on each server. Like the OST's, it is only ever appended to, so a
+ *   new student can't change a day already played.
  * - pictures/students/icons.webp: every icon in one sheet, in the table's
  *   order (see src/constants/studentIcons.ts). The icons themselves are kept
  *   in .cache/, which isn't committed, and only new ones are downloaded, one
@@ -90,7 +91,12 @@ const SHEET_QUALITY = 70;
 const ALPHA_STEP = 51;
 
 /** Fixed seeds, like the OST's: only new students are ever shuffled. */
-const SEEDS = { gameplay: 20260928, lore: 20260929 };
+const SEEDS = {
+  GAMEPLAY: 20260928,
+  LORE: 20260929,
+  GAMEPLAY_JP: 20261010,
+  LORE_JP: 20261011,
+};
 
 /**
  * Saves a picture from SchaleDB, unless it's in the cache already: true if
@@ -120,9 +126,11 @@ const [raw, localization, items] = await Promise.all(
 );
 const students = convertStudents(raw, localization, items);
 const lore = students.filter((student) => student.lore);
+const onGlobal = students.filter((student) => student.global);
+const onJp = students.filter((student) => student.jp);
 
 // A table this short means something went wrong, not that students left.
-if (students.length < 200 || lore.length < 100) {
+if (onGlobal.length < 200 || lore.length < 100) {
   console.error(
     `Only ${students.length} students (${lore.length} in Lore): stopping.`
   );
@@ -134,9 +142,9 @@ writeFileSync(
   `import { Student } from "../types/student";
 
 /**
- * Every student and costume out on Global, in release order, copied from
- * SchaleDB. The icon sheet (see studentIcons.ts) holds their icons in the
- * same order.
+ * Every student and costume out on JP or Global, in release order, copied
+ * from SchaleDB, each marked with the servers it is out on. The icon sheet
+ * (see studentIcons.ts) holds their icons in the same order.
  *
  * GENERATED FILE - do not edit by hand. Run \`npm run students\`.
  */
@@ -157,18 +165,20 @@ const orderSource = existsSync(ORDER_PATH)
   ? readFileSync(ORDER_PATH, "utf8")
   : null;
 const orders = {};
-for (const [game, pool] of [
-  ["gameplay", students],
-  ["lore", lore],
+for (const [name, pool] of [
+  ["GAMEPLAY", onGlobal],
+  ["LORE", onGlobal.filter((student) => student.lore)],
+  ["GAMEPLAY_JP", onJp],
+  ["LORE_JP", onJp.filter((student) => student.lore)],
 ]) {
-  const existing = loadOrder(orderSource, game.toUpperCase());
+  const existing = loadOrder(orderSource, name);
   const scheduled = new Set(existing);
   const added = pool.map(({ id }) => id).filter((id) => !scheduled.has(id));
-  orders[game] = [
+  orders[name] = [
     ...existing,
-    ...shuffled(added, SEEDS[game] + existing.length),
+    ...shuffled(added, SEEDS[name] + existing.length),
   ];
-  console.log(`${game}: ${existing.length} scheduled, ${added.length} added.`);
+  console.log(`${name}: ${existing.length} scheduled, ${added.length} added.`);
 }
 
 writeFileSync(
@@ -177,7 +187,7 @@ writeFileSync(
 
 /**
  * The order daily student puzzles are dealt in, by student id, for each way
- * to play.
+ * to play on each server.
  *
  * GENERATED FILE - do not edit by hand. Run \`npm run students\`.
  *
@@ -185,13 +195,17 @@ writeFileSync(
  * day already played. Stored scrambled, so the days ahead can't be read off
  * the code.
  */
-const GAMEPLAY = "${obscure(orders.gameplay.join(","))}";
-const LORE = "${obscure(orders.lore.join(","))}";
+const GAMEPLAY = "${obscure(orders.GAMEPLAY.join(","))}";
+const LORE = "${obscure(orders.LORE.join(","))}";
+const GAMEPLAY_JP = "${obscure(orders.GAMEPLAY_JP.join(","))}";
+const LORE_JP = "${obscure(orders.LORE_JP.join(","))}";
 
 const ids = (text: string) => (reveal(text) ?? "").split(",").map(Number);
 
 export const gameplayOrder: number[] = ids(GAMEPLAY);
 export const loreOrder: number[] = ids(LORE);
+export const gameplayOrderJp: number[] = ids(GAMEPLAY_JP);
+export const loreOrderJp: number[] = ids(LORE_JP);
 `
 );
 
@@ -248,7 +262,9 @@ try {
 }
 
 const kb = (statSync(SHEET_PATH).size / 1024).toFixed(1);
-console.log(`${students.length} students (${lore.length} in Lore).`);
+console.log(
+  `${students.length} students (${lore.length} in Lore), ${onGlobal.length} on Global, ${onJp.length} on JP.`
+);
 console.log(`${SHEET_PATH}: ${ICON_COLUMNS}x${rows} icons, ${kb} KB.`);
 
 // The clue icons: each fitted into its cell, keeping its transparency.

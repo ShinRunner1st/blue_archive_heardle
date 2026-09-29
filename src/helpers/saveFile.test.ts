@@ -40,6 +40,17 @@ const NO_VOICES = {
 
 const NO_PICTURES = Object.fromEntries(PICTURE_SLOTS.map((slot) => [slot, []]));
 
+const NO_SERVER = {
+  students: {
+    "gameplay-daily": [],
+    "gameplay-endless": [],
+    "lore-daily": [],
+    "lore-endless": [],
+  },
+  voices: NO_VOICES,
+  pictures: NO_PICTURES,
+};
+
 function file(contents: Record<string, unknown>): string {
   return obscure(JSON.stringify({ app: "baheardle", version: 1, ...contents }));
 }
@@ -66,14 +77,8 @@ describe("save files", () => {
           choice: [],
           timeattack: [],
         },
-        students: {
-          "gameplay-daily": [],
-          "gameplay-endless": [],
-          "lore-daily": [],
-          "lore-endless": [],
-        },
-        voices: NO_VOICES,
-        pictures: NO_PICTURES,
+        ...NO_SERVER,
+        jp: NO_SERVER,
       },
     });
   });
@@ -188,14 +193,8 @@ describe("save files", () => {
           choice: [],
           timeattack: [],
         },
-        students: {
-          "gameplay-daily": [],
-          "gameplay-endless": [],
-          "lore-daily": [],
-          "lore-endless": [],
-        },
-        voices: NO_VOICES,
-        pictures: NO_PICTURES,
+        ...NO_SERVER,
+        jp: NO_SERVER,
       },
     });
 
@@ -216,6 +215,26 @@ describe("save files", () => {
     expect(saveFileName(new Date(2026, 8, 3, 23, 30))).toBe(
       "baheardle-save-2026-09-03.txt"
     );
+  });
+
+  it("carries the JP server's rounds apart from Global's", () => {
+    const jpRound = { answer: 10149, guesses: [10149], day: 2 };
+    saveStudentRounds("lore-daily", [jpRound], "jp");
+    saveVoiceRounds("endless", [{ answer: 10150, line: 1, guesses: [] }], "jp");
+
+    const result = readSaveFile(buildSaveFile());
+
+    expect(result.ok && result.save.jp.students["lore-daily"]).toEqual([
+      jpRound,
+    ]);
+    expect(result.ok && result.save.jp.voices.endless).toHaveLength(1);
+    expect(result.ok && result.save.students["lore-daily"]).toEqual([]);
+  });
+
+  it("reads an older file, with no JP rounds, as JP starting fresh", () => {
+    const result = readSaveFile(file({ rounds: { endless: [round()] } }));
+
+    expect(result.ok && result.save.jp).toEqual(NO_SERVER);
   });
 
   it("exports nothing it wasn't given", () => {

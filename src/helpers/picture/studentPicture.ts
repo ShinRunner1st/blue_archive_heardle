@@ -42,6 +42,7 @@ import {
   RecapPictureContent,
   reportDate,
 } from "./recapPicture";
+import { withServerTag } from "../server";
 
 const GAME_NAMES: Record<StudentGame, string> = {
   gameplay: "Gameplay",
@@ -111,10 +112,11 @@ export function studentPictureContent({
 
   return {
     // The game, the way to play and the mode.
-    tag:
+    tag: withServerTag(
       isDaily && typeof round.day === "number"
         ? `STUDENTS · ${GAME_NAMES[game].toUpperCase()} · DAILY #${round.day}`
-        : `STUDENTS · ${GAME_NAMES[game].toUpperCase()} · ENDLESS`,
+        : `STUDENTS · ${GAME_NAMES[game].toUpperCase()} · ENDLESS`
+    ),
     title: withoutEmoji(studentResultTitle(won, count)),
     subtitle:
       (won
@@ -334,7 +336,9 @@ export function studentRecapContent(
   const mode = isDaily ? "Daily" : "Endless";
 
   return {
-    tag: `STUDENTS · ${name.toUpperCase()} · ${mode.toUpperCase()} RECAP`,
+    tag: withServerTag(
+      `STUDENTS · ${name.toUpperCase()} · ${mode.toUpperCase()} RECAP`
+    ),
     title: `Students ${name} ${mode} report`,
     subtitle: reportDate(now),
     tiles: [

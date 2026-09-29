@@ -18,6 +18,7 @@ import { CalendarBands, DailyCalendar } from "./DailyCalendar";
 import { StatRow } from "./index";
 
 import * as Styled from "./index.styled";
+import { serverSuffix } from "../../helpers/server";
 
 interface Props {
   onClose: () => void;
@@ -101,7 +102,7 @@ export function PictureStats({
     "Share recap",
     makeRecap,
     guessRecapName(kind, mode),
-    `My Blue Archive Heardle ${KIND_NAMES[kind]} recap
+    `My Blue Archive Heardle ${KIND_NAMES[kind]} recap${serverSuffix()}
 ${pageUrl("picture")}`
   );
 

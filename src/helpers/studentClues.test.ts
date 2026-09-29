@@ -14,6 +14,8 @@ function student(overrides: Partial<Student> = {}): Student {
     name: "Hoshino",
     fullName: "Takanashi Hoshino",
     lore: true,
+    global: true,
+    jp: true,
     school: "Abydos",
     role: "Tank",
     damage: "Piercing",

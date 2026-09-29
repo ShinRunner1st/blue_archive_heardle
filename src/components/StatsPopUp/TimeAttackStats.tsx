@@ -28,6 +28,7 @@ import {
 import { PictureKind } from "../../types/picture";
 
 import * as Styled from "./index.styled";
+import { serverSuffix } from "../../helpers/server";
 
 interface Props {
   onClose: () => void;
@@ -94,7 +95,9 @@ export function TimeAttackStats({
       : voice
       ? voiceRecapName("timeattack")
       : recapPictureName("timeattack"),
-    `My Blue Archive Heardle ${game}time attack recap
+    `My Blue Archive Heardle ${game}time attack recap${
+      picture || voice ? serverSuffix() : ""
+    }
 ${pageUrl(picture ? "picture" : voice ? "voice" : "ost")}`
   );
 

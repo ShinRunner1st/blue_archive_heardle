@@ -36,6 +36,7 @@ import {
   TimeAttackPictureContent,
 } from "./timeAttackPicture";
 import { drawVoicePicture, VoicePictureContent } from "./voicePicture";
+import { withServerTag } from "../server";
 
 const tagOf = (kind: PictureKind, mode: PictureRoundMode) =>
   `${KIND_NAMES[kind]} · ${PICTURE_MODE_NAMES[mode]}`.toUpperCase();
@@ -74,10 +75,11 @@ export function guessPictureContent({
   const weapon = kind === "weapon" ? answerOf(kind, answer.id)?.name : "";
 
   return {
-    tag:
+    tag: withServerTag(
       isDaily && typeof round.day === "number"
         ? `${KIND_NAMES[kind]} · DAILY #${round.day}`.toUpperCase()
-        : tagOf(kind, mode),
+        : tagOf(kind, mode)
+    ),
     title: withoutEmoji(resultTitle(won, count, tries)),
     subtitle: !won
       ? `The ${noun(kind)} got away this time`
@@ -154,7 +156,7 @@ export function guessRecapContent(
   const onePick = tally.length === 2;
 
   return {
-    tag: `${tagOf(kind, stats.mode)} RECAP`,
+    tag: withServerTag(`${tagOf(kind, stats.mode)} RECAP`),
     title: `${KIND_NAMES[kind]} ${PICTURE_MODE_NAMES[stats.mode]} report`,
     subtitle: reportDate(now),
     tiles: [
@@ -217,7 +219,7 @@ export function guessTimeAttackPictureContent({
 }: GuessTimeAttackPictureInput): TimeAttackPictureContent {
   const score = rounds.filter(isWon).length;
   return {
-    tag: `${KIND_NAMES[kind]} · TIME ATTACK`.toUpperCase(),
+    tag: withServerTag(`${KIND_NAMES[kind]} · TIME ATTACK`.toUpperCase()),
     title: `${score} ${noun(kind)}${score === 1 ? "" : "s"} in ${formatClock(
       TIME_ATTACK_MS
     )}`,
@@ -271,7 +273,7 @@ export function guessTimeAttackRecapContent(
     );
 
   return {
-    tag: `${KIND_NAMES[kind]} · TIME ATTACK RECAP`.toUpperCase(),
+    tag: withServerTag(`${KIND_NAMES[kind]} · TIME ATTACK RECAP`.toUpperCase()),
     title: `${KIND_NAMES[kind]} Time Attack report`,
     subtitle: reportDate(now),
     tiles: [

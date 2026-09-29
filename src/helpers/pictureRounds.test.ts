@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
 
 import { PICTURE_SHEETS, SHAPE_SHEETS } from "../constants/guessSheets";
-import { haloOrder, weaponOrder } from "../constants/guessDailyOrder";
+import {
+  haloOrder,
+  haloOrderJp,
+  weaponOrder,
+  weaponOrderJp,
+} from "../constants/guessDailyOrder";
 import { students } from "../constants/students";
 import {
   optionsOf,
@@ -37,6 +42,7 @@ import {
   pictureTimeAttackStats,
 } from "./pictureTimeAttack";
 import { loadPictureRounds, savePictureRounds } from "./storage";
+import { studentById } from "./studentRounds";
 import { isWon } from "./voiceRounds";
 
 const byName = (name: string) => {
@@ -61,13 +67,30 @@ function seeded(seed: number): () => number {
 }
 
 describe("the answers", () => {
-  it("cover nearly every student, each in one answer", () => {
+  it("cover nearly every student on each server, each in one answer", () => {
+    for (const server of ["global", "jp"] as const) {
+      const out = students.filter((student) => student[server]);
+      for (const kind of PICTURE_KINDS) {
+        const answers = pictureAnswers(kind, server);
+        const members = answers.flatMap((answer) => answer.members);
+        expect(new Set(members).size).toBe(members.length);
+        expect(members.length).toBeGreaterThan(out.length - 5);
+        expect(members.every((id) => studentById.get(id)?.[server])).toBe(true);
+        expect(picturePool(kind, server)).toHaveLength(members.length);
+      }
+    }
+  });
+
+  it("lead each picture on Global by a Global student, as it always was", () => {
     for (const kind of PICTURE_KINDS) {
-      const answers = pictureAnswers(kind);
-      const members = answers.flatMap((answer) => answer.members);
-      expect(new Set(members).size).toBe(members.length);
-      expect(members.length).toBeGreaterThan(students.length - 5);
-      expect(picturePool(kind)).toHaveLength(members.length);
+      for (const answer of pictureAnswers(kind, "global")) {
+        const lead = studentById.get(answer.lead);
+        expect(lead?.global).toBe(true);
+        const firstDefault = answer.members
+          .map((id) => studentById.get(id))
+          .find((student) => student?.lore);
+        if (firstDefault) expect(lead).toBe(firstDefault);
+      }
     }
   });
 
@@ -79,9 +102,11 @@ describe("the answers", () => {
   it("put the twins under one halo, and one each for everyone else", () => {
     expect(answerOf("halo", nozomi.id)?.lead).toBe(hikari.id);
     const people = new Set(
-      students.map(({ name }) => name.replace(/ \(.*\)$/, ""))
+      students
+        .filter((student) => student.global)
+        .map(({ name }) => name.replace(/ \(.*\)$/, ""))
     );
-    expect(pictureAnswers("halo").length).toBe(people.size - 1);
+    expect(pictureAnswers("halo", "global").length).toBe(people.size - 1);
   });
 
   it("put costumes carrying the same gun under one weapon", () => {
@@ -94,7 +119,8 @@ describe("the answers", () => {
 
   it("fill each sheet's cells once", () => {
     for (const kind of PICTURE_KINDS) {
-      const answers = pictureAnswers(kind);
+      // JP's are every picture; Global's are some of them.
+      const answers = pictureAnswers(kind, "jp");
       for (const cells of [
         answers.map(({ picture }) => picture),
         answers.map(({ shape }) => shape),
@@ -154,13 +180,16 @@ describe("daily puzzles", () => {
     expect(dailyPicture("weapon", 2)).toBe(weaponOrder[1]);
   });
 
-  it("schedule every picture once", () => {
-    for (const [kind, order] of [
-      ["halo", haloOrder],
-      ["weapon", weaponOrder],
+  it("schedule every picture once, on each server, by its lead there", () => {
+    for (const [kind, order, server] of [
+      ["halo", haloOrder, "global"],
+      ["weapon", weaponOrder, "global"],
+      ["halo", haloOrderJp, "jp"],
+      ["weapon", weaponOrderJp, "jp"],
     ] as const) {
+      const leads = pictureAnswers(kind, server).map(({ lead }) => lead);
       expect(new Set(order).size).toBe(order.length);
-      expect(order.length).toBe(pictureAnswers(kind).length);
+      expect([...order].sort()).toEqual([...leads].sort());
     }
   });
 });

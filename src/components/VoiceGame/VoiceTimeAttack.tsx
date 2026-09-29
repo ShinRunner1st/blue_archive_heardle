@@ -308,7 +308,7 @@ function Playing({
             <StudentSearch
               // A clear box for each line.
               key={run.rounds.length}
-              pool={voicePool}
+              pool={voicePool()}
               guessed={none}
               onGuess={pick}
               selected={selected}
@@ -341,7 +341,7 @@ function Playing({
           </TA.PlayButtons>
           {listOpen && (
             <StudentListPopUp
-              pool={voicePool}
+              pool={voicePool()}
               guessed={none}
               onPick={pickFromList}
               onClose={() => setListOpen(false)}

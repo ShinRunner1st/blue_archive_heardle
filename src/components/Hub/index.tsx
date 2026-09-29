@@ -9,7 +9,10 @@ import {
   formatCountdown,
   msUntilNextDay,
 } from "../../helpers/daily";
+import { setServer } from "../../helpers/server";
 import { isFirstRun, loadGame } from "../../helpers/storage";
+import { useServer } from "../../hooks/useServer";
+import { SERVER_NAMES, SERVERS } from "../../types/server";
 import { DailyResult, todayResults } from "../../helpers/todayResults";
 import { isPlainClick } from "../../hooks/usePage";
 import { Game } from "../../types/mode";
@@ -113,6 +116,7 @@ interface Props {
  * page, which a plain click opens in place.
  */
 export function Hub({ onOpen, onSenseiCard }: Props) {
+  const server = useServer();
   // Read once each time the hub shows: coming back from a game brings them
   // up to date. A new player has no game to continue.
   const results = React.useMemo(() => todayResults(), []);
@@ -159,6 +163,29 @@ export function Hub({ onOpen, onSenseiCard }: Props) {
         <IoTime aria-hidden="true" />
         Daily #{day} · next in {formatCountdown(remaining)}
       </Styled.Today>
+
+      <Styled.ServerRow>
+        <span id="hub-server">Students, Voice and Picture on</span>
+        <Styled.ServerChoices role="radiogroup" aria-labelledby="hub-server">
+          {SERVERS.map((value) => (
+            <Styled.ServerChoice
+              key={value}
+              type="button"
+              role="radio"
+              aria-checked={server === value}
+              $active={server === value}
+              title={
+                value === "jp"
+                  ? "JP's students, a few months ahead of Global"
+                  : "Global's students"
+              }
+              onClick={() => setServer(value)}
+            >
+              {SERVER_NAMES[value]}
+            </Styled.ServerChoice>
+          ))}
+        </Styled.ServerChoices>
+      </Styled.ServerRow>
 
       <Styled.Cards>
         {CARDS.map((card) => {

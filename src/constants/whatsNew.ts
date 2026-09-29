@@ -7,6 +7,7 @@ import {
   IoStopwatch,
   IoCalendar,
   IoDisc,
+  IoEarth,
   IoGift,
   IoHome,
   IoIdCard,
@@ -50,6 +51,11 @@ export const WHATS_NEW: NewsUpdate[] = [
         icon: IoHome,
         title: "A home page",
         text: "baheardle.com now opens on every game at once, with how today's daily puzzles went, a button to carry on where you left off, your record, what's on in Global right now (pickups, event and raids) and this week's birthdays. Each game has its own page to bookmark or share (baheardle.com/voice, say); the bar under the header moves between them, and the logo brings you home.",
+      },
+      {
+        icon: IoEarth,
+        title: "JP server",
+        text: "Students, Voice and Picture can follow the JP server, with the students Global doesn't have yet. Pick Global or JP on the home page or in Settings; each keeps its own daily puzzles, rounds and stats.",
       },
       {
         icon: IoMusicalNotes,

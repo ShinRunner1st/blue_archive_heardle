@@ -1,5 +1,5 @@
 import React from "react";
-import { IoNavigate, IoPerson, IoSparkles } from "react-icons/io5";
+import { IoEarth, IoNavigate, IoPerson, IoSparkles } from "react-icons/io5";
 
 import { setCharacterChoice } from "../../helpers/characterChoice";
 import { setCustomCursor } from "../../helpers/customCursor";
@@ -11,6 +11,9 @@ import {
 import { usePlayerName, useSenseiTitle } from "../../hooks/usePlayerName";
 import { useCharacterChoice } from "../../hooks/useCharacterChoice";
 import { useCustomCursor } from "../../hooks/useCustomCursor";
+import { useServer } from "../../hooks/useServer";
+import { setServerFromSettings } from "../../helpers/server";
+import { SERVER_NAMES, SERVERS } from "../../types/server";
 import { CharacterChoice } from "../../types/character";
 import { Button } from "../Button";
 import {
@@ -47,6 +50,8 @@ export function SettingsPopUp({ onClose, reset }: Props) {
   const playerName = usePlayerName();
   const senseiTitle = useSenseiTitle();
   const nameLabel = React.useId();
+  const server = useServer();
+  const serverLabel = React.useId();
 
   return (
     <PopUp
@@ -60,6 +65,37 @@ export function SettingsPopUp({ onClose, reset }: Props) {
       }
     >
       <PopUpBody>
+        <PopUpCard>
+          <PopUpCardIcon>
+            <IoEarth aria-hidden="true" />
+          </PopUpCardIcon>
+          <Styled.Stack>
+            <PopUpCardBody>
+              <PopUpCardTitle id={serverLabel}>Student server</PopUpCardTitle>
+              <PopUpCardText>
+                Which server&apos;s students Students, Voice and Picture follow.
+                JP is a few months ahead, with students Global doesn&apos;t have
+                yet. Each keeps its own daily puzzles, rounds and stats. The OST
+                follows JP&apos;s soundtrack either way.
+              </PopUpCardText>
+            </PopUpCardBody>
+            <Styled.Choices role="radiogroup" aria-labelledby={serverLabel}>
+              {SERVERS.map((value) => (
+                <Styled.Choice
+                  key={value}
+                  type="button"
+                  role="radio"
+                  aria-checked={server === value}
+                  $active={server === value}
+                  onClick={() => setServerFromSettings(value)}
+                >
+                  {SERVER_NAMES[value]}
+                </Styled.Choice>
+              ))}
+            </Styled.Choices>
+          </Styled.Stack>
+        </PopUpCard>
+
         <Styled.Setting
           type="button"
           role="switch"

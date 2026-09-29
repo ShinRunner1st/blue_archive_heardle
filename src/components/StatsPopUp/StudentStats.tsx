@@ -18,6 +18,7 @@ import { CalendarBands, DailyCalendar } from "./DailyCalendar";
 import { StatRow } from "./index";
 
 import * as Styled from "./index.styled";
+import { serverSuffix } from "../../helpers/server";
 
 interface Props {
   onClose: () => void;
@@ -115,7 +116,7 @@ export function StudentStats({
     "Share recap",
     makeRecap,
     studentRecapName({ game, mode }),
-    `My Blue Archive Heardle ${GAME_NAMES[game]} recap
+    `My Blue Archive Heardle ${GAME_NAMES[game]} recap${serverSuffix()}
 ${pageUrl("students")}`
   );
 

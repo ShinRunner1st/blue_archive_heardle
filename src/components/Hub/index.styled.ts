@@ -552,3 +552,52 @@ export const BirthdayDay = styled.span<{ $today: boolean }>`
   opacity: ${({ $today }) => ($today ? 1 : 0.65)};
   color: ${({ theme, $today }) => ($today ? theme.pink : "inherit")};
 `;
+
+/** Which server the student games follow, under the day's line. */
+export const ServerRow = styled.div`
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+`;
+
+export const ServerChoices = styled.div`
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid ${({ theme }) => theme.border100};
+  border-radius: 999px;
+`;
+
+export const ServerChoice = styled.button<{ $active: boolean }>`
+  padding: 2px 12px;
+
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: ${({ theme }) => theme.text};
+  text-shadow: none;
+
+  background-color: ${({ theme, $active }) =>
+    $active ? theme.blue : "transparent"};
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  opacity: ${({ $active }) => ($active ? 1 : 0.7)};
+
+  &:hover {
+    opacity: 1;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
+`;

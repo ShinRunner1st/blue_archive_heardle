@@ -1,5 +1,5 @@
 import { songs } from "../constants";
-import { students } from "../constants/students";
+
 import { BADGE_MODES, ROUND_MODES } from "../types/mode";
 import { STUDENT_SLOTS, StudentRound, StudentSlot } from "../types/student";
 import { VOICE_MODES } from "../types/voice";
@@ -14,7 +14,7 @@ import {
   loadVoiceRounds,
 } from "./storage";
 import { calStreaks } from "./streaks";
-import { asRound, isOver, isWon } from "./studentRounds";
+import { asRound, isOver, isWon, onServer } from "./studentRounds";
 import { timeAttackStats } from "./timeAttack";
 import { asRound as voiceAsRound, isOver as isVoiceOver } from "./voiceRounds";
 import { bestWinStreak } from "./winStreak";
@@ -103,7 +103,8 @@ export function senseiStats(today: number = dayNumber()): SenseiStats {
     bestWinStreak: bestWinStreak(rounds.endless),
     timeAttackBest: Math.max(timeAttack.best.typed, timeAttack.best.choice),
     studentsFound: found.size,
-    studentsTotal: students.length,
+    // The server the student games follow now, whose saves these are.
+    studentsTotal: onServer().length,
     roundsPlayed:
       ROUND_MODES.reduce(
         (total, mode) => total + rounds[mode].filter(isFinished).length,

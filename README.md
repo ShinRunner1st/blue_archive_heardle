@@ -504,7 +504,7 @@ there is no R2 copy, so an outage can't run up R2 reads.
 ### Student data
 
 The student game's data comes from [SchaleDB](https://schaledb.com/), copied
-at build time: the game never asks SchaleDB for anything. After each Global
+at build time: the game never asks SchaleDB for anything. After each game
 update, run `npm run students` and commit what it changed. It runs
 `build:students`, then `npm run songs` to put the new icon sheet on the Worker
 and R2. `build:students`:
@@ -514,10 +514,11 @@ and R2. `build:students`:
   fields the game compares, into `src/constants/students.ts`
   (`src/helpers/studentData.ts` does the converting). If the format has
   changed, it stops naming the student and field, and writes nothing, so the
-  live site keeps working. Only Global students and the official English text
-  are used.
-- appends new students to each way to play's daily schedule, shuffled among
-  themselves, so no day already played changes.
+  live site keeps working. It keeps every student out on JP or Global, each
+  marked `global` and `jp` (see [JP server](#jp-server)); a student out on JP
+  alone has SchaleDB's English name for them.
+- appends new students to each way to play's daily schedule on each server,
+  shuffled among themselves, so no day already played changes.
 - downloads the icons it doesn't have yet into `.cache/` (not committed), one
   at a time, and draws them all into one sheet, `pictures/students/icons.webp`
   (80 px cells, transparent round each student; about 450 KB), in the table's order
@@ -543,6 +544,33 @@ doesn't carry 262 of them.
 Needs ffmpeg built with libwebp, like `build:audio`. A student's favourite gift
 is the SSR gift sharing the most tags with them, as the game rates gifts; two
 gifts tie now and then, and a few guests from other series have none.
+
+### JP server
+
+Students, Voice and Picture can follow the JP server, a few months ahead of
+Global, in place of Global's: a choice in Settings and on the hub
+(`src/helpers/server.ts`, the `server` key; Global for new players). The OST
+follows JP's soundtrack either way.
+
+- **One table, two pools.** `students.ts` has every student out on either
+  server; `onServer()`, `poolOf()`, `voicePool()` and `pictureAnswers()` give
+  the pool of the server played now. A picture shared by several students is
+  led, on each server, by the first default costume out there, so Global's
+  answers are exactly what they were before JP came in.
+- **Own schedules and saves.** Each server has its own daily schedules
+  (`GAMEPLAY_JP`, `LORE_JP`, `VOICES_JP`, `HALOS_JP`, `WEAPONS_JP`), only ever
+  appended to, and its own rounds: JP's are saved under Global's keys with
+  `.jp` after them, and in a `jp` field of the save file, so a switch never
+  touches the other server's.
+- **A switch starts the app over** (`key` on `App` in `index.tsx`), since
+  every pool and history changes; Settings opens again if that's where it was
+  switched.
+- **Marked where it's shared.** On JP the games' taglines end "· JP server",
+  share texts "(JP)", and share pictures' tags "· JP".
+- **JP-only students** come with SchaleDB's English name, their lines with
+  their Japanese text (the line picker also checks the Japanese name, so no
+  line gives it away), and a halo once the Fandom wiki has one. A student
+  whose lines or halo aren't out yet waits for the next `npm run students`.
 
 ### Voice lines
 

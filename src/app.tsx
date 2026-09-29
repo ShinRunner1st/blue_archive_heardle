@@ -17,6 +17,7 @@ import {
 import { Page } from "./constants/pages";
 import { useBirthdays } from "./hooks/useBirthdays";
 import { usePage } from "./hooks/usePage";
+import { useServer } from "./hooks/useServer";
 import { useGame } from "./hooks/useGame";
 import { useStudentGame } from "./hooks/useStudentGame";
 import { useTimeAttack } from "./hooks/useTimeAttack";
@@ -32,6 +33,7 @@ import { voiceRunsOf } from "./helpers/voiceTimeAttack";
 import { runsOf } from "./helpers/timeAttack";
 import { LATEST_UPDATE_ID } from "./constants/whatsNew";
 import { placeFor } from "./helpers/winStreak";
+import { takeReopenSettings } from "./helpers/server";
 import {
   hasSeenWhatsNew,
   isFirstRun,
@@ -104,6 +106,9 @@ function App() {
   // waits behind it, unseen, as the game played last.
   const [page, navigate] = usePage();
   const isHub = page === "hub";
+  // The student games' server: the app starts over when it changes (see
+  // index.tsx), and their taglines say when it's JP.
+  const onJp = useServer() === "jp" ? " · JP server" : "";
   const [lastGame, setLastGame] = React.useState<GameName>(loadGame);
   if (!isHub && lastGame !== page) setLastGame(page);
   const gameName: GameName = isHub ? lastGame : page;
@@ -345,7 +350,10 @@ function App() {
   const [isStatsPopUpOpen, setIsStatsPopUpOpen] = React.useState(false);
   const [isHowToPopUpOpen, setIsHowToPopUpOpen] = React.useState(false);
   const [isSongListOpen, setIsSongListOpen] = React.useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+  // Open straight away after a switch of server from Settings, which starts
+  // the app over.
+  const [isSettingsOpen, setIsSettingsOpen] =
+    React.useState(takeReopenSettings);
   const [isBadgesOpen, setIsBadgesOpen] = React.useState(false);
   // Returning players see the latest news once; new players get the welcome,
   // which counts as having seen it.
@@ -617,11 +625,11 @@ function App() {
           isHub
             ? "Blue Archive guessing games"
             : isStudents
-            ? "Guess the Blue Archive student"
+            ? `Guess the Blue Archive student${onJp}`
             : isPicture
-            ? `Guess the Blue Archive student by ${pictureKind}`
+            ? `Guess the Blue Archive student by ${pictureKind}${onJp}`
             : isVoice
-            ? "Guess the Blue Archive student by voice"
+            ? `Guess the Blue Archive student by voice${onJp}`
             : "Guess the Blue Archive OST"
         }
       />

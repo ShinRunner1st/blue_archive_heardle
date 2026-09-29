@@ -29,9 +29,11 @@ import {
   pictureStorageKey,
 } from "../constants/game";
 import { ColorScheme } from "../constants/theme";
+import { getServer } from "./server";
 import { CharacterChoice, isCharacterChoice } from "../types/character";
 import { GuessType } from "../types/guess";
 import { Game, GameMode, isGameMode } from "../types/mode";
+import { Server } from "../types/server";
 import { Round } from "../types/stats";
 import { Song } from "../types/song";
 import {
@@ -68,6 +70,14 @@ const ROUNDS_KEYS: Record<GameMode, string> = {
 
 function keyFor(mode: GameMode): string {
   return ROUNDS_KEYS[mode];
+}
+
+/**
+ * A student game's key on a server: Global's as it always was, JP's with
+ * ".jp" after it, so switching server never touches the other's saves.
+ */
+function onServer(key: string, server: Server): string {
+  return server === "jp" ? `${key}.jp` : key;
 }
 
 /**
@@ -254,30 +264,40 @@ export function replaceAllRounds(
   histories: Partial<Record<GameMode, Round[]>>,
   studentHistories: Partial<Record<StudentSlot, StudentRound[]>> = {},
   voiceHistories: Partial<Record<VoiceMode, VoiceRound[]>> = {},
-  pictureHistories: Partial<Record<PictureSlot, PictureRound[]>> = {}
+  pictureHistories: Partial<Record<PictureSlot, PictureRound[]>> = {},
+  jp?: ServerHistories
 ): boolean {
+  const serverWrites = (
+    server: Server,
+    { students = {}, voices = {}, pictures = {} }: ServerHistories
+  ): Array<[string, unknown[]]> => [
+    ...(Object.keys(students) as StudentSlot[]).map(
+      (slot): [string, unknown[]] => [
+        onServer(STUDENT_STORAGE_KEYS[slot], server),
+        students[slot] ?? [],
+      ]
+    ),
+    ...(Object.keys(voices) as VoiceMode[]).map((mode): [string, unknown[]] => [
+      onServer(VOICE_STORAGE_KEYS[mode], server),
+      voices[mode] ?? [],
+    ]),
+    ...(Object.keys(pictures) as PictureSlot[]).map(
+      (slot): [string, unknown[]] => [
+        slotKey(slot, server),
+        pictures[slot] ?? [],
+      ]
+    ),
+  ];
   const writes: Array<[key: string, rounds: unknown[]]> = [
     ...(Object.keys(histories) as GameMode[]).map(
       (mode): [string, unknown[]] => [keyFor(mode), histories[mode] ?? []]
     ),
-    ...(Object.keys(studentHistories) as StudentSlot[]).map(
-      (slot): [string, unknown[]] => [
-        STUDENT_STORAGE_KEYS[slot],
-        studentHistories[slot] ?? [],
-      ]
-    ),
-    ...(Object.keys(voiceHistories) as VoiceMode[]).map(
-      (mode): [string, unknown[]] => [
-        VOICE_STORAGE_KEYS[mode],
-        voiceHistories[mode] ?? [],
-      ]
-    ),
-    ...(Object.keys(pictureHistories) as PictureSlot[]).map(
-      (slot): [string, unknown[]] => [
-        slotKey(slot),
-        pictureHistories[slot] ?? [],
-      ]
-    ),
+    ...serverWrites("global", {
+      students: studentHistories,
+      voices: voiceHistories,
+      pictures: pictureHistories,
+    }),
+    ...(jp ? serverWrites("jp", jp) : []),
   ];
   const before = writes.map(([key]) => readKey(key));
 
@@ -294,6 +314,13 @@ export function replaceAllRounds(
     });
     return false;
   }
+}
+
+/** One server's student game, Voice and picture rounds, for a save file. */
+export interface ServerHistories {
+  students?: Partial<Record<StudentSlot, StudentRound[]>>;
+  voices?: Partial<Record<VoiceMode, VoiceRound[]>>;
+  pictures?: Partial<Record<PictureSlot, PictureRound[]>>;
 }
 
 export function clearRounds(mode: GameMode = "endless"): void {
@@ -355,20 +382,32 @@ export function toStudentRounds(value: unknown): StudentRound[] {
 }
 
 /** A student game's saved rounds; never throws, like loadRounds. */
-export function loadStudentRounds(slot: StudentSlot): StudentRound[] {
-  return toStudentRounds(readSaved(STUDENT_STORAGE_KEYS[slot]));
+export function loadStudentRounds(
+  slot: StudentSlot,
+  server: Server = getServer()
+): StudentRound[] {
+  return toStudentRounds(
+    readSaved(onServer(STUDENT_STORAGE_KEYS[slot], server))
+  );
 }
 
 /** Saved scrambled, like the OST's, so the answer isn't in DevTools. */
 export function saveStudentRounds(
   slot: StudentSlot,
-  rounds: StudentRound[]
+  rounds: StudentRound[],
+  server: Server = getServer()
 ): void {
-  writeKey(STUDENT_STORAGE_KEYS[slot], obscure(JSON.stringify(rounds)));
+  writeKey(
+    onServer(STUDENT_STORAGE_KEYS[slot], server),
+    obscure(JSON.stringify(rounds))
+  );
 }
 
-export function clearStudentRounds(slot: StudentSlot): void {
-  removeKey(STUDENT_STORAGE_KEYS[slot]);
+export function clearStudentRounds(
+  slot: StudentSlot,
+  server: Server = getServer()
+): void {
+  removeKey(onServer(STUDENT_STORAGE_KEYS[slot], server));
 }
 
 /**
@@ -464,17 +503,30 @@ export function toVoiceRounds(value: unknown): VoiceRound[] {
 }
 
 /** A Voice mode's saved rounds; never throws, like loadRounds. */
-export function loadVoiceRounds(mode: VoiceMode): VoiceRound[] {
-  return toVoiceRounds(readSaved(VOICE_STORAGE_KEYS[mode]));
+export function loadVoiceRounds(
+  mode: VoiceMode,
+  server: Server = getServer()
+): VoiceRound[] {
+  return toVoiceRounds(readSaved(onServer(VOICE_STORAGE_KEYS[mode], server)));
 }
 
 /** Saved scrambled, like the others, so the answer isn't in DevTools. */
-export function saveVoiceRounds(mode: VoiceMode, rounds: VoiceRound[]): void {
-  writeKey(VOICE_STORAGE_KEYS[mode], obscure(JSON.stringify(rounds)));
+export function saveVoiceRounds(
+  mode: VoiceMode,
+  rounds: VoiceRound[],
+  server: Server = getServer()
+): void {
+  writeKey(
+    onServer(VOICE_STORAGE_KEYS[mode], server),
+    obscure(JSON.stringify(rounds))
+  );
 }
 
-export function clearVoiceRounds(mode: VoiceMode): void {
-  removeKey(VOICE_STORAGE_KEYS[mode]);
+export function clearVoiceRounds(
+  mode: VoiceMode,
+  server: Server = getServer()
+): void {
+  removeKey(onServer(VOICE_STORAGE_KEYS[mode], server));
 }
 
 /** The usable picture rounds in a parsed value; shared with save files. */
@@ -485,26 +537,36 @@ export function toPictureRounds(value: unknown): PictureRound[] {
     .filter((round): round is PictureRound => round !== null);
 }
 
-const slotKey = (slot: PictureSlot) => {
+const slotKey = (slot: PictureSlot, server: Server) => {
   const dash = slot.indexOf("-");
-  return pictureStorageKey(slot.slice(0, dash), slot.slice(dash + 1));
+  return onServer(
+    pictureStorageKey(slot.slice(0, dash), slot.slice(dash + 1)),
+    server
+  );
 };
 
 /** A picture game slot's saved rounds; never throws, like loadRounds. */
-export function loadPictureRounds(slot: PictureSlot): PictureRound[] {
-  return toPictureRounds(readSaved(slotKey(slot)));
+export function loadPictureRounds(
+  slot: PictureSlot,
+  server: Server = getServer()
+): PictureRound[] {
+  return toPictureRounds(readSaved(slotKey(slot, server)));
 }
 
 /** Saved scrambled, like the others, so the answer isn't in DevTools. */
 export function savePictureRounds(
   slot: PictureSlot,
-  rounds: PictureRound[]
+  rounds: PictureRound[],
+  server: Server = getServer()
 ): void {
-  writeKey(slotKey(slot), obscure(JSON.stringify(rounds)));
+  writeKey(slotKey(slot, server), obscure(JSON.stringify(rounds)));
 }
 
-export function clearPictureRounds(slot: PictureSlot): void {
-  removeKey(slotKey(slot));
+export function clearPictureRounds(
+  slot: PictureSlot,
+  server: Server = getServer()
+): void {
+  removeKey(slotKey(slot, server));
 }
 
 /** The picture game's kind picked last; halos to begin with. */

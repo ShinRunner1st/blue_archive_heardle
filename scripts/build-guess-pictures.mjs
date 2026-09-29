@@ -9,8 +9,8 @@
  *   in white, for the silhouette way to play, in an order of their own.
  * - src/constants/guessPictures.ts: which students each picture belongs to,
  *   its cell in each sheet, and a weapon's name, stored scrambled.
- * - src/constants/guessDailyOrder.ts: each kind's daily schedule, only ever
- *   appended to.
+ * - src/constants/guessDailyOrder.ts: each kind's daily schedule on each
+ *   server, only ever appended to.
  *
  * One picture can belong to several students: a student's costumes share a
  * halo, most share a weapon, and the twins Hikari and Nozomi share a halo.
@@ -58,8 +58,13 @@ const DAILY_ORDER_PATH = "src/constants/guessDailyOrder.ts";
 
 /** Fixed seeds, so the same pictures always land in the same cells. */
 const SEEDS = {
-  halo: { pictures: 20261101, shapes: 20261102, daily: 20261103 },
-  weapon: { pictures: 20261201, shapes: 20261202, daily: 20261203 },
+  halo: { pictures: 20261101, shapes: 20261102, daily: 20261103, jp: 20261104 },
+  weapon: {
+    pictures: 20261201,
+    shapes: 20261202,
+    daily: 20261203,
+    jp: 20261204,
+  },
 };
 
 /** The wiki's name for a halo where it isn't the student's. */
@@ -134,9 +139,7 @@ function groupBy(keyOf) {
 
 // Halos: one per student, costumes and all, and one for twins who share one.
 const haloOwner = new Map(
-  SHARED_HALOS.flatMap(([first, ...rest]) =>
-    rest.map((name) => [name, first])
-  )
+  SHARED_HALOS.flatMap(([first, ...rest]) => rest.map((name) => [name, first]))
 );
 const halos = groupBy(({ name }) => {
   const base = baseName(name);
@@ -197,7 +200,8 @@ if (needHalos.length > 0) {
   for (const name of needHalos) {
     const url = urls.get(wikiName(name));
     // The wiki sends WebP unless asked for the file as it was uploaded.
-    const original = url && `${url}${url.includes("?") ? "&" : "?"}format=original`;
+    const original =
+      url && `${url}${url.includes("?") ? "&" : "?"}format=original`;
     if (!original || !(await downloadOnce(original, haloFile(name)))) {
       console.log(`  No halo on the wiki for ${name}.`);
     }
@@ -257,8 +261,7 @@ async function trimAll(kind, groups) {
   const out = [];
   const missing = [];
   for (const group of groups) {
-    const file =
-      kind === "halo" ? haloFile(group.key) : weaponFile(group.key);
+    const file = kind === "halo" ? haloFile(group.key) : weaponFile(group.key);
     if (!existsSync(file)) {
       missing.push(group.key);
       continue;
@@ -308,9 +311,7 @@ async function drawSheet(pictures, layout, shape) {
       ...["-v", "error", "-y", "-i", join(work, "%04d.png")],
       ...["-filter_complex", shape ? tile : rounded],
       ...["-frames:v", "1", "-c:v", "libwebp"],
-      ...(shape
-        ? ["-lossless", "1"]
-        : ["-quality", String(PICTURE_QUALITY)]),
+      ...(shape ? ["-lossless", "1"] : ["-quality", String(PICTURE_QUALITY)]),
       ...["-compression_level", "6", "-map_metadata", "-1", path],
     ]);
     return path;
@@ -319,11 +320,9 @@ async function drawSheet(pictures, layout, shape) {
   }
 }
 
-/** A kind's daily schedule as written last, by lead student id. */
-function storedDaily(source, kind) {
-  const match = source?.match(
-    new RegExp(`${kind.toUpperCase()}S =\\s*"([^"]*)"`)
-  );
+/** A schedule as written last, by lead student id: HALOS, WEAPONS_JP... */
+function storedDaily(source, name) {
+  const match = source?.match(new RegExp(`${name} =\\s*"([^"]*)"`));
   return match
     ? (reveal(match[1]) ?? "").split(",").filter(Boolean).map(Number)
     : [];
@@ -370,8 +369,7 @@ for (const kind of PICTURE_KINDS) {
 
   // The groups in the table's order, with their cells in each sheet.
   const ordered = [...pictures].sort(
-    (a, b) =>
-      tablePlace.get(a.members[0].id) - tablePlace.get(b.members[0].id)
+    (a, b) => tablePlace.get(a.members[0].id) - tablePlace.get(b.members[0].id)
   );
   // Each picture as its two cells, then its students' places in the table,
   // two base-36 characters each, as voiceTones.ts keeps them: ids and JSON
@@ -392,19 +390,31 @@ for (const kind of PICTURE_KINDS) {
     names = ordered.map(({ members }) => weaponOf.get(members[0].id).name);
   }
 
-  // The daily schedule: only ever appended to, so a new student can't
-  // change a day already played.
-  const scheduled = storedDaily(dailySource, kind);
-  const unscheduled = ordered
-    .map(({ members }) => members[0].id)
-    .filter((id) => !scheduled.includes(id));
-  daily[kind] = [
-    ...scheduled,
-    ...shuffled(unscheduled, SEEDS[kind].daily + scheduled.length),
-  ];
-  console.log(
-    `  daily: ${scheduled.length} scheduled, ${unscheduled.length} added.`
-  );
+  // Each server's daily schedule: only ever appended to, so a new student
+  // can't change a day already played. A server's pictures are those with a
+  // student out there, led as the game leads them (see pictureRounds.ts):
+  // the first default costume among them, or the first of them.
+  for (const [server, name, seed] of [
+    ["global", `${kind.toUpperCase()}S`, SEEDS[kind].daily],
+    ["jp", `${kind.toUpperCase()}S_JP`, SEEDS[kind].jp],
+  ]) {
+    const leads = ordered.flatMap(({ members }) => {
+      const out = members
+        .filter((student) => student[server])
+        .sort((a, b) => tablePlace.get(a.id) - tablePlace.get(b.id));
+      const lead = out.find(({ lore }) => lore) ?? out[0];
+      return lead ? [lead.id] : [];
+    });
+    const scheduled = storedDaily(dailySource, name);
+    const unscheduled = leads.filter((id) => !scheduled.includes(id));
+    daily[name] = [
+      ...scheduled,
+      ...shuffled(unscheduled, seed + scheduled.length),
+    ];
+    console.log(
+      `  daily ${name}: ${scheduled.length} scheduled, ${unscheduled.length} added.`
+    );
+  }
 }
 
 writeFileSync(
@@ -443,8 +453,8 @@ writeFileSync(
   `import { reveal } from "../helpers/obscure";
 
 /**
- * The order the daily halo and weapon puzzles are dealt in, by the student
- * who stands for each picture.
+ * The order the daily halo and weapon puzzles are dealt in on each server, by
+ * the student who stands for each picture there.
  *
  * GENERATED FILE - do not edit by hand. Run \`npm run build:guess\`.
  *
@@ -452,9 +462,13 @@ writeFileSync(
  * day already played. Stored scrambled, so the days ahead can't be read off
  * the code.
  */
-const HALOS = "${obscure(daily.halo.join(","))}";
+const HALOS = "${obscure(daily.HALOS.join(","))}";
 
-const WEAPONS = "${obscure(daily.weapon.join(","))}";
+const WEAPONS = "${obscure(daily.WEAPONS.join(","))}";
+
+const HALOS_JP = "${obscure(daily.HALOS_JP.join(","))}";
+
+const WEAPONS_JP = "${obscure(daily.WEAPONS_JP.join(","))}";
 
 const read = (scrambled: string): number[] =>
   (reveal(scrambled) ?? "").split(",").filter(Boolean).map(Number);
@@ -462,5 +476,9 @@ const read = (scrambled: string): number[] =>
 export const haloOrder: number[] = read(HALOS);
 
 export const weaponOrder: number[] = read(WEAPONS);
+
+export const haloOrderJp: number[] = read(HALOS_JP);
+
+export const weaponOrderJp: number[] = read(WEAPONS_JP);
 `
 );

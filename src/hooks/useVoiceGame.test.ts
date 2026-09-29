@@ -23,7 +23,7 @@ function render(mode: VoiceRoundMode = "endless") {
 
 /** Students who aren't the answer. */
 function wrongIds(count: number): number[] {
-  return voicePool
+  return voicePool()
     .filter(({ id }) => id !== game.round.answer)
     .slice(0, count)
     .map(({ id }) => id);
@@ -118,7 +118,7 @@ describe("useVoiceGame", () => {
   });
 
   it("resumes the round left open, and resets on request", () => {
-    const open = { answer: voicePool[3].id, line: 0, guesses: [SKIPPED] };
+    const open = { answer: voicePool()[3].id, line: 0, guesses: [SKIPPED] };
     saveVoiceRounds("endless", [open]);
     render();
     expect(game.round).toEqual(open);

@@ -1,30 +1,55 @@
-import { gameplayOrder, loreOrder } from "../constants/studentDailyOrder";
+import {
+  gameplayOrder,
+  gameplayOrderJp,
+  loreOrder,
+  loreOrderJp,
+} from "../constants/studentDailyOrder";
 import { students } from "../constants/students";
 import { GuessType } from "../types/guess";
 import { Round } from "../types/stats";
+import { Server } from "../types/server";
 import { Student, StudentGame, StudentRound } from "../types/student";
+import { getServer } from "./server";
 
 export const studentById = new Map(
   students.map((student) => [student.id, student])
 );
 
+/** The students out on a server: the table has both servers' in it. */
+export function onServer(server: Server = getServer()): Student[] {
+  return server === "jp" ? ON_JP : ON_GLOBAL;
+}
+
+const ON_GLOBAL = students.filter((student) => student.global);
+const ON_JP = students.filter((student) => student.jp);
+
 /**
- * The answers each way to play deals from. Gameplay has every costume, since
- * each has its own kit; Lore has the students themselves, as a profile
- * belongs to the student rather than the outfit.
+ * The answers each way to play deals from, on each server. Gameplay has
+ * every costume, since each has its own kit; Lore has the students
+ * themselves, as a profile belongs to the student rather than the outfit.
  */
-const POOLS: Record<StudentGame, Student[]> = {
-  gameplay: students,
-  lore: students.filter((student) => student.lore),
+const POOLS: Record<Server, Record<StudentGame, Student[]>> = {
+  global: {
+    gameplay: ON_GLOBAL,
+    lore: ON_GLOBAL.filter((student) => student.lore),
+  },
+  jp: {
+    gameplay: ON_JP,
+    lore: ON_JP.filter((student) => student.lore),
+  },
 };
 
-const ORDERS: Record<StudentGame, number[]> = {
-  gameplay: gameplayOrder,
-  lore: loreOrder,
+const ORDERS: Record<Server, Record<StudentGame, number[]>> = {
+  global: { gameplay: gameplayOrder, lore: loreOrder },
+  jp: { gameplay: gameplayOrderJp, lore: loreOrderJp },
 };
 
-export function poolOf(game: StudentGame): Student[] {
-  return POOLS[game];
+/** A way to play's answers, on the server the games follow now. */
+export function poolOf(
+  game: StudentGame,
+  server: Server = getServer()
+): Student[] {
+  return POOLS[server][game];
 }
 
 /** Saved guesses stop at the answer, so a win ends with it. */
@@ -41,9 +66,13 @@ export function isOver(round: StudentRound): boolean {
  * checked-in schedule, only ever appended to, like the OST's (see
  * dailySong), so a new student can't change a day already played.
  */
-export function dailyAnswer(game: StudentGame, day: number): number {
-  const order = ORDERS[game];
-  const pool = POOLS[game];
+export function dailyAnswer(
+  game: StudentGame,
+  day: number,
+  server: Server = getServer()
+): number {
+  const order = ORDERS[server][game];
+  const pool = POOLS[server][game];
   const index = (((day - 1) % order.length) + order.length) % order.length;
   const id = order[index];
   if (pool.some((student) => student.id === id)) return id;
@@ -62,7 +91,7 @@ export function pickAnswer(
   rounds: StudentRound[],
   random: () => number = Math.random
 ): number {
-  const pool = POOLS[game];
+  const pool = poolOf(game);
   const ids = new Set(pool.map(({ id }) => id));
 
   let dealt = new Set<number>();
@@ -87,7 +116,7 @@ export function knownRounds(
   game: StudentGame,
   rounds: StudentRound[]
 ): StudentRound[] {
-  const ids = new Set(POOLS[game].map(({ id }) => id));
+  const ids = new Set(poolOf(game).map(({ id }) => id));
   return rounds
     .filter((round) => ids.has(round.answer))
     .map((round) => {

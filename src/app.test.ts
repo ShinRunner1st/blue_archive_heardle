@@ -7,7 +7,9 @@ import App from "./app";
 import { DAILY_STORAGE_KEY, MODE_KEY, STORAGE_KEY } from "./constants/game";
 import { LATEST_UPDATE_ID } from "./constants/whatsNew";
 import { songs } from "./constants";
+import { setServer } from "./helpers/server";
 import { emptyGuesses, saveRounds } from "./helpers/storage";
+import { students } from "./constants/students";
 
 /** The search boxes, not the players' volume and seek sliders. */
 const TEXT_INPUT = "input:not([type=range])";
@@ -245,6 +247,42 @@ describe("App hub", () => {
 
     expect(container.textContent).not.toContain("Now in Global");
     vi.unstubAllGlobals();
+  });
+
+  it("plays the JP server's students once it is picked", () => {
+    const jpOnly = students.find((student) => !student.global && student.lore)!;
+    localStorage.setItem("firstRun", "false");
+    window.history.replaceState(null, "", "/students");
+    const names = () => {
+      act(() =>
+        container
+          .querySelector<HTMLButtonElement>(
+            '[aria-label="Browse all students"]'
+          )
+          ?.click()
+      );
+      const found = Array.from(
+        document.querySelectorAll<HTMLButtonElement>(
+          '[role="dialog"] button[title]'
+        )
+      ).map((tile) => tile.title);
+      act(() => {
+        document.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Escape", bubbles: true })
+        );
+      });
+      return found;
+    };
+
+    mount();
+    expect(container.textContent).not.toContain("JP server");
+    expect(names()).not.toContain(jpOnly.name);
+
+    harness.unmount();
+    setServer("jp");
+    mount();
+    expect(container.textContent).toContain("JP server");
+    expect(names()).toContain(jpOnly.name);
   });
 
   it("links home from every game's navigation bar", () => {

@@ -17,6 +17,7 @@ import {
   TimeAttackStats,
 } from "./timeAttack";
 import { isWon } from "./voiceRounds";
+import { serverSuffix } from "./server";
 
 /**
  * Picture time attack's settings: typed answers or four, and the pictures
@@ -142,7 +143,9 @@ export function pictureTimeAttackShareText(
   const more = rounds.length > MAX_SQUARES ? "…" : "";
 
   return [
-    `Blue Archive Heardle ${KIND_SYMBOLS[kind]} ${KIND_NAMES[kind]} Time Attack`,
+    `Blue Archive Heardle ${KIND_SYMBOLS[kind]} ${
+      KIND_NAMES[kind]
+    } Time Attack${serverSuffix()}`,
     `${score} right in ${formatClock(TIME_ATTACK_MS)} · ${answersLabel(
       settings.answers
     )} · ${shapeLabel(settings.shape)}`,

@@ -148,6 +148,14 @@ export const voiceLines: Record<number, [count: number, version: string]> = {
   10139: [5, "40436951"],
   10140: [5, "69eff194"],
   10141: [5, "85cb518d"],
+  10142: [5, "74d72785"],
+  10143: [5, "21549191"],
+  10145: [5, "58610964"],
+  10146: [5, "39ea5ec2"],
+  10147: [5, "feeb2606"],
+  10148: [5, "af8831c5"],
+  10149: [5, "bc77ea25"],
+  10150: [5, "00a1d4a4"],
   13000: [5, "38576fe7"],
   13001: [5, "58c49228"],
   13002: [5, "402bba76"],
@@ -244,6 +252,8 @@ export const voiceLines: Record<number, [count: number, version: string]> = {
   20057: [5, "f04ac684"],
   20058: [5, "cfc4d3fb"],
   20059: [5, "f059a7ce"],
+  20060: [3, "52f82953"],
+  20061: [5, "168429fe"],
   23000: [5, "a9e10962"],
   23001: [5, "999b0f46"],
   23002: [5, "61bcccaf"],
@@ -269,9 +279,10 @@ export const voiceLines: Record<number, [count: number, version: string]> = {
   26013: [5, "f1815e3f"],
   26014: [5, "628de91a"],
   26015: [5, "b98c4e53"],
+  26016: [5, "ea8b33f8"],
 };
 
 /** Students whose line 0 is a lobby line: they have no title call. */
 export const NO_TITLE_CALL: number[] = [20007];
 
-export const VOICE_TEXTS = "voices/texts.99406a15.json";
+export const VOICE_TEXTS = "voices/texts.ec4dad04.json";

@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { gameplayOrder, loreOrder } from "../constants/studentDailyOrder";
+import {
+  gameplayOrder,
+  gameplayOrderJp,
+  loreOrder,
+  loreOrderJp,
+} from "../constants/studentDailyOrder";
 import { students } from "../constants/students";
 import {
   clueIconFiles,
@@ -124,6 +129,8 @@ describe("convertStudents", () => {
         name: "Hoshino",
         fullName: "Takanashi Hoshino",
         lore: true,
+        global: true,
+        jp: true,
         school: "Abydos",
         role: "Tank",
         damage: "Piercing",
@@ -145,16 +152,26 @@ describe("convertStudents", () => {
     expect(convertStudents(table, localization, items)).toHaveLength(1);
   });
 
-  it("keeps Global students only, in release order", () => {
+  it("keeps JP and Global students, in release order, marked by server", () => {
     const table = [
       entry({ Id: 2, Name: "B", DefaultOrder: 9 }),
-      entry({ Id: 3, Name: "C", IsReleased: [true, false, false] }),
+      entry({
+        Id: 3,
+        Name: "C",
+        DefaultOrder: 11,
+        IsReleased: [true, false, false],
+      }),
       entry({ Id: 1, Name: "A", DefaultOrder: 10 }),
+      entry({ Id: 4, Name: "D", IsReleased: [false, false, true] }),
     ];
-    const names = convertStudents(table, localization, items).map(
-      ({ name }) => name
+    const servers = convertStudents(table, localization, items).map(
+      ({ name, global, jp }) => [name, global, jp]
     );
-    expect(names).toEqual(["B", "A"]);
+    expect(servers).toEqual([
+      ["B", true, true],
+      ["A", true, true],
+      ["C", false, true],
+    ]);
   });
 
   it("keeps the first of two entries under one name", () => {
@@ -228,10 +245,14 @@ describe("the checked-in student table", () => {
     );
   });
 
-  it("schedules every answer exactly once", () => {
+  it("schedules every answer exactly once, on each server", () => {
+    const onGlobal = students.filter((student) => student.global);
+    const onJp = students.filter((student) => student.jp);
     for (const [order, pool] of [
-      [gameplayOrder, students],
-      [loreOrder, students.filter(({ lore }) => lore)],
+      [gameplayOrder, onGlobal],
+      [loreOrder, onGlobal.filter(({ lore }) => lore)],
+      [gameplayOrderJp, onJp],
+      [loreOrderJp, onJp.filter(({ lore }) => lore)],
     ] as const) {
       // Run `npm run students` after changing the table.
       expect([...order].sort()).toEqual(pool.map(({ id }) => id).sort());
