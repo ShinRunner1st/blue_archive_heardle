@@ -91,8 +91,10 @@ What the project cares about:
   build and `npm run check:pages` (`scripts/check-pages.mjs`: every page on
   Global and JP in headless Chrome, failing on page errors, failed loads and
   any picture cut squashed, outside or blank from its sheet) on every push
-  to `main` and every pull request. `.github/workflows/content-update.yml` (Wednesdays)
-  looks for new students, voice lines, halos and wiki tracks
+  to `main` and every pull request. `.github/workflows/content-update.yml`
+  (Wednesdays) downloads the game's music with BA-AD (pinned,
+  `npm run download:music`), looks for new students, voice lines, halos and
+  tracks, from the game's files with names from the wiki
   (`npm run find-updates`), builds and uploads them, and opens a pull request
   (`auto/content-update`) to review and merge; it never pushes to `main`.
 

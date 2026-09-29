@@ -1,9 +1,11 @@
 /**
- * Adds the soundtrack's new tracks to the song list, from the Blue Archive
- * wiki's Music page (JP's tracklist, see scripts/lib/wikiTracks.mjs): each
- * new track's file goes into audio/ as Theme_<n>.ogg, checked against the
- * wiki's SHA-1, and its entry into src/constants/songs.ts, with the wiki's
- * title and artist, or "Theme <n>" by "Unknown" while the wiki has none. A
+ * Adds the soundtrack's new tracks to the song list: each new track's file
+ * goes into audio/ as Theme_<n>.ogg, from the game's files downloaded with
+ * BA-AD (scripts/lib/gameTracks.mjs; BAAD_OUTPUT points at a download of
+ * your own) or, for one the game's files don't have, from the Blue Archive
+ * wiki's Music page (JP's tracklist, see scripts/lib/wikiTracks.mjs),
+ * checked against the wiki's SHA-1. Its entry goes into
+ * src/constants/songs.ts, with the wiki's title and artist, or "Theme <n>" by "Unknown" while the wiki has none. A
  * song with either half still like that follows the wiki for both, until
  * both are filled. Nothing else in the list is touched, so names edited by
  * hand stay.
@@ -26,29 +28,38 @@ import { join } from "node:path";
 
 import { sourceFile } from "../src/helpers/audioFiles.ts";
 import { songs } from "../src/constants/songs.ts";
+import { gameTracks } from "./lib/gameTracks.mjs";
 import { trackChanges } from "./lib/wikiTracks.mjs";
 
 const SONGS_PATH = "src/constants/songs.ts";
 const SOURCE_DIR = "audio";
 const HEADERS = { "User-Agent": "baheardle.com build script" };
 
-const { added, named } = await trackChanges(songs);
+const { added, named } = await trackChanges(songs, gameTracks());
 
 const list = songs.map((song) => ({ ...song }));
 const summary = [];
 
-for (const track of added) {
+/** A new track's file: the game's as it is, or the wiki's, checked. */
+async function trackBytes(track) {
+  if (track.path) return readFileSync(track.path);
   const response = await fetch(track.url, { headers: HEADERS });
   if (!response.ok) {
     console.warn(`Could not download ${track.file}: left for next time.`);
-    continue;
+    return null;
   }
   const bytes = Buffer.from(await response.arrayBuffer());
   const sha1 = createHash("sha1").update(bytes).digest("hex");
   if (sha1 !== track.sha1) {
     console.warn(`${track.file} didn't match the wiki's SHA-1: left out.`);
-    continue;
+    return null;
   }
+  return bytes;
+}
+
+for (const track of added) {
+  const bytes = await trackBytes(track);
+  if (!bytes) continue;
   writeFileSync(join(SOURCE_DIR, sourceFile(track.themeNo)), bytes);
   const song = {
     artist: track.artist || "Unknown",
@@ -56,8 +67,13 @@ for (const track of added) {
     themeNo: track.themeNo,
   };
   list.push(song);
+  const from = track.path
+    ? track.variant
+      ? ` (only the game's Theme_${song.themeNo}_${track.variant} exists: check it's the one)`
+      : ""
+    : " (from the wiki: the game's files didn't have it)";
   summary.push(
-    `- New song: Theme ${song.themeNo}, "${song.name}" by ${song.artist}`
+    `- New song: Theme ${song.themeNo}, "${song.name}" by ${song.artist}${from}`
   );
 }
 
@@ -72,7 +88,7 @@ for (const { song, name, artist } of named) {
 }
 
 if (summary.length === 0) {
-  console.log("No new tracks on the wiki.");
+  console.log("No new tracks in the game or on the wiki.");
   process.exit(0);
 }
 

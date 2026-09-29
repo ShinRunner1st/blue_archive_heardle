@@ -25,6 +25,7 @@ import { convertStudents } from "../src/helpers/studentData.ts";
 import { pickAllLines } from "../src/helpers/voiceData.ts";
 import { haloKey, wikiName } from "./lib/halos.mjs";
 import { loadStudentTable } from "./lib/studentTable.mjs";
+import { gameTracks } from "./lib/gameTracks.mjs";
 import { trackChanges } from "./lib/wikiTracks.mjs";
 
 const SCHALEDB = "https://schaledb.com/data";
@@ -120,15 +121,19 @@ if (missingHalos.length > 0) {
   }
 }
 
-// Songs: new tracks, and names for placeholders. Counted, not listed:
+// Songs: new tracks in the game's files (BA-AD's download, when there is
+// one) or on the wiki, and names for placeholders. Counted, not listed:
 // build-new-songs.mjs lists them, with their names, as it adds them.
-const { added, named } = await trackChanges(songs);
+const { added, named } = await trackChanges(songs, gameTracks());
 const songChanges = added.length + named.length;
 
 const changed = found.length > 0 || songChanges > 0;
 console.log(
   changed
-    ? [...found, `${songChanges} song change(s) on the wiki.`].join("\n")
+    ? [
+        ...found,
+        `${songChanges} song change(s) in the game or on the wiki.`,
+      ].join("\n")
     : "Nothing new."
 );
 if (process.env.GITHUB_OUTPUT) {

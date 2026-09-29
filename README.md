@@ -363,33 +363,46 @@ own.
 A GitHub Action, `.github/workflows/content-update.yml`, keeps the game up to
 date on its own, every Wednesday (and from the Actions tab by hand):
 
-1. `npm run find-updates` looks, without building anything, for students
+1. It downloads the game's music from JP's servers with
+   [BA-AD](https://github.com/Deathemonic/BA-AD) (`npm run download:music`,
+   a pinned release checked against its SHA-256), into `.cache/baad`, kept
+   between runs so only new files come down. If that fails, the wiki alone
+   is used that week.
+2. `npm run find-updates` looks, without building anything, for students
    SchaleDB has that the table doesn't (JP covers Global's upcoming ones) or
    that have come out on Global, voice lines and halos that have come out for
-   a student without them, and tracks on the Blue Archive wiki's Music page
-   that the song list doesn't have (not the 10000-range specials), or titles
+   a student without them, and tracks in the game's music or on the Blue
+   Archive wiki's Music page that the song list doesn't have (not the
+   10000-range specials), or titles
    and artists for songs still half named. A song with either half still
    blank ("Theme N" or by "Unknown") follows the wiki for both, so a
    correction to the other half comes along; once both are filled it is the
    list's own, and the wiki's spelling (typos, Japanese titles) never
-   replaces it. Differences only of case or punctuation don't count. The
-   wiki's files are the originals in `audio/`, byte for byte. A few tracks
-   aren't on the wiki's Music page at all, 269 and 271 (the game's
-   `269_title`, `271_title`) and 314 (`314_short`), downloaded from the game
-   with [BA-AD](https://github.com/Deathemonic/BA-AD); they stay "Theme N"
-   until named by hand.
-2. Only if there is something, it runs `build:students`, `build:voices` and
+   replaces it. Differences only of case or punctuation don't count.
+
+   A new track's file comes from the game (`scripts/lib/gameTracks.mjs`):
+   `Theme_<n>.ogg`, or when the game has only a variant, `_Title`, then
+   `_Short`, then `_Short_Inst`, then the first by name, which the pull
+   request names so it can be checked. On 2026-09-29 all 345 songs were byte
+   for byte the game's files (154, 269 and 271 its `_Title`, 185 its
+   `_Short_Inst`, 314 its `_Short`), and all the wiki has too. A track only
+   the wiki has comes from the wiki, checked against its SHA-1. Names always
+   come from the wiki; 269, 271 and 314 aren't on its Music page, so they
+   stay "Theme N" until named by hand. Locally, point `BAAD_OUTPUT` at a
+   BA-AD download of your own (its `output` folder) to use it.
+
+3. Only if there is something, it runs `build:students`, `build:voices` and
    `build:guess`, adds the songs (`npm run build:new-songs`, which checks each
    file against the wiki's SHA-1), and builds the audio and pictures as
    `npm run songs` does. A sheet whose contents haven't changed isn't drawn
    again, and a portrait already in `pictures/` isn't made again, so a run
    on GitHub's ffmpeg doesn't change their bytes and send every player new
    copies.
-3. It runs the full check, uploads the new files to the Worker and R2,
+4. It runs the full check, uploads the new files to the Worker and R2,
    checks them there, and runs the [page check](#page-check) on them. If
    anything fails, no pull request opens; the run's page shows why, with
    screenshots.
-4. It opens a pull request, `auto/content-update`, listing what's new. It
+5. It opens a pull request, `auto/content-update`, listing what's new. It
    never pushes to `main`; merging the pull request is the release.
 
 It needs the `CLOUDFLARE_API_TOKEN` secret to have both Workers Scripts and

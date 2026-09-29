@@ -103,9 +103,15 @@ const sameWords = (a, b) => {
 };
 
 /**
- * What the wiki has that the song list doesn't: tracks to add (with a file
- * on the wiki to download), and titles and artists for songs still half
- * named, "Theme N" or by "Unknown".
+ * What the game and the wiki have that the song list doesn't: tracks to add,
+ * and titles and artists for songs still half named, "Theme N" or by
+ * "Unknown".
+ *
+ * A new track is any theme the game's files (`game`, from gameTracks: BA-AD's
+ * download) or the wiki's Music page has and the list doesn't. Its file comes
+ * from the game when it has it (`path`, and `variant` when it's only a
+ * `_Title` or `_Short` one), else from the wiki (`url` and `sha1`); its name
+ * from the wiki, or "Theme N" by "Unknown" until the wiki has one.
  *
  * While either half of a song is still blank, the song follows the wiki for
  * both: when the wiki fills the blank, a change it made to the other half
@@ -113,18 +119,31 @@ const sameWords = (a, b) => {
  * wiki's spelling (its typos and Japanese titles among them) never replaces
  * it. A difference only of case or punctuation isn't a change.
  */
-export async function trackChanges(songs) {
+export async function trackChanges(songs, game = new Map()) {
   const tracks = await wikiTracks();
   const have = new Map(songs.map((song) => [song.themeNo, song]));
+  const onWiki = new Map(tracks.map((track) => [track.themeNo, track]));
+
+  const fromGame = [...game]
+    .filter(([themeNo]) => !have.has(themeNo))
+    .map(([themeNo, file]) => ({
+      themeNo,
+      title: onWiki.get(themeNo)?.title ?? "",
+      artist: onWiki.get(themeNo)?.artist ?? "",
+      path: file.path,
+      variant: file.variant,
+    }));
 
   const candidates = tracks.filter(
-    (track) => !have.has(track.themeNo) && track.file
+    (track) =>
+      !have.has(track.themeNo) && !game.has(track.themeNo) && track.file
   );
   const files = await wikiFiles(candidates.map(({ file }) => file));
-  const added = candidates.flatMap((track) => {
+  const fromWiki = candidates.flatMap((track) => {
     const file = files.get(track.file);
     return file ? [{ ...track, ...file }] : [];
   });
+  const added = [...fromGame, ...fromWiki];
 
   const named = tracks.flatMap((track) => {
     const song = have.get(track.themeNo);

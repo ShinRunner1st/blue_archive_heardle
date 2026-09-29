@@ -44,7 +44,8 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"*.{json,js,cjs,md,html}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"*.{json,js,cjs,md,html}\"",
     "prepare": "husky install",
-    "check:pages": "node scripts/check-pages.mjs"
+    "check:pages": "node scripts/check-pages.mjs",
+    "download:music": "node scripts/download-music.mjs"
   },
   "browserslist": {
     "production": [
