@@ -44,6 +44,22 @@ export interface NewsUpdate {
  */
 export const WHATS_NEW: NewsUpdate[] = [
   {
+    id: "2026-09-game-files",
+    name: "Straight from the game",
+    items: [
+      {
+        icon: IoImage,
+        title: "The game's own pictures",
+        text: "Student icons, Sensei card portraits and weapons now come from Blue Archive's own files, in their current art, and new students arrive with the game's updates.",
+      },
+      {
+        icon: IoMic,
+        title: "Anna and Erina",
+        text: "On the JP server, Anna and Erina now have voice lines in Voice and halos in Picture. Their lines' text is Japanese until the English version is out.",
+      },
+    ],
+  },
+  {
     id: "2026-09-picture",
     name: "Halos, weapons and a home page",
     items: [
