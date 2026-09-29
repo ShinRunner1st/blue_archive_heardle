@@ -38,11 +38,25 @@ name, when it's built.
    `npm run songs` put its 1,305 lines, their text and the silhouette sheet
    on the Worker and R2._
 
-   **6.1. Next up: more ways to guess a student**, on a branch off `main`
-   (see "Halo and weapon guess" below).
+**Planned**, in this order, each on its own branch stacked on the one
+before (the first off `main`):
+
+- **6.1. Halo and weapon guess**, each with normal, silhouette and Time
+  Attack (see "Halo and weapon guess" below). First, since the next two
+  describe the whole game and should include it. _Built on
+  `feat/halo-weapon`, off `main`; its four sheets are not on the Worker or
+  R2 yet (`npm run songs` before merging)._
+- **6.2. New SEO text and header** (see "SEO, header and preview picture"
+  below).
+- **6.3. New preview picture**, the link preview, drawn once 6.1 and 6.2
+  settle what it shows.
+
+**Future**, after the planned ones:
 
 7. **Group 7: Multiplayer.** The user checks the Durable Objects and
    PartyServer free-tier limits first (see "Multiplayer" below).
+8. **Group 8: move the site to Cloudflare Pages** (see "Moving off Vercel"
+   below).
 
 Any time: `npm run songs` when new OSTs come out.
 
@@ -269,21 +283,47 @@ told before the one slow download. Choices made while building it:
   - A player shows its loading bar only when a load takes longer than
     0.4 s, so a cached clip doesn't flash it on a mode switch.
 
-## Dream plan (big, after the plan above)
+## Planned and future, in detail
 
 ### Halo and weapon guess (6.1)
 
-Asked for on 2026-09-28, to plan with the user before building:
+Asked for on 2026-09-28 and 29; settled with the user on 2026-09-29 and
+built on `feat/halo-weapon` (details in the README's "Picture: halos and
+weapons" and "Halos and weapons"):
 
-- **Halo guess:** name the student from their halo.
-- **Weapon guess:** name the student from their weapon.
-- Each with a **normal** way to play (the picture as it is) and a
-  **silhouette** one (its shape only, drawn at build time in its own sheet,
-  as Voice's silhouettes are, never darkened with CSS).
-- To settle when planning: where the halo and weapon pictures come from
-  (SchaleDB, copied at build time like the icons), whether they join the
-  Students switch or are a game of their own, and which modes they get
-  (daily, endless, 4-Choice, time attack).
+- **A fourth game on the switch**, "Picture", with Halo or Weapon picked in
+  a row above the game (as Voice's Hints On/Off is), not a page of its own:
+  on one page the header, stats, save file, characters and streak places
+  all work, with no new Vercel request. The game switch now shows only the
+  picked game's name beside its icon (the rest are icons), and below 420 px
+  "Time Attack" reads "Timed", so four games fit beside the ways to play.
+- **The same modes as Voice:** Daily (the picture itself), Classic with four
+  tries and Voice's hints (school, club, the student's silhouette), a
+  Silhouette On/Off row above Classic (its own stats; the last hint is the
+  picture), 4-Choice (a halo's wrong three from the answer's school, a
+  weapon's of the same gun type) and Time Attack (pictures or silhouettes).
+- **One answer per picture:** costumes share a halo and mostly a weapon
+  (155 weapon pictures for 263 costumes on SchaleDB), and naming any
+  student it belongs to is right. Hikari and Nozomi's halos are the same
+  picture, so they are one answer: 143 halos, 154 weapons.
+- **Pictures:** weapons from SchaleDB; halos from the Blue Archive Wiki on
+  Fandom, as SchaleDB has none (all 144 there, three under other names).
+  Credited in About and the README. Hatsune Miku's is filed as "Miku
+  Halo.png", uploaded in 2022: the user to check it's hers.
+- **Size:** each picture sheet is about 600 KB, the shapes 120 to 330 KB,
+  1.7 MB in all on the Worker and R2 (well inside R2's free 10 GB). A player
+  downloads a kind's sheet once, the first time it shows. Nothing is added
+  to the Vercel deployment but the code.
+
+### SEO, header and preview picture (6.2, 6.3)
+
+Asked for on 2026-09-29. The page's title, description and Open Graph and
+Twitter tags (`index.html`) still describe the OST game only; they should
+cover the OST, Voice, Students, and halo and weapon guess. Then a new
+`public/preview.jpg` (1200×630, the link preview on X and elsewhere) to
+match. To settle when planning: what the new header changes, and what the
+preview shows. X caches link previews, so a new one can take a while to
+appear there.
 
 ### Multiplayer (Group 7): private rooms, played like AMQ
 
@@ -316,6 +356,23 @@ Asked for on 2026-09-28, to plan with the user before building:
     The rest of the site doesn't depend on it.
 - **Privacy:** update the About box and the README. Room data lives only while
   the room is open, and nicknames aren't kept. Still no accounts.
+
+### Moving off Vercel (Group 8)
+
+Asked for on 2026-09-29: serve the site from Cloudflare Pages in place of
+Vercel Hobby, next to the Worker, R2 and the domain's DNS, so the Hobby
+limits stop being a worry. To check when planning:
+
+- The free plan's limits then (static requests have been free and
+  unlimited; builds a month, files per site and file size are capped).
+  Cloudflare now points new sites to Workers static assets, as the audio
+  Worker uses, so compare the two.
+- `vercel.json` moves: the security and cache headers to a `_headers`
+  file, deploying only `main`, and the old domain's redirects, which can
+  go altogether if this comes after 2026-12-10.
+- The switch: deploy there first, test it on its own address, then point
+  baheardle.com at it; saves are per domain, so the domain must not
+  change.
 
 ## Still considering
 
