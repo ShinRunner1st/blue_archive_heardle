@@ -16,20 +16,17 @@
 
     <!-- ========================= -->
     <!-- SEO -->
+    <!-- The fields in double braces are filled in for each page, the hub -->
+    <!-- and a page per game, from src/constants/pages.ts (vite.config.ts). -->
     <!-- ========================= -->
 
-    <title>
-      Blue Archive Heardle - Guess the OST, Voices, Halos and Students
-    </title>
+    <title>{{page.title}}</title>
 
-    <meta
-      name="description"
-      content="Daily Blue Archive guessing games: name the OST from a short clip, or a student from a voice line, halo, weapon or clues. Free, with no ads or sign-up."
-    />
+    <meta name="description" content="{{page.description}}" />
 
     <meta name="robots" content="index, follow" />
 
-    <link rel="canonical" href="https://baheardle.com/" />
+    <link rel="canonical" href="{{page.url}}" />
 
     <!-- ========================= -->
     <!-- Web App Manifest -->
@@ -42,15 +39,9 @@
     <!-- For Discord, Facebook, LINE, etc. -->
     <!-- ========================= -->
 
-    <meta
-      property="og:title"
-      content="Blue Archive Heardle - Guess the OST, Voices, Halos and Students"
-    />
+    <meta property="og:title" content="{{page.title}}" />
 
-    <meta
-      property="og:description"
-      content="Name the Blue Archive OST from a short clip, or the student from a voice line, their halo, their weapon or clues. A new puzzle every day, and endless play."
-    />
+    <meta property="og:description" content="{{page.description}}" />
 
     <meta property="og:image" content="https://baheardle.com/preview.jpg?v=2" />
 
@@ -63,7 +54,7 @@
       content="Blue Archive Heardle: Mari beside the four games, OST, Voice, Students, and Halo and Weapon"
     />
 
-    <meta property="og:url" content="https://baheardle.com/" />
+    <meta property="og:url" content="{{page.url}}" />
 
     <meta property="og:type" content="website" />
 
@@ -77,15 +68,9 @@
 
     <meta name="twitter:card" content="summary_large_image" />
 
-    <meta
-      name="twitter:title"
-      content="Blue Archive Heardle - Guess the OST, Voices, Halos and Students"
-    />
+    <meta name="twitter:title" content="{{page.title}}" />
 
-    <meta
-      name="twitter:description"
-      content="Name the Blue Archive OST from a clip, or the student from their voice, halo, weapon or clues. New puzzles daily."
-    />
+    <meta name="twitter:description" content="{{page.description}}" />
 
     <meta
       name="twitter:image"
