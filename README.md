@@ -355,6 +355,8 @@ inside it, and not blank (about 600 pictures a run). That is what the unit
 tests can't see; it caught Global's squashed halo sheet when put back. On
 a failure it saves screenshots in `check-pages-output/`, which CI keeps as
 the run's `check-pages` artifact.
+`npm run check:pages -- --url <address>` checks a deployed site instead,
+such as the workers.dev address after `npm run deploy:site`.
 
 The pictures come from the Worker, as on the live site, so a new sheet must
 be uploaded (`npm run songs`) before its pull request passes. Chrome is

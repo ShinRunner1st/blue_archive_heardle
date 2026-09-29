@@ -5,6 +5,10 @@
  * its sheet in the wrong place or squashed (as Global's halos were once).
  *
  *   npm run build && npm run check:pages
+ *   npm run check:pages -- --url https://baheardle.com
+ *
+ * With --url it checks a deployed site instead, as after a deployment or a
+ * change of domain.
  *
  * It serves build/ with `wrangler dev` and the site's own Worker config, so
  * the pages get the live site's headers (a picture or request blocked by the
@@ -21,7 +25,10 @@ import { join } from "node:path";
 import puppeteer from "puppeteer-core";
 
 const PORT = 4317;
-const BASE = `http://localhost:${PORT}`;
+const urlArg = process.argv.indexOf("--url");
+const REMOTE =
+  urlArg === -1 ? undefined : process.argv[urlArg + 1]?.replace(/\/+$/, "");
+const BASE = REMOTE ?? `http://localhost:${PORT}`;
 const OUT = "check-pages-output";
 const SERVERS = ["global", "jp"];
 
@@ -329,7 +336,7 @@ if (!chrome) {
 }
 
 rmSync(OUT, { recursive: true, force: true });
-const preview = await startPreview();
+const preview = REMOTE ? undefined : await startPreview();
 const browser = await puppeteer.launch({
   executablePath: chrome,
   headless: true,
@@ -339,7 +346,7 @@ try {
   for (const server of SERVERS) await checkServer(browser, server);
 } finally {
   await browser.close();
-  stopPreview(preview);
+  if (preview) stopPreview(preview);
 }
 
 if (failures.length > 0) {
