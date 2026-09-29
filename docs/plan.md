@@ -353,11 +353,14 @@ icons"), with the user's ask on 2026-09-29 for a new icon and favicon too:
   gold, and peach like her hair), and no counts of songs or students,
   which keep growing. `og:image` gained `?v=2`, so the sites that cache
   previews fetch the new one.
-- **The icon** is a peach music note wearing a gold halo, tilted like the
-  logo's, on a charcoal tile, in the preview's colours, drawn for every
-  size; at tab sizes the halo is bolder and loses its spark. It replaces
-  the fan art of Mari, which also made `favicon.ico` 150 KB: now 4 KB, and
-  the icons and preview are cached for a week like the characters.
+- **The icon** is Mari (Idol)'s face, flustered with swirly eyes
+  (expression 11), from her Spine sprite on a charcoal tile. The user
+  looked at drawn marks first (a note wearing a halo, her halo redrawn and
+  from the halo sheet, with notes, question marks, headphones and badges)
+  and at her face with a note or "?" beside it, and chose the face alone.
+  It replaces fan art of Mari, which also made `favicon.ico` 150 KB: now
+  11 KB, and the icons and preview are cached for a week like the
+  characters.
 
 ### Multiplayer (Group 7): private rooms, played like AMQ
 

@@ -600,8 +600,10 @@ PNGs, `logo192.png` and `logo512.png` for the manifest, and
 `apple-touch-icon.png`, square, since iOS rounds it itself) are drawn by
 `node scripts/make-preview.mjs`. It serves the pages in `scripts/preview/`
 with Vite and screenshots them in headless Chrome or Edge (`CHROME` picks
-another), so the preview uses the site's own font, logo and Mari (Idol),
-whose dress sets both pictures' colours. The preview gives no counts of
+another), so both use the site's own font, logo and Mari (Idol), whose
+dress sets the colours. The icon is her face, flustered (expression 11),
+drawn once at 512 pixels and scaled down by ffmpeg; the three larger PNGs
+take a 256-colour palette, a third of the bytes. The preview gives no counts of
 songs or students, which would soon be out of date. After drawing a new
 one, bump the `?v=` on `og:image` and `twitter:image` in `index.html`:
 those sites keep a copy of the picture per address. Give it a

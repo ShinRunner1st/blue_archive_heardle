@@ -9,7 +9,13 @@
  * Needs Chrome or Edge (or CHROME set to one) and ffmpeg on the PATH.
  */
 import { spawn, execFile } from "node:child_process";
-import { existsSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
@@ -155,14 +161,41 @@ try {
     ...["-q:v", String(JPEG_QUALITY), join(OUT, "preview.jpg")],
   ]);
 
-  const icon = (size, query = "") =>
-    screenshot(page, `icon.html${query}`, size, size);
+  // Mari is drawn once at full size and scaled down: the Spine runtime
+  // drawing her 16 pixels wide would alias.
+  const icon = join(profile, "icon.png");
+  const bleed = join(profile, "icon-bleed.png");
+  writeFileSync(icon, await screenshot(page, "icon.html", 512, 512));
+  writeFileSync(bleed, await screenshot(page, "icon.html?bleed", 512, 512));
+  /**
+   * Her scaled to a size. The big ones take a 256-colour palette, a third
+   * of the bytes with no difference to see (the corners' soft edge goes,
+   * which doesn't show at these sizes); the tab sizes are tiny either way.
+   */
+  const scaled = async (from, size, palette = false) => {
+    const file = join(profile, `icon-${size}.png`);
+    const scale = `scale=${size}:${size}:flags=lanczos`;
+    const filter = palette
+      ? `${scale},split[a][b];[a]palettegen=reserve_transparent=1:stats_mode=full[p];` +
+        "[b][p]paletteuse=dither=sierra2_4a:alpha_threshold=128"
+      : scale;
+    await run("ffmpeg", [
+      ...["-v", "error", "-y", "-i", from],
+      ...["-vf", filter, file],
+    ]);
+    return readFileSync(file);
+  };
   const small = [];
-  for (const size of [16, 32, 48]) small.push({ size, data: await icon(size) });
+  for (const size of [16, 32, 48]) {
+    small.push({ size, data: await scaled(icon, size) });
+  }
   writeFileSync(join(OUT, "favicon.ico"), icoOf(small));
-  writeFileSync(join(OUT, "logo192.png"), await icon(192));
-  writeFileSync(join(OUT, "logo512.png"), await icon(512));
-  writeFileSync(join(OUT, "apple-touch-icon.png"), await icon(180, "?bleed"));
+  writeFileSync(join(OUT, "logo192.png"), await scaled(icon, 192, true));
+  writeFileSync(join(OUT, "logo512.png"), await scaled(icon, 512, true));
+  writeFileSync(
+    join(OUT, "apple-touch-icon.png"),
+    await scaled(bleed, 180, true)
+  );
 
   page.close();
   console.log(`Drew the preview and icons into ${OUT}/`);

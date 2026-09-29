@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <!--
-  The site's icon: a music note wearing a Blue Archive halo, in the
-  colours of Mari's idol dress (charcoal velvet, gold halo, peach hair) as
-  on the link preview. Drawn by
-  scripts/make-preview.mjs at each size the site needs, into favicon.ico,
-  logo192.png, logo512.png and apple-touch-icon.png. With ?bleed the tile
-  fills the square, for iOS, which rounds the corners itself. At tab sizes
-  the halo is bolder and loses its spark, which smeared into the note.
+  The site's icon: Mari (Idol), flustered (expression 11), on the charcoal
+  of her dress, drawn with the Spine runtime like the preview. Drawn by
+  scripts/make-preview.mjs at 512 pixels and scaled down from there into
+  favicon.ico, logo192.png and logo512.png. With ?bleed the tile fills the
+  square, for apple-touch-icon.png: iOS rounds the corners itself.
 -->
 <html lang="en">
   <head>
@@ -15,91 +13,54 @@
       html,
       body {
         margin: 0;
-        width: 100vw;
-        height: 100vh;
+        width: 512px;
+        height: 512px;
         overflow: hidden;
         background: transparent;
       }
-      svg {
-        display: block;
-        width: 100vw;
-        height: 100vh;
+      .tile {
+        position: relative;
+        width: 512px;
+        height: 512px;
+        overflow: hidden;
+        border-radius: 112px;
+        background: linear-gradient(180deg, #3f3846, #1d1a21);
+      }
+      .bleed .tile {
+        border-radius: 0;
+      }
+      canvas {
+        position: absolute;
       }
     </style>
   </head>
   <body>
-    <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="velvet" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#3f3846" />
-          <stop offset="1" stop-color="#1d1a21" />
-        </linearGradient>
-        <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#ffc996" />
-          <stop offset="1" stop-color="#ee8f52" />
-        </linearGradient>
-      </defs>
-      <rect
-        id="tile"
-        x="0"
-        y="0"
-        width="512"
-        height="512"
-        rx="112"
-        fill="url(#velvet)"
-      />
+    <div class="tile"><canvas></canvas></div>
+    <script type="module">
+      import { FRAME, spineCharacters } from "/src/constants/characters.ts";
+      import { createStage } from "/src/helpers/spineStage.ts";
 
-      <g id="note" fill="url(#hair)">
-        <!-- The note: head, stem and flag. -->
-        <ellipse
-          cx="206"
-          cy="372"
-          rx="78"
-          ry="58"
-          transform="rotate(-22 206 372)"
-        />
-        <rect x="248" y="178" width="36" height="198" rx="6" />
-        <path
-          d="M266 178 C 300 214, 380 226, 372 318 C 360 276, 318 262, 284 258 Z"
-        />
-      </g>
-
-      <!-- The halo, tilted like the logo's, with its four-pointed spark. -->
-      <ellipse
-        id="halo"
-        cx="262"
-        cy="118"
-        rx="150"
-        ry="42"
-        transform="rotate(-12 262 118)"
-        fill="none"
-        stroke="#f0cf78"
-        stroke-width="22"
-      />
-      <path
-        id="spark"
-        fill="#f0cf78"
-        d="M410 44 L424 80 L460 94 L424 108 L410 144 L396 108 L360 94 L396 80 Z"
-      />
-    </svg>
-    <script>
       if (location.search.includes("bleed")) {
-        document.getElementById("tile").setAttribute("rx", "0");
+        document.body.classList.add("bleed");
       }
-      if (innerWidth <= 32) {
-        const halo = document.getElementById("halo");
-        halo.setAttribute("stroke-width", "46");
-        halo.setAttribute("rx", "172");
-        halo.setAttribute("ry", "54");
-        halo.setAttribute("cy", "104");
-        halo.setAttribute("transform", "rotate(-6 262 104)");
-        document
-          .getElementById("note")
-          .setAttribute("transform", "translate(-6 28)");
-        document.getElementById("spark").remove();
-        document.getElementById("tile").setAttribute("rx", "80");
-      }
-      window.previewReady = true;
+
+      /** Pixels to a skeleton unit: her face fills the tile. */
+      const ZOOM = 1.15;
+      /** How far below the tile's middle her eyes sit, in pixels. */
+      const EYES_BELOW = -6;
+
+      const canvas = document.querySelector("canvas");
+      Object.assign(canvas.style, {
+        width: `${FRAME.width * ZOOM}px`,
+        height: `${FRAME.height * ZOOM}px`,
+        left: `${256 - (FRAME.width / 2) * ZOOM}px`,
+        top: `${256 - FRAME.aboveEyes * ZOOM + EYES_BELOW}px`,
+      });
+      const stage = createStage(canvas);
+      // A few frames for the expression to settle before the screenshot.
+      stage.onReady(() => setTimeout(() => (window.previewReady = true), 600));
+      stage.setExpression("11");
+      stage.show(spineCharacters.mari);
     </script>
   </body>
 </html>
