@@ -505,7 +505,7 @@ export const songs = [
     themeNo: "101",
   },
   {
-    artist: "Mitsukiyo",
+    artist: "Nor",
     name: "GIVE ME CHOCO",
     themeNo: "102",
   },
@@ -815,7 +815,7 @@ export const songs = [
     themeNo: "169",
   },
   {
-    artist: "KARUT",
+    artist: "Nor",
     name: "Container Corner",
     themeNo: "170",
   },
