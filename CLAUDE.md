@@ -34,11 +34,15 @@ What the project cares about:
 ### How it works
 
 - A static single-page app: React 19 + Vite + TypeScript, styled-components,
-  Vitest (jsdom). Node 24 (`.nvmrc`). No backend.
+  Vitest (jsdom). Node 24 (`.nvmrc`). No backend. One bundle, five HTML
+  pages written from `index.html` by a Vite plugin (`src/constants/pages.ts`):
+  the hub at `/` and `/ost`, `/voice`, `/picture`, `/students`, each with its
+  own title, description and link preview. `usePage` moves between them with
+  the History API, so there's no reload or new request.
 - **Site** on Vercel Hobby (project "ba-ost-guess"), deploying from `main` only.
   Long cache headers in `vercel.json` to spare requests. It also sends
   security headers: a Content-Security-Policy allowing only the site, the
-  Worker and R2 (a new outside address must be added there, or it's
+  two Workers and R2 (a new outside address must be added there, or it's
   blocked), no framing by other sites, nosniff, no-referrer.
 - **Audio** on a Cloudflare Worker
   (`https://ba-heardle-audio.shinrunner1st.workers.dev`, set in
@@ -73,8 +77,21 @@ What the project cares about:
   mode.
 - **Characters** are Spine 4.2 skeletons in `public/spine/`, drawn by
   `src/helpers/spineStage.ts`, loaded only on wide screens.
+- **Now in Global** (the hub) reads `now.json`, both servers' pickups, event
+  and raids, from a second static Worker, `ba-heardle-now` (`now-worker/`,
+  `VITE_NOW_URL`), made from SchaleDB by `scripts/build-global-now.mjs`.
+  `.github/workflows/global-now.yml` refreshes it every six hours and
+  publishes only on a change; `npm run global-now` does it by hand. No R2
+  copy.
+- **JP server**: Students, Voice and Picture follow Global or JP
+  (`src/helpers/server.ts`, Global for new players); each server has its own
+  pools, daily schedules (`*_JP` seeds, only ever appended to) and saves
+  (`.jp` keys, a `jp` field in the save file).
 - CI (GitHub Actions) runs format, lint, typecheck, tests, `check:audio` and a
-  build on every push.
+  build on every push. `.github/workflows/content-update.yml` (Wednesdays)
+  looks for new students, voice lines, halos and wiki tracks
+  (`npm run find-updates`), builds and uploads them, and opens a pull request
+  (`auto/content-update`) to review and merge; it never pushes to `main`.
 
 ## What the game has
 
@@ -105,18 +122,27 @@ What the project cares about:
   Its player keeps one fixed layout; the repeat button cycles off / next
   song / this song, remembered. Rows come from `SongRows` (shared with All
   OST, kept light for speed) and chips from `FoldingChips`. Playing any audio pauses the rest (`src/helpers/onePlayer.ts`).
-  `Jukebox` stays mounted and holds the audio: in the student game the music
-  plays on after it closes, in a corner `MiniPlayer`; in the OST game closing
-  stops it. Both players show the song's OST album cover (`albumOf`). Whole
+  `Jukebox` stays mounted and holds the audio: on every page the music plays
+  on after it closes, in a corner `MiniPlayer` (a bar above the footer, where
+  the play area ends; floating beside the game from 1344 px), until a game's
+  own audio plays. Both players show the song's OST album cover (`albumOf`). Whole
   songs are kept in Cache Storage (`src/helpers/audioSource.ts`, the 30
   played last) so replays make no request.
-- **Students** (the switch under the header picks OST or Students; Daily and
+- **Hub** (`/`, `src/components/Hub/`): what the site is, a card for each
+  game (a scene behind it, its ways to play, today's daily result from the
+  saves), Continue for the game played last, the Global/JP choice, the
+  player's record (hidden for a new player) with a button to the Sensei
+  card, Now in Global (or JP) and birthdays this week.
+- **Game bar** (`GameSwitch`): Home, OST, Voice, Picture, Students, as real
+  links; the picked one shows its name.
+- **Students** (`/students`; Daily and
   Endless work for both): guess a student and each guess shows how it
   compares with the answer, right, close or wrong, with arrows for numbers.
   No limit on guesses; Give up, pressed twice, is a loss. **Gameplay**
-  (school, role, damage, weapon, EX cost at level 1, release; 262 answers,
-  every costume its own) or **Lore** (height, school, birthday, year, weapon,
-  favourite SSR gift, club, release; 144 default costumes). Each keeps its
+  (school, role, damage, weapon, EX cost at level 1, release; 262 answers
+  on Global, 275 on JP, every costume its own) or **Lore** (height, school,
+  birthday, year, weapon, favourite SSR gift, club, release; 144 default
+  costumes, 148 on JP). Each keeps its
   own daily and endless stats and streak, and the streak moves the
   background. Squares-only share text; a share picture (daily ones name
   nobody) and a Share recap in stats (`src/helpers/picture/studentPicture.ts`).
@@ -134,9 +160,9 @@ What the project cares about:
   to 9 letters; types are the sword or shield on the type's colour
   (`scripts/lib/typeColors.mjs`, by SchaleDB code; a new type comes in grey
   with a warning); Sakugawa has ETC's icon, Schale's emblem.
-- **Voice** (the switch reads OST, Voice, Students): hear a student's line
+- **Voice** (`/voice`): hear a student's line
   and name them. One line a round, whole and replayable: the title call or
-  one of four lobby lines (`voices/`, 1,305 in all, from SchaleDB; on the
+  one of four lobby lines (`voices/`, 1,358 in all, from SchaleDB; on the
   Worker under hashed names). Each costume is its own answer. Daily and
   Classic give four tries, each miss or skip opening a hint: school, club,
   then a silhouette (its own sheet in a shuffled order; nothing of the
@@ -151,6 +177,11 @@ What the project cares about:
   every mode; each picture's tag names its game and mode. State in
   `src/hooks/useVoiceGame.ts` and `useVoiceTimeAttack.ts`, a key per mode,
   in the save file.
+- **Picture** (`/picture`): name the student from a halo (Fandom wiki) or a
+  weapon (SchaleDB), Halo or Weapon picked above the game. One answer per
+  picture, any student it belongs to is right. Daily, Classic with Voice's
+  hints (or none), 4-Choice and Time Attack, each with a Silhouette toggle;
+  sheets on the Worker (`scripts/build-guess-pictures.mjs`).
 - **Sensei card** (☰ menu): the record across every mode
   (`src/helpers/senseiStats.ts`, read from the saves) drawn on a Schale
   licence with a favourite student's portrait (`FAV_STUDENT_KEY`, a setting,
@@ -175,7 +206,8 @@ What the project cares about:
   cursor with tap and drag effects (can be turned off), character choice,
   player name (drawn as "… Sensei" on every share picture by `makePicture`
   and on the Sensei card, used for nothing else; a switch leaves the "Sensei"
-  off; `pictureName` in `src/helpers/playerName.ts`).
+  off; `pictureName` in `src/helpers/playerName.ts`), the student games'
+  server, and Reset stats for the game and mode on screen (asks twice).
 - **Save file**: export all modes to one scrambled file and import it on
   another device (`src/helpers/saveFile.ts`); checked like the saves, asks
   before replacing, then reloads the page.
@@ -193,8 +225,9 @@ What the project cares about:
 - **Keyboard play**: type anywhere to search, Space plays, Enter picks/submits,
   Shift+Enter skips, Esc closes.
 - The answer is hidden from the page source and saves are scrambled.
-- SEO: canonical, Open Graph/Twitter card (`public/preview.jpg`, 1200×630),
-  `robots.txt`, `sitemap.xml`. The preview (Mari (Idol) and the four
+- SEO: a canonical, title, description and Open Graph/Twitter card on each
+  page (`public/preview.jpg`, 1200×630), `robots.txt`, `sitemap.xml` (the
+  five pages). The preview (Mari (Idol) and the four
   games, no counts, in her dress's colours) and the icons (her flustered
   face on charcoal) are drawn by `scripts/make-preview.mjs` from the pages in
   `scripts/preview/`.
@@ -242,6 +275,19 @@ What the project cares about:
   text and the silhouette sheet on the Worker and R2 first. It added about
   20 KB gzipped to the first load, no first-load requests, and 64 KB to the
   Vercel deployment.
+- **29 Sep 2026, 6.1-6.6 released** (fast-forward of `feat/weekly-update`,
+  stacked on `feat/halo-weapon`, `feat/seo-text`, `feat/preview-picture`,
+  `feat/game-pages` and `feat/jp-server`): the Picture game (halos and
+  weapons), new SEO text, the Mari (Idol) link preview and icon, a page for
+  each game and the hub (Now in Global on its own Worker, record,
+  birthdays), JP server mode, the weekly content Action, and the Jukebox
+  playing on in every game. `npm run songs` put the new sheets, portraits,
+  voice lines and card scenes on the Worker and R2 first (2,342 files on
+  the Worker). It added about 31 KB gzipped to the first load, no
+  first-load requests (a hub visit may fetch the 3 KB portrait list, cached
+  for a year), and 2 KB to the Vercel deployment (four small HTML pages; the
+  favicon shrank). Previews on Vercel were never used; send the sitemap
+  again in Search Console.
 
 ## Commands
 

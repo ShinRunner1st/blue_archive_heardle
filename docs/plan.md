@@ -38,32 +38,31 @@ name, when it's built.
    `npm run songs` put its 1,305 lines, their text and the silhouette sheet
    on the Worker and R2._
 
-**Planned**, in this order, each on its own branch stacked on the one
-before (the first off `main`):
+**6.1 to 6.6**, each on its own branch stacked on the one before (the
+first off `main`). _Released on 2026-09-29 (fast-forward of
+`feat/weekly-update`), after `npm run songs` put their sheets, portraits,
+voice lines and card scenes on the Worker and R2. The two Actions run from
+`main` from then on._
 
 - **6.1. Halo and weapon guess**, each with normal, silhouette and Time
   Attack (see "Halo and weapon guess" below). First, since the next two
-  describe the whole game and should include it. _Done on
-  `feat/halo-weapon`, off `main` (the user called it done on 2026-09-29),
-  not merged: its four sheets are not on the Worker or R2 yet, so run
-  `npm run songs` before the merge._
+  describe the whole game and should include it. _Built on
+  `feat/halo-weapon`, off `main`._
 - **6.2. New SEO text** (see "SEO, header and preview picture" below).
-  _Done on `feat/seo-text`, off `feat/halo-weapon`, not merged._
+  _Built on `feat/seo-text`, off `feat/halo-weapon`._
 - **6.3. New preview picture**, the link preview, drawn once 6.1 and 6.2
-  settle what it shows, and a new icon and favicon. _Done on
-  `feat/preview-picture`, off `feat/seo-text`, not merged._
+  settle what it shows, and a new icon and favicon. _Built on
+  `feat/preview-picture`, off `feat/seo-text`._
 - **6.4. A page for each game and a hub** (see "Game pages and the hub"
-  below). On `feat/game-pages`, off `feat/preview-picture`.
+  below). _Built on `feat/game-pages`, off `feat/preview-picture`._
 - **6.5. JP server mode** for Students, Voice and Picture (see "JP server
-  mode" below). _Done on `feat/jp-server`, off `feat/game-pages`, not
-  merged: its new icon sheets, portraits, voice lines and halo and weapon
-  sheets are not on the Worker or R2 yet, so run `npm run songs` before the
-  merge._
+  mode" below). _Built on `feat/jp-server`, off `feat/game-pages`._
 - **6.6. A weekly content Action** that adds new students, voice lines,
   pictures and OSTs and opens a pull request (see "Weekly content update"
-  below). _Done on `feat/weekly-update`, off `feat/jp-server`, not merged._
+  below). _Built on `feat/weekly-update`, off `feat/jp-server`, with the
+  last feedback (the Jukebox's corner player) on it._
 
-**Future**, after the planned ones:
+**Future**, next:
 
 7. **Group 7: Multiplayer.** The user checks the Durable Objects and
    PartyServer free-tier limits first (see "Multiplayer" below).
@@ -396,8 +395,9 @@ rank for one broad topic, and a new player met a switch of four icons. Agreed:
 - **Nothing is lost:** saves are per domain, not per path, so every save,
   streak and setting carries over. `baheardle.com` still works; it lands on
   the hub. Share texts link to their game's page.
-- **Tested on a Vercel preview** before the merge: previews are on for
-  this branch only, and go off again before it merges.
+- **A Vercel preview** was planned for testing (previews on for this
+  branch only); in the end it was tested locally, and previews went off
+  again before the merge.
 - **Cost:** one HTML file per visit as now, plus four small ones in the
   deployment. The sitemap lists the five pages; send it again in Search
   Console after the release.
@@ -440,8 +440,13 @@ too, about 14 students ahead of Global then (277 against 263). Agreed:
 - **First feedback** (2026-09-29): switching made the whole page flash and
   reload, as it started the app over; now only the games' saves reload.
   "Now in Global" becomes "Now in JP" on JP, from JP's schedule in the same
-  file, and the hub's record, labels and birthdays follow the server. Anna and Erina had no voice lines on SchaleDB
-  or halos on the Fandom wiki yet, so they wait for a later run.
+  file, and the hub's record, labels and birthdays follow the server. Anna
+  and Erina had no voice lines on SchaleDB or halos on the Fandom wiki yet,
+  so they wait for a later run.
+- **Last feedback** (2026-09-29, on `feat/weekly-update`): the Jukebox's
+  corner player covered the end of the hub and the games. It is now a bar
+  in the page's column above the footer, so the play area ends above it,
+  and floats beside the game only from 1344 px, where it fits.
 
 ### Weekly content update (6.6)
 

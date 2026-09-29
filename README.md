@@ -218,7 +218,9 @@ they need no more height than the OST, and every game fits a 1080p window.
   component (`src/components/SongRows`) with plain elements, fixed columns
   and off-screen rows skipped, so they open and refilter quickly. The music
   plays on after the Jukebox closes, on every page, in a small player at the
-  bottom right (play or pause, next song, back to the Jukebox, stop), until
+  bottom right (play or pause, next song, back to the Jukebox, stop): a bar
+  above the footer, where the play area ends so it covers nothing, floating
+  beside the game only on screens wide enough for it (1344 px). It plays until
   something else plays: an OST clip, a voice line or a result's song stops
   it. The Students and Picture games have no audio, so it plays on there
   for as long as you like.
@@ -510,8 +512,8 @@ Worker, `ba-heardle-now` (`now-worker/`), apart from the audio one so it can
 be published without the audio, which is built only on the maker's computer.
 Like the audio Worker it only serves static files, so its requests are free.
 `scripts/build-global-now.mjs` makes the file from SchaleDB's `config.json`
-(Global's `CurrentGacha`, `CurrentEvents` and `CurrentRaid`, with their start
-and end times) and its English names for students, events and raids; it
+(each server's `CurrentGacha`, `CurrentEvents` and `CurrentRaid`, with their
+start and end times) and its English names for students, events and raids; it
 stops with an error if the format changes, and the live file stays as it
 was. The event's logo and each raid boss's lobby picture come along,
 converted to WebP (ffmpeg) in `now-dist/img/` and named after their source's
@@ -621,7 +623,7 @@ songs`. `build:voices`:
   taken from each line.
 - downloads the lines it doesn't have yet, one at a time with a pause, and
   converts each once to mono Ogg Vorbis in `voices/<student id>/`, which is
-  committed like `audio/` (about 50 MB for 1,305 lines). The MP3s stay in
+  committed like `audio/` (about 66 MB for 1,358 lines). The MP3s stay in
   `.cache/`. `voices/lines.json` lists each student's lines and their text.
 - appends new students to the daily schedule.
 - draws every student's icon as a white shape into
@@ -774,8 +776,7 @@ The audio is on Cloudflare (see [Audio](#audio)), so a deployment is about
 - **Only `main` deploys** (`git.deploymentEnabled` in `vercel.json`); other
   branches get no preview deployments. Test with `npm run build` and
   `npm run preview` instead. A branch that needs testing on Vercel itself
-  can be let in there for a while (`feat/game-pages` is, for its clean
-  URLs); take it out again before it merges. Vercel marks preview addresses
+  can be let in there for a while; take it out again before it merges. Vercel marks preview addresses
   `noindex`, so search engines leave them alone.
 - **Delete merged branches.** Vercel keeps the latest deployment of every
   branch that still exists.
