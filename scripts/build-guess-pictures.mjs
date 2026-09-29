@@ -20,8 +20,8 @@
  * SchaleDB's for one they don't have. Halos come from the Blue Archive Wiki
  * on Fandom, as "<Name> Halo.png", where its editors draw them flat, facing
  * us; a halo the wiki doesn't have yet (a new student's) is drawn from the
- * student's sprite in the game's files, as it sits on them, in perspective,
- * and the wiki's replaces it once it's there. Downloads are kept in .cache/,
+ * student's sprite in the game's files, or from their 3D model when the
+ * sprite has none, and the wiki's replaces it once it's there. Downloads are kept in .cache/,
  * which isn't committed. A sheet is drawn again only when its cells or its
  * pictures change.
  */
@@ -230,7 +230,8 @@ for (const { key } of halos) {
 }
 
 // A halo the wiki doesn't have yet (a new student's): drawn from the sprite
-// of the first of the group's students whose sprite has one.
+// of the first of the group's students whose sprite has one, or else from
+// their 3D model.
 const unhaloed = halos.filter(({ key }) => !pictureFiles.halo.has(key));
 const fromGame = [];
 if (unhaloed.length > 0) {

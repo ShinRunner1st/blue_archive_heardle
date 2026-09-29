@@ -593,12 +593,13 @@ for them. Three community tools do the work, each pinned:
   (`scripts/lib/baad.mjs`): the music and voice lines (Android's media), the
   student pictures and weapons (three groups of Android's UI pictures, about
   50 MB), and the students' Spine sprites for their halos (Windows', whose
-  textures are full size).
+  textures are full size), or their 3D models' meshes, materials and
+  textures where a sprite has no halo.
 - [BA-AX](https://github.com/Deathemonic/BA-AX) opens the voice zips.
 - [UnityPy](https://github.com/K0lb3/UnityPy) (`scripts/extract-game-files.py`,
   `scripts/requirements.txt`) unpacks the pictures, sprites' atlases and
-  skeletons from Unity's asset bundles into `.cache/game/`, with a hash of
-  each picture's pixels.
+  skeletons, and the models' halos, from Unity's asset bundles into
+  `.cache/game/`, with a hash of each picture's pixels.
 
 `scripts/lib/gameFiles.mjs` puts them together for the build scripts:
 
@@ -619,7 +620,12 @@ for them. Three community tools do the work, each pinned:
   name. A halo the wiki doesn't have yet (a new student's) is drawn from the
   sprite (`scripts/lib/spineHalo.mjs`, with spine-core: every halo piece in
   its resting pose, its glow copies left out), and the wiki's replaces it
-  once it's there.
+  once it's there. A sprite without a halo (Marina's has none) leaves it to
+  the student's 3D model, the chibi the game battles with, whose halo is a
+  flat mesh behind the head (`scripts/lib/modelHalo.mjs`): drawn square on,
+  from the side the student faces, in its texture's colour. That is how the
+  wiki draws them; checked against 141 of the wiki's, they match but for a
+  few the wiki draws tilted, and the colours come out a little duller.
 
 Nothing breaks when the game's files can't be had: a picture or line they
 don't have comes from SchaleDB or the wiki, as before, and the pull request
@@ -703,8 +709,8 @@ follows JP's soundtrack either way.
   share texts "(JP)", and share pictures' tags "· JP".
 - **JP-only students** come with SchaleDB's English name, their lines with
   their Japanese text (the line picker also checks the Japanese name, so no
-  line gives it away), and a halo drawn from their sprite until the Fandom
-  wiki has one. Their lines and pictures come from the game's files on the
+  line gives it away), and a halo drawn from their sprite (or 3D model)
+  until the Fandom wiki has one. Their lines and pictures come from the game's files on the
   day of the update.
 
 ### Voice lines
@@ -766,7 +772,8 @@ after `build:voices`. It:
 - takes the weapons from the game's files and the halos from the Blue
   Archive Wiki on Fandom (`<Name> Halo.png`, asked for as the original PNG,
   downloaded once each into `.cache/`), drawing a halo the wiki doesn't have
-  yet from the student's sprite (see [The game's files](#the-games-files)).
+  yet from the student's sprite or 3D model (see
+  [The game's files](#the-games-files)).
   A few are filed under other names on the wiki (Aris as Alice, Hatsune Miku
   as Miku), listed in `scripts/lib/halos.mjs`.
 - trims each to its edges (the wiki's canvases are any size), fits it to a

@@ -81,8 +81,9 @@ What the project cares about:
   (`scripts/extract-game-files.py`) the asset bundles, all pinned; SchaleDB
   names them (DevName, PathName) and gives the data and lines' text. Halos
   stay the Fandom wiki's (flat; the game's sit in perspective), a new one
-  drawn from the student's sprite (`scripts/lib/spineHalo.mjs`) until the
-  wiki has it. A missing picture or line falls back to SchaleDB or the wiki
+  drawn from the student's sprite (`scripts/lib/spineHalo.mjs`), or their
+  3D model's halo mesh when the sprite has none (`modelHalo.mjs`), until
+  the wiki has it. A missing picture or line falls back to SchaleDB or the wiki
   and is listed in the pull request; the build stops if the game's pictures
   aren't there at all or over a tenth of a kind are missing. Sheets and
   portraits are redrawn only when their pictures' pixels change
@@ -197,7 +198,7 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   `src/hooks/useVoiceGame.ts` and `useVoiceTimeAttack.ts`, a key per mode,
   in the save file.
 - **Picture** (`/picture`): name the student from a halo (Fandom wiki, or
-  the game's sprite until the wiki has it) or a weapon (the game's files),
+  the game's sprite or 3D model until the wiki has it) or a weapon (the game's files),
   Halo or Weapon picked above the game. One answer per
   picture, any student it belongs to is right. Daily, Classic with Voice's
   hints (or none), 4-Choice and Time Attack, each with a Silhouette toggle;

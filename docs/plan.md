@@ -507,9 +507,11 @@ the day of the update. Details in the README's "The game's files".
   Japanese only; SchaleDB also names the files.
 - **Halos stay the Fandom wiki's**, drawn flat by its editors: the game's
   sprites only have them in perspective, some nearly edge-on (Hare, Yuuka,
-  Chihiro), which would be hard to name. A new student's halo is drawn from
-  their sprite until the wiki has one. The user to decide whether they'd
-  rather have every halo the game's way.
+  Chihiro), which would be hard to name. The user chose (2026-09-29) the
+  order Fandom, then the sprite, then the 3D model: a new student's halo is
+  drawn from their sprite, or from their chibi model's halo mesh when the
+  sprite has none (on `feat/model-halos`), until the wiki has one. The wiki
+  draws its halos from those meshes too; drawn square on they match it.
 - **Safe on its own**: a missing picture or line falls back to SchaleDB or
   the wiki, listed in the pull request; the build stops if the game's
   pictures aren't there at all or over a tenth of a kind are missing;

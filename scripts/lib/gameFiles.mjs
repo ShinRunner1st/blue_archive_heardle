@@ -32,7 +32,15 @@ import {
 import { join } from "node:path";
 import { promisify } from "node:util";
 
-import { baad, baax, MEDIA_DIR, SPRITE_DIR, UI_DIR } from "./baad.mjs";
+import {
+  baad,
+  baax,
+  MEDIA_DIR,
+  MODEL_DIR,
+  SPRITE_DIR,
+  UI_DIR,
+} from "./baad.mjs";
+import { renderModelHalo } from "./modelHalo.mjs";
 import { readPixels, writePng } from "./rawImage.mjs";
 import { renderHalo } from "./spineHalo.mjs";
 
@@ -41,6 +49,7 @@ const run = promisify(execFile);
 const OUT = ".cache/game";
 const UI_OUT = join(OUT, "ui");
 const SPRITE_OUT = join(OUT, "sprites");
+const MODEL_OUT = join(OUT, "models");
 const VOICE_OUT = join(OUT, "voices");
 const ICON_OUT = join(OUT, "icons");
 const HALO_OUT = join(OUT, "halos");
@@ -248,11 +257,35 @@ const atlasPages = (text) =>
 
 /**
  * Each group's halo, drawn from the sprite of the first of its names (the
- * game's names of its students, in order) that has one: a Map of the
- * group's key to { file, hash } of a PNG. A group missing from it has no
- * halo in the game's files.
+ * game's names of its students, in order) that has one, or else from the
+ * first of their 3D models that has one: a Map of the group's key to
+ * { file, hash } of a PNG. A group missing from it has no halo in the
+ * game's files.
  */
 export async function gameHalos(groups) {
+  const halos = await spriteHalos(groups);
+  const rest = groups.filter(({ key }) => !halos.has(key));
+  for (const [key, halo] of await modelHalos(rest)) halos.set(key, halo);
+  return halos;
+}
+
+/** A halo made before from the same files, if its stamp says so. */
+function madeAlready(file, hash) {
+  const stamp = `${file}.hash`;
+  return (
+    existsSync(file) &&
+    existsSync(stamp) &&
+    readFileSync(stamp, "utf8") === hash
+  );
+}
+
+async function saveHalo(file, hash, halo) {
+  await writePng(file, halo);
+  writeFileSync(`${file}.hash`, hash);
+}
+
+/** gameHalos' first try: the students' sprites. */
+async function spriteHalos(groups) {
   const all = [...new Set(groups.flatMap(({ names }) => names))].map((name) =>
     name.replace(/[^a-z0-9_]/g, "")
   );
@@ -291,12 +324,7 @@ export async function gameHalos(groups) {
         ...pages.map(({ texture }) => texture.hash)
       );
       const file = join(HALO_OUT, `${sprite}.png`);
-      const stamp = `${file}.hash`;
-      if (
-        existsSync(file) &&
-        existsSync(stamp) &&
-        readFileSync(stamp, "utf8") === hash
-      ) {
+      if (madeAlready(file, hash)) {
         halos.set(key, { file, hash });
         break;
       }
@@ -315,8 +343,69 @@ export async function gameHalos(groups) {
         console.warn(`Could not draw ${sprite}'s halo: ${error.message}`);
       }
       if (!halo) continue;
-      await writePng(file, halo);
-      writeFileSync(stamp, hash);
+      await saveHalo(file, hash, halo);
+      halos.set(key, { file, hash });
+      break;
+    }
+  }
+  return halos;
+}
+
+/**
+ * gameHalos' second try, for students whose sprite has no halo (Marina's
+ * hasn't): their 3D models, "<name>" or "<name>_original" in the game.
+ */
+async function modelHalos(groups) {
+  const models = (names) => names.flatMap((name) => [name, `${name}_original`]);
+  const all = [...new Set(groups.flatMap(({ names }) => models(names)))].map(
+    (name) => name.replace(/[^a-z0-9_]/g, "")
+  );
+  const halos = new Map();
+  if (all.length === 0) return halos;
+  baad({
+    assets: true,
+    platform: "windows",
+    filter: `^assets-_mx-characters-(${all.join(
+      "|"
+    )})-_mxdependency-(meshes|materials|textures)-`,
+    dir: MODEL_DIR,
+  });
+  unpack(["models", MODEL_DIR, MODEL_OUT, ...all]);
+  mkdirSync(HALO_OUT, { recursive: true });
+
+  for (const { key, names } of groups) {
+    for (const model of models(names)) {
+      const json = join(MODEL_OUT, `${model}.json`);
+      if (!existsSync(json)) continue;
+      const text = readFileSync(json, "utf8");
+      const { pieces } = JSON.parse(text);
+      if (pieces.length === 0) continue;
+      const files = [...new Set(pieces.map(({ texture }) => texture))].filter(
+        Boolean
+      );
+      const hash = sha1(
+        MAKE_VERSION,
+        "model halo",
+        text,
+        ...files.map((texture) => readFileSync(join(MODEL_OUT, texture)))
+      );
+      const file = join(HALO_OUT, `${model}_model.png`);
+      if (madeAlready(file, hash)) {
+        halos.set(key, { file, hash });
+        break;
+      }
+      let halo = null;
+      try {
+        const textures = new Map();
+        for (const texture of files) {
+          textures.set(texture, await readPixels(join(MODEL_OUT, texture)));
+        }
+        halo = renderModelHalo(pieces, textures);
+      } catch (error) {
+        console.warn(`Could not draw ${model}'s halo: ${error.message}`);
+      }
+      if (!halo) continue;
+      await saveHalo(file, hash, halo);
       halos.set(key, { file, hash });
       break;
     }

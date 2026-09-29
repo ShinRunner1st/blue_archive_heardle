@@ -25,6 +25,11 @@ export const UI_DIR = ".cache/baad-ui";
  * twice Android's size (2048 pixels), so a halo is as sharp as the wiki's.
  */
 export const SPRITE_DIR = ".cache/baad-sprites";
+/**
+ * The students' 3D models, for a halo their sprite doesn't have: only the
+ * meshes, materials and textures, Windows' too.
+ */
+export const MODEL_DIR = ".cache/baad-models";
 
 /** The last line a program printed, for saying why it failed. */
 const lastLine = (result) =>

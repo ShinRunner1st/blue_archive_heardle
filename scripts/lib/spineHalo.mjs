@@ -219,7 +219,7 @@ function pixelScale(pieces, points, textures) {
 }
 
 /** The texture's colour at (u, v) in pixels, between pixels: RGBA, 0-1. */
-function sample({ width, height, data }, u, v, out) {
+export function sample({ width, height, data }, u, v, out) {
   const x = Math.min(Math.max(u - 0.5, 0), width - 1);
   const y = Math.min(Math.max(v - 0.5, 0), height - 1);
   const x0 = Math.floor(x);

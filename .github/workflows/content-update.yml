@@ -67,6 +67,7 @@ jobs:
             .cache
             !.cache/baad-ui
             !.cache/baad-sprites
+            !.cache/baad-models
           key: content-cache-${{ github.run_id }}
           restore-keys: content-cache-
 
