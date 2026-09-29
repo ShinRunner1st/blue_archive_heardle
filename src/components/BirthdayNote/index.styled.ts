@@ -47,18 +47,3 @@ export const Portraits = styled.span`
     margin-left: -8px;
   }
 `;
-
-/** The portrait's face, in a circle: SchaleDB's are busts, face at the top. */
-export const Portrait = styled.img`
-  display: block;
-  box-sizing: border-box;
-  width: 27px;
-  height: 27px;
-
-  object-fit: cover;
-  object-position: 50% 12%;
-
-  background-color: rgba(241, 247, 237, 0.15);
-  border: 1px solid ${({ theme }) => theme.border100};
-  border-radius: 50%;
-`;

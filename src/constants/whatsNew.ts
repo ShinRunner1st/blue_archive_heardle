@@ -49,7 +49,7 @@ export const WHATS_NEW: NewsUpdate[] = [
       {
         icon: IoHome,
         title: "A home page",
-        text: "baheardle.com now opens on every game at once, with how today's daily puzzles went and a button to carry on where you left off. Each game has its own page to bookmark or share (baheardle.com/voice, say); the bar under the header moves between them, and the logo brings you home.",
+        text: "baheardle.com now opens on every game at once, with how today's daily puzzles went, a button to carry on where you left off, your record, what's on in Global right now (pickups, event and raids) and this week's birthdays. Each game has its own page to bookmark or share (baheardle.com/voice, say); the bar under the header moves between them, and the logo brings you home.",
       },
       {
         icon: IoMusicalNotes,

@@ -1,0 +1,37 @@
+name: Now in Global
+
+# Refreshes the hub's "Now in Global" panel from SchaleDB (see
+# scripts/build-global-now.mjs), publishing it to the ba-heardle-now Worker
+# only when something changed. Needs two repository secrets:
+# CLOUDFLARE_API_TOKEN (the "Edit Cloudflare Workers" template) and
+# CLOUDFLARE_ACCOUNT_ID.
+on:
+  schedule:
+    - cron: "23 */6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: global-now
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Build now.json from SchaleDB
+        id: build
+        run: node scripts/build-global-now.mjs --if-changed
+
+      - name: Publish to the Worker
+        if: steps.build.outputs.changed == 'true'
+        run: npx --yes wrangler@4 deploy --config now-worker/wrangler.jsonc
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}

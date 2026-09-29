@@ -105,6 +105,12 @@ export const Cards = styled.ul`
 `;
 
 export const Card = styled.a<{ $game: Game }>`
+  /* Its own layer, so the picture and its shading sit behind the words
+     but above the card's colour. */
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -114,6 +120,21 @@ export const Card = styled.a<{ $game: Game }>`
 
   color: inherit;
   text-decoration: none;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+
+  /* Shades the picture: solid where the words start, lighter to the right. */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      100deg,
+      ${({ theme }) => theme.background1}f2 0%,
+      ${({ theme }) => theme.background1}d0 50%,
+      ${({ theme }) => theme.background1}70 100%
+    );
+  }
 
   /* The page artwork stays faintly visible behind the card. */
   background-color: ${({ theme }) => theme.background1}e6;
@@ -129,6 +150,10 @@ export const Card = styled.a<{ $game: Game }>`
     border-color: ${({ theme, $game }) => accentOf($game, theme)};
   }
 
+  &:hover img {
+    transform: scale(1.05);
+  }
+
   &:active {
     transform: scale(0.98);
   }
@@ -142,6 +167,20 @@ export const Card = styled.a<{ $game: Game }>`
     padding: 10px 12px;
     gap: 4px;
   }
+`;
+
+/** The card's picture, one of the game's scenes, behind its shading. */
+export const Art = styled.img`
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: right center;
+
+  transition: transform 0.4s ease;
 `;
 
 export const CardHead = styled.div`
@@ -246,4 +285,230 @@ export const StatusLabel = styled.span`
     margin: 0 4px;
     opacity: 0.7;
   }
+`;
+
+/** The hub's other boxes, below the cards: a record, Global, birthdays. */
+export const Panel = styled.section<{ $wide?: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 12px 14px;
+
+  background-color: ${({ theme }) => theme.background1}e6;
+  border: 1px solid ${({ theme }) => theme.background100};
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+
+  ${({ $wide }) => ($wide ? "width: 100%;" : "")}
+`;
+
+/** Global and birthdays side by side, or one across when it is alone. */
+export const Panels = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  width: 100%;
+
+  &:empty {
+    display: none;
+  }
+
+  @media (max-width: 560px) {
+    gap: 8px;
+  }
+`;
+
+export const PanelHead = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+`;
+
+export const PanelTitle = styled.h2`
+  margin: 0;
+
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.75;
+`;
+
+export const PanelAction = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: ${({ theme }) => theme.text};
+
+  background-color: rgba(241, 247, 237, 0.1);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(241, 247, 237, 0.18);
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
+`;
+
+export const Source = styled.a`
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: inherit;
+  opacity: 0.55;
+
+  &:hover {
+    opacity: 0.9;
+  }
+`;
+
+export const Tiles = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+`;
+
+export const Tile = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 4px;
+
+  background-color: rgba(241, 247, 237, 0.06);
+  border-radius: 8px;
+`;
+
+export const TileValue = styled.span`
+  font-size: 1.15rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+`;
+
+export const TileLabel = styled.span`
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-align: center;
+  opacity: 0.65;
+`;
+
+export const Row = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  & + & {
+    padding-top: 8px;
+    border-top: 1px solid rgba(241, 247, 237, 0.08);
+  }
+`;
+
+export const RowHead = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+`;
+
+export const Kind = styled.span`
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #6cb8ff;
+`;
+
+export const Ends = styled.span`
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  opacity: 0.6;
+`;
+
+export const RowText = styled.p`
+  margin: 0;
+
+  font-size: 0.85rem;
+  font-weight: 700;
+`;
+
+export const Terrain = styled.span`
+  font-weight: 600;
+  opacity: 0.6;
+`;
+
+export const Pickup = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 6px;
+`;
+
+export const PickupStudent = styled.span`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 58px;
+
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+`;
+
+export const List = styled.ul`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+`;
+
+export const Birthday = styled.li`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+/** Keeps the names lined up where a portrait is missing. */
+export const NoPortrait = styled.span`
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background-color: rgba(241, 247, 237, 0.1);
+`;
+
+export const BirthdayName = styled.span`
+  flex: 1;
+  min-width: 0;
+
+  font-size: 0.88rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+export const BirthdayDay = styled.span<{ $today: boolean }>`
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+  opacity: ${({ $today }) => ($today ? 1 : 0.65)};
+  color: ${({ theme, $today }) => ($today ? theme.pink : "inherit")};
 `;

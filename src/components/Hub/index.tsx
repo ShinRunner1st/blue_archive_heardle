@@ -2,6 +2,8 @@ import React from "react";
 import { IoArrowForward, IoCheckmark, IoClose, IoTime } from "react-icons/io5";
 
 import { PAGES } from "../../constants/pages";
+import { pictureFiles } from "../../constants/pictureFiles";
+import { audioBaseUrl, backupUrlFor } from "../../helpers/audioUrl";
 import {
   dayNumber,
   formatCountdown,
@@ -13,6 +15,9 @@ import { isPlainClick } from "../../hooks/usePage";
 import { Game } from "../../types/mode";
 import { PAGE_LINKS } from "../PlayStyles";
 
+import { Birthdays } from "./Birthdays";
+import { GlobalNow } from "./GlobalNow";
+import { Record } from "./Record";
 import * as Styled from "./index.styled";
 
 interface GameCard {
@@ -74,8 +79,32 @@ function Status({ result }: { result: DailyResult }) {
   );
 }
 
+/**
+ * One of the game's scenes behind a card (pictures/hub/, made by
+ * scripts/make-card.mjs), from the Worker, or its copy on R2 if the Worker
+ * fails; the card is plain if both do.
+ */
+function CardArt({ game }: { game: Game }) {
+  const file = pictureFiles[`hub/${game}`];
+  const [src, setSrc] = React.useState(
+    file ? `${audioBaseUrl()}/${file}` : null
+  );
+  if (!src) return null;
+  return (
+    <Styled.Art
+      src={src}
+      alt=""
+      onError={() => {
+        const backup = backupUrlFor(src);
+        setSrc(backup && backup !== src ? backup : null);
+      }}
+    />
+  );
+}
+
 interface Props {
   onOpen: (game: Game) => void;
+  onSenseiCard: () => void;
 }
 
 /**
@@ -83,7 +112,7 @@ interface Props {
  * daily puzzle as the player left it. Each card is a link to the game's own
  * page, which a plain click opens in place.
  */
-export function Hub({ onOpen }: Props) {
+export function Hub({ onOpen, onSenseiCard }: Props) {
   // Read once each time the hub shows: coming back from a game brings them
   // up to date. A new player has no game to continue.
   const results = React.useMemo(() => todayResults(), []);
@@ -137,6 +166,7 @@ export function Hub({ onOpen }: Props) {
           return (
             <li key={card.game}>
               <Styled.Card $game={card.game} {...linkProps(card.game)}>
+                <CardArt game={card.game} />
                 <Styled.CardHead>
                   <Styled.Icon $game={card.game}>{link?.icon}</Styled.Icon>
                   <Styled.Name>{link?.label}</Styled.Name>
@@ -155,6 +185,13 @@ export function Hub({ onOpen }: Props) {
           );
         })}
       </Styled.Cards>
+
+      <Record onSenseiCard={onSenseiCard} />
+
+      <Styled.Panels>
+        <GlobalNow />
+        <Birthdays />
+      </Styled.Panels>
     </Styled.Hub>
   );
 }

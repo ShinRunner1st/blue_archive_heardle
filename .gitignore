@@ -39,3 +39,6 @@ bun.lockb
 
 # Wrangler's local cache, made by `npm run songs`
 /.wrangler
+
+# Now in Global: made by `npm run global-now`, served from Cloudflare
+/now-dist

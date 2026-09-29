@@ -1,0 +1,14 @@
+// What is on in Blue Archive Global now, for the hub's "Now in Global"
+// panel: one small JSON file, served from Cloudflare as a static file - no
+// Worker code runs, and requests for static files are free and unlimited.
+// `npm run global-now` builds ../now-dist from SchaleDB and publishes it;
+// the GitHub Action in .github/workflows/global-now.yml does the same every
+// six hours. Kept apart from the audio Worker so the Action can publish it
+// without the audio, which is built only on the maker's computer.
+{
+  "name": "ba-heardle-now",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "../now-dist"
+  }
+}

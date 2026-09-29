@@ -11,10 +11,12 @@
  * Run `npm run songs` afterwards to put the picture on the Worker.
  */
 import { execFile } from "node:child_process";
-import { mkdtempSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { mkdtempSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
+
+import { downloadBackground } from "./lib/wiki.mjs";
 
 const run = promisify(execFile);
 
@@ -34,24 +36,6 @@ if (!name || !(time in BRIGHTNESS) || !output) {
   process.exit(1);
 }
 
-async function download(file) {
-  const headers = { "User-Agent": "baheardle.com build script" };
-  const api = new URL("https://bluearchive.wiki/w/api.php");
-  api.search = new URLSearchParams({
-    action: "query",
-    titles: `File:BG_${name}.jpg`,
-    prop: "imageinfo",
-    iiprop: "url",
-    format: "json",
-  });
-  const data = await (await fetch(api, { headers })).json();
-  const url = Object.values(data.query.pages)[0].imageinfo?.[0]?.url;
-  if (!url) throw new Error(`No File:BG_${name}.jpg on the wiki`);
-  const image = await fetch(url, { headers });
-  if (!image.ok) throw new Error(`${url}: ${image.status}`);
-  writeFileSync(file, Buffer.from(await image.arrayBuffer()));
-}
-
 async function meanBrightness(file, filters) {
   const { stdout } = await run("ffmpeg", [
     ...["-v", "error", "-i", file, "-vf"],
@@ -66,7 +50,7 @@ async function meanBrightness(file, filters) {
 const dir = mkdtempSync(join(tmpdir(), "backdrop-"));
 try {
   const source = join(dir, "source.jpg");
-  await download(source);
+  await downloadBackground(name, source);
 
   const blur = `scale=${SIZE},gblur=sigma=${BLUR},`;
   const k = BRIGHTNESS[time] / (await meanBrightness(source, blur));

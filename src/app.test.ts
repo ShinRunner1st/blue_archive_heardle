@@ -1,11 +1,13 @@
 import React, { act } from "react";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createHarness } from "./test/harness";
 
 import App from "./app";
 import { DAILY_STORAGE_KEY, MODE_KEY, STORAGE_KEY } from "./constants/game";
 import { LATEST_UPDATE_ID } from "./constants/whatsNew";
+import { songs } from "./constants";
+import { emptyGuesses, saveRounds } from "./helpers/storage";
 
 /** The search boxes, not the players' volume and seek sliders. */
 const TEXT_INPUT = "input:not([type=range])";
@@ -188,6 +190,61 @@ describe("App hub", () => {
     );
     expect(resume?.textContent).toContain("Students");
     expect(resume?.getAttribute("href")).toBe("/students");
+  });
+
+  it("shows the player's record once they have played", () => {
+    mount();
+    expect(container.textContent).not.toContain("Your record");
+
+    harness.unmount();
+    saveRounds(
+      [
+        {
+          solution: songs[0],
+          currentTry: 2,
+          didGuess: true,
+          guesses: emptyGuesses(),
+          startTime: 0,
+        },
+      ],
+      "endless"
+    );
+    mount();
+
+    expect(container.textContent).toContain("Your record");
+    expect(container.textContent).toContain(`1/${songs.length}`);
+  });
+
+  it("shows what is on in Global, from the Worker, and nothing if it fails", async () => {
+    const now = Math.floor(Date.now() / 1000);
+    const fetchNow = vi.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        banners: [],
+        events: [{ name: "Lore Pursuit", start: now - 60, end: now + 7200 }],
+        raids: [{ kind: "Total Assault", start: now - 60, end: now - 1 }],
+      }),
+    }));
+    vi.stubGlobal("fetch", fetchNow);
+    await act(async () => mount());
+
+    expect(fetchNow).toHaveBeenCalledWith("/now/now.json");
+    expect(container.textContent).toContain("Now in Global");
+    expect(container.textContent).toContain("Lore Pursuit");
+    // Over already: left out.
+    expect(container.textContent).not.toContain("Total Assault");
+
+    harness.unmount();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new Error("offline");
+      })
+    );
+    await act(async () => mount());
+
+    expect(container.textContent).not.toContain("Now in Global");
+    vi.unstubAllGlobals();
   });
 
   it("links home from every game's navigation bar", () => {

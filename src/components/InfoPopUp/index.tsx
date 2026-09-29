@@ -257,9 +257,9 @@ export function InfoPopUp({
             </PopUpCardText>
             <PopUpCardText>
               Like any website, the services that deliver it — Vercel for the
-              game, Cloudflare for the music, voices and pictures — see basic
-              connection details, such as your IP address, to send you the
-              pages.
+              game, Cloudflare for the music, voices, pictures and what&apos;s
+              on in Global — see basic connection details, such as your IP
+              address, to send you the pages.
             </PopUpCardText>
           </PopUpCardBody>
         </PopUpCard>
@@ -294,7 +294,7 @@ export function InfoPopUp({
               is developed by NEXON Games and published by NEXON and Yostar. Its
               music, characters, artwork and cursor belong to their rights
               holders. Soundtrack by {composerCredit}. Student data, icons,
-              weapons and voice lines from{" "}
+              weapons, voice lines and what&apos;s on in Global from{" "}
               <a href={SCHALEDB} target="_blank" rel="noopener noreferrer">
                 SchaleDB
               </a>

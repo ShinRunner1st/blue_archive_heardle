@@ -13,6 +13,12 @@ page: [/ost](https://baheardle.com/ost), [/voice](https://baheardle.com/voice),
 [/picture](https://baheardle.com/picture). The bar under the header moves
 between them without reloading, and the logo goes back home.
 
+Below the cards, the hub has **Your record** across every game (for anyone
+who has played; its button opens the Sensei card), **Now in Global** (the
+pickup students, the event and the raids on the Global server, each with
+when it ends) and **Birthdays this week**, with the students' portraits.
+Each card shows one of the game's scenes behind it.
+
 <p>
   <img src="docs/screenshot-game.webp" alt="A round in progress: one wrong guess, one skip, and the clip player" width="49%">
   <img src="docs/screenshot-result.webp" alt="The result screen in dark mode, playing the answer" width="49%">
@@ -458,6 +464,40 @@ places. The game itself never asks the wiki for anything. `npm run dev` serves
 the pictures from `audio-dist/` too; add `?season=christmas` or
 `?season=new-year` to the address there to see a season on any day.
 
+`node scripts/make-card.mjs <BG name> <output.webp> [focus]` makes a hub
+card's picture the same way, sharp and cut to 720x320 (`focus`, 0 to 1,
+moves the cut down the picture). The cards use `Stage` for the OST,
+`SchoolBroadcastingRoom_Day` for Voice, `ShootingRange` for Picture and
+`ClassRoom` for Students, in `pictures/hub/`: about 86 KB in all, fetched
+from the Worker when the hub shows.
+
+### Now in Global
+
+The hub's Now in Global panel reads one small file, `now.json`, from a second
+Worker, `ba-heardle-now` (`now-worker/`), apart from the audio one so it can
+be published without the audio, which is built only on the maker's computer.
+Like the audio Worker it only serves static files, so its requests are free.
+`scripts/build-global-now.mjs` makes the file from SchaleDB's `config.json`
+(Global's `CurrentGacha`, `CurrentEvents` and `CurrentRaid`, with their start
+and end times) and its English names for students, events and raids; it
+stops with an error if the format changes, and the live file stays as it
+was. The page never asks SchaleDB for anything, leaves out whatever has
+ended by the player's clock, and hides the panel if the file doesn't come:
+there is no R2 copy, so an outage can't run up R2 reads.
+
+- `npm run global-now` builds and publishes it by hand. For `npm run dev`,
+  `npm run build:global-now` only builds it, and the dev server serves it at
+  `/now/now.json`.
+- `.github/workflows/global-now.yml` does the same every six hours, and
+  publishes only when the file changed. GitHub runs scheduled workflows from
+  `main` only, and it needs two repository secrets (Settings → Secrets and
+  variables → Actions): `CLOUDFLARE_API_TOKEN`, a Cloudflare API token made
+  from the "Edit Cloudflare Workers" template, and `CLOUDFLARE_ACCOUNT_ID`,
+  from the Workers overview in the Cloudflare dashboard. Run it by hand from
+  the Actions tab to check it.
+- SchaleDB updates a few hours after the game does, so a new banner can take
+  that long to show; one that has ended hides on time.
+
 ### Student data
 
 The student game's data comes from [SchaleDB](https://schaledb.com/), copied
@@ -639,6 +679,7 @@ voices/         Voice mode's lines, a folder per student, and lines.json
 pictures/       Pictures served from the Worker: the seasonal backdrops, the
                 student icon sheets and the silhouettes
 audio-worker/   The Cloudflare Worker that serves the built audio and pictures
+now-worker/     The Worker that serves now.json, what is on in Global
 scripts/        build-audio, check-audio, build-pictures, check-pictures,
                 upload-backup, make-backdrop, make-preview, build-daily-order,
                 build-spine, build-students, build-voices, build-voice-audio,
@@ -728,8 +769,10 @@ Result pictures are drawn in the browser and go only where the player sends
 them from the share sheet, or to their downloads; the player name in Settings
 is only ever drawn on those pictures.
 Like any website, the hosts - Vercel for the site, Cloudflare for the audio,
-voice lines and pictures -
+voice lines, pictures and the hub's Global schedule -
 see standard connection details such as IP addresses to serve the files.
+The Global schedule is copied from SchaleDB to our own Worker; the page
+never asks SchaleDB for anything.
 Players see the same in About this game.
 
 ## Support

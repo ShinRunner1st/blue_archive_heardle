@@ -393,6 +393,26 @@ rank for one broad topic, and a new player met a switch of four icons. Agreed:
 - **Cost:** one HTML file per visit as now, plus four small ones in the
   deployment. The sitemap lists the five pages; send it again in Search
   Console after the release.
+- **First feedback** (2026-09-29, same branch): the score reset moved from
+  About to a card in Settings that names the game and mode it clears and
+  asks twice; Picture comes before Students on the bar and the hub; the
+  Jukebox plays on after closing on every page, until a game's own audio
+  plays.
+- **More on the hub** (asked for the same day):
+  - **Your record** across every game, from the saves, with a button to the
+    Sensei card. Hidden for a new player.
+  - **Now in Global**: the pickup students (portraits), the event and the
+    raids, with when each ends. Copied from SchaleDB to a second static
+    Worker, `ba-heardle-now`, by a GitHub Action every six hours (publishing
+    only on a change), so the page never asks SchaleDB and requests stay
+    free. The user chose this over refreshing it by hand. It needs the
+    `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets on GitHub,
+    and runs only once the workflow is on `main`; until then
+    `npm run global-now` publishes it. No R2 copy.
+  - **Birthdays this week**, with portraits (the portrait list is a lazy
+    chunk on Vercel, cached for a year, as for the birthday note).
+  - **A scene behind each card**, from the game's scenario backgrounds
+    (`scripts/make-card.mjs`, 86 KB for the four, on the Worker and R2).
 
 ### Multiplayer (Group 7): private rooms, played like AMQ
 

@@ -24,3 +24,27 @@ export function birthdaysOn(date: Date = new Date()): Student[] {
   }
   return students.filter((student) => student.lore && isBirthday(student, day));
 }
+
+/**
+ * The students with a birthday in the `days` days from `from`, today first,
+ * each with the day, for the hub. One each, as for the note.
+ */
+export function birthdaysWithin(
+  days: number,
+  from: Date = new Date()
+): Array<{ student: Student; date: Date }> {
+  const found: Array<{ student: Student; date: Date }> = [];
+  for (let offset = 0; offset < days; offset++) {
+    const date = new Date(
+      from.getFullYear(),
+      from.getMonth(),
+      from.getDate() + offset
+    );
+    for (const student of students) {
+      if (student.lore && isBirthday(student, date)) {
+        found.push({ student, date });
+      }
+    }
+  }
+  return found;
+}

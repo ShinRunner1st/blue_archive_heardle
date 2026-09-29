@@ -769,7 +769,7 @@ function App() {
       <Styled.PlayArea key={page}>
         <Styled.Container $top={isStudents}>
           {isHub ? (
-            <Hub onOpen={changePage} />
+            <Hub onOpen={changePage} onSenseiCard={openCard} />
           ) : isStudents ? (
             <StudentGame
               // A new screen for each way to play and mode, as for the OST.
