@@ -1,5 +1,6 @@
 import React from "react";
 import {
+  IoGameController,
   IoHome,
   IoMic,
   IoMusicalNotes,
@@ -44,6 +45,11 @@ interface PillsProps<T extends string> {
    * picked one's size.
    */
   compact?: boolean;
+  /**
+   * The others can't be picked now: a player in a multiplayer room stays
+   * there. They show dimmed; a press still calls onChange, which says why.
+   */
+  held?: boolean;
 }
 
 /**
@@ -92,6 +98,7 @@ export function Pills<T extends string>({
   value,
   onChange,
   compact = false,
+  held = false,
 }: PillsProps<T>) {
   const index = Math.max(
     options.findIndex((option) => option.value === value),
@@ -121,10 +128,13 @@ export function Pills<T extends string>({
       />
       {options.map((option) => {
         const active = option.value === value;
+        const stuck = held && !active;
         const shared = {
           $active: active,
+          $held: stuck,
           $iconOnly: Boolean(option.icon),
-          title: option.hint,
+          title: stuck ? "Leave the room first" : option.hint,
+          "aria-disabled": stuck || undefined,
           "aria-label": option.icon ? option.label : undefined,
           "data-pill": "",
         };
@@ -253,20 +263,29 @@ export const PAGE_LINKS: Array<Option<Page>> = (
       hint: "Name the student from how they compare",
       icon: <IoPeople aria-hidden="true" />,
     },
+    {
+      value: "multiplayer",
+      label: "Multiplayer",
+      hint: "Play the OST, Voice or Picture game with friends in a room",
+      icon: <IoGameController aria-hidden="true" />,
+    },
   ] satisfies Array<Option<Page>>
 ).map((option) => ({ ...option, href: PAGES[option.value].path }));
 
 /**
  * The site's navigation bar: the hub, then the games in PAGE_ORDER's order,
  * the OST, the students' voices, their halos and weapons, and the students
- * by clues. Each is a link to its own page.
+ * by clues, then multiplayer. Each is a link to its own page.
  */
 export function GameSwitch({
   page,
   onChange,
+  held,
 }: {
   page: Page;
   onChange: (page: Page) => void;
+  /** In a multiplayer room: the other pages wait until the player leaves. */
+  held?: boolean;
 }) {
   return (
     <Pills
@@ -275,6 +294,7 @@ export function GameSwitch({
       value={page}
       onChange={onChange}
       compact
+      held={held}
     />
   );
 }

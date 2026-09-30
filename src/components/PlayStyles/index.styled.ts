@@ -41,7 +41,11 @@ export const Thumb = styled.div<{ $index: number; $count: number }>`
     width 0.32s cubic-bezier(0.34, 1.35, 0.5, 1);
 `;
 
-export const Style = styled.button<{ $active: boolean; $iconOnly: boolean }>`
+export const Style = styled.button<{
+  $active: boolean;
+  $iconOnly: boolean;
+  $held?: boolean;
+}>`
   /* Above the sliding pill, which shares this space. */
   position: relative;
   z-index: 1;
@@ -58,7 +62,7 @@ export const Style = styled.button<{ $active: boolean; $iconOnly: boolean }>`
   font-weight: 700;
   white-space: nowrap;
   color: ${({ theme }) => theme.text};
-  opacity: ${({ $active }) => ($active ? 1 : 0.65)};
+  opacity: ${({ $active, $held }) => ($active ? 1 : $held ? 0.3 : 0.65)};
   text-shadow: ${({ $active }) => ($active ? "none" : "#000 0 0 6px")};
 
   background: none;

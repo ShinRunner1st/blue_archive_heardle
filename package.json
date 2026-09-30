@@ -25,6 +25,9 @@
     "build:pictures": "node scripts/build-pictures.mjs && prettier --write src/constants/pictureFiles.ts src/constants/portraitFiles.ts",
     "upload:audio": "wrangler deploy --config audio-worker/wrangler.jsonc",
     "deploy:site": "wrangler deploy --config site-worker/wrangler.jsonc",
+    "deploy:site-preview": "npm run build && wrangler deploy --config site-worker/wrangler.preview.jsonc",
+    "rooms": "wrangler dev --config rooms-worker/wrangler.jsonc --port 8787",
+    "deploy:rooms": "wrangler deploy --config rooms-worker/wrangler.jsonc",
     "build:global-now": "node scripts/build-global-now.mjs",
     "find-updates": "node scripts/find-updates.mjs",
     "build:new-songs": "node scripts/build-new-songs.mjs && prettier --write src/constants/songs.ts",
@@ -39,11 +42,11 @@
     "songs": "npm run build:daily-order && npm run build:audio && npm run build:voice-audio && npm run build:pictures && npm run upload:audio && npm run upload:backup && node scripts/check-audio.mjs --remote && node scripts/check-pictures.mjs --remote",
     "students": "npm run build:students && npm run build:voices && npm run build:guess && npm run songs",
     "voices": "npm run build:voices && npm run songs",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p rooms-worker",
     "lint": "eslint \"src/**/*.{ts,tsx}\" --max-warnings 0",
     "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
-    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"*.{json,js,cjs,md,html}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"*.{json,js,cjs,md,html}\"",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css}\" \"rooms-worker/*.ts\" \"*.{json,js,cjs,md,html}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" \"rooms-worker/*.ts\" \"*.{json,js,cjs,md,html}\"",
     "prepare": "husky install",
     "check:pages": "node scripts/check-pages.mjs",
     "download:music": "node scripts/download-music.mjs"
@@ -61,6 +64,7 @@
     ]
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "5.20260929.1",
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@eslint/js": "^9.39.5",

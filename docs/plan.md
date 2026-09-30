@@ -71,8 +71,12 @@ voice lines and card scenes on the Worker and R2. The two Actions run from
   dashboard setting (Bot Fight Mode, Rocket Loader, Email Address
   Obfuscation, Zaraz) can't quietly break the privacy promise.
 
-7. **Group 7: Multiplayer.** The user checks the Durable Objects and
-   PartyServer free-tier limits first (see "Multiplayer" below).
+7. **Group 7: Multiplayer** (see "Multiplayer" below). _Built on
+   `feat/multiplayer`, off `docs/vercel-domains`, after the free plan's
+   limits were checked on 2026-09-30, with eight rounds of the user's
+   feedback. Released on 2026-10-01 (fast-forward of `feat/multiplayer`);
+   the rooms Worker was first deployed by hand for the preview, and CI
+   deploys it from `main` from then on._
 8. **Group 8: move the site to Cloudflare** (see "Moving off Vercel"
    below). _Built on `feat/cloudflare-site`, off `main` (Group 7 isn't
    built yet, and this doesn't need it). Released on 2026-09-29 (main
@@ -545,9 +549,11 @@ the day of the update. Details in the README's "The game's files".
      after about 10 seconds.
 - **Fair:** the room holds the answer, marks the guesses, and sends the answer
   only at the reveal. Nobody sees it early, not even the host.
-- **Built with PartyServer (PartyKit)** on Cloudflare Durable Objects, over
-  WebSocket, one Durable Object per room. The page stays on Vercel; clips still
-  come from the Worker.
+- **Built on Cloudflare Durable Objects**, over WebSocket, one per room.
+  The plan named PartyServer, a thin layer over the same hibernation API;
+  the rooms use the API directly, as PartyServer would save a few lines but
+  add a dependency to pin and a storage write of its own when a room wakes.
+  Clips still come from the audio Worker.
 - **Never hit the free tier's limits** (100,000 Durable Object requests a day;
   check the duration limit too):
   - Hibernation on, so a room sleeps between messages. Round timers use
@@ -562,6 +568,195 @@ the day of the update. Details in the README's "The game's files".
     The rest of the site doesn't depend on it.
 - **Privacy:** update the About box and the README. Room data lives only while
   the room is open, and nicknames aren't kept. Still no accounts.
+
+Built on `feat/multiplayer` (details in the README's "Multiplayer" and
+"Multiplayer rooms"):
+
+- **Its own page**, `/multiplayer`, sixth on the game bar (a game
+  controller) and a wide card under the hub's four, as the hub and the
+  games are pages. The screens are a lazy chunk (8 KB gzipped), so a
+  visit elsewhere adds under 1 KB; nothing connects until a player makes
+  or joins a room, and leaving the page leaves the room.
+- **The free plan, checked 2026-09-30:** a hibernating object is billed
+  for duration only while it handles a message, so duration doesn't bind.
+  Incoming messages count 20 to a request, outgoing are free, and alarms
+  aren't requests but row writes. The tightest limit is 100,000 rows
+  written a day: each player's part rides on their connection, free, and
+  the room's record is written only at a phase change, about 6 rows a
+  round, so about 750 games of 20 songs a day (about 30 requests each,
+  under the 1,400 the plan guessed from requests alone).
+- **The rounds:** dealt when the game starts; the clip plays for everyone
+  once all have it or after 10 s; one answer each, revealed when all have
+  answered or the time (10 to 30 s) is up; a point for each right answer,
+  a tie to the faster; the answer shows 6 s, then the next loads. The four
+  answers are sent only once the clip plays. The host can end a game
+  early (pressed twice) and play again from the standings.
+- **Coming back:** a tab keeps a token per room, so a drop or a reload
+  returns as the same player, with the name typed for the room (not the
+  one in Settings). The room's record keeps a roster, so a new version of
+  the Worker, which restarts every room, costs a game only a moment's
+  reconnect (tested by reloading the Worker mid-round).
+- **Joining** only in the lobby or the standings; 4 letters for a code
+  (no I or O); a new room's code taken is tried again with another.
+- **When an allowance runs out**, a page that can't get in after two tries,
+  or a room whose writes fail, says Multiplayer is resting until tomorrow.
+- **CI deploys the rooms from `main`**, before the site, so the songs and
+  lines they deal match the site's; a change to the messages bumps
+  `PROTOCOL`, and an older page is asked to reload.
+- **First feedback** (2026-09-30, after the user and a friend played it on
+  the preview, `ba-heardle-site-preview`): the rounds now play as in Anime
+  Music Quiz, `PROTOCOL` 2 (the flows and costs are in
+  `docs/multiplayer.md`):
+  - A song plays for the whole time to answer (5-40 s), from the whole
+    file, with no controls but the volume, starting at a random spot, its
+    Heardle clip's, or the top; a voice line can be replayed. A 3-2-1
+    count-in first.
+  - Pick, then Submit, for every kind of answer; change it until the time
+    is up; a pick not sent goes by itself; once everyone has answered, 3 s
+    are left to change, shown. The last change's time counts.
+  - The reveal replays the song while the next finishes downloading (it
+    starts as the round does), waiting 6-12 s for slow pages.
+  - One layout in every phase, so nothing jumps; ties share a place.
+  - Picture (halos or weapons, silhouettes or not) joins OST and Voice,
+    and the room has its own Global or JP.
+  - Settings in a pop-up with sliders and number boxes, sent once on Save,
+    and a few words in the lobby; a new lobby with player cards and
+    pictures (a student, picked before joining, or the name's letter);
+    Copy link and Copy code on one row; a game needs two players.
+  - Joining halfway, and coming back under the same name after the tab
+    closed; an empty room is deleted after 30 s (a lobby at once).
+  - Fewer writes: the room's live part rides on the connections, the
+    game is written once a round, and the pages' ticks replace alarms.
+    About 45 requests and 25 rows for 8 players and 20 songs, so about
+    2,200 such games a day, where the first version managed 750.
+  - Room spam: the Worker's rate-limit binding, 6 rooms and 40
+    connections a minute per address (hashed), before a room wakes, and
+    at most 40 messages in 10 s from a connection.
+- **Second feedback** (2026-09-30, from a local 8-player run), `PROTOCOL`
+  3:
+  - The 3-2-1 count-in only before the first round; the others start a
+    second after their reveal, the clock waiting full.
+  - Standings redesigned: the top three on a podium, the rest in rows,
+    every answer with the pictures of who named it. After 30 s everyone
+    is back in the lobby by themselves (the host's Play again goes
+    sooner).
+  - The settings can be picked before making the room, and kept as named
+    presets in the browser (six at most), from the same pop-up.
+  - No Change answer button: once an answer is sent, a new pick goes by
+    itself. Quick answer, a toggle each player keeps, sends the first
+    pick at once too. Picks go at most one per 0.35 s, so clicking
+    through the four stays far inside the flood limit.
+  - A lobby with nothing happening for 10 minutes closes, everyone told
+    why, after a minute's warning with "I'm still here"; on the pages'
+    ticks, so no alarm or write.
+  - Rejoining by name let anyone take an away player's place and score.
+    Now only a token brings a player back: the tab's, or the one the
+    browser keeps a few hours from a tab that closed.
+- **Third feedback** (2026-09-30, from the screenshots of that run; same
+  `PROTOCOL` 3, as 3 was never deployed):
+  - A page sends one answer a round, two at most: Submit (or Pass, or
+    the first pick with Quick answer), then, only if the player picked
+    again, the pick showing as the time runs out. Picking again sends
+    nothing. The time counted is when the answer reached the room.
+  - Leave and End game in a round are small, at either end of a row, and
+    need a second tap within 3 s.
+  - Each player goes back to the lobby from the standings when they like
+    (the host stays host); the room follows once all have, or after 30 s.
+  - The cards' corner numbers were places, all "1" or "2" while everyone
+    was tied, which read as player numbers: the corner now has a medal
+    for the top three once they've scored, and the score is a big number
+    on the card's right.
+- **Fourth feedback** (2026-09-30, same `PROTOCOL` 3):
+  - Sending only a change's time, or the page saying when a pick was
+    made, was turned down: a page can claim any time. The user chose
+    each change sent as it's made (their "C"): at once, then 0.5 s apart
+    at least, four answers a round at most, the room stamping each, so a
+    change keeps its own time. Every card shows live when its player's
+    answer went and how often it changed, never what it is. About 53
+    requests for 8 players and 20 songs if everyone changes once a round
+    (1,900 games a day), 69 at the cap (1,450); no more rows.
+  - A player who reads the bundle can still match a round's file name to
+    its song, as in the other games. Separate copies with secret names
+    (about 700 files, 500 MB on R2) would still leak by the song's length
+    or reveals noted over games, so the user chose to accept it and give
+    the host **Kick** (their browser kept out of the room, from any tab)
+    and **Lock** (nobody new joins; everyone in it can still come back).
+  - Nothing takes a player out of a room by a slip: the logo and game
+    bar are dimmed and say to leave first, Back stays (an extra history
+    entry, and a lock in `usePage`), the Jukebox waits during a game, and
+    the browser asks before a reload in one. Leave in the lobby and the
+    standings stays one tap.
+  - What pages send: already checked field by field; names now lose
+    invisible and direction characters and stacked accents, and a name
+    reading as another's gets a number. A test throws thousands of random
+    and broken messages at a game.
+- **Fifth feedback** (2026-10-01, same `PROTOCOL` 3):
+  - Timing back to the user's "A": C's "4.0s ↻3" on the cards and its
+    four answers a round kept anyone from changing their mind freely.
+    Now a page sends the first answer, then the pick showing as the time
+    runs out if it changed (two a round, the room taking no more), and
+    the room times a changed answer at the time's end however early it
+    comes, so a page changed to send it sooner gains nothing. The cards
+    say only who has answered.
+  - Lock moved into the settings, as "Who can join": Open, **Password**
+    (never sent to the pages; case, spaces and lookalikes don't count;
+    the tab keeps it for a reload) or Locked; a new room can have a
+    password, not a lock. It showed on a phone with a stray bullet.
+  - **End game** asks the room: more than half of the players there
+    must agree (both of two), within 20 s.
+  - The reveal takes the stage, in place of the moving bars: a song's
+    album cover, name and artist, or the student (a picture game's
+    picture beside them), with the volume. The line of text that changed
+    with everything each player or the room did is gone, and Pass with
+    it; the lobby lost its changing notes too.
+  - Presets: twenty, in a list that scrolls; the same settings saved
+    again rename theirs; ⧉ copies one as a short code a friend pastes in
+    with Import.
+  - "Heardle clip" start is gone: it played much like Random. The game
+    chips fit one row, the settings buttons are a ⚙, Copy code comes
+    before Copy link, and the host's settings fit one row like everyone
+    else's (who can join shows over the code).
+  - Standings: solid gold, silver and bronze blocks, which were muddy on
+    the day theme; only players who named one stand on the podium.
+  - Screenshots and test runs always force the birthday note on, since
+    it can move the layout.
+- **Sixth feedback** (2026-10-01, same `PROTOCOL` 3):
+  - Answers change freely, as in Anime Music Quiz (the user's pick, over
+    A): each change sent as it's made, 400 ms apart at least on the
+    page, one per 300 ms taken by the room, no cap, the 40 messages in
+    10 s still closing a connection. The latest the room took counts,
+    timed by its arrival; every card shows that time live ("3.2s"), with
+    no flash or count. About 50-75 requests for 8 players and 20 songs
+    with the usual changes, 400 if everyone clicks through all game.
+  - The room stays the judge: no answer before the song starts, for
+    another round, after the time and its grace or the reveal, and a
+    tick before the time is up moves nothing. Edge cases now tested: the
+    host leaving mid-vote (the ask goes with them), a leaver's vote, the
+    one everyone waited on leaving (the 3 s cut), reconnecting with an
+    answer, a restart with a vote or a password.
+  - The volume keeps one place, a row at the stage's foot, in every
+    phase (the stage is 150 px for every game now); Songs start fits one
+    row.
+- **Seventh feedback** (2026-10-01, same `PROTOCOL` 3): alerts float over
+  the screen instead of pushing it down; the name typed for a room is kept
+  for the next; each screen starts scrolled to its top (the lobby after a
+  long entry opened scrolled down); the host's settings panel is a guest's
+  height (a smaller gear); live times to the hundredth ("2.67s"); a room's
+  password is asked for in a pop-up. The 40 messages in 10 s limit was
+  per connection already, but its count lived in the room's memory, which
+  a room sleeping between messages loses: it rides on each socket's
+  attachment now, tested on its own (`countMessage`).
+- **Eighth feedback** (2026-10-01, same `PROTOCOL` 3): the typed box is
+  empty in each new round (the last round's pick filled the new box
+  before it was cleared); 4-Choice keeps four empty places, a student's
+  icon's size, until the song starts, in place of a line of text; a voice
+  line's Play again stays hidden, in its place, until the line has played
+  through once; the settings in a few words leave out the most players
+  (the lobby's free places show it), so the longest (weapon silhouettes,
+  4-Choice, 30 weapons, 40 s, Global) fits one row, on a phone two. The
+  flood limit (40 in 10 s per connection, the 41st closing only it) and
+  the answer gaps (0.4 s on the page, 0.3 s in the room, no cap) stay as
+  they are, as the user confirmed.
 
 ### Moving off Vercel (Group 8)
 

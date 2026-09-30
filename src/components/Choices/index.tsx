@@ -16,6 +16,11 @@ interface Props {
   answer?: string;
   /** Once the round is over: what the player picked, marked wrong if it was. */
   picked?: string;
+  /**
+   * During the round: the answer picked and waiting to be sent, as in a
+   * multiplayer room, where a pick is sent with Submit and can change.
+   */
+  selected?: string;
 }
 
 /**
@@ -29,6 +34,7 @@ export function Choices({
   keyboardEnabled = true,
   answer,
   picked,
+  selected,
 }: Props) {
   const options = React.useMemo(() => choiceSongs(choices), [choices]);
   const isOver = answer !== undefined;
@@ -49,7 +55,7 @@ export function Choices({
   }, [keyboardEnabled, onPick, isOver, options]);
 
   const toneOf = (song: Song): Styled.ChoiceTone => {
-    if (!isOver) return "open";
+    if (!isOver) return song.themeNo === selected ? "chosen" : "open";
     if (song.themeNo === answer) return "right";
     if (song.themeNo === picked) return "wrong";
     return "other";
@@ -63,6 +69,9 @@ export function Choices({
           type="button"
           $tone={toneOf(song)}
           disabled={isOver || !onPick}
+          aria-pressed={
+            selected === undefined ? undefined : song.themeNo === selected
+          }
           onClick={() => onPick?.(song)}
         >
           <Styled.Key aria-hidden="true">{index + 1}</Styled.Key>

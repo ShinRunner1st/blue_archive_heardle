@@ -338,6 +338,9 @@ async function checkServer(browser, server) {
   );
   await step("picture endless halo shape", () => clickButton(page, "Halo"));
   await step("picture endless halo", () => clickButton(page, "Silhouette"));
+  // Its first screen only: a room would be one more request to the rooms
+  // Worker, whose free requests are counted.
+  await step("multiplayer", () => openPage(page, "/multiplayer"));
 
   await page.close();
 }

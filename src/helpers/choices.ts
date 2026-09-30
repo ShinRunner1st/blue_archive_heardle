@@ -1,4 +1,4 @@
-import { songs } from "../constants";
+import { songs } from "../constants/songs";
 import { Song } from "../types/song";
 
 /** How many answers a four-choice round offers. */

@@ -52,7 +52,16 @@ jobs:
         run: npm run check:pages
 
       # The site goes live only from main, and only once everything above has
-      # passed. Uses the same secrets as the Now in Global Action.
+      # passed. Uses the same secrets as the Now in Global Action. The rooms
+      # go first: they deal the songs and voices the new site knows, and a
+      # page older than the rooms is asked to reload.
+      - name: Deploy the multiplayer rooms to Cloudflare
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: npm run deploy:rooms
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+
       - name: Deploy the site to Cloudflare
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: npm run deploy:site

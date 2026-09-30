@@ -67,9 +67,11 @@ export const Heading = styled.h1`
 `;
 
 /** The wordmark, a link to the hub. */
-export const HomeLink = styled.a`
+export const HomeLink = styled.a<{ $held?: boolean }>`
   display: inline-block;
   border-radius: 8px;
+  opacity: ${({ $held }) => ($held ? 0.45 : 1)};
+  transition: opacity 0.2s ease;
 
   &:focus-visible {
     outline: 2px solid ${({ theme }) => theme.border};

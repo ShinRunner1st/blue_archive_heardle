@@ -170,6 +170,79 @@ The result shows whose it was (everyone sharing it, and a weapon's name), your
 record with the picture, and the picture itself. Share text is squares only;
 share pictures (a daily one names nobody) and Stats' recaps work as Voice's.
 
+### Multiplayer
+
+The page at `/multiplayer`: a private room where up to 8 friends play the
+OST, Voice or Picture game together, everyone hearing the same song at once,
+as in Anime Music Quiz. One player makes a room and shares its four-letter
+code, or its link (`/multiplayer?room=ABCD`); the others type a name (kept
+for the next room), pick a student as their picture (or keep their name's
+letter) and join; a room with a password asks for it in a pop-up. The host
+can pick the settings before making the room (the gear beside Make a
+room), and keep any as a named preset in the browser (twenty at most, in
+a list that scrolls; the same settings saved again rename theirs). A
+preset's ⧉ copies it as a short code (`BA1.ost.choice.10.20.…`) for a
+friend, who pastes it in with Import. The lobby shows the settings in a
+few words; only the host changes them, in the same pop-up (the lobby's
+gear), which sends them once, on Save: OST, Voice or Picture (halos or
+weapons, silhouettes or not), typed answers or 4-Choice, 5 to 30 rounds,
+5 to 40 seconds to answer, where each song starts (anywhere, or the top),
+the room's own Global or JP for Voice and Picture, the most players, 2 to
+8, and **who can join**: anyone with the code, only with a **password**
+(case, spaces and lookalike letters don't matter; it's never sent to the
+pages), or nobody new (**locked**: everyone in it can still come back). A
+new room can have a password, not a lock. A game needs two. If the host
+leaves, whoever joined next takes over. The host can **kick** a player,
+twice to be sure: their browser can't come back to that room, from any
+tab. A lobby where nothing happens for 10 minutes closes, after a
+minute's warning with an "I'm still here" button.
+
+While a player is in a room, nothing takes them out of it by a slip: the
+logo and the game bar are dimmed and say to leave first, Back stays on
+the page, the Jukebox waits while a game plays (it would stop the round's
+song), and during a game the browser asks before a reload or a closed
+tab. Leave is the way out.
+
+The first round counts in, 3, 2, 1; every round then plays for everyone at
+once: a song for the whole time to answer, with no pause or seek, from the
+whole song; a voice line, which can be played again; or a picture. Players
+pick an answer and press Submit (or turn on Quick answer, remembered, and
+the first pick goes at once). Then they change it as often as they like,
+as in Anime Music Quiz: each change is sent as it's made, 0.4 seconds
+apart at least (one sooner waits, and the latest pick goes), and the room
+takes one every 0.3 seconds at most. Every card shows live when that
+player's latest answer reached the room ("3.24s"), never what it is. Once
+everyone has sent one, the time left drops to 3 seconds, for a change of
+mind. The latest answer the room took counts, timed by when it reached
+the room: A at 3.2 s, then C at 7.8 s, is C at 7.8 s. The room decides
+everything by its own clock: no answer before the song starts, for
+another round, or after the time's up (bar 1.5 s for one sent as it ran
+out) or the reveal, and a page saying the time is up moves nothing before
+it is. Leave and End
+game are small, apart, and need a second tap, so a stray one doesn't
+throw the game. End game asks the others: it ends once more than half of
+the players there agree (the host's is one; two players both), and the
+ask lapses after 20 seconds. The reveal shows the answer where the song
+played (a song's album cover, name and artist, or the student, and a
+picture game's picture) and what everyone said while the song plays
+again from its start, and the next song downloads meanwhile: the
+next round starts once everyone has it, after 6 seconds at least and 12 at
+most, without a slow connection. A right answer is a point; a tie goes to
+the faster over their right answers, and a tie on both shares the place.
+After the last round come the standings, the top three on a podium, and
+every answer with who named it. Each player goes back to the lobby when
+they like, the host staying host; the room is a lobby again once everyone
+has, or after 30 seconds.
+
+A dropped connection or a reload comes back as the same player, with their
+score. So does someone whose tab closed, joining again from the same
+browser: it keeps the tab's token for the room a few hours. A name alone
+never brings a player back, so nobody can take another's place and score
+by typing their name.
+Anyone can join a game halfway through and play from there. Nothing is saved: no
+stats, badges or streaks. The whole flow, what the page and room say to
+each other and what it costs, is in [docs/multiplayer.md](docs/multiplayer.md).
+
 ### Fitting the window
 
 The page is the window's height and never scrolls itself: the header, the
@@ -310,30 +383,33 @@ npm run dev           # http://localhost:3000
 `VITE_AUDIO_BASE_URL=https://ba-heardle-audio.shinrunner1st.workers.dev` in a
 `.env.local` file to play the deployed audio instead.
 
-| Script                      | What it does                                          |
-| --------------------------- | ----------------------------------------------------- |
-| `npm run dev`               | Start the dev server                                  |
-| `npm run build`             | Type-check, then build to `build/`                    |
-| `npm run preview`           | Serve the build as the live site does, headers too    |
-| `npm run deploy:site`       | Publish the build to Cloudflare (CI does, from main)  |
-| `npm test`                  | Run the test suite                                    |
-| `npm run lint`              | ESLint, warnings included                             |
-| `npm run typecheck`         | `tsc --noEmit`                                        |
-| `npm run format`            | Rewrite files with Prettier                           |
-| `npm run songs`             | After adding songs: everything below, in order        |
-| `npm run students`          | After a Global update: students, voices, then `songs` |
-| `npm run voices`            | The voice lines and silhouettes, then `songs`         |
-| `npm run build:students`    | Copy the student data and draw the icon sheet         |
-| `npm run build:voices`      | Pick and download new voice lines, draw silhouettes   |
-| `npm run build:voice-tones` | Find the voices that sound alike, for 4-Choice        |
-| `npm run build:voice-audio` | Put the voice lines in beside the audio               |
-| `npm run build:daily-order` | Extend the daily schedule                             |
-| `npm run build:audio`       | Build the served audio from `audio/`                  |
-| `npm run build:pictures`    | Copy `pictures/` in beside the audio                  |
-| `npm run upload:audio`      | Upload the audio and pictures to Cloudflare           |
-| `npm run upload:backup`     | Copy new files to the backup on Cloudflare R2         |
-| `npm run check:audio`       | Check the served audio is complete                    |
-| `npm run check:pictures`    | Check the served pictures are up to date              |
+| Script                        | What it does                                          |
+| ----------------------------- | ----------------------------------------------------- |
+| `npm run dev`                 | Start the dev server                                  |
+| `npm run build`               | Type-check, then build to `build/`                    |
+| `npm run preview`             | Serve the build as the live site does, headers too    |
+| `npm run deploy:site`         | Publish the build to Cloudflare (CI does, from main)  |
+| `npm run deploy:site-preview` | Build this branch and publish it to the preview       |
+| `npm run rooms`               | Run the multiplayer rooms locally, for `npm run dev`  |
+| `npm run deploy:rooms`        | Publish the rooms Worker (CI does, from main)         |
+| `npm test`                    | Run the test suite                                    |
+| `npm run lint`                | ESLint, warnings included                             |
+| `npm run typecheck`           | `tsc --noEmit`, the site's and the rooms Worker's     |
+| `npm run format`              | Rewrite files with Prettier                           |
+| `npm run songs`               | After adding songs: everything below, in order        |
+| `npm run students`            | After a Global update: students, voices, then `songs` |
+| `npm run voices`              | The voice lines and silhouettes, then `songs`         |
+| `npm run build:students`      | Copy the student data and draw the icon sheet         |
+| `npm run build:voices`        | Pick and download new voice lines, draw silhouettes   |
+| `npm run build:voice-tones`   | Find the voices that sound alike, for 4-Choice        |
+| `npm run build:voice-audio`   | Put the voice lines in beside the audio               |
+| `npm run build:daily-order`   | Extend the daily schedule                             |
+| `npm run build:audio`         | Build the served audio from `audio/`                  |
+| `npm run build:pictures`      | Copy `pictures/` in beside the audio                  |
+| `npm run upload:audio`        | Upload the audio and pictures to Cloudflare           |
+| `npm run upload:backup`       | Copy new files to the backup on Cloudflare R2         |
+| `npm run check:audio`         | Check the served audio is complete                    |
+| `npm run check:pictures`      | Check the served pictures are up to date              |
 
 A pre-commit hook runs the format check, lint and type-check, and commit
 messages follow [Conventional Commits](https://www.conventionalcommits.org/).
@@ -586,6 +662,101 @@ there is no R2 copy, so an outage can't run up R2 reads.
   the Actions tab to check it.
 - SchaleDB updates a few hours after the game does, so a new banner can take
   that long to show; one that has ended hides on time.
+
+### Multiplayer rooms
+
+The rooms are the only code the site runs on a server: `ba-heardle-rooms`
+(`rooms-worker/`), a Worker with one Durable Object per room, on
+Cloudflare's free plan (its SQLite-backed objects). The game itself is
+`src/helpers/room.ts`, tested whole in `room.test.ts`; the messages between
+page and room are in `src/types/room.ts`, and the page's side is
+`src/hooks/useRoom.ts` and `src/components/Multiplayer/`, a chunk loaded
+only on that page. A page connects to
+`wss://ba-heardle-rooms.shinrunner1st.workers.dev/room/<code>`
+(`VITE_ROOMS_URL`) only once its player makes or joins a room. The player
+and message flows, with what each costs, are in
+[docs/multiplayer.md](docs/multiplayer.md).
+
+- **Fair:** the room deals every round when the game starts and keeps the
+  answers. A round goes out as its file's name on the audio Worker (the
+  salted hash, see Audio) or its picture's cell in a sheet, and in
+  4-Choice with its four answers, which the page shows once the round
+  starts; the answer goes to everyone at once at the reveal, the host
+  included. As in the other games, someone who worked through the bundle
+  could match a file name to its song; that's no easier than there.
+- **The free plan's daily limits** (checked 2026-09-30): 100,000 Durable
+  Object requests, 13,000 GB-s of duration, 100,000 rows written and 5 GB
+  stored, and 100,000 Worker requests.
+  - The object hibernates between messages, and is billed for duration
+    only while it handles one. The page's keep-alive, every 30 s, is
+    answered without waking it, and isn't billed.
+  - A connection is one Worker and one Durable Object request. Messages to
+    the room count 20 to a request, and messages from it are free. A player
+    sends a hello, then about four short messages a round ("ready", an
+    answer and two ticks), plus one for each change of mind, nothing while
+    typing: a game of 8 players and 20 songs is about 45 requests, so
+    about 2,200 such games a day, or 50 to 75 (1,300 to 2,000 a day) with
+    the usual few changes. A page sends a change 0.4 s apart at least, and
+    past 40 messages in 10 s its connection is closed, so even everyone
+    clicking through the answers all game is about 400 (250 a day). A vote
+    to end early is one message each.
+  - Writes: the room's live part (settings, phase, clocks, host) and each
+    player's ride on their connections, which costs nothing, so a lobby
+    writes nothing. The game (the deal, the results, a roster of everyone)
+    is written when it starts and once a round, at the reveal, and its one
+    alarm is for tidying up: about 25 rows for a 20-song game, so about
+    4,000 a day.
+  - There are no timers on the room, which would each be an alarm, a row
+    written: each page ticks when one of the phase's times passes, and
+    any message moves the room on if it's due (a page that never ticks is
+    waited for 1.5 s at most).
+  - A room deletes everything it kept when the last player has been gone
+    30 seconds (a lobby, which keeps nothing, goes at once), or when the
+    game goes back to the lobby. A lobby nobody does anything in for 10
+    minutes closes on the pages' tick, sending everyone out.
+  - When an allowance runs out, a page that can't get in after two tries,
+    or a room whose writes fail, says Multiplayer is resting until
+    tomorrow. A page already in a room that loses it (five tries, about
+    30 s) says the connection may have dropped or the allowance run out,
+    as it can't tell which. The free plan's daily limits reset at 00:00
+    UTC, and past them requests are refused, never billed. Nothing else on
+    the site depends on it.
+- **Only the site's pages** can use it: it answers pages from
+  baheardle.com, the site's workers.dev and preview addresses and
+  localhost, and nothing that isn't a room's address wakes a room.
+- **No spamming:** the Worker counts, per address a minute, rooms made (6)
+  and connections opened (40), with the rate-limit binding in
+  `rooms-worker/wrangler.jsonc`, before any room wakes; past either, the
+  page is asked to wait a minute. It counts a SHA-256 of the address, not
+  the address itself, and the counter forgets it within the minute. A
+  connection sending over 40 messages in 10 s (a round takes a handful) is
+  closed the same way: each connection is counted on its own socket (in
+  its attachment, so the count outlives the room sleeping between
+  messages), so one page's flood never closes anyone else's.
+- **What a page sends is checked** before the room reads it: a message is
+  1 KB at most and must be one the room knows, each field its type and
+  range, and anything else is dropped. Who sent it comes from the
+  connection, never the message, and only the host's are taken for the
+  host's actions. Names lose control and invisible characters (zero-width
+  spaces, right-to-left marks, blank letters) and accents stacked past
+  two, and a name that reads as one already in the room (in another
+  case, wide letters, or Cyrillic and Greek lookalikes) gets a number, so
+  nobody can pass as another player. Everything is shown as text, never
+  as HTML. A test sends thousands of random and broken messages through
+  a game and checks the room never breaks or shows an answer early. Logs are off, so nothing of a room outlives it.
+- **Locally**, `npm run rooms` runs it at `ws://localhost:8787`, where
+  `npm run dev` looks for it.
+- **Deploying:** CI publishes it from `main`, before the site, with the
+  same secrets. A new version restarts every room and drops its
+  connections; the pages reconnect by themselves and the room's record
+  knows them, so a game carries on from the round it was on, loading it
+  again. A lobby, which keeps nothing, is made again by the first page
+  back, with the same code and settings. A change to the messages bumps
+  `PROTOCOL` in `src/types/room.ts`, and an older page is asked to reload.
+  The first deployment, by hand with `npm run deploy:rooms`, created the
+  Durable Object class (migration `v1` in `rooms-worker/wrangler.jsonc`).
+  The rooms deal from the song list, voice lines and pictures they were
+  built with, so one added to the site reaches them with the same release.
 
 ### The game's files
 
@@ -854,8 +1025,8 @@ src/
                 colour scheme, audio URLs
   hooks/        useGame (the round-by-round modes), useTimeAttack,
                 useStudentGame, useVoiceGame, useVoiceTimeAttack,
-                usePage (the hub or a game's page), useVolume,
-                useColorScheme
+                usePage (the hub or a game's page), useRoom (a
+                multiplayer room's connection), useVolume, useColorScheme
   image/        Logo and the day and night backgrounds
 public/spine/   The characters, made by build-spine
   test/         Render harness and shared setup for the tests
@@ -867,6 +1038,7 @@ pictures/       Pictures served from the Worker: the seasonal backdrops, the
 site-worker/    The Cloudflare Worker that serves the site, build/
 audio-worker/   The Cloudflare Worker that serves the built audio and pictures
 now-worker/     The Worker that serves now.json, what is on in Global
+rooms-worker/   The Worker that runs the multiplayer rooms (Durable Objects)
 scripts/        build-audio, check-audio, build-pictures, check-pictures,
                 upload-backup, make-backdrop, make-preview, build-daily-order,
                 build-spine, build-students, build-voices, build-voice-audio,
@@ -894,11 +1066,18 @@ per deployment; the site is about 70 files and 5 MB.
 
 - **Only `main` deploys**, from CI (`.github/workflows/ci.yml`), and only
   once the format check, lint, type-check, tests, build and page check have
-  all passed. It needs the `CLOUDFLARE_API_TOKEN` and
+  all passed; the multiplayer rooms go first (see Multiplayer rooms). It needs the `CLOUDFLARE_API_TOKEN` and
   `CLOUDFLARE_ACCOUNT_ID` secrets the Now in Global Action uses. Other
   branches don't deploy: test them with `npm run build` and
   `npm run preview`, which serves the build with `wrangler dev` as the live
   site does, headers and all. `npm run deploy:site` deploys by hand.
+- **A preview** of a branch, to try it on the real network before it
+  reaches baheardle.com: `npm run deploy:site-preview` builds the branch
+  checked out and publishes it to a second Worker,
+  `ba-heardle-site-preview` (`site-worker/wrangler.preview.jsonc`), at
+  `ba-heardle-site-preview.shinrunner1st.workers.dev`, marked `noindex`.
+  It uses the live audio, Now in Global and rooms Workers, whose rooms let
+  it in. Saves there are its own, apart from baheardle.com's.
 - **The workers.dev address** (`ba-heardle-site.shinrunner1st.workers.dev`)
   stays on, to test a deployment on the real network; it sends
   `X-Robots-Tag: noindex`, so search engines index only baheardle.com.
@@ -919,7 +1098,8 @@ per deployment; the site is about 70 files and 5 MB.
   everyone at once.
 - **Security headers** go on every page from `public/_headers`. The
   Content-Security-Policy lets the page load and fetch only from itself, the
-  audio Worker, the R2 backup and the Now in Global Worker, so the privacy
+  audio Worker, the R2 backup and the Now in Global Worker, and connect only
+  to the rooms Worker, so the privacy
   promise is enforced by the browser too: a new outside address has to be
   added there, or it's blocked (and the page check fails). Styles may be
   inline (styled-components writes them); scripts may not.
@@ -932,8 +1112,9 @@ per deployment; the site is about 70 files and 5 MB.
 
 ### Pages
 
-The site is one bundle but five HTML files: the hub (`index.html`) and a page
-per game (`ost.html`, `voice.html`, `students.html`, `picture.html`). The
+The site is one bundle but six HTML files: the hub (`index.html`), a page per
+game (`ost.html`, `voice.html`, `students.html`, `picture.html`) and
+multiplayer's (`multiplayer.html`). The
 `game-pages` plugin in `vite.config.ts` writes them from `index.html`, filling
 its `{{page.title}}`, `{{page.description}}` and `{{page.url}}` fields from
 `src/constants/pages.ts`, so each page's title, description, canonical address
@@ -971,9 +1152,21 @@ browser's `localStorage` (the keys are in `src/constants/game.ts`) and never
 sent anywhere; the clipboard is only written when a player presses Share.
 Result pictures are drawn in the browser and go only where the player sends
 them from the share sheet, or to their downloads; the player name in Settings
-is only ever drawn on those pictures.
+is only ever drawn on those pictures (multiplayer's name box starts with it,
+but sends what's in the box only when the player makes or joins a room).
+A multiplayer room gets the name a player types and the student they pick
+as their picture (both kept in this browser for next time, like a setting),
+and
+their answers, and shows them to the others in it; it keeps them only while
+it's open, deletes everything when it closes, and keeps no logs. The
+browser keeps the room settings a player saved as presets, and for a few
+hours a random token for each room it was in, so a closed tab can go back
+in as the same player. A room's password stays in the room while it's
+open, and in the tab that typed or set it, for a reload, until it leaves. To stop
+room spam it counts connections per address for a minute, under a SHA-256
+of the address rather than the address itself.
 Like any website, the host - Cloudflare, for the site, audio, voice lines,
-pictures and the hub's Global schedule - sees standard connection details such as IP addresses to serve the files.
+pictures, the hub's Global schedule and the multiplayer rooms - sees standard connection details such as IP addresses to serve the files.
 The Global schedule is copied from SchaleDB to our own Worker; the page
 never asks SchaleDB for anything.
 Players see the same in About this game.

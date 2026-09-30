@@ -23,7 +23,11 @@ export function obscure(text: string): string {
 export function reveal(encoded: string): string | null {
   try {
     const bytes = Uint8Array.from(atob(encoded), (char) => char.charCodeAt(0));
-    return new TextDecoder("utf-8", { fatal: true }).decode(xor(bytes));
+    // ignoreBOM is the default, named for the rooms Worker's types, which
+    // read these schedules too (see rooms-worker/).
+    return new TextDecoder("utf-8", { fatal: true, ignoreBOM: false }).decode(
+      xor(bytes)
+    );
   } catch {
     return null;
   }

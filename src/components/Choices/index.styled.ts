@@ -15,7 +15,7 @@ export const Grid = styled.div`
   }
 `;
 
-export type ChoiceTone = "open" | "right" | "wrong" | "other";
+export type ChoiceTone = "open" | "chosen" | "right" | "wrong" | "other";
 
 export const Choice = styled.button<{ $tone: ChoiceTone }>`
   display: flex;
@@ -38,6 +38,8 @@ export const Choice = styled.button<{ $tone: ChoiceTone }>`
         ? theme.green
         : $tone === "wrong"
         ? theme.red
+        : $tone === "chosen"
+        ? theme.blue
         : theme.border};
   /* A second line inside the border, so marking one doesn't move it. */
   box-shadow: ${({ theme, $tone }) =>
@@ -45,6 +47,8 @@ export const Choice = styled.button<{ $tone: ChoiceTone }>`
       ? `inset 0 0 0 1px ${theme.green}`
       : $tone === "wrong"
       ? `inset 0 0 0 1px ${theme.red}`
+      : $tone === "chosen"
+      ? `inset 0 0 0 1px ${theme.blue}`
       : "none"};
   border-radius: 8px;
   cursor: pointer;

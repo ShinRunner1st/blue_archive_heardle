@@ -33,8 +33,15 @@ interface Props {
    * the logo is the page's heading. On a game's page the tagline is.
    */
   isHub?: boolean;
+  /**
+   * No game on screen, as on the hub and in multiplayer: no Daily/Endless,
+   * streak or stats. The hub's by default.
+   */
+  noGame?: boolean;
   /** The logo links to the hub; a plain click moves there in place. */
   onHome?: () => void;
+  /** In a multiplayer room: the logo is dimmed, and says to leave first. */
+  held?: boolean;
 }
 
 const MODES: Array<{ mode: GameMode; label: string; hint: string }> = [
@@ -56,9 +63,11 @@ export function Header({
   streak,
   tagline,
   isHub = false,
+  noGame = isHub,
   onHome,
+  held = false,
 }: Props) {
-  const showStreak = !isHub && streak > 0;
+  const showStreak = !noGame && streak > 0;
   const streakLabel =
     mode === "daily"
       ? `${streak} day streak`
@@ -69,7 +78,7 @@ export function Header({
   return (
     <Styled.Container>
       <Styled.Content>
-        {!isHub && (
+        {!noGame && (
           <Styled.Modes role="group" aria-label="Game mode">
             {/*
             The green pill is one element that slides, rather than a background
@@ -107,7 +116,9 @@ export function Header({
         <Styled.Heading as={isHub ? "h1" : "div"}>
           <Styled.HomeLink
             href={PAGES.hub.path}
-            title="Every game"
+            title={held ? "Leave the room first" : "Every game"}
+            aria-disabled={held || undefined}
+            $held={held}
             onClick={(event: React.MouseEvent) => {
               if (!onHome || !isPlainClick(event)) return;
               event.preventDefault();
@@ -128,7 +139,7 @@ export function Header({
               🔥 {streak}
             </Styled.Streak>
           )}
-          {!isHub && (
+          {!noGame && (
             <Styled.IconButton
               type="button"
               onClick={openStatsPopUp}

@@ -158,8 +158,34 @@ describe("App hub", () => {
       container.querySelectorAll<HTMLAnchorElement>("li a")
     ).map((link) => link.getAttribute("href"));
 
-    expect(bar).toEqual(["/", "/ost", "/voice", "/picture", "/students"]);
+    expect(bar).toEqual([
+      "/",
+      "/ost",
+      "/voice",
+      "/picture",
+      "/students",
+      "/multiplayer",
+    ]);
     expect(cards).toEqual(bar.slice(1));
+  });
+
+  it("opens multiplayer on its own page, with no game or welcome of its own", async () => {
+    const connect = vi.fn();
+    vi.stubGlobal("WebSocket", connect);
+    window.history.replaceState(null, "", "/multiplayer");
+    mount();
+    // Its screens are a lazy chunk, slow to load while every test runs.
+    await vi.waitFor(
+      () => expect(container.textContent).toContain("Make a room"),
+      { timeout: 5000 }
+    );
+
+    expect(document.title).toContain("with Friends");
+    expect(container.textContent).not.toContain("Welcome");
+    expect(container.textContent).not.toContain("Endless");
+    // Nothing connects until the player makes or joins a room.
+    expect(connect).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
   });
 
   it("welcomes a new player on the first game, not the hub", () => {

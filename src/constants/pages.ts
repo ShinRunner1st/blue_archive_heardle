@@ -1,14 +1,15 @@
 import type { Game } from "../types/mode";
 
 /**
- * The site's pages: the hub at the root, and a page for each game. Each is
+ * The site's pages: the hub at the root, a page for each game, and
+ * multiplayer's rooms, which play the OST, Voice and Picture games together. Each is
  * its own HTML file, written at build time from index.html by the
  * "game-pages" plugin in vite.config.ts, so its title, description and link
  * preview are in the file itself: X and Discord read the tags without running
  * any JavaScript. The app reads the same table to name the tab as the player
  * moves between pages without a reload.
  */
-export type Page = "hub" | Game;
+export type Page = "hub" | Game | "multiplayer";
 
 export interface PageInfo {
   /** Where the page lives, with no slash at the end but the root's. */
@@ -62,16 +63,33 @@ export const PAGES: Record<Page, PageInfo> = {
     description:
       "Name the Blue Archive student from their halo or weapon, or only its silhouette. A daily puzzle, endless play, 4-Choice and Time Attack.",
   },
+  multiplayer: {
+    path: "/multiplayer",
+    file: "multiplayer.html",
+    title:
+      "Blue Archive Music and Student Quiz with Friends - Blue Archive Heardle",
+    description:
+      "Make a private room and guess Blue Archive songs, voices, halos or weapons with up to 8 friends, everyone hearing the same song at once. Free, no sign-up.",
+  },
 };
 
-/** Every page, the hub first, in the order the game switch shows the games. */
+/**
+ * Every page, the hub first, in the order the game switch shows them:
+ * the games, then multiplayer.
+ */
 export const PAGE_ORDER: Page[] = [
   "hub",
   "ost",
   "voice",
   "picture",
   "students",
+  "multiplayer",
 ];
+
+/** Whether a page is one of the games, which remember their saves. */
+export function isGamePage(page: Page): page is Game {
+  return page !== "hub" && page !== "multiplayer";
+}
 
 /** The page's full address, for share texts and the canonical tag. */
 export function pageUrl(page: Page): string {

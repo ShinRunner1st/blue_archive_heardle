@@ -1,0 +1,16 @@
+// A preview of the site, to try a branch on the real network before it
+// reaches baheardle.com: the same build/, served the same way (see
+// wrangler.jsonc), at its own workers.dev address and no domain.
+// `npm run deploy:site-preview` builds the branch checked out and publishes
+// it here; nothing deploys it by itself. _headers keeps search engines off.
+{
+  "name": "ba-heardle-site-preview",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "../build",
+    "html_handling": "drop-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+  "workers_dev": true,
+  "preview_urls": false
+}

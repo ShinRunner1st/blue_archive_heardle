@@ -112,6 +112,8 @@ interface ChoicesProps {
   answer?: number;
   /** Once answered: the pick, marked wrong if it was. */
   picked?: number;
+  /** During the round: the pick waiting to be sent, as Choices' is. */
+  selected?: number;
 }
 
 /**
@@ -124,6 +126,7 @@ export function VoiceChoices({
   keyboardEnabled = true,
   answer,
   picked,
+  selected,
 }: ChoicesProps) {
   const options = React.useMemo(
     () =>
@@ -150,7 +153,7 @@ export function VoiceChoices({
   }, [keyboardEnabled, onPick, isOver, options]);
 
   const toneOf = (id: number): ChoiceStyled.ChoiceTone => {
-    if (!isOver) return "open";
+    if (!isOver) return id === selected ? "chosen" : "open";
     if (id === answer) return "right";
     if (id === picked) return "wrong";
     return "other";
@@ -164,6 +167,9 @@ export function VoiceChoices({
           type="button"
           $tone={toneOf(student.id)}
           disabled={isOver || !onPick}
+          aria-pressed={
+            selected === undefined ? undefined : student.id === selected
+          }
           onClick={() => onPick?.(student.id)}
         >
           <ChoiceStyled.Key aria-hidden="true">{index + 1}</ChoiceStyled.Key>

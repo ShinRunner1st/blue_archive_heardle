@@ -4,6 +4,7 @@ import { Game as GameName, GameMode, isEndlessStyle } from "./types/mode";
 import { Song } from "./types/song";
 import { StudentGame as StudentWay } from "./types/student";
 import { VoiceMode, VoiceStyle } from "./types/voice";
+import { RoomHold, RoomNudge } from "./types/room";
 import {
   pillOf,
   PictureKind,
@@ -14,9 +15,9 @@ import {
   styleFor,
 } from "./types/picture";
 
-import { Page } from "./constants/pages";
+import { isGamePage, Page } from "./constants/pages";
 import { useBirthdays } from "./hooks/useBirthdays";
-import { usePage } from "./hooks/usePage";
+import { guardHistory, unguardHistory, usePage } from "./hooks/usePage";
 import { useServer } from "./hooks/useServer";
 import { useGame } from "./hooks/useGame";
 import { useStudentGame } from "./hooks/useStudentGame";
@@ -99,20 +100,51 @@ const MODE_NAMES: Record<GameMode, string> = {
 /** Loaded when first opened, with the portrait list it needs. */
 const SenseiCard = React.lazy(() => import("./components/SenseiCard"));
 
+/** Loaded on its own page only: most players never open a room. */
+const Multiplayer = React.lazy(() => import("./components/Multiplayer"));
+
 function App() {
   const [mode, setMode] = React.useState<GameMode>(loadMode);
-  // The hub or a game's page, from the address bar. On the hub every game
-  // waits behind it, unseen, as the game played last.
-  const [page, navigate] = usePage();
+  // The hub, a game's page or multiplayer's, from the address bar. On the
+  // hub and in multiplayer every game waits behind, unseen, as the game
+  // played last.
+  // Set while a player is in a multiplayer room: see `held` below.
+  const holdRef = React.useRef<(() => void) | null>(null);
+  const [page, navigate] = usePage(holdRef);
   const isHub = page === "hub";
+  const isRooms = page === "multiplayer";
+
+  // In a multiplayer room, nothing takes the player out of it by a slip:
+  // the other pages' links and Back stay put (Leave is the way out), and
+  // the Jukebox waits while a game plays, as it would stop the round's
+  // song. The room's screen says why when one is pressed.
+  const [roomHold, setRoomHold] = React.useState<RoomHold>(null);
+  const held = isRooms ? roomHold : null;
+  const [nudge, setNudge] = React.useState<RoomNudge>();
+  const nudgeFor = React.useCallback(
+    (why: RoomNudge["why"]) =>
+      setNudge((last) => ({ why, n: (last?.n ?? 0) + 1 })),
+    []
+  );
+  React.useLayoutEffect(() => {
+    holdRef.current = held ? () => nudgeFor("leave") : null;
+  }, [held, nudgeFor]);
+  const inRoom = held !== null;
+  React.useEffect(() => {
+    if (!inRoom) return;
+    guardHistory();
+    return unguardHistory;
+  }, [inRoom]);
+  // No game of its own on screen: no modes, streak, stats or reset.
+  const noGame = !isGamePage(page);
   // The student games' server: their hooks load its saves when it changes,
   // their screens start afresh (see the keys below), and their taglines say
   // when it's JP.
   const server = useServer();
   const onJp = server === "jp" ? " · JP server" : "";
   const [lastGame, setLastGame] = React.useState<GameName>(loadGame);
-  if (!isHub && lastGame !== page) setLastGame(page);
-  const gameName: GameName = isHub ? lastGame : page;
+  if (isGamePage(page) && lastGame !== page) setLastGame(page);
+  const gameName: GameName = isGamePage(page) ? page : lastGame;
   const [studentWay, setStudentWay] =
     React.useState<StudentWay>(loadStudentGame);
   const isStudents = gameName === "students";
@@ -213,8 +245,9 @@ function App() {
   // The mode's own run: it sets the background and the header's count. In
   // time attack that is the run's score, from zero again with each run.
   const streak = mode === "daily" ? dayStreak : winStreak;
-  // The hub has no run of its own: it stays in the library.
-  const run = isHub
+  // The hub and multiplayer have no run of their own: they stay in the
+  // library.
+  const run = noGame
     ? 0
     : isStudents
     ? students.streak.current
@@ -265,7 +298,7 @@ function App() {
 
   // The game played last, for the hub's Continue.
   React.useEffect(() => {
-    if (page !== "hub") saveGame(page);
+    if (isGamePage(page)) saveGame(page);
   }, [page]);
 
   React.useEffect(() => {
@@ -336,16 +369,20 @@ function App() {
   // Read once on mount: the welcome pop-up is only shown to new players, on
   // the first game they open rather than the hub, which explains itself.
   const [isInfoPopUpOpen, setIsInfoPopUpOpen] = React.useState<boolean>(
-    () => isFirstRun() && !isHub
+    () => isFirstRun() && isGamePage(page)
   );
 
   const changePage = React.useCallback(
     (next: Page) => {
+      if (holdRef.current && next !== page) {
+        holdRef.current();
+        return;
+      }
       navigate(next);
       setSelectedSong(undefined);
-      if (next !== "hub" && isFirstRun()) setIsInfoPopUpOpen(true);
+      if (isGamePage(next) && isFirstRun()) setIsInfoPopUpOpen(true);
     },
-    [navigate]
+    [navigate, page]
   );
   const goHome = React.useCallback(() => changePage("hub"), [changePage]);
   const [isStatsPopUpOpen, setIsStatsPopUpOpen] = React.useState(false);
@@ -401,7 +438,10 @@ function App() {
   const closeCard = React.useCallback(() => setIsCardOpen(false), []);
 
   const [isJukeboxOpen, setIsJukeboxOpen] = React.useState(false);
-  const openJukebox = React.useCallback(() => setIsJukeboxOpen(true), []);
+  const openJukebox = React.useCallback(() => {
+    if (held === "game") nudgeFor("jukebox");
+    else setIsJukeboxOpen(true);
+  }, [held, nudgeFor]);
   const closeJukebox = React.useCallback(() => setIsJukeboxOpen(false), []);
 
   // Changes when a new round starts, in any mode: in time attack, with each
@@ -411,8 +451,8 @@ function App() {
   const pictureRun = pictureTimeAttack.run;
   const studentRound = students.round;
   const roundKey = `${server}:${
-    isHub
-      ? "hub"
+    noGame
+      ? page
       : isStudents
       ? `${students.slot}:${studentRound.day ?? ""}:${students.rounds.length}`
       : isPictureTimeAttack
@@ -458,7 +498,7 @@ function App() {
     }
     return voiceAsRound(pictureRound);
   }, [isPictureTimeAttack, pictureRun, pictureRound]);
-  const reactTo = isHub
+  const reactTo = noGame
     ? { guesses: [], currentTry: 0, didGuess: false, tries: 1 }
     : isPicture
     ? pictureReaction
@@ -513,8 +553,8 @@ function App() {
   }, [guess, selectedSong]);
 
   // What Settings' reset clears: the game and mode on screen, named. The hub
-  // has no game on screen, so it has none.
-  const reset: ResetTarget | undefined = isHub
+  // and multiplayer have no game on screen, so they have none.
+  const reset: ResetTarget | undefined = noGame
     ? undefined
     : {
         name: isStudents
@@ -620,10 +660,14 @@ function App() {
         onModeChange={changeMode}
         streak={run}
         isHub={isHub}
+        noGame={noGame}
         onHome={goHome}
+        held={inRoom}
         tagline={
           isHub
             ? "Blue Archive guessing games"
+            : isRooms
+            ? "Play Blue Archive Heardle with friends"
             : isStudents
             ? `Guess the Blue Archive student${onJp}`
             : isPicture
@@ -750,9 +794,9 @@ function App() {
       {/* Below the header rather than in the play area, which is centred on
           the page: there it moved with every screen's height. */}
       <Styled.StyleBar>
-        <GameSwitch page={page} onChange={changePage} />
+        <GameSwitch page={page} onChange={changePage} held={inRoom} />
         <Styled.StyleRow>
-          {isHub ? null : isStudents ? (
+          {noGame ? null : isStudents ? (
             <StudentStyles game={studentWay} onChange={setStudentWay} />
           ) : isPicture ? (
             pictureMode !== "daily" && (
@@ -778,6 +822,14 @@ function App() {
         <Styled.Container $top={isStudents}>
           {isHub ? (
             <Hub onOpen={changePage} onSenseiCard={openCard} />
+          ) : isRooms ? (
+            <React.Suspense fallback={null}>
+              <Multiplayer
+                keyboardEnabled={!isPopUpOpen}
+                onHold={setRoomHold}
+                nudge={nudge}
+              />
+            </React.Suspense>
           ) : isStudents ? (
             <StudentGame
               // A new screen for each way to play and mode, as for the OST.

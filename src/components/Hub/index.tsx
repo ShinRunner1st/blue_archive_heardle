@@ -1,7 +1,7 @@
 import React from "react";
 import { IoArrowForward, IoCheckmark, IoClose, IoTime } from "react-icons/io5";
 
-import { PAGES } from "../../constants/pages";
+import { Page, PAGES } from "../../constants/pages";
 import { pictureFiles } from "../../constants/pictureFiles";
 import { audioBaseUrl, backupUrlFor } from "../../helpers/audioUrl";
 import {
@@ -106,7 +106,7 @@ function CardArt({ game }: { game: Game }) {
 }
 
 interface Props {
-  onOpen: (game: Game) => void;
+  onOpen: (page: Page) => void;
   onSenseiCard: () => void;
 }
 
@@ -135,14 +135,15 @@ export function Hub({ onOpen, onSenseiCard }: Props) {
     return () => window.clearInterval(id);
   }, []);
 
-  const linkProps = (game: Game) => ({
-    href: PAGES[game].path,
+  const linkProps = (page: Page) => ({
+    href: PAGES[page].path,
     onClick: (event: React.MouseEvent) => {
       if (!isPlainClick(event)) return;
       event.preventDefault();
-      onOpen(game);
+      onOpen(page);
     },
   });
+  const rooms = PAGE_LINKS.find((option) => option.value === "multiplayer");
 
   const last = PAGE_LINKS.find((link) => link.value === lastGame);
 
@@ -214,6 +215,20 @@ export function Hub({ onOpen, onSenseiCard }: Props) {
             </li>
           );
         })}
+        <Styled.WideItem>
+          <Styled.Card $game="multiplayer" {...linkProps("multiplayer")}>
+            <Styled.CardHead>
+              <Styled.Icon $game="multiplayer">{rooms?.icon}</Styled.Icon>
+              <Styled.Name>{rooms?.label}</Styled.Name>
+              <Styled.Go aria-hidden="true" />
+            </Styled.CardHead>
+            <Styled.Blurb>
+              Make a private room and play the OST, Voice or Picture game with
+              friends, everyone hearing the same song at once.
+            </Styled.Blurb>
+            <Styled.Modes>Up to 8 players · Typed or 4-Choice</Styled.Modes>
+          </Styled.Card>
+        </Styled.WideItem>
       </Styled.Cards>
 
       <Record onSenseiCard={onSenseiCard} />

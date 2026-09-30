@@ -8,6 +8,7 @@ import {
   IoCalendar,
   IoDisc,
   IoEarth,
+  IoGameController,
   IoGift,
   IoHome,
   IoIdCard,
@@ -46,6 +47,17 @@ export interface NewsUpdate {
  * from.
  */
 export const WHATS_NEW: NewsUpdate[] = [
+  {
+    id: "2026-10-multiplayer",
+    name: "Multiplayer",
+    items: [
+      {
+        icon: IoGameController,
+        title: "Play with friends",
+        text: "Make a private room and share its code: up to 8 players play the OST, Voice or Picture game together, everyone hearing the same song at once, as in Anime Music Quiz. Send an answer (Quick answer sends your first pick at once) and change your mind as often as you like until the time's up; everyone sees when each player's latest answer went. The fastest right answers break a tie. The host picks the game, answers, rounds, time and the room's server, can save them as presets to share with friends, can give the room a password or lock it, and can kick a player; ending a game early needs most of the room to agree.",
+      },
+    ],
+  },
   {
     id: "2026-09-game-files",
     name: "New on JP",

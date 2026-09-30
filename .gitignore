@@ -37,8 +37,9 @@ bun.lockb
 # student icons downloaded by `npm run build:students`, drawn into one sheet
 /.cache
 
-# Wrangler's local cache, made by `npm run songs`
-/.wrangler
+# Wrangler's local cache and state, made by `npm run songs`, `npm run rooms`
+# and the page check
+.wrangler/
 
 # Now in Global: made by `npm run global-now`, served from Cloudflare
 /now-dist

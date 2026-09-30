@@ -8,4 +8,9 @@ interface ImportMetaEnv {
   readonly VITE_AUDIO_BACKUP_URL?: string;
   /** Where the hub reads now.json, what is on in Global. Defaults to `/now`. */
   readonly VITE_NOW_URL?: string;
+  /**
+   * The multiplayer rooms Worker, as a ws:// or wss:// address. Defaults to
+   * the one `npm run rooms` runs locally.
+   */
+  readonly VITE_ROOMS_URL?: string;
 }

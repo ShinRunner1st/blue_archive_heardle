@@ -89,6 +89,51 @@ export const STUDENT_GAME_KEY = "studentGame";
 export const TIME_ATTACK_SETTINGS_KEY = "timeAttack";
 
 /**
+ * localStorage key holding the settings a player made their last room with,
+ * so their next room starts with them. A setting, not in the save file.
+ */
+export const ROOM_SETTINGS_KEY = "roomSettings";
+
+/**
+ * localStorage key holding the student a player shows as in rooms, picked
+ * before they join one. A setting, not in the save file.
+ */
+export const ROOM_ICON_KEY = "roomIcon";
+
+/**
+ * localStorage key holding the name a player last typed for a room, so
+ * they needn't type it again for the next. A setting, not in the save file.
+ */
+export const ROOM_NAME_KEY = "roomName";
+
+/**
+ * sessionStorage key, before a room's code, holding this tab's token in it:
+ * a reload comes back as the same player, with their score. Per tab, so two
+ * tabs are two players, and gone when the tab closes.
+ */
+export const ROOM_TOKEN_PREFIX = "room.";
+
+/**
+ * localStorage key holding, for the rooms this browser was in lately, the
+ * token of the tab it was in them with, so a tab closed by mistake can be
+ * opened again and go back in as the same player. The token is a secret
+ * the room knows it by, which a name typed by someone else isn't.
+ */
+export const ROOM_BACK_KEY = "roomBack";
+
+/**
+ * localStorage key holding a player's saved room settings, each under a
+ * name they gave it. A setting, not in the save file.
+ */
+export const ROOM_PRESETS_KEY = "roomPresets";
+
+/**
+ * localStorage key: "on" when a pick in a room goes at once, with no need
+ * to press Submit. A setting, not in the save file.
+ */
+export const ROOM_QUICK_KEY = "roomQuick";
+
+/**
  * How much of the clip a four-choice round plays, in seconds, until the
  * player picks another length. One try only, so a little more than the first
  * try of six, and the four answers are picked to sound close.

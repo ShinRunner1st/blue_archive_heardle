@@ -193,17 +193,20 @@ function shuffle<T>(list: T[], random: Random): T[] {
  * a different student: the answer's other costumes, and two costumes of one
  * student, are left out, as the same voice twice would leave a guess
  * between outfits. A student not measured yet gets two from their school
- * and the rest from anyone.
+ * and the rest from anyone. A multiplayer room names its own server, as it
+ * has no settings of its own to read it from.
  */
 export function makeVoiceChoices(
   answer: Student,
-  random: Random = Math.random
+  random: Random = Math.random,
+  server: Server = getServer()
 ): number[] {
-  const others = voicePool().filter(
+  const others = voicePool(server).filter(
     ({ fullName }) => fullName !== answer.fullName
   );
   const near = nearestVoices(answer.id).filter(
-    ({ id, fullName }) => inPool(id) && fullName !== answer.fullName
+    ({ id, fullName }) =>
+      VOICE_IDS[server].has(id) && fullName !== answer.fullName
   );
   const sameSchool = shuffle(
     others.filter(({ school }) => school === answer.school),

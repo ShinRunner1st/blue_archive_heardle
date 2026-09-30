@@ -5,9 +5,13 @@ import { IoChevronForward } from "react-icons/io5";
 import { Game } from "../../types/mode";
 import { DailyState } from "../../helpers/todayResults";
 
+type CardKind = Game | "multiplayer";
+
 /** Each game's colour, for its card's icon and edge. */
-function accentOf(game: Game, theme: DefaultTheme): string {
+function accentOf(game: CardKind, theme: DefaultTheme): string {
   switch (game) {
+    case "multiplayer":
+      return theme.gray;
     case "ost":
       return theme.blue;
     case "voice":
@@ -104,7 +108,12 @@ export const Cards = styled.ul`
   }
 `;
 
-export const Card = styled.a<{ $game: Game }>`
+/** Multiplayer's card, across the grid under the games'. */
+export const WideItem = styled.li`
+  grid-column: 1 / -1;
+`;
+
+export const Card = styled.a<{ $game: CardKind }>`
   /* Its own layer, so the picture and its shading sit behind the words
      but above the card's colour. */
   position: relative;
@@ -189,7 +198,7 @@ export const CardHead = styled.div`
   gap: 10px;
 `;
 
-export const Icon = styled.span<{ $game: Game }>`
+export const Icon = styled.span<{ $game: CardKind }>`
   display: inline-flex;
   align-items: center;
   justify-content: center;

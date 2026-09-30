@@ -11,6 +11,8 @@ export const MAX_PLAYER_NAME = 20;
 /**
  * The name the player gave in Settings, drawn on the pictures they share and
  * nowhere else. Kept on this device like every other setting; never sent.
+ * Multiplayer's name box starts with it, and sends what's in the box only
+ * when the player makes or joins a room.
  */
 let name: string | null = null;
 let title: boolean | null = null;

@@ -48,6 +48,12 @@ interface Props {
    * few seconds, and the swap would flash each time.
    */
   steady?: boolean;
+  /**
+   * The clip's file, in place of the one themeNo names: a multiplayer room
+   * sends only the file, so the page doesn't know the song. themeNo then
+   * only tells one clip from the next.
+   */
+  clipUrl?: string;
 }
 
 const POLL_INTERVAL_MS = 250;
@@ -77,6 +83,7 @@ export function Player({
   autoPlay = false,
   onStatusChange,
   steady = false,
+  clipUrl,
 }: Props) {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
@@ -222,10 +229,12 @@ export function Player({
     onStatusChange?.(status);
   }, [status, onStatusChange]);
 
+  const url = clipUrl ?? getClipUrl(themeNo);
+
   const handleError = React.useCallback(() => {
     // Unlike a timeout, this is the file itself failing - missing, or in a
     // format this browser cannot decode - so keep it out of the session.
-    markUnplayable(themeNo);
+    if (!clipUrl) markUnplayable(themeNo);
     setStatus("blocked");
     setPlay(false);
 
@@ -233,13 +242,13 @@ export function Player({
       // Names the offending file while developing, so a missing one can be
       // tracked down without guessing.
       // eslint-disable-next-line no-console
-      console.warn(`Could not play ${getClipUrl(themeNo)}`);
+      console.warn(`Could not play ${url}`);
     }
-  }, [themeNo]);
+  }, [themeNo, clipUrl, url]);
 
   // The clip is downloaded whole before the element gets it (see
   // helpers/audioSource); a download that fails is the file failing.
-  const source = useAudioSource(getClipUrl(themeNo), attempt);
+  const source = useAudioSource(url, attempt);
   React.useEffect(() => {
     if (source.failed) handleError();
   }, [source.failed, handleError]);

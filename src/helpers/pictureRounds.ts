@@ -304,11 +304,13 @@ function shuffle<T>(list: T[], random: Random): T[] {
 export function makePictureChoices(
   kind: PictureKind,
   answer: number,
-  random: Random = Math.random
+  random: Random = Math.random,
+  /** A multiplayer room's own, when it isn't the player's. */
+  server: Server = getServer()
 ): number[] {
   const student = studentById.get(answer);
   if (!student) return [];
-  const others = pictureAnswers(kind)
+  const others = pictureAnswers(kind, server)
     .map(({ lead }) => studentById.get(lead))
     .filter(
       (other): other is Student =>

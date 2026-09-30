@@ -256,10 +256,20 @@ export function InfoPopUp({
               and never sent anywhere.
             </PopUpCardText>
             <PopUpCardText>
+              In Multiplayer, the room gets the name you type, the student you
+              pick as your picture and your answers, and shows them to the
+              others in it. It keeps them only while it&apos;s open: when it
+              closes, everything about it is deleted. This browser keeps a
+              random key for each room you were in, for a few hours, so a tab
+              closed by mistake can go back in as you. To stop anyone making
+              rooms by the hundred, the rooms count connections from each
+              address for a minute, under a scrambled form of it.
+            </PopUpCardText>
+            <PopUpCardText>
               Like any website, the service that delivers it — Cloudflare, for
-              the game, its music, voices, pictures and what&apos;s on in Global
-              — sees basic connection details, such as your IP address, to send
-              you the pages.
+              the game, its music, voices, pictures, what&apos;s on in Global
+              and the multiplayer rooms — sees basic connection details, such as
+              your IP address, to send you the pages.
             </PopUpCardText>
           </PopUpCardBody>
         </PopUpCard>

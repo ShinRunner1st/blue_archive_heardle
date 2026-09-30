@@ -43,6 +43,52 @@ function cellStyle(
   };
 }
 
+interface CellProps {
+  kind: PictureKind;
+  /** The picture's cell, in the picture sheet or the shape sheet. */
+  cell: number;
+  /** From the shape sheet: the silhouette, rather than the picture. */
+  shape?: boolean;
+  /** Of the size it shows at during a round (SHOWN_SIZE). */
+  zoom?: number;
+  /** Tells when the sheet has loaded, for time attack's clock. */
+  onReady?: () => void;
+}
+
+/**
+ * One cell of a kind's picture or shape sheet, by its place alone: a
+ * multiplayer room sends only that, so the page never knows whose it is.
+ */
+export function PictureCell({
+  kind,
+  cell,
+  shape = false,
+  zoom = 1,
+  onReady,
+}: CellProps) {
+  const layout = (shape ? SHAPE_SHEETS : PICTURE_SHEETS)[kind];
+  const sheet = useIconSheet(layout.key);
+
+  React.useEffect(() => {
+    if (sheet) onReady?.();
+  }, [sheet, onReady]);
+
+  const scale = (SHOWN_SIZE[kind].width / layout.width) * zoom;
+  const style = cellStyle(sheet, layout, cell, sheetCount(kind), scale);
+
+  return (
+    <Styled.Picture
+      role="img"
+      aria-label={
+        shape
+          ? `The ${kind === "halo" ? "halo" : "weapon"}'s silhouette`
+          : `The ${kind === "halo" ? "halo" : "weapon"}`
+      }
+      style={style}
+    />
+  );
+}
+
 interface Props {
   kind: PictureKind;
   /** Any student the picture belongs to. */
@@ -67,33 +113,15 @@ export function GuessPicture({
   zoom = 1,
   onReady,
 }: Props) {
-  const layout = (shape ? SHAPE_SHEETS : PICTURE_SHEETS)[kind];
-  const sheet = useIconSheet(layout.key);
   const answer = answerOf(kind, id);
-
-  React.useEffect(() => {
-    if (sheet) onReady?.();
-  }, [sheet, onReady]);
-
   if (!answer) return null;
-  const scale = (SHOWN_SIZE[kind].width / layout.width) * zoom;
-  const style = cellStyle(
-    sheet,
-    layout,
-    shape ? answer.shape : answer.picture,
-    sheetCount(kind),
-    scale
-  );
-
   return (
-    <Styled.Picture
-      role="img"
-      aria-label={
-        shape
-          ? `The ${kind === "halo" ? "halo" : "weapon"}'s silhouette`
-          : `The ${kind === "halo" ? "halo" : "weapon"}`
-      }
-      style={style}
+    <PictureCell
+      kind={kind}
+      cell={shape ? answer.shape : answer.picture}
+      shape={shape}
+      zoom={zoom}
+      onReady={onReady}
     />
   );
 }
