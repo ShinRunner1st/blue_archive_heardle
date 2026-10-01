@@ -9,7 +9,7 @@ import * as Styled from "./index.styled";
 const MEDALS = ["🥇", "🥈", "🥉"];
 
 /** A hue from a name, so a player without a picture keeps one colour. */
-function hueOf(name: string): number {
+export function hueOf(name: string): number {
   let hash = 0;
   for (const char of name) hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
   return hash % 360;

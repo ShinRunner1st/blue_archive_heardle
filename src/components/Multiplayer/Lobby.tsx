@@ -14,6 +14,7 @@ import {
 } from "react-icons/io5";
 
 import { PAGES } from "../../constants/pages";
+import { backupUrlFor } from "../../helpers/audioUrl";
 import { roomLink, saveRoomSettings } from "../../helpers/roomClient";
 import { SettingRow, settingsRows } from "../../helpers/roomView";
 import {
@@ -26,8 +27,9 @@ import {
 } from "../../types/room";
 
 import { Button } from "../Button";
+import { usePortraits } from "../Portrait";
 
-import { Avatar } from "./PlayerList";
+import { Avatar, hueOf } from "./PlayerList";
 import { SettingsPopUp } from "./SettingsPopUp";
 import * as Styled from "./index.styled";
 import { useNow, useTickAt } from "./useRoomClock";
@@ -197,6 +199,15 @@ export function Lobby({ view, receivedAt, send, onLeave }: Props) {
 
         <LobbyPlayers
           view={view}
+          hint={
+            early
+              ? "Waiting for the others to finish the results"
+              : isHost
+              ? here < MIN_PLAYERS
+                ? "Share the code: a game needs two"
+                : "Start when everyone's in"
+              : "Waiting for the host to start"
+          }
           onKick={isHost ? (id) => send({ t: "kick", id }) : undefined}
         />
 
@@ -240,17 +251,23 @@ export function Lobby({ view, receivedAt, send, onLeave }: Props) {
 
 /**
  * Everyone in the room as wide cards, in the order they came, and the
- * places still free. For the host, a Kick on everyone else's, pressed
- * twice.
+ * places still free: each with the student the player picked faded in
+ * behind it (a portrait, about 7.5 KB, cached for a year). For the host, a
+ * Kick on everyone else's, pressed twice.
  */
 function LobbyPlayers({
   view,
+  hint,
   onKick,
 }: {
   view: RoomView;
+  hint: string;
   onKick?: (id: string) => void;
 }) {
   const free = Math.max(0, view.settings.maxPlayers - view.players.length);
+  const portraits = usePortraits(
+    view.players.flatMap(({ icon }) => (icon === null ? [] : [icon]))
+  );
   const [arming, setArming] = React.useState<string | null>(null);
   React.useEffect(() => {
     if (!arming) return;
@@ -261,10 +278,13 @@ function LobbyPlayers({
   return (
     <Styled.LobbyPlayers aria-label="Players">
       <Styled.PlayersHead>
-        Players{" "}
-        <span>
-          {view.players.length}/{view.settings.maxPlayers}
-        </span>
+        <Styled.PlayersTitle>
+          Players{" "}
+          <span>
+            {view.players.length}/{view.settings.maxPlayers}
+          </span>
+        </Styled.PlayersTitle>
+        <Styled.PlayersHint>{hint}</Styled.PlayersHint>
       </Styled.PlayersHead>
       <Styled.LobbyGrid>
         {view.players.map((player) => {
@@ -272,26 +292,34 @@ function LobbyPlayers({
           const isHost = player.id === view.host;
           // Back from the standings early, or still on them.
           const onResults = view.phase === "over" && !player.returned;
+          const art =
+            player.icon === null ? undefined : portraits.get(player.icon);
           return (
-            <Styled.LobbyCard key={player.id} $you={isYou} $away={!player.here}>
-              <Avatar icon={player.icon} name={player.name} size={60} />
+            <Styled.LobbyCard
+              key={player.id}
+              $you={isYou}
+              $away={!player.here}
+              $hue={player.icon === null ? hueOf(player.name) : undefined}
+            >
+              {art && <CardArt url={art} />}
+              <Avatar icon={player.icon} name={player.name} size={64} />
               <Styled.LobbyCardText>
                 <Styled.LobbyName title={player.name}>
                   {player.name} {isYou && <small>(you)</small>}
                 </Styled.LobbyName>
-                <Styled.LobbyState
-                  $host={isHost && player.here}
-                  $ready={!isHost && player.here && !onResults}
-                >
-                  {!player.here
-                    ? "Away"
-                    : isHost
-                    ? "👑 Host"
-                    : onResults
-                    ? "On the results"
-                    : "Ready"}
-                </Styled.LobbyState>
               </Styled.LobbyCardText>
+              <Styled.LobbyState
+                $host={isHost && player.here}
+                $ready={!isHost && player.here && !onResults}
+              >
+                {!player.here
+                  ? "Away"
+                  : isHost
+                  ? "👑 Host"
+                  : onResults
+                  ? "On the results"
+                  : "Ready"}
+              </Styled.LobbyState>
               {onKick && !isYou && (
                 <Styled.CardKick
                   type="button"
@@ -324,5 +352,27 @@ function LobbyPlayers({
         ))}
       </Styled.LobbyGrid>
     </Styled.LobbyPlayers>
+  );
+}
+
+/**
+ * A portrait behind a card, from its copy on R2 if the Worker fails; gone
+ * if both do. Decorative: the name is on the card.
+ */
+function CardArt({ url }: { url: string }) {
+  const [src, setSrc] = React.useState(url);
+  const [failed, setFailed] = React.useState(false);
+  if (failed) return null;
+  return (
+    <Styled.CardArt
+      src={src}
+      alt=""
+      loading="lazy"
+      onError={() => {
+        const backup = backupUrlFor(url);
+        if (backup && src !== backup) setSrc(backup);
+        else setFailed(true);
+      }}
+    />
   );
 }

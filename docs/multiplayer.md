@@ -26,10 +26,14 @@ README's Multiplayer and Multiplayer rooms sections have the rest.
    code and Copy link on one row (each says "Copied ✓" for a moment),
    then the settings a row each with an icon (game, the OST's albums or
    Voice's lines, answers, how many, time to answer, where songs start or
-   the server, who can join), and Leave and Start under it. On the right,
-   "Players 4/8" and a wide card for each, two to a row: their picture,
-   name, "(you)", Host, Ready or Away, and the places still free. On a
-   phone it's one column, the buttons last; where the character stands
+   the server, who can join), and Leave and Start at its foot. On the
+   right, "Players 4/8", a line on what's next (the host's "Start when
+   everyone's in", a guest's "Waiting for the host to start") and a wide
+   card for each, two to a row: their picture and name, the student they
+   picked faded in behind (their portrait, about 7.5 KB from the Worker,
+   cached for a year; a hue from the name without one), a chip for Host,
+   Ready or Away, and the places still free. On a phone it's one column,
+   the settings two to a row and the buttons last; where the character stands
    beside the game, the lobby starts at the play area's left edge and
    grows to the right, clear of her. Only the host sees **Change
    settings**, a

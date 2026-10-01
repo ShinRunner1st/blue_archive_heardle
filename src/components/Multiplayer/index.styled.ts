@@ -1291,11 +1291,12 @@ export const Nobody = styled.span`
 `;
 
 /**
- * The lobby: the room's panel (code, settings, Start) on the left and the
- * players on the right, wider than the play area; one column on a phone,
- * the players under the panel and the buttons last. Where the character
- * stands left of the play area (1100 px up, see Character), it starts at
- * the play area's left edge and grows to the right, clear of her.
+ * The lobby: the room's panel (code, settings, Leave and Start) on the
+ * left and the players on the right, wider than the play area; one column
+ * on a phone, the players under the panel and the buttons last. Where the
+ * character stands left of the play area (1100 px up, see Character), it
+ * starts at the play area's left edge and grows to the right, clear of
+ * her.
  */
 export const LobbyLayout = styled.div`
   display: grid;
@@ -1310,10 +1311,10 @@ export const LobbyLayout = styled.div`
   font-family: "Nunito Sans Variable";
 
   @media (min-width: 900px) {
-    grid-template-columns: 320px minmax(0, 1fr);
+    grid-template-columns: 340px minmax(0, 1fr);
     grid-template-areas: "panel players" "buttons players";
     grid-template-rows: auto 1fr;
-    gap: 14px 22px;
+    gap: 0 24px;
   }
 
   @media (min-width: 1100px) {
@@ -1329,7 +1330,14 @@ export const RoomPanel = styled.section`
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 18px 20px;
+  padding: 20px 22px 16px;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+
+  @media (min-width: 900px) {
+    border-bottom: none;
+    border-radius: 16px 16px 0 0;
+  }
 `;
 
 export const PanelCode = styled.div`
@@ -1339,29 +1347,60 @@ export const PanelCode = styled.div`
 `;
 
 export const BigCode = styled(CodeText)`
-  font-size: 2.8rem;
+  font-size: 3.1rem;
+  line-height: 1.05;
 `;
 
-/** The settings, a row each with its icon. */
+/**
+ * The settings, a row each with its icon; on a phone two to a row, the
+ * value under its label, so the players aren't pushed out of sight.
+ */
 export const SettingList = styled.ul`
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 12px;
   margin: 0;
   padding: 0;
   list-style: none;
+
+  @media (min-width: 900px) {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
 `;
 
 export const SettingItem = styled.li`
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) auto;
+  grid-template-columns: 30px minmax(0, 1fr);
+  column-gap: 10px;
   align-items: center;
-  gap: 10px;
-  padding: 7px 0;
 
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  & > :first-child {
+    grid-row: 1 / 3;
+  }
 
-  &:last-child {
-    border-bottom: none;
+  & > :last-child {
+    text-align: left;
+  }
+
+  @media (min-width: 900px) {
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+    & > :first-child {
+      grid-row: auto;
+    }
+
+    & > :last-child {
+      text-align: right;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
   }
 `;
 
@@ -1369,47 +1408,76 @@ export const SettingIcon = styled.span`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
 
-  font-size: 15px;
+  font-size: 16px;
   color: #8ab8ff;
 
-  background-color: rgba(18, 138, 250, 0.18);
+  background-color: rgba(18, 138, 250, 0.2);
   border-radius: 8px;
 `;
 
 export const SettingLabel = styled.span`
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   font-weight: 700;
   opacity: 0.75;
+
+  @media (min-width: 900px) {
+    font-size: 0.88rem;
+  }
 `;
 
 export const SettingValue = styled.span`
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   font-weight: 800;
   text-align: right;
 `;
 
+/**
+ * Leave and Start: the foot of the panel on a wide screen, as one piece
+ * with it; on a phone, on their own after the players.
+ */
 export const LobbyButtons = styled.div`
   grid-area: buttons;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
+
+  @media (min-width: 900px) {
+    ${panel}
+    align-self: start;
+    padding: 4px 22px 22px;
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+
+    & > button:last-child:not(:first-child) {
+      flex: 1 1 auto;
+    }
+  }
 `;
 
 export const LobbyPlayers = styled.section`
   grid-area: players;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   min-width: 0;
 `;
 
-export const PlayersHead = styled.h2`
+export const PlayersHead = styled.div`
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 4px;
+`;
+
+export const PlayersTitle = styled.h2`
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 900;
   ${shadowText}
 
@@ -1419,10 +1487,17 @@ export const PlayersHead = styled.h2`
   }
 `;
 
+export const PlayersHint = styled.span`
+  font-size: 0.85rem;
+  font-weight: 700;
+  opacity: 0.8;
+  ${shadowText}
+`;
+
 export const LobbyGrid = styled.ol`
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 10px;
+  gap: 12px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -1433,28 +1508,36 @@ export const LobbyGrid = styled.ol`
 `;
 
 /**
- * A player in the lobby: their picture, name and what they're doing. It
- * keeps room for what accounts bring: a banner under the name, a
- * background and a border.
+ * A player in the lobby: their picture, name and what they're doing, the
+ * student they picked faded in on the right (a hue from the name for a
+ * player without one). It keeps room for what accounts bring: a banner
+ * under the name, a background and a border.
  */
 export const LobbyCard = styled.li<{
   $you?: boolean;
   $away?: boolean;
   $empty?: boolean;
+  $hue?: number;
 }>`
   position: relative;
+  overflow: hidden;
 
   display: flex;
   align-items: center;
   gap: 14px;
 
   box-sizing: border-box;
-  height: 92px;
-  padding: 0 14px;
+  height: 100px;
+  padding: 0 16px;
 
-  background-color: ${({ theme, $empty }) =>
-    $empty ? "transparent" : `${theme.background1}e6`};
-  border: ${({ $empty }) => ($empty ? "2px dashed" : "1px solid")}
+  background: ${({ theme, $empty, $hue }) =>
+    $empty
+      ? "transparent"
+      : $hue === undefined
+      ? `${theme.background1}eb`
+      : `linear-gradient(90deg, ${theme.background1}eb 35%, hsla(${$hue}, 55%, 45%, 0.45)), ${theme.background1}`};
+  border: ${({ $empty, $you }) => ($empty ? 2 : $you ? 2 : 1)}px
+    ${({ $empty }) => ($empty ? "dashed" : "solid")}
     ${({ theme, $you, $empty }) =>
       $empty
         ? "rgba(255, 255, 255, 0.22)"
@@ -1462,44 +1545,75 @@ export const LobbyCard = styled.li<{
         ? theme.blue
         : theme.background100};
   border-radius: 14px;
+  box-shadow: ${({ $empty }) =>
+    $empty ? "none" : "0 8px 22px rgba(0, 0, 0, 0.28)"};
   opacity: ${({ $away, $empty }) => ($empty ? 0.6 : $away ? 0.55 : 1)};
 `;
 
+/** The picked student's portrait, faded in from the card's middle. */
+export const CardArt = styled.img`
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 58%;
+  height: 100%;
+
+  object-fit: cover;
+  object-position: center 18%;
+  opacity: 0.7;
+  pointer-events: none;
+
+  mask-image: linear-gradient(90deg, transparent, #000 70%);
+`;
+
 export const LobbyCardText = styled.div`
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 4px;
   flex: 1 1 auto;
   min-width: 0;
 `;
 
 export const LobbyName = styled.span`
-  font-size: 1.05rem;
+  font-size: 1.15rem;
   font-weight: 900;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  ${shadowText}
 
   & > small {
     font-size: 0.75rem;
     font-weight: 700;
-    opacity: 0.7;
+    opacity: 0.75;
   }
 `;
 
+/** Host, Ready, Away: a small chip in the card's top corner. */
 export const LobbyState = styled.span<{ $host?: boolean; $ready?: boolean }>`
-  font-size: 0.8rem;
+  position: absolute;
+  top: 9px;
+  right: 10px;
+
+  padding: 2px 9px;
+
+  font-size: 0.72rem;
   font-weight: 800;
   color: ${({ $host, $ready }) =>
     $host ? "#f2c14e" : $ready ? "lightgreen" : "inherit"};
-  opacity: ${({ $host, $ready }) => ($host || $ready ? 1 : 0.7)};
+
+  background-color: rgba(14, 12, 30, 0.72);
+  border-radius: 999px;
 `;
 
-/** The host's Kick on a lobby card, in its corner. */
+/** The host's Kick on a lobby card, in its bottom corner. */
 export const CardKick = styled(Kick)`
   position: absolute;
-  top: 8px;
-  right: 8px;
+  right: 10px;
+  bottom: 9px;
+  background-color: ${({ $armed }) =>
+    $armed ? "rgba(255, 77, 77, 0.45)" : "rgba(14, 12, 30, 0.72)"};
 `;
 
 /** A free place's picture: an empty circle with a plus. */
@@ -1508,12 +1622,19 @@ export const FreeCircle = styled.span`
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 60px;
-  height: 60px;
+  width: 64px;
+  height: 64px;
 
   font-size: 1.8rem;
   font-weight: 300;
 
   background-color: rgba(255, 255, 255, 0.06);
   border-radius: 50%;
+`;
+
+/** A guest's note where the host's Start would be. */
+export const Waiting = styled.span`
+  font-size: 0.85rem;
+  font-weight: 700;
+  opacity: 0.8;
 `;
