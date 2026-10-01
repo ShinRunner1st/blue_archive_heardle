@@ -26,11 +26,13 @@
       "migrations_dir": "migrations"
     }
   ],
-  // Not secret: the client ids are in every sign-in link. Empty until set up,
-  // and that provider's button then says sign-in isn't available.
+  // Not secret: the client ids are in every sign-in link. An empty one turns
+  // that provider's sign-in off (its button says it isn't available).
+  // Google's app is in "Testing" until the release: only its test users
+  // can sign in with it.
   "vars": {
-    "GOOGLE_CLIENT_ID": "",
-    "DISCORD_CLIENT_ID": ""
+    "GOOGLE_CLIENT_ID": "675992797051-89eelrq9h5ccp2qnmfuf4gkfn4bj6umv.apps.googleusercontent.com",
+    "DISCORD_CLIENT_ID": "1555352991316320296"
   },
   // Counted per address (hashed) a minute: sign-ins (starting one and
   // swapping its code), and every other call.
