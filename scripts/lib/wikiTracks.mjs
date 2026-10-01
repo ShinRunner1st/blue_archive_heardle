@@ -7,7 +7,9 @@
 const WIKI_API = "https://bluearchive.wiki/w/api.php";
 /**
  * Named as MediaWiki's User-Agent policy asks (a name, a version and where
- * to reach us): the wiki answered GitHub's runners 403 to a bare one.
+ * to reach us). Miraheze, which hosts the wiki, still shows GitHub's runners
+ * its bot check ("Checking your connection...", 403) whatever the name, so
+ * the weekly Action goes without it; from home it answers.
  */
 export const WIKI_HEADERS = {
   "User-Agent":
@@ -30,14 +32,13 @@ async function api(params) {
     throw new WikiUnreachable(`no answer: ${error.message}`);
   }
   if (!response.ok) {
-    // The start of the page says who refused: the wiki, or Cloudflare in
-    // front of it.
-    const text = (await response.text().catch(() => ""))
-      .replace(/<[^>]*>/g, " ")
-      .replace(/\s+/g, " ")
-      .trim()
-      .slice(0, 120);
-    throw new WikiUnreachable(`it answered ${response.status}: ${text}`);
+    // The page's title says who refused: the wiki, or a bot check in front
+    // of it.
+    const page = await response.text().catch(() => "");
+    const title = /<title>([^<]*)<\/title>/i.exec(page)?.[1].trim();
+    throw new WikiUnreachable(
+      `it answered ${response.status}${title ? `, "${title}"` : ""}`
+    );
   }
   return response.json();
 }
@@ -143,8 +144,9 @@ const sameWords = (a, b) => {
  * wiki's spelling (its typos and Japanese titles among them) never replaces
  * it. A difference only of case or punctuation isn't a change.
  *
- * When the wiki can't be reached, the game's new tracks still come, as
- * "Theme N" by "Unknown", which a later week names; `wikiDown` says why.
+ * When the wiki can't be reached (never, from GitHub's runners), the game's
+ * new tracks still come, as "Theme N" by "Unknown", for a run from home to
+ * name; `wikiDown` says why.
  * A Music page that answers but has lost its tracks still stops it.
  */
 export async function trackChanges(songs, game = new Map()) {

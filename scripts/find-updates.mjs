@@ -170,7 +170,7 @@ const { added, named, wikiDown } = await trackChanges(songs, gameTracks());
 const songChanges = added.length + named.length;
 if (wikiDown) {
   warnInSummary(
-    `The Blue Archive wiki couldn't be reached (${wikiDown}), so new songs come from the game's files as "Theme N" by "Unknown", for a later week to name.`
+    `The Blue Archive wiki couldn't be reached (${wikiDown}), so new songs come from the game's files as "Theme N" by "Unknown": name them from home with \`npm run build:new-songs\`, or by hand.`
   );
 }
 

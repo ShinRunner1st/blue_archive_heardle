@@ -475,12 +475,14 @@ date on its own, every Wednesday (and from the Actions tab by hand):
    stay "Theme N" until named by hand. Locally, point `BAAD_OUTPUT` at a
    BA-AD download of your own (its `output` folder) to use it.
 
-   If the wiki can't be reached (it answered GitHub's runners 403 on the
-   first run, to a bare User-Agent; the scripts now name themselves as
-   MediaWiki's policy asks), the game's new tracks still come in, as
-   "Theme N" by "Unknown", for a later week to name, and the run and the
-   pull request say so in a warning. A Music page that answers but has
-   lost its tracks still stops the run.
+   GitHub's runners can't reach the wiki: Miraheze, which hosts it, shows
+   them a bot check ("Checking your connection...", 403) whatever the
+   User-Agent. So the Action's new tracks come in from the game as
+   "Theme N" by "Unknown", and the run and the pull request say so in a
+   warning. Name them from home, where the wiki answers:
+   `npm run build:new-songs` fills in every song still half named, or edit
+   `src/constants/songs.ts` in the pull request. A Music page that answers
+   but has lost its tracks still stops the run.
 
 3. Only if there is something, it runs `build:students`, `build:voices` and
    `build:guess`, adds the songs (`npm run build:new-songs`), and builds the
