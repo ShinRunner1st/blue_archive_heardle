@@ -403,6 +403,34 @@ in, syncs, merges and asks for passes, and logs each D1 query's `meta`
 higher than above, this section and the sync rules change before
 anything goes public.
 
+_Measured locally, 2026-10-02 (step 6), with `npm run accounts:measure`
+and `node scripts/measure-accounts.mjs`: the real Worker on D1's own
+engine, each request's rows from D1's `meta` (index entries count as rows
+written, as D1 counts them). A save of 1,000 rounds, 10 to 11 missions:_
+
+| What                                    | Requests | Rows read                                       | Rows written                            |
+| --------------------------------------- | -------- | ----------------------------------------------- | --------------------------------------- |
+| Opening the site (`GET /me/profile`)    | 1        | 2-4                                             | 0 (+0-2 once a day: last used, session) |
+| A sync (`PUT /me/progress`)             | 1        | 4                                               | 1                                       |
+| The summary changed (`PUT /me/profile`) | 1        | 4                                               | 1                                       |
+| A new mission with it                   | 1        | 15                                              | 2                                       |
+| A room pass (`GET /room-pass`)          | 1        | 16 (about 44 with all 39 missions)              | 0                                       |
+| A merge: 409, download, merged up       | 3        | 11                                              | 3                                       |
+| Signing in, a new account               | 3        | 4                                               | 12                                      |
+| Signing in, returning                   | 3        | 5                                               | 6                                       |
+| First sync of a new account's profile   | 1        | 3                                               | 12 (one per mission, once)              |
+| Download my data                        | 1        | 37                                              | 0                                       |
+| Delete account                          | 1        | 41                                              | 18                                      |
+| The daily run                           | 0        | about one per account, session and sign-in code | the deletions                           |
+
+_So a usual day (opening, three syncs, a summary, a room pass) is **6
+requests, 36-64 rows read, 4-6 written**, against the estimate's 5, 50
+and 5: the free plan holds about **16,000** signed-in players a day on
+requests and writes, less the rooms' requests. Signing in writes more
+than estimated (indexes), but happens rarely. Still to do on the preview,
+once it's set up: the same day signed in for real, against `wrangler d1
+insights` and the dashboard._
+
 **Rate limits:** as for the rooms, the Worker's rate-limit binding, per
 address (hashed): 10 sign-ins and 30 syncs a minute.
 

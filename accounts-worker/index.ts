@@ -8,6 +8,7 @@
  * console call): a request's headers can hold a session token.
  */
 import { AccountsEnv, handle } from "../src/accounts/api";
+import { measured, Tally } from "../src/accounts/measure";
 import { tidyAccounts } from "../src/accounts/privacy";
 
 interface Env {
@@ -26,6 +27,12 @@ interface Env {
    * Honoured on localhost only, so a deployed Worker never has it.
    */
   FAKE_SIGN_IN?: string;
+  /**
+   * "yes" only from `npm run accounts:measure`: each answer says what it
+   * cost D1 (rows read and written) in headers, for the measurements in
+   * docs/accounts.md, section 6. On localhost only, like FAKE_SIGN_IN.
+   */
+  MEASURE?: string;
   /** Sign-ins, and the rest, per address a minute. */
   SIGN_IN_LIMIT?: RateLimit;
   API_LIMIT?: RateLimit;
@@ -47,6 +54,15 @@ async function counterKey(request: Request): Promise<string> {
   return Array.from(new Uint8Array(digest).slice(0, 12), (b) =>
     b.toString(16).padStart(2, "0")
   ).join("");
+}
+
+/** A measured answer: what the request cost D1, in headers. */
+function tallied(response: Response, tally: Tally): Response {
+  const copy = new Response(response.body, response);
+  copy.headers.set("X-D1-Read", String(tally.read));
+  copy.headers.set("X-D1-Written", String(tally.written));
+  copy.headers.set("X-D1-Queries", String(tally.queries));
+  return copy;
 }
 
 const limiter = (limit?: RateLimit) =>
@@ -71,8 +87,15 @@ export default {
     const local = ["localhost", "127.0.0.1"].includes(
       new URL(request.url).hostname
     );
+    const tally: Tally = { read: 0, written: 0, queries: 0 };
+    const measuring = env.MEASURE === "yes" && local;
+    const db = measuring ? measured(env.DB, tally) : env.DB;
+    if (measuring && new URL(request.url).pathname === "/__measure/tidy") {
+      await tidyAccounts(db, Date.now());
+      return tallied(new Response(null, { status: 204 }), tally);
+    }
     const accounts: AccountsEnv = {
-      db: env.DB,
+      db,
       stateKey: env.STATE_KEY,
       roomPassKey: env.ROOM_PASS_KEY || undefined,
       google: keys(env.GOOGLE_CLIENT_ID, env.GOOGLE_CLIENT_SECRET),
@@ -83,7 +106,8 @@ export default {
       limitKey: await counterKey(request),
     };
     try {
-      return await handle(request, accounts);
+      const response = await handle(request, accounts);
+      return measuring ? tallied(response, tally) : response;
     } catch {
       // Nothing about the request is logged; the page is told it failed.
       return new Response(JSON.stringify({ error: "failed" }), {
