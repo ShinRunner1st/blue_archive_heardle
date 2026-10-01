@@ -87,7 +87,7 @@ function Status({ result }: { result: DailyResult }) {
  * scripts/make-card.mjs), from the Worker, or its copy on R2 if the Worker
  * fails; the card is plain if both do.
  */
-function CardArt({ game }: { game: Game }) {
+function CardArt({ game }: { game: Game | "multiplayer" }) {
   const file = pictureFiles[`hub/${game}`];
   const [src, setSrc] = React.useState(
     file ? `${audioBaseUrl()}/${file}` : null
@@ -217,6 +217,7 @@ export function Hub({ onOpen, onSenseiCard }: Props) {
         })}
         <Styled.WideItem>
           <Styled.Card $game="multiplayer" {...linkProps("multiplayer")}>
+            <CardArt game="multiplayer" />
             <Styled.CardHead>
               <Styled.Icon $game="multiplayer">{rooms?.icon}</Styled.Icon>
               <Styled.Name>{rooms?.label}</Styled.Name>

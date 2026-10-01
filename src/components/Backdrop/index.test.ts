@@ -5,7 +5,7 @@ import { theme } from "../../constants";
 import { pictureFiles } from "../../constants/pictureFiles";
 import { STREAK_PLACES } from "../../constants/streakPlaces";
 import { createHarness, Harness } from "../../test/harness";
-import { Backdrop } from ".";
+import { Backdrop, ROOMS_SCENE } from ".";
 
 let harness: Harness;
 
@@ -34,10 +34,14 @@ function shownPicture(): string {
   return "";
 }
 
-function renderOn(date: Date, place: (typeof STREAK_PLACES)[number] | null) {
+function renderOn(
+  date: Date,
+  place: (typeof STREAK_PLACES)[number] | null,
+  scene?: typeof ROOMS_SCENE
+) {
   vi.useFakeTimers({ toFake: ["Date"] });
   vi.setSystemTime(date);
-  harness.render(React.createElement(Backdrop, { place }));
+  harness.render(React.createElement(Backdrop, { place, scene }));
 }
 
 describe("Backdrop", () => {
@@ -54,5 +58,10 @@ describe("Backdrop", () => {
   it("shows the library out of season", () => {
     renderOn(new Date(2026, 8, 28, 12), null);
     expect(shownPicture()).toBe(theme.backgroundImage);
+  });
+
+  it("shows a page's own scene over a streak place and the season", () => {
+    renderOn(new Date(2026, 11, 25, 12), STREAK_PLACES[0], ROOMS_SCENE);
+    expect(shownPicture()).toContain(pictureFiles[ROOMS_SCENE.day]);
   });
 });

@@ -318,6 +318,10 @@ they need no more height than the OST, and every game fits a 1080p window.
   lost streak goes back to the season's picture. The dates are in
   `src/constants/seasons.ts`; the pictures are served from the Worker (see
   [Pictures on the Worker](#pictures-on-the-worker)).
+- **Multiplayer's room** - `/multiplayer` has a background of its own, the
+  Game Development Department's room, by day or by night, whatever the date
+  (`ROOMS_SCENE` in `src/components/Backdrop/`): the rooms have no streak to
+  move it.
 - **OST badges** - one for each official soundtrack album, Vol.1 to Vol.8,
   earned by guessing every song on it at least once, in Daily or Classic. ☰ → OST
   badges shows each album's progress; the result screen says when a
@@ -641,7 +645,9 @@ Worker.
 `node scripts/make-backdrop.mjs <BG name> <day|night> <output.webp>` makes a
 backdrop from one of the game's scenario backgrounds, downloaded once from the
 Blue Archive wiki (`File:BG_<name>.jpg`), blurred and dimmed like the streak
-places. The game itself never asks the wiki for anything. `npm run dev` serves
+places (`GameDevRoom` and `GameDevRoom_Night` for multiplayer's, in
+`pictures/multiplayer/`, 24 KB for the pair). The game itself never asks the
+wiki for anything. `npm run dev` serves
 the pictures from `audio-dist/` too; add `?season=christmas` or
 `?season=new-year` to the address there to see a season on any day.
 
@@ -649,8 +655,8 @@ the pictures from `audio-dist/` too; add `?season=christmas` or
 card's picture the same way, sharp and cut to 720x320 (`focus`, 0 to 1,
 moves the cut down the picture). The cards use `Stage` for the OST,
 `SchoolBroadcastingRoom_Day` for Voice, `ShootingRange` for Picture and
-`ClassRoom` for Students, in `pictures/hub/`: about 86 KB in all, fetched
-from the Worker when the hub shows.
+`ClassRoom` for Students and `Arcade` for Multiplayer, in `pictures/hub/`:
+about 113 KB in all, fetched from the Worker when the hub shows.
 
 ### Now in Global
 

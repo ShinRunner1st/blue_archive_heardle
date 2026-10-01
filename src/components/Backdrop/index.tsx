@@ -3,7 +3,7 @@ import { useTheme } from "styled-components";
 
 import { StreakPlace } from "../../constants/streakPlaces";
 import { backdropSrc } from "../../helpers/backdrop";
-import { homePicture } from "../../helpers/season";
+import { homePicture, pictureUrl } from "../../helpers/season";
 import { useColorScheme } from "../../hooks/useColorScheme";
 import { useSeason } from "../../hooks/useSeason";
 
@@ -12,9 +12,29 @@ import * as Styled from "./index.styled";
 /** Long enough for a new place to finish fading in over the old one. */
 const FADE_MS = 900;
 
+/** A page's own picture, by day and by night: keys in pictureFiles. */
+export interface Scene {
+  id: string;
+  day: string;
+  night: string;
+}
+
+/**
+ * Multiplayer's: the Game Development Department's room, as the rooms have
+ * no streak of their own to move the background (pictures/multiplayer/,
+ * made with scripts/make-backdrop.mjs).
+ */
+export const ROOMS_SCENE: Scene = {
+  id: "rooms",
+  day: "multiplayer/backdrop-day",
+  night: "multiplayer/backdrop-night",
+};
+
 interface Props {
   /** Where the win streak has reached; null for the scheme's own picture. */
   place: StreakPlace | null;
+  /** The page's own picture, in place of both the place and the season's. */
+  scene?: Scene;
 }
 
 /**
@@ -22,14 +42,17 @@ interface Props {
  * Christmas and New Year, or the place the win streak has reached, by day or
  * by night to match the scheme. A new place or season fades in over the old;
  * a change of scheme swaps at once, since the scheme's own reveal animates it.
+ * A page with a scene of its own shows that instead, whatever the date.
  */
-export function Backdrop({ place }: Props) {
+export function Backdrop({ place, scene }: Props) {
   const theme = useTheme();
   const scheme = useColorScheme();
   const season = useSeason();
   const home = homePicture(season, scheme, theme.backgroundImage);
-  const src = backdropSrc(place, scheme, home);
-  const where = place?.name ?? season?.id ?? "";
+  const src = scene
+    ? pictureUrl(scheme === "dark" ? scene.night : scene.day)
+    : backdropSrc(place, scheme, home);
+  const where = scene?.id ?? place?.name ?? season?.id ?? "";
 
   // The previous place stays under the new one until it has faded in.
   const [layers, setLayers] = React.useState([
@@ -54,7 +77,9 @@ export function Backdrop({ place }: Props) {
   // Fetch the other scheme's picture of this place or season too, so a
   // switch of scheme never uncovers a blank.
   const other = scheme === "dark" ? "light" : "dark";
-  const otherSrc = place
+  const otherSrc = scene
+    ? pictureUrl(other === "dark" ? scene.night : scene.day)
+    : place
     ? backdropSrc(place, other, "")
     : season && homePicture(season, other, "");
   React.useEffect(() => {

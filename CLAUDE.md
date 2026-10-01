@@ -175,7 +175,7 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   saves), Continue for the game played last, the Global/JP choice, the
   player's record (hidden for a new player) with a button to the Sensei
   card, Now in Global (or JP) and birthdays this week, and a wide
-  Multiplayer card under the four games.
+  Multiplayer card (an arcade behind it) under the four games.
 - **Game bar** (`GameSwitch`): Home, OST, Voice, Picture, Students,
   Multiplayer, as real links; the picked one shows its name.
 - **Multiplayer** (`/multiplayer`): private rooms of 2 to 8 playing the
@@ -193,7 +193,8 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   Nothing takes a player out of a room by a slip (the bar, Back, the
   Jukebox and reloads wait). When an allowance runs out it says
   Multiplayer is resting until tomorrow; the rest of the site doesn't
-  depend on it.
+  depend on it. Its page has its own background, the Game Development
+  Department's room (`ROOMS_SCENE`), over streak places and seasons.
 - **Students** (`/students`; Daily and
   Endless work for both): guess a student and each guess shows how it
   compares with the answer, right, close or wrong, with arrows for numbers.

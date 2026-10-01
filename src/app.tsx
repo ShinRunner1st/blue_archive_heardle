@@ -55,6 +55,7 @@ import {
 
 import {
   Backdrop,
+  ROOMS_SCENE,
   Character,
   Header,
   InfoPopUp,
@@ -637,7 +638,10 @@ function App() {
 
   return (
     <Styled.BG>
-      <Backdrop place={placeFor(run)} />
+      <Backdrop
+        place={placeFor(run)}
+        scene={isRooms ? ROOMS_SCENE : undefined}
+      />
       <Header
         openInfoPopUp={openInfoPopUp}
         openStatsPopUp={openStatsPopUp}
