@@ -20,9 +20,9 @@
     {
       "binding": "DB",
       "database_name": "ba-heardle-accounts",
-      // Replaced with the real id once the database is made; a local run
-      // keeps its own copy under .wrangler/ whatever this says.
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      // Made 2026-10-02 (region APAC). A local run keeps its own copy
+      // under .wrangler/ whatever this says.
+      "database_id": "941473f9-07cb-49b9-afa4-6f35792d0bc0",
       "migrations_dir": "migrations"
     }
   ],

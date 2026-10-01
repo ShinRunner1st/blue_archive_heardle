@@ -1,0 +1,31 @@
+// The preview's own multiplayer rooms: the same code as wrangler.jsonc's,
+// at its own workers.dev address, its own Durable Objects and its own rate
+// counters, so a branch whose rooms speak a newer protocol can be tried on
+// the real network (with the site's preview, `npm run deploy:site-preview`)
+// while baheardle.com's rooms keep the released one. Published by hand
+// (`npm run deploy:rooms-preview`); nothing deploys it by itself.
+{
+  "name": "ba-heardle-rooms-preview",
+  "main": "index.ts",
+  "compatibility_date": "2026-09-01",
+  "durable_objects": {
+    "bindings": [{ "name": "ROOMS", "class_name": "GameRoom" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["GameRoom"] }],
+  "ratelimits": [
+    {
+      "name": "MAKE_LIMIT",
+      "namespace_id": "1703",
+      "simple": { "limit": 6, "period": 60 }
+    },
+    {
+      "name": "JOIN_LIMIT",
+      "namespace_id": "1704",
+      "simple": { "limit": 40, "period": 60 }
+    }
+  ],
+  // No logs or traces: nothing of a room outlives it.
+  "observability": { "enabled": false },
+  "workers_dev": true,
+  "preview_urls": false
+}

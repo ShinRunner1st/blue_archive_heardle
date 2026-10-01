@@ -1,5 +1,10 @@
 /// <reference types="vitest/config" />
-import { createReadStream, existsSync } from "node:fs";
+import {
+  createReadStream,
+  existsSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { basename, join } from "node:path";
 import {
   defineConfig,
@@ -103,17 +108,40 @@ const gamePages: Plugin = {
   },
 };
 
+/** The preview's own rooms Worker (rooms-worker/wrangler.preview.jsonc). */
+const PREVIEW_ROOMS =
+  "wss://ba-heardle-rooms-preview.shinrunner1st.workers.dev";
+
+/**
+ * The preview's _headers: its Content-Security-Policy also lets the page
+ * connect to the preview's rooms, so production's stays as it is.
+ */
+const previewHeaders: Plugin = {
+  name: "preview-headers",
+  apply: "build",
+  closeBundle() {
+    const file = join("build", "_headers");
+    const headers = readFileSync(file, "utf8");
+    const rooms = "wss://ba-heardle-rooms.shinrunner1st.workers.dev";
+    if (!headers.includes(rooms)) throw new Error("_headers has no rooms");
+    writeFileSync(file, headers.replace(rooms, `${rooms} ${PREVIEW_ROOMS}`));
+  },
+};
+
 export default defineConfig(({ mode }) => {
-  // The site's preview (`npm run deploy:site-preview`) is the production
-  // build with sign-in on: .env.production's addresses, and .env.preview's
-  // accounts Worker, which only it has until accounts are released
-  // (docs/accounts.md). Read first, as Vite reads the mode's own file only.
+  // The site's preview (`npm run deploy:site-preview`): the production
+  // build, with .env.preview's addresses in place of .env.production's
+  // where it has them (the accounts Worker's workers.dev address, and its
+  // own rooms, which speak the branch's protocol before production's do).
+  // Vite reads the mode's own file only, and never overrides what's set.
   if (mode === "preview") {
+    const own = loadEnv("preview", process.cwd(), "VITE_");
     for (const [key, value] of Object.entries(
       loadEnv("production", process.cwd(), "VITE_")
     )) {
-      process.env[key] ??= value;
+      process.env[key] ??= own[key] ?? value;
     }
+    return { ...config, plugins: [...(config.plugins ?? []), previewHeaders] };
   }
   return config;
 });
