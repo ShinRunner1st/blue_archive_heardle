@@ -307,8 +307,9 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   (`profileStats.ts`): totals, a table by game, and a tab per game with its
   ways to play, daily spread, tries, Time Attack or find times. Customize
   picks the cosmetics, the card kept in sight. A lazy chunk. The same card
-  (`PlayerCard`) shows every player in a room, with the default
-  cosmetics: other players' own, and their profiles, wait for accounts.
+  (`PlayerCard`) shows every player in a room: yours as you dressed it,
+  read in your browser; other players' with the defaults, as theirs, and
+  their profiles, wait for accounts.
 - **What's new** pop-up after updates, the welcome/How to play pop-up, About
   with a privacy notice and a Ko-fi card.
 - **Keyboard play**: type anywhere to search, Space plays, Enter picks/submits,

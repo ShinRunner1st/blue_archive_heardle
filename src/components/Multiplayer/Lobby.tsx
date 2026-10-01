@@ -37,7 +37,7 @@ import {
 } from "../../types/room";
 
 import { Button } from "../Button";
-import { defaultLook, PlayerCard } from "../Profile/PlayerCard";
+import { PlayerCard, roomLook } from "../Profile/PlayerCard";
 
 import { Avatar } from "./PlayerList";
 import { SettingsPopUp } from "./SettingsPopUp";
@@ -328,7 +328,8 @@ function RoomTicket({
 /**
  * Everyone in the room, two to a row in the order they came, and the
  * places still free: each on their card as Customize draws it, with the
- * student they picked; the cosmetics are the default ones until accounts.
+ * student they picked; yours dressed as you picked, the others' with the
+ * defaults until accounts (see roomLook).
  * For the host, a Kick on everyone else's, pressed twice.
  */
 function LobbyPlayers({
@@ -368,7 +369,11 @@ function LobbyPlayers({
           return (
             <li key={player.id}>
               <PlayerCard
-                look={defaultLook(player.name, player.icon)}
+                look={roomLook(
+                  player.name,
+                  player.icon,
+                  player.id === view.you
+                )}
                 face={(size) => (
                   <Avatar icon={player.icon} name={player.name} size={size} />
                 )}

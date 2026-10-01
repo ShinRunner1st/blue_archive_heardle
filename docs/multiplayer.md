@@ -32,14 +32,18 @@ README's Multiplayer and Multiplayer rooms sections have the rest.
    chips fold into one line, with Details to open them. Then "Players
    4/8", a line on what's next (the host's "Start when everyone's in", a
    guest's "Waiting for the host to start") and a card for each, two to
-   a row, phones too: the profile's card (`PlayerCard`), with their
-   picture, name, the default banner ("Sensei") and the student they
-   picked faded in behind (their portrait, about 7.5 KB from the Worker,
-   cached for a year), a chip for Host, Ready or Away and the host's ✕;
-   then the places still free, and Leave and Start, pinned to the foot
-   on a phone. A player's own banner, frame and background wait for
-   accounts: a room can check a cosmetic exists, not that its player
-   unlocked it. Only the host sees the **gear**, a
+   a row, phones too: the card Customize previews (`PlayerCard`), with
+   their picture, name, title on its banner, frame and background, and
+   with no background picked the student they chose faded in behind (their
+   portrait, about 7.5 KB from the Worker, cached for a year), a chip for
+   Host, Ready or Away and the host's ✕; then the places still free, and
+   Leave and Start, pinned to the foot on a phone. Your own card wears
+   what you picked in Customize, read in your browser, so nothing is sent
+   (`roomLook`); everyone else's has the default title ("Sensei"),
+   banner, frame and background, as a room can check a cosmetic exists
+   but not that its player unlocked it; theirs wait for accounts. Your
+   name is blue on the small cards, where "(you)" has no room. Only the
+   host sees the **gear**, a
    pop-up (two columns on a wide screen) with chips for the game (one
    row), answers, picture kind, silhouette, where songs start (Random or
    From the top), the OST's albums (Every song, or any of Vol.1-8; the

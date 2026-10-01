@@ -872,7 +872,11 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   players two to a row and centred, the page's right left for a chat,
   and the Customize card as every player's card in the lobby, the
   rounds and the standings (2026-10-01). Customize lists the titles as
-  rows and keeps the card in sight. _Built on `feat/room-cards`, off
+  rows and keeps the card in sight. Then: your own card in a room wears
+  your Customize look (read in your browser, nothing sent; others keep
+  the defaults until accounts), banners in the lobby and on the podium
+  only, smaller round cards, and every screen checked at 1920×1080, 945
+  and 911 with eight players. _Built on `feat/room-cards`, off
   `feat/profile`._
 - **A profile in normal mode** (asked for 2026-10-01): the player's own,
   from the saves, as no one else's numbers are involved: name, banner,

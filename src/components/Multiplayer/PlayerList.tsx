@@ -1,7 +1,7 @@
 import { pickName, places, seconds } from "../../helpers/roomView";
 import { PlayerView, RoomView } from "../../types/room";
 
-import { defaultLook, PlayerCard } from "../Profile/PlayerCard";
+import { PlayerCard, roomLook } from "../Profile/PlayerCard";
 import * as Card from "../Profile/card.styled";
 import { StudentIcon } from "../StudentIcon";
 
@@ -106,7 +106,7 @@ export function PlayerList({ view }: { view: RoomView }) {
         return (
           <li key={player.id}>
             <PlayerCard
-              look={defaultLook(player.name, player.icon)}
+              look={roomLook(player.name, player.icon, player.id === view.you)}
               variant="mini"
               face={(size) => (
                 <>

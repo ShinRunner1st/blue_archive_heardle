@@ -1,27 +1,8 @@
 import React from "react";
 
-import { cardTitle, pickedOf } from "../../helpers/cosmetics";
-import { pictureName } from "../../helpers/playerName";
-import { loadFavStudent } from "../../helpers/storage";
-
 import { ProfileBanner, WorkerPicture } from "./ProfileBanner";
 import { CardLook, Face } from "./PlayerCard";
 import * as Styled from "./index.styled";
-
-export type { CardLook };
-
-/** The card as the player has it now. */
-export function currentLook(): CardLook {
-  const title = cardTitle();
-  return {
-    name: pictureName() || "Sensei",
-    student: loadFavStudent(),
-    title: title.mission === undefined ? "Sensei" : title.name,
-    banner: pickedOf("banner"),
-    frame: pickedOf("frame"),
-    background: pickedOf("background"),
-  };
-}
 
 /**
  * The profile's head, as its mockup has it: the background scene across

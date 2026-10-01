@@ -21,8 +21,7 @@ import { Button } from "../Button";
 import { PopUp } from "../PopUp";
 
 import { ProfileBanner, WorkerPicture } from "./ProfileBanner";
-import { CardLook, PlayerCard } from "./PlayerCard";
-import { currentLook } from "./ProfileCard";
+import { CardLook, currentLook, PlayerCard } from "./PlayerCard";
 import { ProfileFrame } from "./ProfileFrame";
 import * as Styled from "./index.styled";
 

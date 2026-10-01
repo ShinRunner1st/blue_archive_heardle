@@ -2,7 +2,7 @@ import { pickName, places, standings } from "../../helpers/roomView";
 import { ClientMessage, OVER_MS, PlayerView, RoomView } from "../../types/room";
 
 import { Button } from "../Button";
-import { defaultLook, PlayerCard } from "../Profile/PlayerCard";
+import { PlayerCard, roomLook } from "../Profile/PlayerCard";
 import { StudentIcon } from "../StudentIcon";
 
 import { Avatar } from "./PlayerList";
@@ -85,9 +85,14 @@ export function Standings({ view, receivedAt, send, onLeave }: Props) {
               <Styled.PodiumSpot key={player.id} $place={at} $column={column}>
                 <Styled.PodiumCard $place={at}>
                   <PlayerCard
-                    look={defaultLook(player.name, player.icon)}
+                    look={roomLook(
+                      player.name,
+                      player.icon,
+                      player.id === view.you
+                    )}
                     variant="tall"
-                    faceSize={at === 1 ? 60 : 48}
+                    banner
+                    faceSize={at === 1 ? 52 : 44}
                     face={(size) => (
                       <>
                         <Avatar
@@ -123,7 +128,11 @@ export function Standings({ view, receivedAt, send, onLeave }: Props) {
           {rest.map((player) => (
             <li key={player.id}>
               <PlayerCard
-                look={defaultLook(player.name, player.icon)}
+                look={roomLook(
+                  player.name,
+                  player.icon,
+                  player.id === view.you
+                )}
                 variant="row"
                 face={(size) => (
                   <Avatar icon={player.icon} name={player.name} size={size} />

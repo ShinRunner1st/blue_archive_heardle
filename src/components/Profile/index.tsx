@@ -10,7 +10,8 @@ import { useServer } from "../../hooks/useServer";
 import { PopUp } from "../PopUp";
 
 import { CustomizePopUp } from "./Customize";
-import { currentLook, ProfileHero } from "./ProfileCard";
+import { currentLook } from "./PlayerCard";
+import { ProfileHero } from "./ProfileCard";
 import { ProfileFrame } from "./ProfileFrame";
 import * as Styled from "./index.styled";
 

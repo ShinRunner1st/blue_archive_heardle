@@ -273,9 +273,9 @@ const VARIANTS: Record<CardVariant, ReturnType<typeof css>> = {
     }
   `,
   mini: css`
-    gap: 8px;
-    height: 56px;
-    padding: 0 8px;
+    gap: 7px;
+    height: 44px;
+    padding: 0 6px 0 7px;
   `,
   tall: css`
     flex-direction: column;
@@ -288,12 +288,12 @@ const VARIANTS: Record<CardVariant, ReturnType<typeof css>> = {
   `,
   row: css`
     gap: 10px;
-    height: 46px;
+    height: 40px;
     padding: 0 12px;
   `,
 };
 
-export const Card = styled.div<{ $variant: CardVariant }>`
+export const Card = styled.div<{ $variant: CardVariant; $banner?: boolean }>`
   position: relative;
   isolation: isolate;
 
@@ -307,6 +307,14 @@ export const Card = styled.div<{ $variant: CardVariant }>`
   background-color: ${({ theme }) => theme.background1};
 
   ${({ $variant }) => VARIANTS[$variant]}
+
+  /* A tall card with its banner: taller by the banner. */
+  ${({ $variant, $banner }) =>
+    $variant === "tall" &&
+    $banner &&
+    css`
+      min-height: calc(var(--card-tall, 150px) + 34px);
+    `}
 `;
 
 /** The background scene, fading in from the card's left. */
@@ -321,7 +329,9 @@ export const CardScene = styled.div<{ $variant: CardVariant }>`
 
   img {
     z-index: 0;
-    opacity: 0.85;
+    /* Fainter on the small cards, so their words read over it. */
+    opacity: ${({ $variant }) =>
+      $variant === "mini" || $variant === "row" ? 0.45 : 0.85};
   }
 
   ${({ $variant }) =>
@@ -405,12 +415,16 @@ export const CardText = styled.div<{ $variant: CardVariant }>`
 
 const NAME_SIZE: Record<CardVariant, string> = {
   wide: "1.15rem",
-  mini: "0.85rem",
+  mini: "0.8rem",
   tall: "0.95rem",
   row: "0.9rem",
 };
 
-export const CardName = styled.span<{ $variant: CardVariant; $room?: boolean }>`
+export const CardName = styled.span<{
+  $variant: CardVariant;
+  $room?: boolean;
+  $you?: boolean;
+}>`
   box-sizing: border-box;
   max-width: 100%;
   overflow: hidden;
@@ -420,6 +434,7 @@ export const CardName = styled.span<{ $variant: CardVariant; $room?: boolean }>`
   font-size: ${({ $variant }) => NAME_SIZE[$variant]};
   font-weight: 900;
   line-height: 1.2;
+  color: ${({ $you }) => ($you ? "#9ccbff" : "inherit")};
   ${shadowText}
 
   /* Clear of the chip in the card's corner. */
@@ -447,8 +462,9 @@ export const CardLine = styled.span<{ $right?: boolean | null }>`
   text-overflow: ellipsis;
   white-space: nowrap;
 
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 800;
+  line-height: 1.2;
   color: ${({ $right }) =>
     $right === true ? "lightgreen" : $right === false ? "#ff8a8a" : "inherit"};
   ${shadowText}

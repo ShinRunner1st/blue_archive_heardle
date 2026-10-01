@@ -252,9 +252,11 @@ most, without a slow connection. A right answer is a point; a tie goes to
 the faster over their right answers, and a tie on both shares the place.
 After the last round come the standings, the top three on a podium, and
 every answer with who named it. Every player shows on the profile's card
-throughout (wide in the lobby, small in the rounds, stood up on the
-podium), with the student they picked and, until accounts, the default
-banner, frame and background. Each player goes back to the lobby when
+throughout (wide with the banner in the lobby, small in the rounds, stood
+up with the banner on the podium, a row under it), with the student they
+picked. Your own card wears your title, banner, frame and background from
+Customize, read in your browser and sent nowhere; everyone else's has the
+defaults until accounts. Each player goes back to the lobby when
 they like, the host staying host; the room is a lobby again once everyone
 has, or after 30 seconds.
 

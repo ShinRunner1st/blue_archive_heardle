@@ -339,12 +339,12 @@ export const Kick = styled.button<{ $armed: boolean }>`
 /** A player's score, big enough to read across the room at a glance. */
 export const CardScore = styled.span<{ $some: boolean }>`
   display: block;
-  min-width: 24px;
-  padding: 2px 5px;
+  min-width: 22px;
+  padding: 1px 5px;
 
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 900;
-  line-height: 1.4;
+  line-height: 1.35;
   font-variant-numeric: tabular-nums;
   text-align: center;
   color: ${({ $some }) => ($some ? "lightgreen" : "inherit")};
@@ -359,7 +359,7 @@ export const FaceMedal = styled.span`
   position: absolute;
   right: -6px;
   bottom: -5px;
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   line-height: 1;
 `;
 
@@ -1033,7 +1033,7 @@ export const PodiumSpot = styled.li<{
 
 /** The card on its block: the winner's a little taller. */
 export const PodiumCard = styled.div<{ $place: number }>`
-  --card-tall: ${({ $place }) => ($place === 1 ? 172 : 150)}px;
+  --card-tall: ${({ $place }) => ($place === 1 ? 140 : 124)}px;
 `;
 
 export const PodiumMedal = styled.span`
@@ -1078,16 +1078,22 @@ export const PodiumBlock = styled.span<{ $place: number }>`
     0 4px 12px rgba(0, 0, 0, 0.35);
 `;
 
-/** Fourth place and after, one row each. */
+/** Fourth place and after, a row each. */
 export const Places = styled.ol`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px 8px;
   box-sizing: border-box;
   width: 100%;
-  margin: 14px 0 0;
+  margin: 10px 0 0;
   padding: 0;
   list-style: none;
+
+  /* Two to a row where there's room, so eight players' standings keep
+     Back to the lobby on a 1080p screen. */
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 `;
 
 export const PlaceNo = styled.span<{ $right?: boolean }>`
