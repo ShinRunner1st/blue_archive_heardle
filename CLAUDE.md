@@ -395,6 +395,16 @@ songs` put the new files on the Worker and R2 first. About 0.3 KB gzipped
   new files on the audio Worker or R2. The page's CSP gained the rooms'
   `wss://` address, and the sitemap `/multiplayer` (send it again in
   Search Console).
+- **1 Oct 2026, page-check guard, scenes and previews released**
+  (fast-forward of `feat/page-previews`, stacked on `feat/multiplayer-scene`
+  and `ci/privacy-guard`, main 4a460a1): the page check fails on any cookie
+  or script not from the build, and `live-check.yml` runs it on
+  baheardle.com daily and after each deploy; the hub's Multiplayer card has
+  the arcade behind it and `/multiplayer` the Game Development Department's
+  room; each page has its own link preview, and the README a logo header.
+  Their three pictures were already on the Worker and R2. Five preview
+  pictures more on the site Worker (78 files), fetched only by link-preview
+  sites; no new files on R2, and about the same first load.
 
 ## Content files
 
