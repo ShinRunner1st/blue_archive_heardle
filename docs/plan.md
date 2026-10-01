@@ -163,9 +163,18 @@ All of Phase 2 (6 to 8: Jukebox, four-choice answers, time attack) is released. 
 ## Timed: seasonal touches
 
 9. **Seasonal touches** on set dates: Christmas and New Year backgrounds
-   and student birthdays (built), the Blue Archive anniversary. Pictures go on
-   the Worker (`pictures/`, see the README). Add a season to `SEASONS` in
+   and student birthdays (built). Pictures go on the Worker (`pictures/`,
+   see the README). Add a season to `SEASONS` in
    `src/constants/seasons.ts`.
+   - **Seasons all year** (agreed 2026-10-01): dated events with the
+     library between them, not a scene for every day (spring and autumn
+     flip in the southern hemisphere, which the game can't know). Both
+     anniversaries, JP's (1-7 Feb) and Global's (4-12 Nov), sharing a
+     theme park at night; Valentine's, cherry blossom, beach, summer
+     festival, Halloween (the night carnival by day too) and autumn leaves.
+     The calendar is in the README's Seasons. _Built on
+     `feat/seasons-year`, off `feat/page-previews`; 14 pictures, about
+     170 KB, for the Worker and R2._
 
 ## Phase 3: Badle (guess a student)
 
@@ -832,21 +841,32 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   domain settings, which can only point at a domain in the same project.
   Their DNS is on Cloudflare, so Vercel gets none of their traffic.
 
-## Still considering
+## Next
 
-- A short list of one-off missions.
-- Speech-bubble lines for the characters.
+- **Missions** (the user's next, after the seasons): a short list of
+  one-off missions, like the game's achievements, kept in the browser.
+- **Accounts** (decided 2026-10-01): the user chose real accounts, a
+  login (such as Discord or Google) to keep a player's data online and to
+  know who plays in multiplayer, over an anonymous sync code. To plan
+  after the missions: it ends the "no accounts, nothing leaves your
+  browser" promise in About and the README, needs a database (D1 has its
+  own free allowance, apart from the rooms'), a privacy policy, a way to
+  delete an account, and a login provider's script or redirect, which the
+  CSP and the page check must allow. Playing without an account stays.
 
 ## Always
 
 - Keep the song list current as new OSTs come out (`npm run songs`).
 - Keep the student table current after each Global update (`npm run
 students`).
-- Avoid leaderboards and accounts, even once multiplayer adds a server: they
-  break the privacy promise.
+- Avoid leaderboards: they need every player's scores on a server. (Accounts
+  were turned down here too until 2026-10-01; see "Accounts" in Next.)
 
 ## Turned down (don't suggest again)
 
+- Speech-bubble lines for the characters (2026-10-01): they would have to
+  be written new, and lines the game never had, out of their story,
+  wouldn't sound like the characters.
 - "We moved" notice and past daily puzzles: the old site had almost no players.
 - Lifetime "guessed" marks in All OST: its "Guessed" tag already marks this
   round's wrong guesses, so the two would clash.

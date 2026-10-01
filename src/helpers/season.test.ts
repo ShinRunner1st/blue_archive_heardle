@@ -33,6 +33,40 @@ describe("seasonOn", () => {
     expect(idOn(1, 8, 2027)).toBeNull();
   });
 
+  it("has a season for each time of year, on its dates", () => {
+    expect(idOn(1, 31)).toBeNull();
+    expect(idOn(2, 4)).toBe("jp-anniversary");
+    expect(idOn(2, 14)).toBe("valentine");
+    expect(idOn(2, 15)).toBeNull();
+    expect(idOn(3, 24)).toBeNull();
+    expect(idOn(4, 1)).toBe("cherry-blossom");
+    expect(idOn(4, 11)).toBeNull();
+    expect(idOn(7, 15)).toBe("beach");
+    expect(idOn(8, 11)).toBe("summer-festival");
+    expect(idOn(8, 26)).toBeNull();
+    expect(idOn(10, 31)).toBe("halloween");
+    expect(idOn(11, 1)).toBeNull();
+    expect(idOn(11, 8)).toBe("global-anniversary");
+    expect(idOn(11, 13)).toBe("autumn");
+    expect(idOn(12, 1)).toBeNull();
+  });
+
+  it("never has two seasons on one day", () => {
+    for (let day = 0; day < 366; day++) {
+      const date = new Date(2028, 0, 1 + day, 12);
+      const month = date.getMonth() + 1;
+      const today = month * 100 + date.getDate();
+      const matches = SEASONS.filter(({ from, to }) => {
+        const start = from[0] * 100 + from[1];
+        const end = to[0] * 100 + to[1];
+        return start <= end
+          ? today >= start && today <= end
+          : today >= start || today <= end;
+      });
+      expect(matches.length, date.toDateString()).toBeLessThanOrEqual(1);
+    }
+  });
+
   it("is no season the rest of the year", () => {
     expect(idOn(9, 28)).toBeNull();
     expect(idOn(6, 15)).toBeNull();
@@ -72,7 +106,7 @@ describe("season pictures", () => {
 
   it("dresses the home picture by day or by night", () => {
     vi.stubEnv("VITE_AUDIO_BASE_URL", "");
-    const christmas = SEASONS[0];
+    const christmas = SEASONS.find(({ id }) => id === "christmas")!;
     expect(homePicture(christmas, "light", "library.webp")).toBe(
       `/audio/${pictureFiles[christmas.day]}`
     );
@@ -88,7 +122,7 @@ describe("season pictures", () => {
 
 describe("homeName", () => {
   it("names the season's home, or the library out of season", () => {
-    expect(homeName(SEASONS[0])).toBe("the Christmas lodge");
+    expect(homeName(seasonOn(on(12, 25)))).toBe("the Christmas lodge");
     expect(homeName(null)).toBe("the Trinity library");
   });
 });

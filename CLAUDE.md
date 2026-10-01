@@ -277,8 +277,12 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   react to guesses and can be held, stroked and tapped. Wide screens only.
 - **Streak places**: every 10 wins in a row moves the background somewhere new
   in Kivotos, up to the sky at 100; a loss sends it back to the Trinity library.
-- **Seasons**: the home background becomes a Christmas lodge (18-26 Dec) or a
-  New Year shrine (31 Dec - 7 Jan), from the Worker (`src/constants/seasons.ts`).
+- **Seasons**: through the year the home background becomes the time of
+  year's scene: both anniversaries (JP 1-7 Feb, Global 4-12 Nov),
+  Valentine's, cherry blossom, beach, summer festival, Halloween, autumn
+  leaves, a Christmas lodge (18-26 Dec) and a New Year shrine (31 Dec -
+  7 Jan), the library between; from the Worker (`src/constants/seasons.ts`,
+  the README's calendar).
   Streak places still win from 10 wins. `?season=<id>` previews one in dev.
 - **OST badges**: Vol.1-8, earned by guessing every song on an album. In the
   ☰ menu.

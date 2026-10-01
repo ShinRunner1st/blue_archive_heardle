@@ -328,12 +328,29 @@ they need no more height than the OST, and every game fits a 1080p window.
   library. The places are listed in `src/constants/streakPlaces.ts`; their
   pictures are the game's scenario backgrounds, blurred and dimmed so the game
   reads over them.
-- **Seasons** - from 18 to 26 December the library becomes a lodge decorated
-  for Christmas, and from 31 December to 7 January a shrine at New Year, on
-  the player's own calendar. A streak place still shows from 10 wins, and a
-  lost streak goes back to the season's picture. The dates are in
+- **Seasons** - through the year the library gives way to a scene for the
+  time of year, on the player's own calendar:
+
+  | Season                          | Dates           | Scene (the game's background) |
+  | ------------------------------- | --------------- | ----------------------------- |
+  | JP anniversary (4 Feb 2021)     | 1-7 Feb         | `ThemeparkPlaza`              |
+  | Valentine's                     | 8-14 Feb        | `DessertCafe`                 |
+  | Cherry blossom                  | 25 Mar - 10 Apr | `HyakkayouranGarden`          |
+  | Beach                           | 15 Jul - 10 Aug | `BeachFestival`               |
+  | Summer festival                 | 11-25 Aug       | `HyakkiyakoFestivalRoad`      |
+  | Halloween                       | 24-31 Oct       | `Amusement_Night`             |
+  | Global anniversary (8 Nov 2021) | 4-12 Nov        | `ThemeparkPlaza`              |
+  | Autumn leaves                   | 13-30 Nov       | `ForestRoad2_Fall`            |
+  | Christmas                       | 18-26 Dec       | `FireplaceDormitory`          |
+  | New Year                        | 31 Dec - 7 Jan  | `NewYearFestival`             |
+
+  The night picture is the `_Night` background where there is one, or the
+  same one dimmed; Halloween's is night by day too. The anniversaries share
+  their pictures. A streak place still shows from 10 wins, and a lost
+  streak goes back to the season's picture. Multiplayer keeps its own. The dates are in
   `src/constants/seasons.ts`; the pictures are served from the Worker (see
   [Pictures on the Worker](#pictures-on-the-worker)).
+
 - **Multiplayer's room** - `/multiplayer` has a background of its own, the
   Game Development Department's room, by day or by night, whatever the date
   (`ROOMS_SCENE` in `src/components/Backdrop/`): the rooms have no streak to
@@ -664,8 +681,8 @@ Blue Archive wiki (`File:BG_<name>.jpg`), blurred and dimmed like the streak
 places (`GameDevRoom` and `GameDevRoom_Night` for multiplayer's, in
 `pictures/multiplayer/`, 24 KB for the pair). The game itself never asks the
 wiki for anything. `npm run dev` serves
-the pictures from `audio-dist/` too; add `?season=christmas` or
-`?season=new-year` to the address there to see a season on any day.
+the pictures from `audio-dist/` too; add `?season=<id>` (such as
+`?season=halloween`) to the address there to see a season on any day.
 
 `node scripts/make-card.mjs <BG name> <output.webp> [focus]` makes a hub
 card's picture the same way, sharp and cut to 720x320 (`focus`, 0 to 1,

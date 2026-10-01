@@ -48,6 +48,17 @@ export interface NewsUpdate {
  */
 export const WHATS_NEW: NewsUpdate[] = [
   {
+    id: "2026-10-seasons",
+    name: "Seasons all year",
+    items: [
+      {
+        icon: IoCalendar,
+        title: "Kivotos through the year",
+        text: "The background now dresses up for the time of year, not only Christmas and New Year: Valentine's, cherry blossom, the beach, a summer festival, Halloween, autumn leaves, and both servers' anniversaries. A streak place still wins from 10 wins in a row. Multiplayer has a room of its own, too.",
+      },
+    ],
+  },
+  {
     id: "2026-10-multiplayer",
     name: "Multiplayer",
     items: [
