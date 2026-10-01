@@ -1,0 +1,50 @@
+// Accounts (docs/accounts.md): sign-in with Google or Discord, accounts and
+// sessions, in the D1 database ba-heardle-accounts. Nothing deploys it yet:
+// sign-in is only on the dev server and the site's preview until the
+// accounts release. `npm run accounts` runs it locally, with a local copy of
+// the database and stand-ins for Google's and Discord's pages.
+//
+// To set it up on Cloudflare (the user, once):
+//   npx wrangler d1 create ba-heardle-accounts    (put its id below)
+//   npx wrangler d1 migrations apply ba-heardle-accounts --remote --config accounts-worker/wrangler.jsonc
+//   npx wrangler secret put STATE_KEY --config accounts-worker/wrangler.jsonc
+//   (and GOOGLE_CLIENT_SECRET, DISCORD_CLIENT_SECRET the same way)
+{
+  "name": "ba-heardle-accounts",
+  "main": "index.ts",
+  "compatibility_date": "2026-09-01",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ba-heardle-accounts",
+      // Replaced with the real id once the database is made; a local run
+      // keeps its own copy under .wrangler/ whatever this says.
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  // Not secret: the client ids are in every sign-in link. Empty until set up,
+  // and that provider's button then says sign-in isn't available.
+  "vars": {
+    "GOOGLE_CLIENT_ID": "",
+    "DISCORD_CLIENT_ID": ""
+  },
+  // Counted per address (hashed) a minute: sign-ins (starting one and
+  // swapping its code), and every other call.
+  "ratelimits": [
+    {
+      "name": "SIGN_IN_LIMIT",
+      "namespace_id": "1801",
+      "simple": { "limit": 10, "period": 60 }
+    },
+    {
+      "name": "API_LIMIT",
+      "namespace_id": "1802",
+      "simple": { "limit": 60, "period": 60 }
+    }
+  ],
+  // No logs or traces: a request's headers can hold a session token.
+  "observability": { "enabled": false },
+  "workers_dev": true,
+  "preview_urls": false
+}

@@ -1,7 +1,13 @@
 /// <reference types="vitest/config" />
 import { createReadStream, existsSync } from "node:fs";
 import { basename, join } from "node:path";
-import { defineConfig, type Connect, type Plugin } from "vite";
+import {
+  defineConfig,
+  loadEnv,
+  type Connect,
+  type Plugin,
+  type UserConfig,
+} from "vite";
 import react from "@vitejs/plugin-react";
 
 import {
@@ -97,7 +103,22 @@ const gamePages: Plugin = {
   },
 };
 
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  // The site's preview (`npm run deploy:site-preview`) is the production
+  // build with sign-in on: .env.production's addresses, and .env.preview's
+  // accounts Worker, which only it has until accounts are released
+  // (docs/accounts.md). Read first, as Vite reads the mode's own file only.
+  if (mode === "preview") {
+    for (const [key, value] of Object.entries(
+      loadEnv("production", process.cwd(), "VITE_")
+    )) {
+      process.env[key] ??= value;
+    }
+  }
+  return config;
+});
+
+const config: UserConfig = {
   plugins: [
     react(),
     gamePages,
@@ -160,4 +181,4 @@ export default defineConfig({
     include: ["src/**/*.test.ts"],
     restoreMocks: true,
   },
-});
+};

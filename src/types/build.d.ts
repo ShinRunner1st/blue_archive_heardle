@@ -13,4 +13,10 @@ interface ImportMetaEnv {
    * the one `npm run rooms` runs locally.
    */
   readonly VITE_ROOMS_URL?: string;
+  /**
+   * The accounts Worker (accounts-worker/). Set for the site's preview only
+   * (.env.preview) until accounts are released; the dev server uses the one
+   * `npm run accounts` runs locally. Without one, sign-in isn't shown.
+   */
+  readonly VITE_ACCOUNTS_URL?: string;
 }

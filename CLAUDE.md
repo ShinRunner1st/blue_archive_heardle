@@ -108,7 +108,16 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   (`src/helpers/server.ts`, Global for new players); each server has its own
   pools, daily schedules (`*_JP` seeds, only ever appended to) and saves
   (`.jp` keys, a `jp` field in the save file).
-- **Multiplayer rooms** on the one Worker that runs code, `ba-heardle-rooms`
+- **Accounts, in testing** (`docs/accounts.md`, approved; built a step at
+  a time, each only once the user approves it): `ba-heardle-accounts`
+  (`accounts-worker/`, logic in `src/accounts/`), a Worker with the D1
+  database of accounts, Google/Discord identities and sessions. Sign-in is
+  a redirect (no provider scripts, no cookies); the session token lives in
+  localStorage, travels only in an Authorization header, and is never
+  logged or put in an address. Off on baheardle.com: only the dev server
+  (`npm run accounts`, with stand-in sign-in pages) and the preview
+  (`--mode preview`, `.env.preview`) show the profile's Account tab.
+- **Multiplayer rooms** on the one other Worker that runs code, `ba-heardle-rooms`
   (`rooms-worker/`, `VITE_ROOMS_URL`): a SQLite-backed Durable Object per
   room, over a hibernating WebSocket, on the free plan's daily limits
   (100,000 requests, 100,000 rows written; they reset at 00:00 UTC and are
@@ -447,6 +456,7 @@ run seasons` (makes missing pictures from the backgrounds it names) and
 
 ```sh
 npm run dev          # local server
+npm run accounts     # the accounts Worker locally, for sign-in in dev
 npm test             # vitest
 npm run format:check && npm run lint && npm run typecheck && npm test && npm run build
 npm run check:pages  # after a build: every page on both servers in Chrome

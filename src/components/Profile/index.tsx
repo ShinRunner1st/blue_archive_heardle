@@ -1,6 +1,7 @@
 import React from "react";
 
 import { MISSIONS } from "../../constants/missions";
+import { accountsEnabled } from "../../helpers/accountFlag";
 import { BadgeProgress } from "../../helpers/badges";
 import { ProfileGame, profileStats } from "../../helpers/profileStats";
 import { SERVER_NAMES } from "../../types/server";
@@ -16,7 +17,23 @@ import { ProfileHero } from "./ProfileCard";
 import { ProfileFrame } from "./ProfileFrame";
 import * as Styled from "./index.styled";
 
-type Tab = "overview" | "ost" | "voice" | "picture" | "students" | "room";
+export type ProfileTab =
+  | "overview"
+  | "ost"
+  | "voice"
+  | "picture"
+  | "students"
+  | "room"
+  | "account";
+type Tab = ProfileTab;
+
+/**
+ * The Account tab's code, fetched only when it opens: where accounts are
+ * off (baheardle.com, until their release) nobody downloads it.
+ */
+const AccountPanel = React.lazy(() =>
+  import("./Account").then(({ AccountPanel }) => ({ default: AccountPanel }))
+);
 
 const TABS: Array<{ id: Tab; label: string; games: ProfileGame["id"][] }> = [
   { id: "overview", label: "Overview", games: [] },
@@ -25,6 +42,10 @@ const TABS: Array<{ id: Tab; label: string; games: ProfileGame["id"][] }> = [
   { id: "picture", label: "Picture", games: ["halo", "weapon"] },
   { id: "students", label: "Students", games: ["gameplay", "lore"] },
   { id: "room", label: "Multiplayer", games: [] },
+  // Only where accounts are on: the dev server and the site's preview.
+  ...(accountsEnabled()
+    ? [{ id: "account" as const, label: "Account", games: [] }]
+    : []),
 ];
 
 const percent = (won: number, played: number) =>
@@ -40,6 +61,8 @@ interface Props {
   onSenseiCard: () => void;
   /** Open on Customize, as Multiplayer does for the name and picture. */
   customize?: boolean;
+  /** The tab to open on: Account, when a sign-in has just come back. */
+  startTab?: ProfileTab;
 }
 
 /**
@@ -53,11 +76,14 @@ export default function ProfilePopUp({
   onClose,
   onSenseiCard,
   customize = false,
+  startTab = "overview",
 }: Props) {
   useMissionsVersion();
   const server = useServer();
   const stats = React.useMemo(() => profileStats(undefined, server), [server]);
-  const [tab, setTab] = React.useState<Tab>("overview");
+  const [tab, setTab] = React.useState<Tab>(
+    TABS.some(({ id }) => id === startTab) ? startTab : "overview"
+  );
   const [customizing, setCustomizing] = React.useState(customize);
 
   if (customizing) {
@@ -135,7 +161,11 @@ export default function ProfilePopUp({
       )}
     >
       <Styled.Page role="tabpanel" aria-label={shown.label}>
-        {tab === "overview" ? (
+        {tab === "account" ? (
+          <React.Suspense fallback={<Styled.Note>Loading…</Styled.Note>}>
+            <AccountPanel />
+          </React.Suspense>
+        ) : tab === "overview" ? (
           <Overview stats={stats} />
         ) : tab === "room" ? (
           <Styled.Tiles>

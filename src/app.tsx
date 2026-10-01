@@ -27,6 +27,7 @@ import { useVoiceGame } from "./hooks/useVoiceGame";
 import { useVoiceTimeAttack } from "./hooks/useVoiceTimeAttack";
 import { usePictureGame } from "./hooks/usePictureGame";
 import { usePictureTimeAttack } from "./hooks/usePictureTimeAttack";
+import { hasSignInReturn } from "./helpers/accountFlag";
 import { pictureRunsOf } from "./helpers/pictureTimeAttack";
 import { KIND_NAMES, PICTURE_MODE_NAMES } from "./helpers/pictureRounds";
 import { guessesForCharacter, isWon } from "./helpers/studentRounds";
@@ -443,9 +444,10 @@ function App() {
   // The profile, opened on its record or straight on Customize (from
   // Multiplayer, where the name and picture come from it). Its Sensei card
   // takes its place rather than piling on it, and gives it back on closing.
+  // A sign-in that just came back opens it on the Account tab, to finish.
   const [profileOpen, setProfileOpen] = React.useState<
-    "profile" | "customize" | null
-  >(null);
+    "profile" | "customize" | "account" | null
+  >(() => (hasSignInReturn() ? "account" : null));
   const isProfileOpen = profileOpen !== null;
   const openProfile = React.useCallback(() => setProfileOpen("profile"), []);
   const openCustomize = React.useCallback(
@@ -827,6 +829,7 @@ function App() {
             onClose={closeProfile}
             onSenseiCard={cardFromProfile}
             customize={profileOpen === "customize"}
+            startTab={profileOpen === "account" ? "account" : undefined}
           />
         </React.Suspense>
       )}

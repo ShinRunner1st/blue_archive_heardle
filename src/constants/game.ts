@@ -246,6 +246,20 @@ export const ROOM_RECORD_KEY = "roomRecord";
 export const ROOM_GAMES_KEY = "roomGames";
 
 /**
+ * localStorage key holding the accounts session token (docs/accounts.md,
+ * section 2). A credential: sent only in the Authorization header to the
+ * accounts Worker, never shown, logged, or put in an address or a save
+ * file. Not in the save file.
+ */
+export const ACCOUNT_SESSION_KEY = "account.session";
+
+/**
+ * sessionStorage key holding the nonce of a sign-in under way, checked when
+ * the page comes back, so nobody can sign a player in to their account.
+ */
+export const ACCOUNT_NONCE_KEY = "account.nonce";
+
+/**
  * localStorage key holding the format this browser's saves are in (see
  * helpers/saveFormat.ts); absent is format 1.
  */

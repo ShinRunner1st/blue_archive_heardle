@@ -519,7 +519,25 @@ on the preview) until step 6.
    games as a list, format 1 converted; the merge, tested on its own. No
    account yet; players notice nothing.
 1. **The accounts Worker:** D1 and its first migration, Google and Discord
-   sign-in, sessions, linking and unlinking, rate limits.
+   sign-in, sessions, linking and unlinking, rate limits. _Built on
+   `feat/accounts-worker` (README, "Accounts (in testing)"). Choices made
+   while building it, within the plan:_
+   - _The first migration has only this step's tables (accounts,
+     identities, sessions) and `sign_in_codes`, where the one-time code
+     the page comes back with is kept (hashed) for its minute; the
+     profile, progress and missions tables come with their steps._
+   - _One identity from each provider per account: linking a second
+     Google to an account that has one says so (`has`)._
+   - _No PKCE: the Worker is a confidential client (its secret never
+     leaves it), the `state` is signed and short-lived, and the page's
+     nonce stops a sign-in being slipped into someone else's page._
+   - _Rate limits: 10 sign-ins and 60 other calls a minute per address;
+     syncs get theirs with step 3._
+   - _The preview signs in against the Worker's workers.dev address for
+     now; `api.baheardle.com` comes with the release._
+   - _A local stand-in for Google's and Discord's pages (`npm run
+accounts`, localhost only), so the whole flow is tried without
+     their keys._
 2. **The profile in the account:** name, picture, cosmetics and the
    summary, synced from Customize.
 3. **Progress in the account:** the first sign-in's backups and merge,

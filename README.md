@@ -472,33 +472,34 @@ npm run dev           # http://localhost:3000
 `VITE_AUDIO_BASE_URL=https://ba-heardle-audio.shinrunner1st.workers.dev` in a
 `.env.local` file to play the deployed audio instead.
 
-| Script                        | What it does                                          |
-| ----------------------------- | ----------------------------------------------------- |
-| `npm run dev`                 | Start the dev server                                  |
-| `npm run build`               | Type-check, then build to `build/`                    |
-| `npm run preview`             | Serve the build as the live site does, headers too    |
-| `npm run deploy:site`         | Publish the build to Cloudflare (CI does, from main)  |
-| `npm run deploy:site-preview` | Build this branch and publish it to the preview       |
-| `npm run rooms`               | Run the multiplayer rooms locally, for `npm run dev`  |
-| `npm run deploy:rooms`        | Publish the rooms Worker (CI does, from main)         |
-| `npm test`                    | Run the test suite                                    |
-| `npm run lint`                | ESLint, warnings included                             |
-| `npm run typecheck`           | `tsc --noEmit`, the site's and the rooms Worker's     |
-| `npm run format`              | Rewrite files with Prettier                           |
-| `npm run songs`               | After adding songs: everything below, in order        |
-| `npm run students`            | After a Global update: students, voices, then `songs` |
-| `npm run voices`              | The voice lines and silhouettes, then `songs`         |
-| `npm run build:students`      | Copy the student data and draw the icon sheet         |
-| `npm run build:voices`        | Pick and download new voice lines, draw silhouettes   |
-| `npm run build:voice-tones`   | Find the voices that sound alike, for 4-Choice        |
-| `npm run build:voice-audio`   | Put the voice lines in beside the audio               |
-| `npm run build:daily-order`   | Extend the daily schedule                             |
-| `npm run build:audio`         | Build the served audio from `audio/`                  |
-| `npm run build:pictures`      | Copy `pictures/` in beside the audio                  |
-| `npm run upload:audio`        | Upload the audio and pictures to Cloudflare           |
-| `npm run upload:backup`       | Copy new files to the backup on Cloudflare R2         |
-| `npm run check:audio`         | Check the served audio is complete                    |
-| `npm run check:pictures`      | Check the served pictures are up to date              |
+| Script                        | What it does                                                 |
+| ----------------------------- | ------------------------------------------------------------ |
+| `npm run dev`                 | Start the dev server                                         |
+| `npm run build`               | Type-check, then build to `build/`                           |
+| `npm run preview`             | Serve the build as the live site does, headers too           |
+| `npm run deploy:site`         | Publish the build to Cloudflare (CI does, from main)         |
+| `npm run deploy:site-preview` | Build this branch, sign-in on, and publish it to the preview |
+| `npm run rooms`               | Run the multiplayer rooms locally, for `npm run dev`         |
+| `npm run accounts`            | Run the accounts Worker locally, sign-in stand-ins and all   |
+| `npm run deploy:rooms`        | Publish the rooms Worker (CI does, from main)                |
+| `npm test`                    | Run the test suite                                           |
+| `npm run lint`                | ESLint, warnings included                                    |
+| `npm run typecheck`           | `tsc --noEmit`, the site's and both Workers'                 |
+| `npm run format`              | Rewrite files with Prettier                                  |
+| `npm run songs`               | After adding songs: everything below, in order               |
+| `npm run students`            | After a Global update: students, voices, then `songs`        |
+| `npm run voices`              | The voice lines and silhouettes, then `songs`                |
+| `npm run build:students`      | Copy the student data and draw the icon sheet                |
+| `npm run build:voices`        | Pick and download new voice lines, draw silhouettes          |
+| `npm run build:voice-tones`   | Find the voices that sound alike, for 4-Choice               |
+| `npm run build:voice-audio`   | Put the voice lines in beside the audio                      |
+| `npm run build:daily-order`   | Extend the daily schedule                                    |
+| `npm run build:audio`         | Build the served audio from `audio/`                         |
+| `npm run build:pictures`      | Copy `pictures/` in beside the audio                         |
+| `npm run upload:audio`        | Upload the audio and pictures to Cloudflare                  |
+| `npm run upload:backup`       | Copy new files to the backup on Cloudflare R2                |
+| `npm run check:audio`         | Check the served audio is complete                           |
+| `npm run check:pictures`      | Check the served pictures are up to date                     |
 
 A pre-commit hook runs the format check, lint and type-check, and commit
 messages follow [Conventional Commits](https://www.conventionalcommits.org/).
@@ -877,6 +878,54 @@ and message flows, with what each costs, are in
   Durable Object class (migration `v1` in `rooms-worker/wrangler.jsonc`).
   The rooms deal from the song list, voice lines and pictures they were
   built with, so one added to the site reaches them with the same release.
+
+### Accounts (in testing)
+
+Sign-in with Google or Discord, being built step by step (the plan,
+approved, is `docs/accounts.md`). **Off on baheardle.com**: only the dev
+server and the site's preview have an accounts Worker to sign in with, so
+only they show the profile's **Account** tab. Nothing is kept in an
+account yet; progress stays in the browser.
+
+- **The Worker**, `ba-heardle-accounts` (`accounts-worker/`, its requests
+  in `src/accounts/api.ts`), with the D1 database `ba-heardle-accounts`
+  (`accounts-worker/migrations/`). Built so far: Google and Discord
+  sign-in, an account made on the first and found after, sessions,
+  linking the other provider (one of each) and unlinking (never the last),
+  signing out, and rate limits (10 sign-ins and 60 other calls a minute
+  per address, hashed).
+- **Signing in** is a redirect, never a script of theirs on our pages: the
+  page goes to the Worker, which sends it to Google or Discord with a
+  signed `state` (the page's nonce, the page to come back to); their
+  answer comes back to the Worker, which keeps only the person's id there
+  (Google's `sub` from scope `openid`, Discord's id from `identify`), and
+  sends the page back with a one-time code in the address's `#` part. The
+  page takes it out of the address before anything draws
+  (`src/helpers/accountFlag.ts`), checks the nonce is its own, and swaps
+  the code for a session token (`src/helpers/accountClient.ts`, loaded
+  with the Account tab only).
+- **The session token** is kept in localStorage and sent only in an
+  `Authorization` header to the Worker; D1 keeps its SHA-256. Never in an
+  address, a log (the Worker's logs are off), the page or a save file. No
+  cookies anywhere, and the site's Content-Security-Policy (its own
+  scripts only) is what keeps the token from other scripts.
+- **Locally**, `npm run accounts` applies the migrations to a local copy of
+  the database (the first time it asks to continue: yes) and runs the
+  Worker at `http://localhost:8788`, where `npm run dev` looks for it.
+  It stands in for Google's and Discord's pages with one of its own (pick
+  a name; the same name is the same account), so it all works without
+  them. The stand-in is only ever on localhost.
+- **The preview** is built in Vite's `preview` mode (`.env.preview`, which
+  adds the accounts address to production's), so it signs in against the
+  deployed Worker; the production build has no accounts address.
+- **Tested** against the real migrations on Node's own SQLite
+  (`src/test/fakeD1.ts`): sign-in, one-time codes, forged or stale
+  `state`, linking and unlinking, sessions running out and being pushed
+  back, and Google's and Discord's answers.
+- **Setting it up on Cloudflare** (the user, once): the steps are at the
+  top of `accounts-worker/wrangler.jsonc`. Each provider needs its
+  callback address registered, `<worker>/auth/google/callback` and
+  `<worker>/auth/discord/callback`.
 
 ### The game's files
 

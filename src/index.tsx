@@ -12,6 +12,7 @@ import {
 import { stopPictureDrags } from "./helpers/noPictureDrag";
 import { playOneAtATime } from "./helpers/onePlayer";
 import { upgradeSaves } from "./helpers/saveFormat";
+import { takeSignInReturn } from "./helpers/accountFlag";
 import { useColorScheme } from "./hooks/useColorScheme";
 import App from "./app";
 import "./index.css";
@@ -37,6 +38,8 @@ function Root() {
 
 // Before anything reads the saves: rounds from before ids get theirs, once.
 upgradeSaves();
+// A sign-in's one-time code out of the address before anything draws.
+takeSignInReturn();
 
 // Before the first paint, so the right cursor shows from the start. The
 // effects run outside React, on their own canvas.

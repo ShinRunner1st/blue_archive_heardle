@@ -193,6 +193,99 @@ export const BadgeFill = styled.div<{ $done: boolean }>`
   border-radius: inherit;
 `;
 
+/** The Account tab (only where accounts are on). */
+export const AccountPanel = styled.section`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 560px;
+`;
+
+export const AccountLead = styled.p`
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 700;
+`;
+
+export const AccountButtons = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
+
+export const AccountButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 16px;
+
+  font-family: "Nunito Sans Variable";
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: ${({ theme }) => theme.text};
+
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background-color: ${({ theme }) => theme.blue};
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
+
+  svg {
+    font-size: 1.1rem;
+  }
+`;
+
+export const AccountRows = styled.ul`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+`;
+
+export const AccountRow = styled.li`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+
+  background-color: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+
+  & > svg {
+    flex-shrink: 0;
+    font-size: 1.4rem;
+  }
+`;
+
+export const AccountProvider = styled.span`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  font-weight: 800;
+
+  span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    opacity: 0.7;
+  }
+`;
+
 export const SubHeading = styled.h4`
   margin: 14px 0 6px;
   font-size: 0.88rem;
