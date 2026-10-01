@@ -856,20 +856,31 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   the play area centred again on the hub and Multiplayer after Students;
   Shiroko's and Aris's faces. _Built on `fix/room-feedback`, off
   `feat/characters`._
-- **A new lobby and player card** (asked for 2026-10-01): mockups first,
-  two or three for the user to pick from, then the one chosen. The card
-  keeps room for what accounts bring (below): a banner, a background and
-  a border.
-- **Profiles and room cosmetics** (asked for 2026-10-01), **with
-  accounts**: tapping a player's card opens their profile (missions
-  cleared and title, multiplayer games and wins, the Sensei card's
-  records, favourite student), and cards show cosmetics unlocked by
-  missions: a **banner** (their title on a pill with a background), a
-  **card background** (a Kivotos scene, small pictures on the Worker and
-  R2 like the hub's, fetched only when a card shows one) and a **card
-  border**. The user chose to wait for accounts (2026-10-01): without
-  them a room can check an item exists but not that its player unlocked
-  it, and a profile's numbers come from the player's own browser.
+- **A new lobby** (asked for 2026-10-01): of three mockups (a roster
+  grid, a split panel, a formation like the game's squad screen) the
+  user picked the split panel: the room's code, settings a row each
+  with an icon, and Leave and Start on the left; wide player cards, two
+  to a row, on the right. _Built on `feat/lobby-redesign`, off
+  `fix/room-feedback`._ The cards keep room for the cosmetics below.
+- **A profile in normal mode** (asked for 2026-10-01): the player's own,
+  from the saves, as no one else's numbers are involved: name, banner,
+  favourite student, days played, totals, a row per game (rounds, won,
+  best streak, average tries, best Time Attack or fastest find), the
+  OST's daily guess spread, badges and missions; and **Customize**, to
+  pick the banner, border and background unlocked, with the card's
+  preview. Mocked up on the canvas; to build once the user approves.
+- **Cosmetics** (asked for 2026-10-01), unlocked by missions and shown on
+  the player's own profile first: a **banner**, the title on a slanted
+  strip with a picture or a foil behind it (not only a coloured pill); a
+  **card border** drawn in code with ornaments on the corners, glows or
+  gradients (gold filigree, sakura, arcade neon, halo, prism), not only
+  a colour; a **card background**, a Kivotos scene (small pictures on the
+  Worker and R2 like the hub's, fetched only when a card shows one).
+- **Other players' profiles and cosmetics in rooms, with accounts**:
+  tapping a card opens their profile, and cards show their cosmetics.
+  The user chose to wait for accounts (2026-10-01): without them a room
+  can check an item exists but not that its player unlocked it, and a
+  profile's numbers come from the player's own browser.
 - **Missions for the new rewards**: more missions, so each banner,
   background and border has one to unlock it, in `missions.json` and
   `cosmetics.json` as now; ids never renamed. With the cosmetics above.
