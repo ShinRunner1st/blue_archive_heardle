@@ -1,20 +1,33 @@
 import React from "react";
-import { IoSettingsSharp } from "react-icons/io5";
+import {
+  IoChatbubbleEllipses,
+  IoDisc,
+  IoEnter,
+  IoGameController,
+  IoGlobe,
+  IoKey,
+  IoLayers,
+  IoList,
+  IoLockClosed,
+  IoPlay,
+  IoTimer,
+} from "react-icons/io5";
 
 import { PAGES } from "../../constants/pages";
 import { roomLink, saveRoomSettings } from "../../helpers/roomClient";
-import { settingsSummary } from "../../helpers/roomView";
+import { SettingRow, settingsRows } from "../../helpers/roomView";
 import {
   ClientMessage,
   IDLE_MS,
   IDLE_WARN_MS,
   MIN_PLAYERS,
+  RoomAccess,
   RoomView,
 } from "../../types/room";
 
 import { Button } from "../Button";
 
-import { PlayerList } from "./PlayerList";
+import { Avatar } from "./PlayerList";
 import { SettingsPopUp } from "./SettingsPopUp";
 import * as Styled from "./index.styled";
 import { useNow, useTickAt } from "./useRoomClock";
@@ -28,11 +41,34 @@ interface Props {
 
 /** How long a copy button shows it worked. */
 const COPIED_MS = 2000;
+/** How long Kick waits for its second press. */
+const CONFIRM_MS = 3000;
+
+const ROW_ICONS: Record<
+  Exclude<SettingRow["key"], "access">,
+  React.ComponentType
+> = {
+  game: IoGameController,
+  albums: IoDisc,
+  lines: IoChatbubbleEllipses,
+  answers: IoList,
+  rounds: IoLayers,
+  time: IoTimer,
+  start: IoPlay,
+  server: IoGlobe,
+};
+
+const ACCESS_ICONS: Record<RoomAccess, React.ComponentType> = {
+  open: IoEnter,
+  password: IoKey,
+  locked: IoLockClosed,
+};
 
 /**
- * A room before its game: the code to share, the settings in a few words
- * (the host changes them, and who can join, in a pop-up), and everyone who
- * has joined, with the places still free; the host can kick a player. A
+ * A room before its game: on the left its panel, the code to share, the
+ * settings a row each (the host changes them, and who can join, in a
+ * pop-up) and Start; on the right everyone who has joined, with the
+ * places still free, and for the host a Kick on everyone else's card. A
  * lobby where nothing happens for IDLE_MS closes, with a warning for its
  * last minute.
  */
@@ -81,7 +117,6 @@ export function Lobby({ view, receivedAt, send, onLeave }: Props) {
     PAGES.multiplayer.path,
     view.code
   );
-  const summary = settingsSummary(settings);
 
   return (
     <>
@@ -107,83 +142,80 @@ export function Lobby({ view, receivedAt, send, onLeave }: Props) {
           </Styled.IdleNote>
         )}
       </Styled.Toasts>
-      <Styled.Title>Room</Styled.Title>
-      <Styled.CodeCard aria-label="Room code">
-        <Styled.CodeBlock>
-          <Styled.CodeLabel>
-            Room code
-            {view.access === "password"
-              ? " · 🔑 password"
-              : view.access === "locked"
-              ? " · 🔒 locked"
-              : ""}
-          </Styled.CodeLabel>
-          <Styled.CodeText
-            aria-label={`Room code ${view.code.split("").join(" ")}`}
-          >
-            {view.code}
-          </Styled.CodeText>
-        </Styled.CodeBlock>
-        <Styled.CopyRow>
-          <Styled.Small
-            type="button"
-            $strong={copied === "code"}
-            onClick={() => copy(view.code, "code")}
-          >
-            {copied === "code" ? "Copied ✓" : "Copy code"}
-          </Styled.Small>
-          <Styled.Small
-            type="button"
-            $strong={copied === "link"}
-            onClick={() => copy(link, "link")}
-          >
-            {copied === "link" ? "Copied ✓" : "Copy link"}
-          </Styled.Small>
-        </Styled.CopyRow>
-      </Styled.CodeCard>
 
-      <Styled.Summary aria-label="Room settings">
-        <Styled.Pills>
-          {summary.map((part, index) => (
-            <Styled.Pill key={part} $lead={index === 0}>
-              {part}
-            </Styled.Pill>
-          ))}
-        </Styled.Pills>
-        {isHost && !early && (
-          <Styled.IconButton
-            type="button"
-            $small
-            aria-label="Room settings"
-            title="Room settings"
-            onClick={() => setEditing(true)}
-          >
-            <IoSettingsSharp aria-hidden="true" />
-          </Styled.IconButton>
-        )}
-      </Styled.Summary>
+      <Styled.LobbyLayout>
+        <Styled.RoomPanel aria-label="Room">
+          <Styled.PanelCode>
+            <Styled.CodeLabel>Room code</Styled.CodeLabel>
+            <Styled.BigCode
+              aria-label={`Room code ${view.code.split("").join(" ")}`}
+            >
+              {view.code}
+            </Styled.BigCode>
+          </Styled.PanelCode>
+          <Styled.CopyRow>
+            <Styled.Small
+              type="button"
+              $strong={copied === "code"}
+              onClick={() => copy(view.code, "code")}
+            >
+              {copied === "code" ? "Copied ✓" : "Copy code"}
+            </Styled.Small>
+            <Styled.Small
+              type="button"
+              $strong={copied === "link"}
+              onClick={() => copy(link, "link")}
+            >
+              {copied === "link" ? "Copied ✓" : "Copy link"}
+            </Styled.Small>
+          </Styled.CopyRow>
 
-      <PlayerList
-        view={view}
-        lobby
-        onKick={isHost ? (id) => send({ t: "kick", id }) : undefined}
-      />
+          <Styled.SettingList aria-label="Room settings">
+            {settingsRows(settings, view.access).map((row) => {
+              const Icon =
+                row.key === "access"
+                  ? ACCESS_ICONS[view.access]
+                  : ROW_ICONS[row.key];
+              return (
+                <Styled.SettingItem key={row.key}>
+                  <Styled.SettingIcon aria-hidden="true">
+                    <Icon />
+                  </Styled.SettingIcon>
+                  <Styled.SettingLabel>{row.label}</Styled.SettingLabel>
+                  <Styled.SettingValue>{row.value}</Styled.SettingValue>
+                </Styled.SettingItem>
+              );
+            })}
+          </Styled.SettingList>
 
-      <Styled.Buttons>
-        <Button stroke variant="orange" onClick={onLeave}>
-          Leave
-        </Button>
-        {isHost && (
-          <Button
-            stroke
-            variant="green"
-            onClick={() => send({ t: "start" })}
-            disabled={!canStart}
-          >
-            Start
+          {isHost && !early && (
+            <Styled.Small type="button" onClick={() => setEditing(true)}>
+              Change settings
+            </Styled.Small>
+          )}
+        </Styled.RoomPanel>
+
+        <LobbyPlayers
+          view={view}
+          onKick={isHost ? (id) => send({ t: "kick", id }) : undefined}
+        />
+
+        <Styled.LobbyButtons>
+          <Button stroke variant="orange" onClick={onLeave}>
+            Leave
           </Button>
-        )}
-      </Styled.Buttons>
+          {isHost && (
+            <Button
+              stroke
+              variant="green"
+              onClick={() => send({ t: "start" })}
+              disabled={!canStart}
+            >
+              Start
+            </Button>
+          )}
+        </Styled.LobbyButtons>
+      </Styled.LobbyLayout>
 
       {editing && (
         <SettingsPopUp
@@ -203,5 +235,94 @@ export function Lobby({ view, receivedAt, send, onLeave }: Props) {
         />
       )}
     </>
+  );
+}
+
+/**
+ * Everyone in the room as wide cards, in the order they came, and the
+ * places still free. For the host, a Kick on everyone else's, pressed
+ * twice.
+ */
+function LobbyPlayers({
+  view,
+  onKick,
+}: {
+  view: RoomView;
+  onKick?: (id: string) => void;
+}) {
+  const free = Math.max(0, view.settings.maxPlayers - view.players.length);
+  const [arming, setArming] = React.useState<string | null>(null);
+  React.useEffect(() => {
+    if (!arming) return;
+    const timer = window.setTimeout(() => setArming(null), CONFIRM_MS);
+    return () => window.clearTimeout(timer);
+  }, [arming]);
+
+  return (
+    <Styled.LobbyPlayers aria-label="Players">
+      <Styled.PlayersHead>
+        Players{" "}
+        <span>
+          {view.players.length}/{view.settings.maxPlayers}
+        </span>
+      </Styled.PlayersHead>
+      <Styled.LobbyGrid>
+        {view.players.map((player) => {
+          const isYou = player.id === view.you;
+          const isHost = player.id === view.host;
+          // Back from the standings early, or still on them.
+          const onResults = view.phase === "over" && !player.returned;
+          return (
+            <Styled.LobbyCard key={player.id} $you={isYou} $away={!player.here}>
+              <Avatar icon={player.icon} name={player.name} size={60} />
+              <Styled.LobbyCardText>
+                <Styled.LobbyName title={player.name}>
+                  {player.name} {isYou && <small>(you)</small>}
+                </Styled.LobbyName>
+                <Styled.LobbyState
+                  $host={isHost && player.here}
+                  $ready={!isHost && player.here && !onResults}
+                >
+                  {!player.here
+                    ? "Away"
+                    : isHost
+                    ? "👑 Host"
+                    : onResults
+                    ? "On the results"
+                    : "Ready"}
+                </Styled.LobbyState>
+              </Styled.LobbyCardText>
+              {onKick && !isYou && (
+                <Styled.CardKick
+                  type="button"
+                  $armed={arming === player.id}
+                  aria-label={
+                    arming === player.id
+                      ? `Tap again to kick ${player.name}`
+                      : `Kick ${player.name}`
+                  }
+                  onClick={() => {
+                    if (arming === player.id) {
+                      setArming(null);
+                      onKick(player.id);
+                    } else {
+                      setArming(player.id);
+                    }
+                  }}
+                >
+                  {arming === player.id ? "Kick?" : "✕"}
+                </Styled.CardKick>
+              )}
+            </Styled.LobbyCard>
+          );
+        })}
+        {Array.from({ length: free }, (_, index) => (
+          <Styled.LobbyCard key={`free-${index}`} $empty aria-hidden="true">
+            <Styled.FreeCircle>+</Styled.FreeCircle>
+            <Styled.LobbyName>Free place</Styled.LobbyName>
+          </Styled.LobbyCard>
+        ))}
+      </Styled.LobbyGrid>
+    </Styled.LobbyPlayers>
   );
 }

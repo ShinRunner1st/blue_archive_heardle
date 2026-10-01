@@ -198,10 +198,11 @@ can pick the settings before making the room (the gear beside Make a
 room), and keep any as a named preset in the browser (twenty at most, in
 a list that scrolls; the same settings saved again rename theirs). A
 preset's ⧉ copies it as a short code (`BA2.ost.choice.10.20.…`; an
-older `BA1` one still reads) for a friend, who pastes it in with Import. The lobby shows the settings in a
-few words; only the host changes them, in the same pop-up (the lobby's
-gear), which sends them once, on Save: OST, Voice or Picture (halos or
-weapons, silhouettes or not), typed answers or 4-Choice, 5 to 30 rounds,
+older `BA1` one still reads) for a friend, who pastes it in with Import.
+The lobby has a panel with the code and the settings, a row each, beside
+wide cards for the players; only the host changes the settings, in the
+same pop-up (Change settings), which sends them once, on Save: OST,
+Voice or Picture (halos or weapons, silhouettes or not), typed answers or 4-Choice, 5 to 30 rounds,
 5 to 40 seconds to answer, where each song starts (anywhere, or the top),
 the OST albums to deal from (any number of Vol.1-8, or every song; a few
 albums may make a shorter game), all lines or title calls only for Voice,

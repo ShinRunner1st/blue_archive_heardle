@@ -22,12 +22,17 @@ README's Multiplayer and Multiplayer rooms sections have the rest.
    couldn't be joined, Reconnecting, "press Leave to go", the idle
    warning) float over the top of the screen and move nothing, and each
    screen starts scrolled to its top.
-2. **Lobby.** The room's code, big ("Room code · 🔑 password" or "· 🔒
-   locked" over it when it isn't open), with Copy code and Copy link on
-   one row (each says "Copied ✓" for a moment); the settings in a few
-   words ("OST · Typed · 10 songs · 20s each · random start · up to 8
-   players"); a card for each player with their picture, the host's
-   crown, and the places still free. Only the host sees the **⚙**, a
+2. **Lobby.** A panel on the left: the room's code, big, with Copy
+   code and Copy link on one row (each says "Copied ✓" for a moment),
+   then the settings a row each with an icon (game, the OST's albums or
+   Voice's lines, answers, how many, time to answer, where songs start or
+   the server, who can join), and Leave and Start under it. On the right,
+   "Players 4/8" and a wide card for each, two to a row: their picture,
+   name, "(you)", Host, Ready or Away, and the places still free. On a
+   phone it's one column, the buttons last; where the character stands
+   beside the game, the lobby starts at the play area's left edge and
+   grows to the right, clear of her. Only the host sees **Change
+   settings**, a
    pop-up (two columns on a wide screen) with chips for the game (one
    row), answers, picture kind, silhouette, where songs start (Random or
    From the top), the OST's albums (Every song, or any of Vol.1-8; the

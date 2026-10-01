@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 
 import { DEFAULT_ROOM_SETTINGS, PlayerView } from "../types/room";
-import { pickName, places, settingsSummary, standings } from "./roomView";
+import {
+  pickName,
+  places,
+  settingsRows,
+  settingsSummary,
+  standings,
+} from "./roomView";
 
 function player(id: string, score: number, time: number): PlayerView {
   return {
@@ -38,6 +44,47 @@ describe("places", () => {
   it("puts everyone first before anyone scores", () => {
     const place = places([player("a", 0, 0), player("b", 0, 0)]);
     expect([...place.values()]).toEqual([1, 1]);
+  });
+});
+
+describe("settingsRows", () => {
+  const rows = (...args: Parameters<typeof settingsRows>) =>
+    settingsRows(...args).map(({ label, value }) => `${label}: ${value}`);
+
+  it("lists the OST's own settings, and who can join", () => {
+    expect(
+      rows({ ...DEFAULT_ROOM_SETTINGS, albums: [1, 3] }, "password")
+    ).toEqual([
+      "Game: OST",
+      "Albums: Vol.1, Vol.3",
+      "Answers: Typed",
+      "How many songs: 10",
+      "Time to answer: 20s",
+      "Songs start: Random",
+      "Who can join: Password",
+    ]);
+  });
+
+  it("lists Voice's lines and a picture game's server", () => {
+    expect(
+      rows({ ...DEFAULT_ROOM_SETTINGS, game: "voice", lines: "titles" })
+    ).toContain("Lines: Title calls");
+    expect(
+      rows({
+        ...DEFAULT_ROOM_SETTINGS,
+        game: "picture",
+        picture: "weapon",
+        silhouette: true,
+        server: "jp",
+      })
+    ).toEqual([
+      "Game: Weapon silhouettes",
+      "Answers: Typed",
+      "How many weapons: 10",
+      "Time to answer: 20s",
+      "Server: JP",
+      "Who can join: Open",
+    ]);
   });
 });
 

@@ -65,6 +65,101 @@ export function settingsSummary(
   ];
 }
 
+/** One of the settings as the lobby's panel lists it. */
+export interface SettingRow {
+  /** Names the row's icon, and keys it. */
+  key:
+    | "game"
+    | "albums"
+    | "lines"
+    | "answers"
+    | "rounds"
+    | "time"
+    | "start"
+    | "server"
+    | "access";
+  label: string;
+  value: string;
+}
+
+const ACCESS_ROWS: Record<RoomAccess, string> = {
+  open: "Open",
+  password: "Password",
+  locked: "Locked",
+};
+
+/**
+ * The settings a row each, as the lobby's panel lists them: only the
+ * game's own (albums for the OST, lines for Voice), then who can join.
+ * Not the most players: the free places show it.
+ */
+export function settingsRows(
+  settings: RoomSettings,
+  access: RoomAccess = "open"
+): SettingRow[] {
+  const { game } = settings;
+  const rows: SettingRow[] = [
+    {
+      key: "game",
+      label: "Game",
+      value:
+        game === "ost"
+          ? "OST"
+          : game === "voice"
+          ? "Voice"
+          : `${settings.picture === "halo" ? "Halo" : "Weapon"}${
+              settings.silhouette ? " silhouettes" : "s"
+            }`,
+    },
+  ];
+  if (game === "ost") {
+    rows.push({
+      key: "albums",
+      label: "Albums",
+      value: settings.albums.length
+        ? settings.albums.map((album) => `Vol.${album}`).join(", ")
+        : "Every song",
+    });
+  }
+  if (game === "voice") {
+    rows.push({
+      key: "lines",
+      label: "Lines",
+      value: settings.lines === "titles" ? "Title calls" : "All lines",
+    });
+  }
+  rows.push(
+    {
+      key: "answers",
+      label: "Answers",
+      value: settings.answers === "choice" ? "4-Choice" : "Typed",
+    },
+    {
+      key: "rounds",
+      label: `How many ${roundsName(settings)}`,
+      value: String(settings.rounds),
+    },
+    {
+      key: "time",
+      label: "Time to answer",
+      value: `${settings.guessSeconds}s`,
+    },
+    game === "ost"
+      ? {
+          key: "start",
+          label: "Songs start",
+          value: settings.start === "start" ? "From the top" : "Random",
+        }
+      : {
+          key: "server",
+          label: "Server",
+          value: SERVER_NAMES[settings.server],
+        },
+    { key: "access", label: "Who can join", value: ACCESS_ROWS[access] }
+  );
+  return rows;
+}
+
 /** An answer as players read it: a song's name, or a student's. */
 export function pickName(settings: RoomSettings, pick: Pick): string {
   if (pick === null) return "Skipped";

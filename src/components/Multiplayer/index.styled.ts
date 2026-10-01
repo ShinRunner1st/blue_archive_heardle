@@ -254,30 +254,6 @@ export const IconRow = styled.div`
   flex-wrap: wrap;
 `;
 
-/** The room's code, big enough to read out across a table, and its buttons. */
-export const CodeCard = styled.section`
-  ${panel}
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px 16px;
-  padding: 12px 16px;
-
-  @media (max-width: 480px) {
-    flex-direction: column;
-  }
-`;
-
-export const CodeBlock = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-
-  @media (max-width: 480px) {
-    align-items: center;
-  }
-`;
-
 export const CodeLabel = styled.span`
   font-size: 0.75rem;
   font-weight: 800;
@@ -299,16 +275,6 @@ export const CopyRow = styled.div`
   display: flex;
   flex-wrap: nowrap;
   gap: 8px;
-`;
-
-/** The settings in a few words, with the host's gear to change them. */
-export const Summary = styled.section`
-  ${panel}
-  display: flex;
-  align-items: flex-start;
-  gap: 10px 12px;
-  margin-top: 10px;
-  padding: 12px 14px;
 `;
 
 export const Pills = styled.ul`
@@ -1322,4 +1288,232 @@ export const Nobody = styled.span`
   font-size: 0.75rem;
   font-weight: 800;
   opacity: 0.6;
+`;
+
+/**
+ * The lobby: the room's panel (code, settings, Start) on the left and the
+ * players on the right, wider than the play area; one column on a phone,
+ * the players under the panel and the buttons last. Where the character
+ * stands left of the play area (1100 px up, see Character), it starts at
+ * the play area's left edge and grows to the right, clear of her.
+ */
+export const LobbyLayout = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "panel" "players" "buttons";
+  gap: 16px;
+  align-self: center;
+
+  box-sizing: border-box;
+  width: min(1080px, calc(100vw - 32px));
+
+  font-family: "Nunito Sans Variable";
+
+  @media (min-width: 900px) {
+    grid-template-columns: 320px minmax(0, 1fr);
+    grid-template-areas: "panel players" "buttons players";
+    grid-template-rows: auto 1fr;
+    gap: 14px 22px;
+  }
+
+  @media (min-width: 1100px) {
+    align-self: flex-start;
+    width: min(1000px, calc(50vw + 284px));
+  }
+`;
+
+export const RoomPanel = styled.section`
+  ${panel}
+  grid-area: panel;
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 20px;
+`;
+
+export const PanelCode = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+`;
+
+export const BigCode = styled(CodeText)`
+  font-size: 2.8rem;
+`;
+
+/** The settings, a row each with its icon. */
+export const SettingList = styled.ul`
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+`;
+
+export const SettingItem = styled.li`
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+export const SettingIcon = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+
+  font-size: 15px;
+  color: #8ab8ff;
+
+  background-color: rgba(18, 138, 250, 0.18);
+  border-radius: 8px;
+`;
+
+export const SettingLabel = styled.span`
+  font-size: 0.85rem;
+  font-weight: 700;
+  opacity: 0.75;
+`;
+
+export const SettingValue = styled.span`
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-align: right;
+`;
+
+export const LobbyButtons = styled.div`
+  grid-area: buttons;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 12px;
+`;
+
+export const LobbyPlayers = styled.section`
+  grid-area: players;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+`;
+
+export const PlayersHead = styled.h2`
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 900;
+  ${shadowText}
+
+  & > span {
+    font-weight: 700;
+    opacity: 0.7;
+  }
+`;
+
+export const LobbyGrid = styled.ol`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (min-width: 520px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+`;
+
+/**
+ * A player in the lobby: their picture, name and what they're doing. It
+ * keeps room for what accounts bring: a banner under the name, a
+ * background and a border.
+ */
+export const LobbyCard = styled.li<{
+  $you?: boolean;
+  $away?: boolean;
+  $empty?: boolean;
+}>`
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  box-sizing: border-box;
+  height: 92px;
+  padding: 0 14px;
+
+  background-color: ${({ theme, $empty }) =>
+    $empty ? "transparent" : `${theme.background1}e6`};
+  border: ${({ $empty }) => ($empty ? "2px dashed" : "1px solid")}
+    ${({ theme, $you, $empty }) =>
+      $empty
+        ? "rgba(255, 255, 255, 0.22)"
+        : $you
+        ? theme.blue
+        : theme.background100};
+  border-radius: 14px;
+  opacity: ${({ $away, $empty }) => ($empty ? 0.6 : $away ? 0.55 : 1)};
+`;
+
+export const LobbyCardText = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1 1 auto;
+  min-width: 0;
+`;
+
+export const LobbyName = styled.span`
+  font-size: 1.05rem;
+  font-weight: 900;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  & > small {
+    font-size: 0.75rem;
+    font-weight: 700;
+    opacity: 0.7;
+  }
+`;
+
+export const LobbyState = styled.span<{ $host?: boolean; $ready?: boolean }>`
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: ${({ $host, $ready }) =>
+    $host ? "#f2c14e" : $ready ? "lightgreen" : "inherit"};
+  opacity: ${({ $host, $ready }) => ($host || $ready ? 1 : 0.7)};
+`;
+
+/** The host's Kick on a lobby card, in its corner. */
+export const CardKick = styled(Kick)`
+  position: absolute;
+  top: 8px;
+  right: 8px;
+`;
+
+/** A free place's picture: an empty circle with a plus. */
+export const FreeCircle = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+
+  font-size: 1.8rem;
+  font-weight: 300;
+
+  background-color: rgba(255, 255, 255, 0.06);
+  border-radius: 50%;
 `;
