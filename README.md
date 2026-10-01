@@ -474,34 +474,35 @@ npm run dev           # http://localhost:3000
 `VITE_AUDIO_BASE_URL=https://ba-heardle-audio.shinrunner1st.workers.dev` in a
 `.env.local` file to play the deployed audio instead.
 
-| Script                        | What it does                                                 |
-| ----------------------------- | ------------------------------------------------------------ |
-| `npm run dev`                 | Start the dev server                                         |
-| `npm run build`               | Type-check, then build to `build/`                           |
-| `npm run preview`             | Serve the build as the live site does, headers too           |
-| `npm run deploy:site`         | Publish the build to Cloudflare (CI does, from main)         |
-| `npm run deploy:site-preview` | Build this branch, sign-in on, and publish it to the preview |
-| `npm run rooms`               | Run the multiplayer rooms locally, for `npm run dev`         |
-| `npm run accounts`            | Run the accounts Worker locally, sign-in stand-ins and all   |
-| `npm run deploy:rooms`        | Publish the rooms Worker (CI does, from main)                |
-| `npm test`                    | Run the test suite                                           |
-| `npm run lint`                | ESLint, warnings included                                    |
-| `npm run typecheck`           | `tsc --noEmit`, the site's and both Workers'                 |
-| `npm run format`              | Rewrite files with Prettier                                  |
-| `npm run songs`               | After adding songs: everything below, in order               |
-| `npm run students`            | After a Global update: students, voices, then `songs`        |
-| `npm run voices`              | The voice lines and silhouettes, then `songs`                |
-| `npm run build:students`      | Copy the student data and draw the icon sheet                |
-| `npm run build:voices`        | Pick and download new voice lines, draw silhouettes          |
-| `npm run build:voice-tones`   | Find the voices that sound alike, for 4-Choice               |
-| `npm run build:voice-audio`   | Put the voice lines in beside the audio                      |
-| `npm run build:daily-order`   | Extend the daily schedule                                    |
-| `npm run build:audio`         | Build the served audio from `audio/`                         |
-| `npm run build:pictures`      | Copy `pictures/` in beside the audio                         |
-| `npm run upload:audio`        | Upload the audio and pictures to Cloudflare                  |
-| `npm run upload:backup`       | Copy new files to the backup on Cloudflare R2                |
-| `npm run check:audio`         | Check the served audio is complete                           |
-| `npm run check:pictures`      | Check the served pictures are up to date                     |
+| Script                        | What it does                                                    |
+| ----------------------------- | --------------------------------------------------------------- |
+| `npm run dev`                 | Start the dev server                                            |
+| `npm run build`               | Type-check, then build to `build/`                              |
+| `npm run preview`             | Serve the build as the live site does, headers too              |
+| `npm run deploy:site`         | Publish the build to Cloudflare (CI does, from main)            |
+| `npm run deploy:site-preview` | Build this branch, sign-in on, and publish it to the preview    |
+| `npm run rooms`               | Run the multiplayer rooms locally, for `npm run dev`            |
+| `npm run accounts`            | Run the accounts Worker locally, sign-in stand-ins and all      |
+| `npm run deploy:rooms`        | Publish the rooms Worker (CI does, from main)                   |
+| `npm run deploy:accounts`     | Migrate D1 and publish the accounts Worker (CI does, from main) |
+| `npm test`                    | Run the test suite                                              |
+| `npm run lint`                | ESLint, warnings included                                       |
+| `npm run typecheck`           | `tsc --noEmit`, the site's and both Workers'                    |
+| `npm run format`              | Rewrite files with Prettier                                     |
+| `npm run songs`               | After adding songs: everything below, in order                  |
+| `npm run students`            | After a Global update: students, voices, then `songs`           |
+| `npm run voices`              | The voice lines and silhouettes, then `songs`                   |
+| `npm run build:students`      | Copy the student data and draw the icon sheet                   |
+| `npm run build:voices`        | Pick and download new voice lines, draw silhouettes             |
+| `npm run build:voice-tones`   | Find the voices that sound alike, for 4-Choice                  |
+| `npm run build:voice-audio`   | Put the voice lines in beside the audio                         |
+| `npm run build:daily-order`   | Extend the daily schedule                                       |
+| `npm run build:audio`         | Build the served audio from `audio/`                            |
+| `npm run build:pictures`      | Copy `pictures/` in beside the audio                            |
+| `npm run upload:audio`        | Upload the audio and pictures to Cloudflare                     |
+| `npm run upload:backup`       | Copy new files to the backup on Cloudflare R2                   |
+| `npm run check:audio`         | Check the served audio is complete                              |
+| `npm run check:pictures`      | Check the served pictures are up to date                        |
 
 A pre-commit hook runs the format check, lint and type-check, and commit
 messages follow [Conventional Commits](https://www.conventionalcommits.org/).
@@ -881,12 +882,12 @@ and message flows, with what each costs, are in
   The rooms deal from the song list, voice lines and pictures they were
   built with, so one added to the site reaches them with the same release.
 
-### Accounts (in testing)
+### Accounts
 
-Sign-in with Google or Discord, being built step by step (the plan,
-approved, is `docs/accounts.md`). **Off on baheardle.com**: only the dev
-server and the site's preview have an accounts Worker to sign in with, so
-only they show the profile's **Account** tab.
+Optional sign-in with Google or Discord, built step by step (the plan,
+approved, is `docs/accounts.md`), at `https://api.baheardle.com`
+(`VITE_ACCOUNTS_URL` in `.env.production`). The profile's **Account** tab
+shows wherever the build has an accounts address.
 
 - **The Worker**, `ba-heardle-accounts` (`accounts-worker/`, its requests
   in `src/accounts/api.ts`), with the D1 database `ba-heardle-accounts`
@@ -941,8 +942,16 @@ only they show the profile's **Account** tab.
   a name; the same name is the same account), so it all works without
   them. The stand-in is only ever on localhost.
 - **The preview** is built in Vite's `preview` mode (`.env.preview`, which
-  adds the accounts address to production's), so it signs in against the
-  deployed Worker; the production build has no accounts address.
+  points at the Worker's workers.dev address, working before the Custom
+  Domain is set up).
+- **Deploying:** CI publishes it from `main` before the rooms and the
+  site (`npm run deploy:accounts`): it prints the database's Time Travel
+  bookmark, to go back to, applies the migrations (which only ever add),
+  then deploys the Worker. A daily cron runs `tidyAccounts`.
+- **Measuring:** `npm run accounts:measure` runs it locally with each
+  answer's D1 cost (rows read and written) in `X-D1-*` headers, on
+  localhost only, and `node scripts/measure-accounts.mjs` plays a
+  signed-in player's day against it (docs/accounts.md, section 6).
 - **Tested** against the real migrations on Node's own SQLite
   (`src/test/fakeD1.ts`): sign-in, one-time codes, forged or stale
   `state`, linking and unlinking, sessions running out and being pushed

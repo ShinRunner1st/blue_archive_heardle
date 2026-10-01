@@ -5,9 +5,9 @@ import { AuthError, isAuthError, isProvider, Provider } from "../types/account";
 /**
  * Whether accounts are on, and what a sign-in brought back: the only part of
  * accounts in the page's first load. The rest (accountClient.ts) comes with
- * the profile. Accounts are off on baheardle.com until their release
- * (docs/accounts.md): only the dev server and the site's preview have an
- * accounts Worker to sign in with.
+ * the profile. Accounts are on wherever the build has an accounts address
+ * (docs/accounts.md): baheardle.com's, the preview's, and the dev server's
+ * local Worker.
  */
 export function accountsUrl(): string {
   return (
@@ -46,7 +46,7 @@ function uploadProgress(): void {
 /**
  * Signed in, as the page goes on: the progress goes up a few minutes after
  * rounds are saved, and as the tab is hidden or closed. Nothing for a page
- * that isn't signed in, which every one on baheardle.com is, for now.
+ * that isn't signed in, as most players aren't.
  */
 export function startAccountSync(): void {
   if (!accountsEnabled() || !hasSession()) return;
@@ -62,8 +62,7 @@ export function startAccountSync(): void {
 /**
  * Syncs the profile with the account, if signed in: as the page opens,
  * and after the profile is changed. Its code comes only then, so a page
- * that isn't signed in (every one on baheardle.com, until accounts are
- * released) never fetches it. Failing quietly: the profile is kept here
+ * that isn't signed in never fetches it. Failing quietly: the profile is kept here
  * whatever, and the next sync catches up.
  */
 export function requestProfileSync(): void {

@@ -99,9 +99,9 @@ function PolicyLink({ children }: { children: React.ReactNode }) {
 /**
  * The profile's Account tab (docs/accounts.md): sign in with Google or
  * Discord, link the other, unlink one, sign out, download everything kept,
- * delete the account. Only where accounts are on, the dev server and the
- * site's preview, until their release. A sign-in that just came back is
- * finished here, as the profile opens on this tab by itself.
+ * delete the account. Only where accounts are on (an accounts address in
+ * the build). A sign-in that just came back is finished here, as the
+ * profile opens on this tab by itself.
  */
 export function AccountPanel() {
   const [state, setState] = React.useState<State>({ status: "loading" });
@@ -453,10 +453,6 @@ export function AccountPanel() {
       )}
 
       {problem && <Styled.Note role="alert">{PROBLEMS[problem]}</Styled.Note>}
-
-      <Styled.Note>
-        Testing only: accounts are on here, not on baheardle.com yet.
-      </Styled.Note>
     </Styled.AccountPanel>
   );
 }

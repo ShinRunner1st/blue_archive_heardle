@@ -10,9 +10,8 @@ import { profileEditedAt } from "./profileEdit";
  * room pass from the account, which a room takes in their place.
  *
  * The pass is kept in this page's memory only: never in storage, an
- * address or the page, and sent nowhere but a room's hello. A guest (every
- * player on baheardle.com, until accounts are released) never asks for
- * one or loads the code that would.
+ * address or the page, and sent nowhere but a room's hello. A guest never
+ * asks for one or loads the code that would.
  */
 
 /** The cosmetics picked here, unlocked here: what a guest's card wears. */

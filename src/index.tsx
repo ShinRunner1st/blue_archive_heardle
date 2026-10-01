@@ -45,10 +45,9 @@ function Root() {
 const ACCOUNT_WAIT_MS = 5000;
 
 /**
- * Signed in, or just back from signing in (only in dev and on the preview
- * until accounts are released): the account's progress is taken in before
- * the games read the saves, waiting a few seconds at most. Nobody else
- * waits, or loads any of it.
+ * Signed in, or just back from signing in: the account's progress is taken
+ * in before the games read the saves, waiting a few seconds at most.
+ * Nobody else waits, or loads any of it.
  */
 async function joinAccount(): Promise<void> {
   const returned = takeSignInReturn();

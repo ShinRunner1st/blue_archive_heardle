@@ -1,8 +1,9 @@
 // Accounts (docs/accounts.md): sign-in with Google or Discord, accounts and
-// sessions, in the D1 database ba-heardle-accounts. Nothing deploys it yet:
-// sign-in is only on the dev server and the site's preview until the
-// accounts release. `npm run accounts` runs it locally, with a local copy of
-// the database and stand-ins for Google's and Discord's pages.
+// sessions, in the D1 database ba-heardle-accounts, at api.baheardle.com.
+// CI publishes it from main before the rooms and the site, its migrations
+// first (`npm run deploy:accounts`). `npm run accounts` runs it locally,
+// with a local copy of the database and stand-ins for Google's and
+// Discord's pages.
 //
 // To set it up on Cloudflare (the user, once):
 //   npx wrangler d1 create ba-heardle-accounts    (put its id below)
@@ -48,6 +49,9 @@
   // Once a day, at a quiet hour: accounts unused for two years are deleted
   // (the privacy policy), and sessions and sign-in codes that ran out.
   "triggers": { "crons": ["23 4 * * *"] },
+  // Its Custom Domain, which Google's and Discord's apps send sign-ins back
+  // to (/auth/google/callback, /auth/discord/callback).
+  "routes": [{ "pattern": "api.baheardle.com", "custom_domain": true }],
   // No logs or traces: a request's headers can hold a session token.
   "observability": { "enabled": false },
   "workers_dev": true,

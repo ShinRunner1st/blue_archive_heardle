@@ -28,8 +28,8 @@ export type ProfileTab =
 type Tab = ProfileTab;
 
 /**
- * The Account tab's code, fetched only when it opens: where accounts are
- * off (baheardle.com, until their release) nobody downloads it.
+ * The Account tab's code, fetched only when it opens: most players never
+ * download it.
  */
 const AccountPanel = React.lazy(() =>
   import("./Account").then(({ AccountPanel }) => ({ default: AccountPanel }))

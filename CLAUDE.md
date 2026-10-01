@@ -112,15 +112,19 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   (`src/helpers/server.ts`, Global for new players); each server has its own
   pools, daily schedules (`*_JP` seeds, only ever appended to) and saves
   (`.jp` keys, a `jp` field in the save file).
-- **Accounts, in testing** (`docs/accounts.md`, approved; built a step at
+- **Accounts** (`docs/accounts.md`, approved; built a step at
   a time, each only once the user approves it): `ba-heardle-accounts`
   (`accounts-worker/`, logic in `src/accounts/`), a Worker with the D1
   database of accounts, Google/Discord identities and sessions. Sign-in is
   a redirect (no provider scripts, no cookies); the session token lives in
   localStorage, travels only in an Authorization header, and is never
-  logged or put in an address. Off on baheardle.com: only the dev server
-  (`npm run accounts`, with stand-in sign-in pages) and the preview
-  (`--mode preview`, `.env.preview`) show the profile's Account tab.
+  logged or put in an address. On wherever the build has an accounts
+  address: baheardle.com (`api.baheardle.com`, `.env.production`), the
+  preview (`.env.preview`, the workers.dev address) and the dev server
+  (`npm run accounts`, with stand-in sign-in pages). CI deploys it from
+  `main` before the rooms and the site (`npm run deploy:accounts`: Time
+  Travel bookmark, migrations, Worker); `npm run accounts:measure` and
+  `scripts/measure-accounts.mjs` measure what each request costs D1.
   Step 2 adds the profile in the account (`profileSync.ts`: the later
   change wins, by `profile.editedAt`; a pick not unlocked here is kept;
   `profiles.summary` is a cache from the saves, never read back). Step 3
