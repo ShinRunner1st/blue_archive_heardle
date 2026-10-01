@@ -59,7 +59,8 @@ export function pictureFile({ key, path }) {
 
 /** The entries in both manifests: key to its path on the Worker. */
 export function loadPictureManifest() {
-  const pattern = /"([\w/-]+)": "(pictures\/[\w.-]+)"/g;
+  // Prettier puts a long name on the line after its key.
+  const pattern = /"([\w/-]+)":\s*"(pictures\/[\w.-]+)"/g;
   return new Map(
     [PICTURE_MANIFEST_PATH, PORTRAIT_MANIFEST_PATH]
       .filter((path) => existsSync(path))
