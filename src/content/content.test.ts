@@ -1,0 +1,204 @@
+/**
+ * Checks the content files in this folder, so a mistake in one fails the
+ * tests (and CI) instead of the page. Each message names the entry.
+ */
+import { existsSync } from "node:fs";
+import { describe, expect, it } from "vitest";
+
+import { songs } from "../constants";
+import { ICONS } from "../constants/icons";
+import { MISSION_FACTS } from "../constants/missions";
+import { pictureFiles } from "../constants/pictureFiles";
+import { FACT_TOTALS, missionFacts } from "../helpers/missions";
+import badges from "./badges.json";
+import cosmetics from "./cosmetics.json";
+import missions from "./missions.json";
+import seasons from "./seasons.json";
+import whatsNew from "./whats-new.json";
+
+const unique = (ids: Array<string | number>, what: string) => {
+  const seen = new Set<string | number>();
+  for (const id of ids) {
+    expect(seen.has(id), `${what} "${id}" twice`).toBe(false);
+    seen.add(id);
+  }
+};
+
+/** A month and day that exist (29 February does, in leap years). */
+const isDate = ([month, day]: number[]) =>
+  Number.isInteger(month) &&
+  Number.isInteger(day) &&
+  month >= 1 &&
+  month <= 12 &&
+  day >= 1 &&
+  day <= new Date(2028, month, 0).getDate();
+
+const missionIds = new Set(missions.missions.map(({ id }) => id));
+
+describe("seasons.json", () => {
+  it("has each season once, on real dates", () => {
+    unique(
+      seasons.map(({ id }) => id),
+      "season"
+    );
+    for (const season of seasons) {
+      expect(isDate(season.from), `${season.id}: from`).toBe(true);
+      expect(isDate(season.to), `${season.id}: to`).toBe(true);
+      expect(season.home, `${season.id}: home`).not.toBe("");
+      expect(season.scene.day && season.scene.night, season.id).toBeTruthy();
+    }
+  });
+
+  it("has every season's pictures made and listed", () => {
+    for (const season of seasons) {
+      const name = (season as { pictures?: string }).pictures ?? season.id;
+      for (const time of ["day", "night"]) {
+        const key = `seasons/${name}-${time}`;
+        expect(
+          existsSync(`pictures/${key}.webp`),
+          `${key}.webp: run npm run seasons`
+        ).toBe(true);
+        expect(pictureFiles[key], `${key}: run npm run songs`).toBeTruthy();
+      }
+    }
+  });
+});
+
+describe("missions.json", () => {
+  const groups = new Set(missions.groups.map(({ id }) => id));
+
+  it("has each mission once, in a tab, counting something known", () => {
+    unique(
+      missions.missions.map(({ id }) => id),
+      "mission"
+    );
+    for (const mission of missions.missions) {
+      expect(groups.has(mission.group), `${mission.id}: group`).toBe(true);
+      expect(mission.fact in MISSION_FACTS, `${mission.id}: fact`).toBe(true);
+      expect(mission.title && mission.text, mission.id).toBeTruthy();
+      const { goal } = mission as { goal: number | string };
+      if (goal === "all") {
+        expect(
+          mission.fact in FACT_TOTALS,
+          `${mission.id}: "all" of a fact with no total`
+        ).toBe(true);
+      } else {
+        expect(
+          Number.isInteger(goal) && Number(goal) > 0,
+          `${mission.id}: goal`
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("has a tab for every group, none empty", () => {
+    unique(
+      missions.groups.map(({ id }) => id),
+      "group"
+    );
+    for (const { id } of missions.groups) {
+      expect(
+        missions.missions.some((mission) => mission.group === id),
+        `group ${id} is empty`
+      ).toBe(true);
+    }
+  });
+
+  it("works out every fact a mission can name", () => {
+    expect(Object.keys(missionFacts()).sort()).toEqual(
+      Object.keys(MISSION_FACTS).sort()
+    );
+  });
+});
+
+describe("cosmetics.json", () => {
+  const lists = {
+    titles: cosmetics.titles,
+    frames: cosmetics.frames,
+    cursorColors: cosmetics.cursorColors,
+  };
+
+  it("starts each list with a default anyone has", () => {
+    for (const [name, list] of Object.entries(lists)) {
+      expect((list[0] as { mission?: string }).mission, name).toBeUndefined();
+    }
+  });
+
+  it("unlocks each of the rest with a mission that exists", () => {
+    for (const [name, list] of Object.entries(lists)) {
+      unique(
+        list.map(({ id }) => id),
+        name
+      );
+      for (const item of list.slice(1)) {
+        const { mission } = item as { mission?: string };
+        expect(
+          mission !== undefined && missionIds.has(mission),
+          `${name}: ${item.id} needs a mission in missions.json`
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("gives frames and colours real colours", () => {
+    const hex = /^#[0-9a-fA-F]{6}$/;
+    for (const frame of cosmetics.frames) {
+      for (const color of [
+        ...frame.band,
+        ...frame.body,
+        frame.ink,
+        frame.muted,
+        frame.accent,
+      ]) {
+        expect(color, `frame ${frame.id}`).toMatch(hex);
+      }
+    }
+    for (const color of cosmetics.cursorColors) {
+      const { hue } = color as { hue?: number };
+      if (hue !== undefined) {
+        expect(hue >= 0 && hue < 360, `cursor ${color.id}: hue`).toBe(true);
+      }
+    }
+  });
+});
+
+describe("badges.json", () => {
+  const themes = new Set(songs.map(({ themeNo }) => themeNo));
+
+  it("has each album once, with its cover and songs in the game", () => {
+    unique(
+      badges.map(({ number }) => number),
+      "album"
+    );
+    for (const album of badges) {
+      expect(
+        existsSync(`src/image/badges/${album.cover}`),
+        `Vol.${album.number}: cover ${album.cover}`
+      ).toBe(true);
+      const list = album.songs.split(" ");
+      unique(list, `Vol.${album.number} song`);
+      for (const theme of list) {
+        expect(themes.has(theme), `Vol.${album.number}: #${theme}`).toBe(true);
+      }
+    }
+  });
+});
+
+describe("whats-new.json", () => {
+  it("has each update once, with icons from the list", () => {
+    unique(
+      whatsNew.map(({ id }) => id),
+      "update"
+    );
+    for (const update of whatsNew) {
+      expect(update.items.length, update.id).toBeGreaterThan(0);
+      for (const item of update.items) {
+        expect(
+          item.icon in ICONS,
+          `${update.id}: icon ${item.icon} isn't in icons.ts`
+        ).toBe(true);
+        expect(item.title && item.text, update.id).toBeTruthy();
+      }
+    }
+  });
+});

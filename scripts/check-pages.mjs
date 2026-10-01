@@ -44,9 +44,9 @@ const CHROMES = [
 ].filter(Boolean);
 
 /** The newest What's new id, so its pop-up stays shut. */
-const LATEST_NEWS = /id: "([^"]+)"/.exec(
-  readFileSync("src/constants/whatsNew.ts", "utf8")
-)[1];
+const LATEST_NEWS = JSON.parse(
+  readFileSync("src/content/whats-new.json", "utf8")
+)[0].id;
 
 const failures = [];
 let checked = 0;

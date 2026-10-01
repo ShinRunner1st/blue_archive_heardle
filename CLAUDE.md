@@ -393,6 +393,15 @@ songs` put the new files on the Worker and R2 first. About 0.3 KB gzipped
   `wss://` address, and the sitemap `/multiplayer` (send it again in
   Search Console).
 
+## Content files
+
+Seasons, missions and what they unlock, OST badges and What's new are JSON
+in `src/content/` (its README has every field), read by thin loaders in
+`src/constants/`; `src/content/content.test.ts` checks them all. Add or
+remove one there, never in a component. A new season: its entry, then `npm
+run seasons` (makes missing pictures from the backgrounds it names) and
+`npm run songs`. Never rename a mission id (saves keep them).
+
 ## Commands
 
 ```sh

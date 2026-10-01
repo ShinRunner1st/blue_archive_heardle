@@ -1,0 +1,104 @@
+[
+  {
+    "id": "jp-anniversary",
+    "home": "the anniversary fair",
+    "from": [2, 1],
+    "to": [2, 7],
+    "pictures": "anniversary",
+    "scene": {
+      "day": "ThemeparkPlaza",
+      "night": "ThemeparkPlaza_Night"
+    }
+  },
+  {
+    "id": "valentine",
+    "home": "the dessert café",
+    "from": [2, 8],
+    "to": [2, 14],
+    "scene": {
+      "day": "DessertCafe",
+      "night": "DessertCafe"
+    }
+  },
+  {
+    "id": "cherry-blossom",
+    "home": "the cherry blossoms",
+    "from": [3, 25],
+    "to": [4, 10],
+    "scene": {
+      "day": "HyakkayouranGarden",
+      "night": "HyakkayouranGarden_Night"
+    }
+  },
+  {
+    "id": "beach",
+    "home": "the beach festival",
+    "from": [7, 15],
+    "to": [8, 10],
+    "scene": {
+      "day": "BeachFestival",
+      "night": "BeachFestival_Night"
+    }
+  },
+  {
+    "id": "summer-festival",
+    "home": "the summer festival",
+    "from": [8, 11],
+    "to": [8, 25],
+    "scene": {
+      "day": "HyakkiyakoFestivalRoad",
+      "night": "HyakkiyakoFestivalRoad_Night"
+    }
+  },
+  {
+    "id": "halloween",
+    "home": "the night carnival",
+    "from": [10, 24],
+    "to": [10, 31],
+    "scene": {
+      "day": "Amusement_Night",
+      "night": "Amusement_Night"
+    }
+  },
+  {
+    "id": "global-anniversary",
+    "home": "the anniversary fair",
+    "from": [11, 4],
+    "to": [11, 12],
+    "pictures": "anniversary",
+    "scene": {
+      "day": "ThemeparkPlaza",
+      "night": "ThemeparkPlaza_Night"
+    }
+  },
+  {
+    "id": "autumn",
+    "home": "the autumn woods",
+    "from": [11, 13],
+    "to": [11, 30],
+    "scene": {
+      "day": "ForestRoad2_Fall",
+      "night": "ForestRoad2_Fall"
+    }
+  },
+  {
+    "id": "christmas",
+    "home": "the Christmas lodge",
+    "from": [12, 18],
+    "to": [12, 26],
+    "scene": {
+      "day": "FireplaceDormitory",
+      "night": "FireplaceDormitory_Night"
+    }
+  },
+  {
+    "id": "new-year",
+    "home": "the New Year shrine",
+    "from": [12, 31],
+    "to": [1, 7],
+    "scene": {
+      "day": "NewYearFestival",
+      "night": "NewYearFestival_Night"
+    }
+  }
+]

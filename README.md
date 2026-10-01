@@ -568,6 +568,15 @@ Workers R2 Storage edit rights, `CLOUDFLARE_ACCOUNT_ID`, and Settings →
 Actions → General → "Allow GitHub Actions to create and approve pull
 requests". GitHub runs scheduled workflows from `main` only.
 
+### Content files
+
+Seasons, missions and what they unlock, OST badges and What's new are JSON
+files in [`src/content/`](src/content/README.md), whose README explains
+every field and the steps for each. Adding or removing one never touches a
+component, and `src/content/content.test.ts` checks them all in `npm test`.
+`npm run seasons` makes a new season's pictures from the game backgrounds
+its entry names.
+
 ### Adding a song
 
 Songs are added by the weekly Action. To add one by hand:

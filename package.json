@@ -23,6 +23,7 @@
     "check:pictures": "node scripts/check-pictures.mjs",
     "build:audio": "node scripts/build-audio.mjs && prettier --write src/constants/audioClips.ts",
     "build:pictures": "node scripts/build-pictures.mjs && prettier --write src/constants/pictureFiles.ts src/constants/portraitFiles.ts",
+    "seasons": "node scripts/make-seasons.mjs && npm run build:pictures",
     "upload:audio": "wrangler deploy --config audio-worker/wrangler.jsonc",
     "deploy:site": "wrangler deploy --config site-worker/wrangler.jsonc",
     "deploy:site-preview": "npm run build && wrangler deploy --config site-worker/wrangler.preview.jsonc",

@@ -2,6 +2,7 @@ import { songs } from "../constants";
 import { MISSIONS_KEY, ROOM_RECORD_KEY } from "../constants/game";
 import { Mission, MissionFact, MISSIONS } from "../constants/missions";
 import { students } from "../constants/students";
+import { VOLUMES } from "../constants/volumes";
 import { GAME_MODES, GameMode } from "../types/mode";
 import { PICTURE_KINDS, PICTURE_SLOTS, PictureRound } from "../types/picture";
 import { Round } from "../types/stats";
@@ -334,8 +335,18 @@ export interface MissionProgress {
   done: boolean;
 }
 
+/**
+ * The facts a mission can ask "all" of, and how many that is: it grows
+ * with each song or album added.
+ */
+export const FACT_TOTALS: Partial<Record<MissionFact, () => number>> = {
+  songsGuessed: () => songs.length,
+  badgesEarned: () => VOLUMES.length,
+};
+
 export function goalOf(mission: Mission): number {
-  return mission.goal === "all" ? songs.length : mission.goal;
+  if (mission.goal !== "all") return mission.goal;
+  return FACT_TOTALS[mission.fact]?.() ?? Infinity;
 }
 
 /**

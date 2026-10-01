@@ -63,7 +63,10 @@ describe("seasonOn", () => {
           ? today >= start && today <= end
           : today >= start || today <= end;
       });
-      expect(matches.length, date.toDateString()).toBeLessThanOrEqual(1);
+      expect(
+        matches.length,
+        `${date.toDateString()}: ${matches.map(({ id }) => id).join(" and ")}`
+      ).toBeLessThanOrEqual(1);
     }
   });
 
