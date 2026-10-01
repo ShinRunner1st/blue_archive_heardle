@@ -367,8 +367,8 @@ they need no more height than the OST, and every game fits a 1080p window.
   (`ROOMS_SCENE` in `src/components/Backdrop/`): the rooms have no streak to
   move it.
 - **OST badges** - one for each official soundtrack album, Vol.1 to Vol.8,
-  earned by guessing every song on it at least once, in Daily or Classic. ☰ → OST
-  badges shows each album's progress; the result screen says when a
+  earned by guessing every song on it at least once, in Daily or Classic. The
+  profile shows each album's progress (its overview and OST tab); the result screen says when a
   round adds to one. The albums' songs are in `src/constants/volumes.ts`, from their
   published tracklists.
 - **Missions** - 39 one-off missions in ☰ → Missions, a tab for each game
@@ -392,12 +392,14 @@ they need no more height than the OST, and every game fits a 1080p window.
   card at its head (their favourite student, name, title on its banner,
   frame and background scene), then their record from this browser's
   saves: totals (rounds, days played, dailies won, streaks, songs and
-  students found, missions, badges, room games), the OST badges (each
-  album's cover and how many of its songs are guessed, on the overview and
-  the OST tab) and a table by game, and a tab per game with each way to play (played, won, best run), the daily
+  students found, missions, room games), a table by game with the OST
+  badges beside it (each album's cover and how many of its songs are
+  guessed, on the OST tab too), and a tab per game with each way to play (played, won, best run), the daily
   puzzles' spread by tries (guesses in bands for Students), average tries,
   the best Time Attack or the fastest and average find
-  (`src/helpers/profileStats.ts`). **Customize** sets the name (and the
+  (`src/helpers/profileStats.ts`). The card and the tabs stay in place and
+  only the tab's page scrolls, the panel one height whatever the tab, so
+  switching tabs neither resizes nor moves it. **Customize** sets the name (and the
   "Sensei" after it) and picture (a favourite student, or the name's
   letter), and picks the title, banner, frame and background, the locked
   ones naming their mission; banners

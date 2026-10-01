@@ -22,6 +22,16 @@ interface Props {
    * that opens on a picture, as the profile does.
    */
   bleed?: boolean;
+  /**
+   * With bleed: what stays at the top while the body under it scrolls, as
+   * the profile's card and tabs, so the scrollbar runs beside the body only.
+   */
+  head?: React.ReactNode;
+  /**
+   * One height whatever the body holds, so switching what it shows (the
+   * profile's tabs) neither resizes nor moves the panel.
+   */
+  fixed?: boolean;
   /** Draws something round the panel, as the profile's frame. */
   frame?: (panel: React.ReactElement) => React.ReactNode;
   children?: React.ReactNode;
@@ -47,6 +57,8 @@ export function PopUp({
   actions,
   wide = false,
   bleed = false,
+  head,
+  fixed = false,
   frame,
   children,
 }: Props) {
@@ -118,6 +130,7 @@ export function PopUp({
     <Styled.Panel
       ref={panelRef}
       $wide={wide}
+      $fixed={fixed}
       $framed={frame !== undefined}
       role="dialog"
       aria-modal="true"
@@ -146,7 +159,10 @@ export function PopUp({
           <Styled.Divider />
         </Styled.Head>
       )}
-      <Styled.Scroll $bleed={bleed}>{children}</Styled.Scroll>
+      {bleed && head && <Styled.FixedHead>{head}</Styled.FixedHead>}
+      <Styled.Scroll $bleed={bleed} $gutter={bleed && head !== undefined}>
+        {children}
+      </Styled.Scroll>
       {actions && <Styled.Actions>{actions}</Styled.Actions>}
     </Styled.Panel>
   );

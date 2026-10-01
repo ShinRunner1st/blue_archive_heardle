@@ -16,7 +16,6 @@ export { HowToPopUp } from "./HowToPopUp";
 export { PopUp } from "./PopUp";
 export { SongListPopUp } from "./SongListPopUp";
 export { SettingsPopUp } from "./SettingsPopUp";
-export { BadgesPopUp } from "./BadgesPopUp";
 export { WhatsNewPopUp } from "./WhatsNewPopUp";
 export { Jukebox, JukeboxPopUp } from "./JukeboxPopUp";
 export { MissionsPopUp } from "./MissionsPopUp";

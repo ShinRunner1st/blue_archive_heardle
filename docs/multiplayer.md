@@ -13,11 +13,12 @@ README's Multiplayer and Multiplayer rooms sections have the rest.
    player's card as rooms will show it, with the name and picture from
    their profile (**Edit profile** opens Customize; an empty name goes as
    "Sensei"), and **Picture** to be another student for this visit's
-   rooms. Then a **Join** ticket, the code typed on its strip, where
-   **Paste** (the clipboard button) or Ctrl+V takes a code or a room's
-   link, and a **New room** ticket: its settings as chips under it, the
-   **⚙** opening the settings pop-up (below) to change them first, a
-   password too, and **Make a room**. A link `/multiplayer?room=ABCD`
+   rooms. Then two big cards side by side (stacked on a phone), each
+   with a scene from the hub behind its title: **Join a room**, the code
+   typed in a big box, where **Paste** (the clipboard button) or Ctrl+V
+   takes a code or a room's link, and **Make a room**: its settings as
+   chips, the **⚙** opening the settings pop-up (below) to change them
+   first, a password too, and **Make a room**. A link `/multiplayer?room=ABCD`
    fills the code in. A
    room with a password opens a pop-up, "This room has a password", its
    box ready to type in ("That isn't the room's password" under it for a

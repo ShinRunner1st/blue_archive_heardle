@@ -13,7 +13,6 @@ import img from "../../image/BlueArchive-Heardle.png";
 interface Props {
   openInfoPopUp: () => void;
   openStatsPopUp: () => void;
-  openBadgesPopUp: () => void;
   openMissionsPopUp: () => void;
   openHowToPopUp: () => void;
   openSettingsPopUp: () => void;
@@ -53,7 +52,6 @@ const MODES: Array<{ mode: GameMode; label: string; hint: string }> = [
 export function Header({
   openInfoPopUp,
   openStatsPopUp,
-  openBadgesPopUp,
   openMissionsPopUp,
   openHowToPopUp,
   openSettingsPopUp,
@@ -156,7 +154,6 @@ export function Header({
             openSettingsPopUp={openSettingsPopUp}
             openWhatsNewPopUp={openWhatsNewPopUp}
             openJukeboxPopUp={openJukeboxPopUp}
-            openBadgesPopUp={openBadgesPopUp}
             openMissionsPopUp={openMissionsPopUp}
             openProfile={openProfile}
           />

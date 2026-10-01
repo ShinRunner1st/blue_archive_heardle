@@ -16,11 +16,14 @@ export const Meta = styled.span`
 
 /* ---------- The profile ---------- */
 
+/** Kept in place under the card, a line between them and the page. */
 export const Tabs = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin: 18px 0 12px;
+  margin: 18px 0 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 `;
 
 export const Tab = styled.button<{ $active: boolean }>`
@@ -98,10 +101,28 @@ export const HeadingCount = styled.span`
 
 const GOLD = "#f5c542";
 
-/** The OST badges, four to a row, two on a phone. */
-export const BadgeGrid = styled.ul`
+/** The overview's table by game, and the OST badges beside it. */
+export const OverviewColumns = styled.div`
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 0 24px;
+  align-items: start;
+
+  @media (max-width: 820px) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+`;
+
+/**
+ * The OST badges, four to a row (two beside the overview's table), two on
+ * a phone.
+ */
+export const BadgeGrid = styled.ul<{ $narrow?: boolean }>`
+  display: grid;
+  grid-template-columns: repeat(
+    ${({ $narrow }) => ($narrow ? 2 : 4)},
+    minmax(0, 1fr)
+  );
   gap: 8px;
   margin: 0;
   padding: 0;
@@ -583,6 +604,16 @@ export const Body = styled.div`
 
   @media (max-width: 480px) {
     padding: 0 18px;
+  }
+`;
+
+/** A tab's page, scrolling under the tabs. */
+export const Page = styled(Body)`
+  padding-top: 14px;
+
+  /* A game's heading starts the page: the padding is its space. */
+  & > section:first-child > h3:first-child {
+    margin-top: 0;
   }
 `;
 

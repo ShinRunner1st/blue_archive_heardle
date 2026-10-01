@@ -66,7 +66,6 @@ import {
   HowToPopUp,
   SongListPopUp,
   SettingsPopUp,
-  BadgesPopUp,
   MissionsPopUp,
   MissionToast,
   WhatsNewPopUp,
@@ -195,7 +194,6 @@ function App() {
     recap,
     winStreak,
     dayStreak,
-    badges,
     guessedEver,
     badgeLines,
     record,
@@ -396,7 +394,6 @@ function App() {
   const [isHowToPopUpOpen, setIsHowToPopUpOpen] = React.useState(false);
   const [isSongListOpen, setIsSongListOpen] = React.useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
-  const [isBadgesOpen, setIsBadgesOpen] = React.useState(false);
   // Returning players see the latest news once; new players get the welcome,
   // which counts as having seen it.
   const [isWhatsNewOpen, setIsWhatsNewOpen] = React.useState(
@@ -431,8 +428,6 @@ function App() {
     []
   );
 
-  const openBadges = React.useCallback(() => setIsBadgesOpen(true), []);
-  const closeBadges = React.useCallback(() => setIsBadgesOpen(false), []);
   const [isMissionsOpen, setIsMissionsOpen] = React.useState(false);
   const openMissions = React.useCallback(() => setIsMissionsOpen(true), []);
   const closeMissions = React.useCallback(() => setIsMissionsOpen(false), []);
@@ -638,7 +633,6 @@ function App() {
     isHowToPopUpOpen ||
     isSongListOpen ||
     isSettingsOpen ||
-    isBadgesOpen ||
     isMissionsOpen ||
     isWhatsNewOpen ||
     isJukeboxOpen ||
@@ -678,7 +672,6 @@ function App() {
       <Header
         openInfoPopUp={openInfoPopUp}
         openStatsPopUp={openStatsPopUp}
-        openBadgesPopUp={openBadges}
         openMissionsPopUp={openMissions}
         openHowToPopUp={openHowToPopUp}
         openSettingsPopUp={openSettingsPopUp}
@@ -814,7 +807,6 @@ function App() {
       {isSettingsOpen && (
         <SettingsPopUp onClose={closeSettingsPopUp} reset={reset} />
       )}
-      {isBadgesOpen && <BadgesPopUp onClose={closeBadges} badges={badges} />}
       {isMissionsOpen && <MissionsPopUp onClose={closeMissions} />}
       {missionToast && (
         <MissionToast

@@ -1,7 +1,6 @@
 import React from "react";
 import {
   IoClose,
-  IoDisc,
   IoGift,
   IoGameController,
   IoPerson,
@@ -26,7 +25,6 @@ interface Props {
   openSettingsPopUp: () => void;
   openWhatsNewPopUp: () => void;
   openJukeboxPopUp: () => void;
-  openBadgesPopUp: () => void;
   openMissionsPopUp: () => void;
   openProfile: () => void;
 }
@@ -42,7 +40,6 @@ export function HeaderMenu({
   openSettingsPopUp,
   openWhatsNewPopUp,
   openJukeboxPopUp,
-  openBadgesPopUp,
   openMissionsPopUp,
   openProfile,
 }: Props) {
@@ -120,16 +117,13 @@ export function HeaderMenu({
           </Styled.Item>
           <Styled.Item
             type="button"
-            onClick={openPopUp(openBadgesPopUp)}
-            // Start on the covers as soon as the player heads for the item.
+            onClick={openPopUp(openProfile)}
+            // The profile shows the OST badges: start on their covers as
+            // soon as the player heads for the item.
             onPointerEnter={preloadCovers}
             onPointerDown={preloadCovers}
             onFocus={preloadCovers}
           >
-            <IoDisc aria-hidden="true" />
-            OST badges
-          </Styled.Item>
-          <Styled.Item type="button" onClick={openPopUp(openProfile)}>
             <IoPerson aria-hidden="true" />
             Profile
           </Styled.Item>

@@ -44,9 +44,10 @@ interface Props {
 
 /**
  * The player's profile, from this browser's saves: their card (the
- * cosmetics they picked), the totals, and each game's record, by way to
- * play. Customize swaps in for it, and back. Others see it in a room once
- * accounts arrive.
+ * cosmetics they picked) and the tabs, kept in place, over the totals and
+ * each game's record, by way to play, which scroll. The panel keeps one
+ * height, so a tab doesn't resize or move it. Customize swaps in for it,
+ * and back. Others see it in a room once accounts arrive.
  */
 export default function ProfilePopUp({
   onClose,
@@ -80,81 +81,85 @@ export default function ProfilePopUp({
     <PopUp
       wide
       bleed
+      fixed
       title="Profile"
       onClose={onClose}
+      head={
+        <>
+          <ProfileHero
+            look={look}
+            actions={
+              <>
+                <Styled.HeroAction type="button" onClick={onSenseiCard}>
+                  Sensei card
+                </Styled.HeroAction>
+                <Styled.HeroAction
+                  type="button"
+                  onClick={() => setCustomizing(true)}
+                >
+                  Customize
+                </Styled.HeroAction>
+              </>
+            }
+          >
+            <Styled.Meta>
+              {since ? `Playing since ${since}` : "New to Schale"}
+              {` · ${stats.daysPlayed} ${
+                stats.daysPlayed === 1 ? "day" : "days"
+              } played`}
+              {` · ${SERVER_NAMES[server]}`}
+            </Styled.Meta>
+          </ProfileHero>
+          <Styled.Body>
+            <Styled.Tabs role="tablist" aria-label="Profile">
+              {TABS.map(({ id, label }) => (
+                <Styled.Tab
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === id}
+                  $active={tab === id}
+                  onClick={() => setTab(id)}
+                >
+                  {label}
+                </Styled.Tab>
+              ))}
+            </Styled.Tabs>
+          </Styled.Body>
+        </>
+      }
       frame={(panel) => (
         <ProfileFrame frame={look.frame} popUp>
           {panel}
         </ProfileFrame>
       )}
     >
-      <ProfileHero
-        look={look}
-        actions={
+      <Styled.Page role="tabpanel" aria-label={shown.label}>
+        {tab === "overview" ? (
+          <Overview stats={stats} />
+        ) : tab === "room" ? (
+          <Styled.Tiles>
+            <Tile label="Games played" value={number(stats.room.games)} />
+            <Tile label="First places" value={number(stats.room.wins)} />
+            <Tile
+              label="Won"
+              value={percent(stats.room.wins, stats.room.games)}
+            />
+            <Styled.Note>
+              Counted in this browser: games seen to the standings.
+            </Styled.Note>
+          </Styled.Tiles>
+        ) : (
           <>
-            <Styled.HeroAction type="button" onClick={onSenseiCard}>
-              Sensei card
-            </Styled.HeroAction>
-            <Styled.HeroAction
-              type="button"
-              onClick={() => setCustomizing(true)}
-            >
-              Customize
-            </Styled.HeroAction>
+            {stats.games
+              .filter((game) => shown.games.includes(game.id))
+              .map((game) => (
+                <GameDetail key={game.id} game={game} />
+              ))}
+            {tab === "ost" && <Badges badges={stats.badges} />}
           </>
-        }
-      >
-        <Styled.Meta>
-          {since ? `Playing since ${since}` : "New to Schale"}
-          {` · ${stats.daysPlayed} ${
-            stats.daysPlayed === 1 ? "day" : "days"
-          } played`}
-          {` · ${SERVER_NAMES[server]}`}
-        </Styled.Meta>
-      </ProfileHero>
-      <Styled.Body>
-        <Styled.Tabs role="tablist" aria-label="Profile">
-          {TABS.map(({ id, label }) => (
-            <Styled.Tab
-              key={id}
-              type="button"
-              role="tab"
-              aria-selected={tab === id}
-              $active={tab === id}
-              onClick={() => setTab(id)}
-            >
-              {label}
-            </Styled.Tab>
-          ))}
-        </Styled.Tabs>
-
-        <div role="tabpanel" aria-label={shown.label}>
-          {tab === "overview" ? (
-            <Overview stats={stats} />
-          ) : tab === "room" ? (
-            <Styled.Tiles>
-              <Tile label="Games played" value={number(stats.room.games)} />
-              <Tile label="First places" value={number(stats.room.wins)} />
-              <Tile
-                label="Won"
-                value={percent(stats.room.wins, stats.room.games)}
-              />
-              <Styled.Note>
-                Counted in this browser: games seen to the standings.
-              </Styled.Note>
-            </Styled.Tiles>
-          ) : (
-            <>
-              {stats.games
-                .filter((game) => shown.games.includes(game.id))
-                .map((game) => (
-                  <GameDetail key={game.id} game={game} />
-                ))}
-              {tab === "ost" && <Badges badges={stats.badges} />}
-            </>
-          )}
-        </div>
-      </Styled.Body>
+        )}
+      </Styled.Page>
     </PopUp>
   );
 }
@@ -181,7 +186,14 @@ function Tile({
  * The OST badges, an album each: its cover (grey until earned) and how
  * many of its songs have been guessed, as the badges pop-up shows them.
  */
-function Badges({ badges }: { badges: BadgeProgress[] }) {
+function Badges({
+  badges,
+  narrow = false,
+}: {
+  badges: BadgeProgress[];
+  /** In the overview's side column: two to a row. */
+  narrow?: boolean;
+}) {
   const earned = badges.filter((badge) => badge.done).length;
   return (
     <section aria-label="OST badges">
@@ -191,7 +203,7 @@ function Badges({ badges }: { badges: BadgeProgress[] }) {
           {earned}/{badges.length}
         </Styled.HeadingCount>
       </Styled.Heading>
-      <Styled.BadgeGrid>
+      <Styled.BadgeGrid $narrow={narrow}>
         {badges.map(({ volume, found, total, done }) => (
           <Styled.BadgeTile
             key={volume.number}
@@ -245,58 +257,57 @@ function Overview({ stats }: { stats: ReturnType<typeof profileStats> }) {
           value={`${stats.missionsCleared}/${MISSIONS.length}`}
         />
         <Tile
-          label="OST badges"
-          value={`${stats.badgesEarned}/${stats.badgesTotal}`}
-        />
-        <Tile
           label="Room games"
           value={number(stats.room.games)}
           sub={`${stats.room.wins} first places`}
         />
       </Styled.Tiles>
 
-      <Badges badges={stats.badges} />
-
-      <Styled.Heading>By game</Styled.Heading>
-      <Styled.TableWrap>
-        <Styled.Table>
-          <thead>
-            <tr>
-              <th scope="col">Game</th>
-              <th scope="col">Played</th>
-              <th scope="col">Won</th>
-              <th scope="col">Daily streak</th>
-              <th scope="col">Avg. tries</th>
-              <th scope="col">Best Time Attack</th>
-            </tr>
-          </thead>
-          <tbody>
-            {stats.games.map((game) => (
-              <tr key={game.id}>
-                <th scope="row">{game.name}</th>
-                <td>{number(game.played)}</td>
-                <td>{percent(game.won, game.played)}</td>
-                <td>
-                  {game.daily.current} / {game.daily.best}
-                </td>
-                <td>{oneDecimal(game.averageTries)}</td>
-                <td>
-                  {game.timeAttack
-                    ? game.timeAttack.runs
-                      ? String(game.timeAttack.best)
-                      : "–"
-                    : game.fastest === null
-                    ? "–"
-                    : `${formatClock(game.fastest)} find`}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Styled.Table>
-      </Styled.TableWrap>
-      <Styled.Note>
-        Daily streak is now / best. Tries count guesses in the student game.
-      </Styled.Note>
+      <Styled.OverviewColumns>
+        <div>
+          <Styled.Heading>By game</Styled.Heading>
+          <Styled.TableWrap>
+            <Styled.Table>
+              <thead>
+                <tr>
+                  <th scope="col">Game</th>
+                  <th scope="col">Played</th>
+                  <th scope="col">Won</th>
+                  <th scope="col">Daily streak</th>
+                  <th scope="col">Avg. tries</th>
+                  <th scope="col">Best Time Attack</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.games.map((game) => (
+                  <tr key={game.id}>
+                    <th scope="row">{game.name}</th>
+                    <td>{number(game.played)}</td>
+                    <td>{percent(game.won, game.played)}</td>
+                    <td>
+                      {game.daily.current} / {game.daily.best}
+                    </td>
+                    <td>{oneDecimal(game.averageTries)}</td>
+                    <td>
+                      {game.timeAttack
+                        ? game.timeAttack.runs
+                          ? String(game.timeAttack.best)
+                          : "–"
+                        : game.fastest === null
+                        ? "–"
+                        : `${formatClock(game.fastest)} find`}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </Styled.Table>
+          </Styled.TableWrap>
+          <Styled.Note>
+            Daily streak is now / best. Tries count guesses in the student game.
+          </Styled.Note>
+        </div>
+        <Badges badges={stats.badges} narrow />
+      </Styled.OverviewColumns>
     </>
   );
 }

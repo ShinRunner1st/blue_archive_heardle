@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 import "@fontsource-variable/nunito-sans";
 
 import { slimScrollbar } from "./scrollbar";
@@ -42,7 +42,11 @@ export const Overlay = styled.div`
   }
 `;
 
-export const Panel = styled.div<{ $wide?: boolean; $framed?: boolean }>`
+export const Panel = styled.div<{
+  $wide?: boolean;
+  $fixed?: boolean;
+  $framed?: boolean;
+}>`
   animation: popup 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
 
   @keyframes popup {
@@ -68,6 +72,12 @@ export const Panel = styled.div<{ $wide?: boolean; $framed?: boolean }>`
      follows them where supported; vh is the fallback. */
   max-height: calc(100vh - 48px);
   max-height: calc(100dvh - 48px);
+  ${({ $fixed }) =>
+    $fixed &&
+    css`
+      height: min(880px, calc(100vh - 48px));
+      height: min(880px, calc(100dvh - 48px));
+    `}
   overflow: hidden;
 
   color: ${({ theme }) => theme.text};
@@ -89,6 +99,12 @@ export const Panel = styled.div<{ $wide?: boolean; $framed?: boolean }>`
     max-width: none;
     max-height: calc(100vh - 12px);
     max-height: calc(100dvh - 12px);
+    ${({ $fixed }) =>
+      $fixed &&
+      css`
+        height: calc(100vh - 12px);
+        height: calc(100dvh - 12px);
+      `}
 
     border-width: 1px 0 0;
     border-radius: 18px 18px 0 0;
@@ -162,8 +178,14 @@ export const Close = styled.button<{ $over?: boolean }>`
   }
 `;
 
+/** A bleeding pop-up's top, kept in place over its scrolling body. */
+export const FixedHead = styled.div`
+  flex-shrink: 0;
+  width: 100%;
+`;
+
 /** The body: the one part that scrolls when the content is taller than the screen. */
-export const Scroll = styled.div<{ $bleed?: boolean }>`
+export const Scroll = styled.div<{ $bleed?: boolean; $gutter?: boolean }>`
   /* Its top padding stands in for the head divider's lower margin, so the
      content disappears right at the line as it scrolls. */
   flex: 1 1 auto;
@@ -181,7 +203,10 @@ export const Scroll = styled.div<{ $bleed?: boolean }>`
      doesn't shift when a bar appears. Where bars overlay the content instead,
      the gutter is empty and the padding alone applies. */
   padding: ${({ $bleed }) => ($bleed ? "0 0 20px" : "18px 12px 20px")};
-  scrollbar-gutter: ${({ $bleed }) => ($bleed ? "auto" : "stable both-edges")};
+  /* Under a fixed head, the bar's room is kept on its side only, so the
+     body lines up with the head and doesn't shift as a bar comes and goes. */
+  scrollbar-gutter: ${({ $bleed, $gutter }) =>
+    $gutter ? "stable" : $bleed ? "auto" : "stable both-edges"};
 
   /* The body scrolls rather than squashing what is in it. */
   & > * {

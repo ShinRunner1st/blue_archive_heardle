@@ -883,9 +883,14 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   Settings), and rooms take both from the profile, the picture changeable
   before joining; the Sensei card leaves the ☰ menu and the hub (it was
   there to share, and opens from the profile); the OST badges on the
-  profile; the page before a room redesigned as the lobby (your card, a
-  Join ticket with Paste, a New room ticket); the ticket's strip across
-  its whole top; banners as pills; picked albums as runs ("Vol.1-8").
+  profile; the page before a room redesigned (your card, a Join ticket
+  with Paste, a New room ticket); the ticket's strip across its whole
+  top; banners as pills; picked albums as runs ("Vol.1-8"). Then: the
+  badges beside the profile's table by game, and out of the ☰ menu; the
+  profile's card and tabs fixed over a scrolling page, one height for
+  every tab; and the page before a room as two big cards with the hub's
+  scenes, Join a room and Make a room (the user's pick of three drawn
+  options, over a split ticket and an empty lobby).
   _Built on `feat/profile-identity`, off `feat/room-cards`._
 - **No release before accounts** (the user, 2026-10-02): everything
   stacked since 4a460a1 waits on `main` until accounts are built.

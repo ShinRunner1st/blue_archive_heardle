@@ -10,7 +10,6 @@ const openInfoPopUp = vi.fn();
 const openStatsPopUp = vi.fn();
 const openHowToPopUp = vi.fn();
 const openSettingsPopUp = vi.fn();
-const openBadgesPopUp = vi.fn();
 const openMissionsPopUp = vi.fn();
 const openProfile = vi.fn();
 const openWhatsNewPopUp = vi.fn();
@@ -49,7 +48,6 @@ function mount(mode: GameMode = "daily", streak = 0, isHub = false) {
       openStatsPopUp,
       openHowToPopUp,
       openSettingsPopUp,
-      openBadgesPopUp,
       openMissionsPopUp,
       openProfile,
       openWhatsNewPopUp,
@@ -269,13 +267,6 @@ describe("Header menu", () => {
     act(() => menuItem("Jukebox")!.click());
 
     expect(openJukeboxPopUp).toHaveBeenCalled();
-  });
-
-  it("opens the OST badges from the menu", () => {
-    openMenu();
-    act(() => menuItem("OST badges")!.click());
-
-    expect(openBadgesPopUp).toHaveBeenCalled();
   });
 
   it("closes on a tap outside it", () => {

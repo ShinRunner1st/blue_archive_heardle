@@ -194,8 +194,9 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   Nothing takes a player out of a room by a slip (the bar, Back, the
   Jukebox and reloads wait). The page before a room is laid out as the
   lobby: the player's card (name and picture from the profile, the
-  picture changeable for the visit), a Join ticket (Paste reads a code or
-  a link) and a New room ticket with the settings as chips; picked
+  picture changeable for the visit), then two big cards with the hub's
+  scenes behind them, Join a room (Paste reads a code or a link) and Make
+  a room with the settings as chips; picked
   albums read as runs ("Vol.1-8"). When an allowance runs out it says
   Multiplayer is resting until tomorrow; the rest of the site doesn't
   depend on it. The lobby is a ticket (code, settings as chips) over the
@@ -295,8 +296,8 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   7 Jan), the library between; from the Worker (`src/constants/seasons.ts`,
   the README's calendar).
   Streak places still win from 10 wins. `?season=<id>` previews one in dev.
-- **OST badges**: Vol.1-8, earned by guessing every song on an album. In the
-  ☰ menu.
+- **OST badges**: Vol.1-8, earned by guessing every song on an album. On
+  the profile (beside its table by game, and on its OST tab).
 - **Missions** (☰ Missions): 39 one-off missions, a tab per game, worked
   out from the saves on both servers (`src/helpers/missions.ts`, list in
   `src/constants/missions.ts`, ids never renamed), kept once cleared in
@@ -313,7 +314,9 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   (`profileStats.ts`): totals, a table by game, and a tab per game with its
   ways to play, daily spread, tries, Time Attack or find times. Customize
   sets the name and picture and picks the cosmetics, the card kept in
-  sight; the overview and the OST tab show the OST badges. A lazy chunk. The same card
+  sight; the overview and the OST tab show the OST badges. The card and
+  tabs stay put over the scrolling page, the panel one height (`PopUp`'s
+  `head` and `fixed`). A lazy chunk. The same card
   (`PlayerCard`) shows every player in a room: yours as you dressed it,
   read in your browser; other players' with the defaults, as theirs, and
   their profiles, wait for accounts.

@@ -1235,57 +1235,6 @@ export const TicketButton = styled.button<{ $done?: boolean }>`
   }
 `;
 
-/** Under a ticket's strip: a line about it, as the join ticket's. */
-export const TicketNote = styled.p`
-  margin: 0;
-  padding: 10px 18px;
-
-  font-size: 0.82rem;
-  font-weight: 700;
-  opacity: 0.8;
-
-  @media (max-width: 600px) {
-    padding: 8px 14px;
-  }
-`;
-
-/** The code to join, typed on the strip in the code's own letters. */
-export const CodeInput = styled.input`
-  box-sizing: border-box;
-  flex: 0 1 auto;
-  width: 6.4em;
-  min-width: 0;
-  padding: 0 0 2px;
-
-  font-family: inherit;
-  font-size: 2.5rem;
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #ffffff;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.45);
-  border-radius: 0;
-
-  &::placeholder {
-    color: #ffffff;
-    opacity: 0.35;
-  }
-
-  &:focus-visible {
-    outline: none;
-    border-bottom-color: #ffffff;
-  }
-
-  @media (max-width: 600px) {
-    font-size: 1.7rem;
-  }
-`;
-
 export const TicketChips = styled.div`
   display: flex;
   align-items: center;
@@ -1472,7 +1421,6 @@ export const PlayersTitle = styled.h2`
 
 export const PlayersHint = styled.span<{ $start?: boolean }>`
   margin: 0;
-  padding: ${({ $start }) => ($start ? "0 4px" : "0")};
 
   font-size: 0.85rem;
   font-weight: 700;
@@ -1506,15 +1454,196 @@ export const EntryTitle = styled.h1`
   }
 `;
 
-/** Picture and Edit profile, beside "You". */
+/** Picture and Edit profile, on the player's card. */
 export const YouActions = styled.div`
   display: flex;
   gap: 6px;
+`;
 
-  & > button {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
+/** A round chip on the card; only its icon on a phone. */
+export const YouButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+  color: #ffffff;
+
+  background-color: rgba(14, 12, 30, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 999px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${({ theme }) => theme.blue};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
+
+  svg {
+    flex-shrink: 0;
+    font-size: 1rem;
+  }
+
+  @media (max-width: 600px) {
+    padding: 7px;
+
+    span {
+      display: none;
+    }
+  }
+`;
+
+export const YouNote = styled.p`
+  margin: 6px 4px 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  opacity: 0.85;
+  ${shadowText}
+`;
+
+/** Join a room and Make a room, side by side, stacked on a phone. */
+export const EntryCards = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+
+  @media (max-width: 600px) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+`;
+
+export const BigCard = styled.section`
+  ${panel}
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+`;
+
+/** The card's scene, its title over the foot of it, fading into the card. */
+export const BigScene = styled.div`
+  position: relative;
+  isolation: isolate;
+  flex-shrink: 0;
+  height: 132px;
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      180deg,
+      transparent 30%,
+      ${({ theme }) => theme.background1}e6 100%
+    );
+  }
+
+  @media (max-width: 600px) {
+    height: 96px;
+  }
+`;
+
+export const BigTitle = styled.h2`
+  position: absolute;
+  left: 16px;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+
+  svg {
+    color: #8ab8ff;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 1.2rem;
+  }
+`;
+
+export const BigBody = styled.div`
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 16px 16px;
+
+  @media (max-width: 600px) {
+    gap: 10px;
+    padding: 6px 12px 12px;
+  }
+`;
+
+export const BigText = styled.p`
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  opacity: 0.85;
+`;
+
+/** The code box and Paste, on one row. */
+export const CodeField = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+`;
+
+/** The code typed in the code's own big letters. */
+export const CodeBox = styled.input`
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 48px;
+  padding: 0 12px;
+
+  font-family: inherit;
+  font-size: 1.9rem;
+  font-weight: 900;
+  letter-spacing: 0.3em;
+  text-align: center;
+  text-transform: uppercase;
+  color: ${({ theme }) => theme.text};
+
+  background-color: rgba(0, 0, 0, 0.22);
+  border: 1px solid ${({ theme }) => theme.background100};
+  border-radius: 10px;
+
+  &::placeholder {
+    color: ${({ theme }) => theme.text};
+    opacity: 0.3;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
+`;
+
+/** The card's buttons at its foot, the main one filling the row. */
+export const BigFoot = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+
+  & > button:last-child {
+    flex: 1 1 auto;
   }
 `;
 
