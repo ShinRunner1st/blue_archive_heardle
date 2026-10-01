@@ -179,6 +179,13 @@ export const MODE_KEY = "mode";
 export const VOLUME_KEY = "volume";
 
 /**
+ * localStorage key holding the Jukebox's own volume, 0-1: music to listen
+ * to sits at another level than a clip to name. Absent, it starts at the
+ * game's.
+ */
+export const JUKEBOX_VOLUME_KEY = "jukeboxVolume";
+
+/**
  * localStorage key holding the colour scheme the player picked. Absent until
  * they pick one, so until then the game follows their device.
  */

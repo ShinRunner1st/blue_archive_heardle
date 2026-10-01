@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { VOLUME_KEY } from "../constants/game";
+import { JUKEBOX_VOLUME_KEY, VOLUME_KEY } from "../constants/game";
 import { loadVolume } from "./storage";
 import {
   canSetVolume,
@@ -92,5 +92,32 @@ describe("canSetVolume", () => {
     vi.spyOn(HTMLMediaElement.prototype, "volume", "get").mockReturnValue(1);
 
     expect(canSetVolume()).toBe(false);
+  });
+});
+
+describe("the Jukebox's volume", () => {
+  it("starts at the game's level", () => {
+    localStorage.setItem(VOLUME_KEY, "0.4");
+
+    expect(getVolume("jukebox")).toBe(0.4);
+  });
+
+  it("moves without moving the game's", () => {
+    setVolume(0.3);
+    setVolume(0.9, "jukebox");
+
+    expect(getVolume()).toBe(0.3);
+    expect(getVolume("jukebox")).toBe(0.9);
+    expect(localStorage.getItem(JUKEBOX_VOLUME_KEY)).toBe("0.9");
+  });
+
+  it("mutes on its own", () => {
+    setVolume(0.5);
+    setVolume(0.7, "jukebox");
+
+    toggleMute("jukebox");
+
+    expect(getVolume("jukebox")).toBe(0);
+    expect(getVolume()).toBe(0.5);
   });
 });

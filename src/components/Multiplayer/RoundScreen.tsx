@@ -531,14 +531,23 @@ export function RoundScreen({
           </Styled.Sent>
         )}
 
+        {/* Skip sends no answer, so a round nobody knows ends sooner; a
+            pick made after it still goes, as any change does. */}
         <Styled.SubmitRow $hidden={!answering}>
+          <Button
+            stroke
+            onClick={() => submit(null)}
+            disabled={!started || hasSent}
+          >
+            {mySent === null ? "Skipped" : "Skip"}
+          </Button>
           <Button
             stroke
             variant="green"
             onClick={() => selected !== undefined && submit(selected)}
             disabled={!started || selected === undefined || hasSent}
           >
-            {hasSent ? "Sent ✓" : "Submit"}
+            {hasSent && mySent !== null ? "Sent ✓" : "Submit"}
           </Button>
           <Styled.Small
             type="button"

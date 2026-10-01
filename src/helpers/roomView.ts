@@ -43,9 +43,13 @@ export function settingsSummary(
 ): string[] {
   const game =
     settings.game === "ost"
-      ? "OST"
+      ? settings.albums.length
+        ? `OST Vol.${settings.albums.join("/")}`
+        : "OST"
       : settings.game === "voice"
-      ? "Voice"
+      ? settings.lines === "titles"
+        ? "Title calls"
+        : "Voice"
       : `${settings.picture === "halo" ? "Halo" : "Weapon"}${
           settings.silhouette ? " silhouettes" : "s"
         }`;
@@ -63,7 +67,7 @@ export function settingsSummary(
 
 /** An answer as players read it: a song's name, or a student's. */
 export function pickName(settings: RoomSettings, pick: Pick): string {
-  if (pick === null) return "Passed";
+  if (pick === null) return "Skipped";
   if (settings.game === "ost") return songByTheme.get(pick)?.name ?? "?";
   return studentById.get(Number(pick))?.name ?? "?";
 }

@@ -53,7 +53,8 @@ export function useJukeboxAudio(
     setTime(0);
   }
 
-  useAudioVolume(audioRef);
+  // Its own level: music to listen to sits at another than a clip to name.
+  useAudioVolume(audioRef, undefined, "jukebox");
 
   // Stopped: taking the source away doesn't stop a song already playing, so
   // it is paused and unloaded by hand.
@@ -281,7 +282,7 @@ export function JukeboxPlayer({
           )}
         </Styled.Repeat>
         <Styled.PlayerVolume>
-          <VolumeControl />
+          <VolumeControl channel="jukebox" />
         </Styled.PlayerVolume>
       </Styled.PlayerControls>
     </Styled.Player>

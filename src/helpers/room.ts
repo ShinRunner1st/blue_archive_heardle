@@ -26,6 +26,7 @@
  * and its four answers in 4-Choice.
  */
 import { audioClips } from "../constants/audioClips";
+import badges from "../content/badges.json";
 import { PICTURE_KINDS } from "../constants/guessSheets";
 import { songs } from "../constants/songs";
 import { students } from "../constants/students";
@@ -67,7 +68,12 @@ import { isServer } from "../types/server";
 import { songFile, voiceFile } from "./audioFiles";
 import { makeChoices } from "./choices";
 import { answerOf, makePictureChoices, pictureAnswers } from "./pictureRounds";
-import { lineCount, makeVoiceChoices, voicePool } from "./voiceRounds";
+import {
+  hasTitleCall,
+  lineCount,
+  makeVoiceChoices,
+  voicePool,
+} from "./voiceRounds";
 
 /** A room everyone has left waits this long for someone to come back. */
 export const EMPTY_MS = 30_000;
@@ -188,7 +194,41 @@ const inRange = (value: unknown, { min, max }: Range) =>
   (value as number) >= min &&
   (value as number) <= max;
 
-/** Settings sent by a page, checked field by field; null if any is off. */
+/**
+ * Each OST album's songs, by its number, read from the content file itself:
+ * the Worker can't load the album covers that src/constants/volumes.ts
+ * brings along.
+ */
+const ALBUM_SONGS = new Map(
+  badges.map(({ number, songs }) => [number, new Set(songs.split(" "))])
+);
+
+/**
+ * The albums a room deals from, as a page sent them: known ones, each
+ * once, in order; null if it isn't a list of them.
+ */
+function cleanAlbums(value: unknown): number[] | null {
+  if (!Array.isArray(value)) return null;
+  const albums = [...new Set(value)];
+  if (albums.some((album) => !ALBUM_SONGS.has(album as number))) return null;
+  return (albums as number[]).sort((a, b) => a - b);
+}
+
+/** The songs an OST room deals from: its albums', or every one. */
+export function roomSongs(albums: number[]) {
+  const picked = albums.map((album) => ALBUM_SONGS.get(album)!);
+  return songs.filter(
+    ({ themeNo }) =>
+      audioClips[themeNo] &&
+      (picked.length === 0 || picked.some((album) => album.has(themeNo)))
+  );
+}
+
+/**
+ * Settings sent by a page, or kept in a preset, checked field by field;
+ * null if any is off. A field added since a preset was kept takes its
+ * default.
+ */
 export function cleanSettings(value: unknown): RoomSettings | null {
   if (typeof value !== "object" || value === null) return null;
   const s = value as Record<string, unknown>;
@@ -198,6 +238,8 @@ export function cleanSettings(value: unknown): RoomSettings | null {
     rounds: s.rounds,
     guessSeconds: s.guessSeconds,
     start: s.start,
+    albums: cleanAlbums(s.albums ?? DEFAULT_ROOM_SETTINGS.albums),
+    lines: s.lines ?? DEFAULT_ROOM_SETTINGS.lines,
     picture: s.picture,
     silhouette: s.silhouette,
     maxPlayers: s.maxPlayers,
@@ -211,6 +253,8 @@ export function cleanSettings(value: unknown): RoomSettings | null {
     inRange(settings.rounds, ROUND_RANGE) &&
     inRange(settings.guessSeconds, GUESS_RANGE) &&
     (settings.start === "start" || settings.start === "random") &&
+    settings.albums !== null &&
+    (settings.lines === "all" || settings.lines === "titles") &&
     PICTURE_KINDS.includes(settings.picture as never) &&
     typeof settings.silhouette === "boolean" &&
     inRange(settings.maxPlayers, PLAYER_RANGE) &&
@@ -328,10 +372,14 @@ export function dealRounds(
   const { server } = settings;
 
   if (settings.game === "voice") {
-    return shuffle(voicePool(server), random)
+    const titles = settings.lines === "titles";
+    const pool = titles
+      ? voicePool(server).filter(({ id }) => hasTitleCall(id))
+      : voicePool(server);
+    return shuffle(pool, random)
       .slice(0, settings.rounds)
       .map((student) => {
-        const line = Math.floor(random() * lineCount(student.id));
+        const line = titles ? 0 : Math.floor(random() * lineCount(student.id));
         const version = voiceLines[student.id]?.[1] ?? "";
         return {
           media: { file: voiceFile(student.id, line, version) },
@@ -367,10 +415,8 @@ export function dealRounds(
       }));
   }
 
-  return shuffle(
-    songs.filter((song) => audioClips[song.themeNo]),
-    random
-  )
+  // A few albums may hold fewer songs than the rounds: the game is shorter.
+  return shuffle(roomSongs(settings.albums), random)
     .slice(0, settings.rounds)
     .map((song) => ({
       media: {

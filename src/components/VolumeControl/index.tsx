@@ -1,17 +1,26 @@
 import React from "react";
 
-import { canSetVolume, setVolume, toggleMute } from "../../helpers/volume";
+import {
+  canSetVolume,
+  setVolume,
+  toggleMute,
+  VolumeChannel,
+} from "../../helpers/volume";
 import { useVolume } from "../../hooks/useVolume";
 
 import * as Styled from "./index.styled";
 
 /**
- * Mute button and slider for the one volume the whole game plays at. Renders
- * nothing where the browser ignores volume set from script (iOS), since a
- * slider there would move without changing anything.
+ * Mute button and slider for the volume every game plays at, or the
+ * Jukebox's own. Renders nothing where the browser ignores volume set from
+ * script (iOS), since a slider there would move without changing anything.
  */
-export function VolumeControl() {
-  const volume = useVolume();
+export function VolumeControl({
+  channel = "game",
+}: {
+  channel?: VolumeChannel;
+}) {
+  const volume = useVolume(channel);
 
   if (!canSetVolume()) return null;
 
@@ -27,7 +36,7 @@ export function VolumeControl() {
     <Styled.Wrapper>
       <Styled.MuteButton
         type="button"
-        onClick={toggleMute}
+        onClick={() => toggleMute(channel)}
         aria-label={muted ? "Unmute" : "Mute"}
       >
         <Icon aria-hidden="true" />
@@ -39,7 +48,9 @@ export function VolumeControl() {
         max={100}
         step={1}
         value={percent}
-        onChange={(event) => setVolume(Number(event.target.value) / 100)}
+        onChange={(event) =>
+          setVolume(Number(event.target.value) / 100, channel)
+        }
         aria-label="Volume"
         aria-valuetext={`${percent}%`}
         style={{ "--fill": `${percent}%` } as React.CSSProperties}

@@ -454,14 +454,15 @@ function App() {
   const closeJukebox = React.useCallback(() => setIsJukeboxOpen(false), []);
 
   // Changes when a new round starts, in any mode: in time attack, with each
-  // song answered.
+  // song answered. In multiplayer, as a game starts and ends: the round's
+  // song is removed while it plays, and the character looks again then.
   const taRun = timeAttack.run;
   const voiceRun = voiceTimeAttack.run;
   const pictureRun = pictureTimeAttack.run;
   const studentRound = students.round;
   const roundKey = `${server}:${
     noGame
-      ? page
+      ? `${page}:${held ?? ""}`
       : isStudents
       ? `${students.slot}:${studentRound.day ?? ""}:${students.rounds.length}`
       : isPictureTimeAttack
@@ -841,7 +842,7 @@ function App() {
       <BirthdayNote students={birthdays} />
       {/* A new one for each page, so it starts scrolled to the top. */}
       <Styled.PlayArea key={page}>
-        <Styled.Container $top={isStudents}>
+        <Styled.Container $top={isStudents && !noGame}>
           {isHub ? (
             <Hub
               onOpen={changePage}

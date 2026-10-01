@@ -17,6 +17,16 @@
         "icon": "IoPeople",
         "title": "New students beside the game",
         "text": "Shiroko, Hoshino, Hina and Aris can now stand beside the game on wide screens, each unlocked by a mission. Pick one in Settings."
+      },
+      {
+        "icon": "IoGameController",
+        "title": "More ways to set up a room",
+        "text": "A room's host can now pick which OST albums the songs come from, as many as they like, and have Voice play title calls only. Skip is back, for a round nobody knows."
+      },
+      {
+        "icon": "IoMusicalNotes",
+        "title": "The Jukebox's own volume",
+        "text": "The Jukebox now has a volume of its own, so music to listen to and clips to name can sit at different levels."
       }
     ]
   },

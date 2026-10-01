@@ -231,7 +231,8 @@ export const spineCharacters: Record<SpineCharacter["id"], SpineCharacter> = {
     eyes: 1000,
     idle: "Idle_01",
     blink: "Eye_Close_01",
-    // Calm as she is in the game: her faces change a little, so a win is her rare smile (08).
+    // Calm as she is in the game: her faces change a little, so a win is her
+    // small smile (03).
     blinkable: ["00"],
     touch: null,
     moods: {
@@ -239,7 +240,7 @@ export const spineCharacters: Record<SpineCharacter["id"], SpineCharacter> = {
       listening: "99",
       wrong: "06",
       nervous: ["05", "01", "13", "16", "17"],
-      won: ["08", "12", "04", "12", "09", "00"],
+      won: ["03", "03", "03", "03", "03", "03"],
       lost: "15",
       tapped: ["02", "04", "08", "10", "12", "14"],
     },
@@ -298,17 +299,19 @@ export const spineCharacters: Record<SpineCharacter["id"], SpineCharacter> = {
     eyes: 968,
     idle: "Idle_01",
     blink: "Eye_Close_01",
-    // Only Aris's own faces: the pink-eyed ones (12, 14-19) are Kei's.
+    // Only Aris's own faces: the pink-eyed ones (12, 14-19) are Kei's. Her
+    // open mouth (03) reads as excited and her squeezed eyes (08) as tears,
+    // so neither follows a guess.
     blinkable: ["00"],
     touch: null,
     moods: {
       idle: "00",
       listening: "99",
-      wrong: "03",
+      wrong: "04",
       nervous: ["01", "02", "05", "06", "09"],
-      won: ["07", "08", "00", "010", "11", "00"],
+      won: ["07", "07", "010", "010", "11", "00"],
       lost: "10",
-      tapped: ["00", "04", "07", "08", "010", "11"],
+      tapped: ["00", "03", "07", "010", "11"],
     },
   },
 };

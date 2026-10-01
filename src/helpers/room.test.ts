@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { audioClips } from "../constants/audioClips";
+import { voiceLines } from "../constants/voiceLines";
 import {
   ClientMessage,
   DEFAULT_ROOM_SETTINGS,
@@ -20,13 +21,14 @@ import {
   SETTLE_MS,
   VOTE_MS,
 } from "../types/room";
-import { songFile } from "./audioFiles";
+import { songFile, voiceFile } from "./audioFiles";
 import { answerOf, pictureAnswers } from "./pictureRounds";
 import {
   cleanName,
   cleanSettings,
   countMessage,
   dealRounds,
+  roomSongs,
   EMPTY_MS,
   Flood,
   FLOOD_LIMIT,
@@ -39,7 +41,8 @@ import {
   samePassword,
   TIDY_MS,
 } from "./room";
-import { voicePool } from "./voiceRounds";
+import { hasTitleCall, voicePool } from "./voiceRounds";
+import badges from "../content/badges.json";
 
 /** A seeded random, so a game deals the same rounds every run. */
 function seeded(seed = 1): () => number {
@@ -120,6 +123,45 @@ describe("dealRounds", () => {
         Math.max(0, duration - settings.guessSeconds)
       );
       expect(round.choices).toBeUndefined();
+    }
+  });
+
+  it("deals only the albums picked, and a shorter game if they're few", () => {
+    const [one, three] = [badges[0], badges[2]].map(
+      ({ songs }) => new Set(songs.split(" "))
+    );
+    const deal = dealRounds(
+      { ...DEFAULT_ROOM_SETTINGS, albums: [1, 3], rounds: 30 },
+      seeded()
+    );
+    expect(deal).toHaveLength(30);
+    expect(deal.every((r) => one.has(r.answer) || three.has(r.answer))).toBe(
+      true
+    );
+    const small = Math.min(
+      ...badges.map(({ songs }) => songs.split(" ").length)
+    );
+    const album = badges.find(
+      ({ songs }) => songs.split(" ").length === small
+    )!;
+    const short = dealRounds(
+      { ...DEFAULT_ROOM_SETTINGS, albums: [album.number], rounds: 30 },
+      seeded()
+    );
+    expect(short.length).toBe(Math.min(30, roomSongs([album.number]).length));
+  });
+
+  it("deals title calls only, when asked", () => {
+    const deal = dealRounds(
+      { ...DEFAULT_ROOM_SETTINGS, game: "voice", lines: "titles", rounds: 30 },
+      seeded()
+    );
+    for (const round of deal) {
+      const id = Number(round.answer);
+      expect(hasTitleCall(id)).toBe(true);
+      expect(round.media.file).toBe(
+        voiceFile(id, 0, voiceLines[id]?.[1] ?? "")
+      );
     }
   });
 
@@ -204,6 +246,21 @@ describe("checking what pages send", () => {
     expect(
       cleanSettings({ ...DEFAULT_ROOM_SETTINGS, start: "end" })
     ).toBeNull();
+    expect(
+      cleanSettings({ ...DEFAULT_ROOM_SETTINGS, albums: [3, 1, 3] })
+    ).toEqual({ ...DEFAULT_ROOM_SETTINGS, albums: [1, 3] });
+    expect(
+      cleanSettings({ ...DEFAULT_ROOM_SETTINGS, albums: [99] })
+    ).toBeNull();
+    expect(cleanSettings({ ...DEFAULT_ROOM_SETTINGS, albums: "1" })).toBeNull();
+    expect(
+      cleanSettings({ ...DEFAULT_ROOM_SETTINGS, lines: "lobby" })
+    ).toBeNull();
+    // Kept before the albums and lines: they take their defaults.
+    const { albums, lines, ...older } = DEFAULT_ROOM_SETTINGS;
+    expect(albums && lines && cleanSettings(older)).toEqual(
+      DEFAULT_ROOM_SETTINGS
+    );
     // Gone: it played much like a random start.
     expect(
       cleanSettings({ ...DEFAULT_ROOM_SETTINGS, start: "clip" })

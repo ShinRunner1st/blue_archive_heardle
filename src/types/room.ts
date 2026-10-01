@@ -8,7 +8,7 @@ import { Server } from "./server";
  * whenever a message changes, and a page on an older version is told to
  * reload.
  */
-export const PROTOCOL = 3;
+export const PROTOCOL = 4;
 
 /** The games a room can play: songs, students by voice, or by picture. */
 export type RoomGame = "ost" | "voice" | "picture";
@@ -21,6 +21,12 @@ export type RoomAnswers = "typed" | "choice";
  * room to play the round out.
  */
 export type RoomStart = "start" | "random";
+
+/**
+ * Which voice lines a Voice room deals: every line, or title calls only,
+ * "Blue Archive!" from everyone, so only the voice tells them apart.
+ */
+export type RoomLines = "all" | "titles";
 
 /**
  * Who can join the room: anyone with its code, only with the password the
@@ -45,6 +51,13 @@ export interface RoomSettings {
   guessSeconds: number;
   /** The OST's: where each song starts. */
   start: RoomStart;
+  /**
+   * The OST's: the albums to deal songs from, by number (badges.json), in
+   * order; none deals from every song.
+   */
+  albums: number[];
+  /** Voice's: every line, or title calls only. */
+  lines: RoomLines;
   /** The picture game's: halos or weapons, and as silhouettes or not. */
   picture: PictureKind;
   silhouette: boolean;
@@ -89,6 +102,8 @@ export const DEFAULT_ROOM_SETTINGS: RoomSettings = {
   rounds: 10,
   guessSeconds: 20,
   start: "random",
+  albums: [],
+  lines: "all",
   picture: "halo",
   silhouette: false,
   maxPlayers: MAX_PLAYERS,

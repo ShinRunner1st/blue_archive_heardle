@@ -73,8 +73,8 @@ describe("settingsSummary", () => {
     );
   });
 
-  it("names answers, or a pass", () => {
-    expect(pickName(DEFAULT_ROOM_SETTINGS, null)).toBe("Passed");
+  it("names answers, or a skip", () => {
+    expect(pickName(DEFAULT_ROOM_SETTINGS, null)).toBe("Skipped");
     expect(pickName(DEFAULT_ROOM_SETTINGS, "nope")).toBe("?");
   });
 });

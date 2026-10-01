@@ -90,8 +90,39 @@ describe("room presets", () => {
     expect(readPresetCode("hello")).toBeNull();
     // A name lost in the paste: the settings still come in.
     expect(
-      readPresetCode(code.split(".").slice(0, 10).join(".") + ".")
+      readPresetCode(code.split(".").slice(0, 12).join(".") + ".")
     ).toEqual({ name: "Imported", settings: preset.settings });
+  });
+
+  it("keeps a room's albums and lines in its code", () => {
+    const preset = {
+      name: "Vol mix",
+      settings: {
+        ...DEFAULT_ROOM_SETTINGS,
+        albums: [1, 3],
+        lines: "titles" as const,
+      },
+    };
+    expect(readPresetCode(presetCode(preset))).toEqual(preset);
+    expect(
+      readPresetCode(presetCode(preset).replace(".1-3.", ".1-99."))
+    ).toBeNull();
+  });
+
+  it("still reads a code from before the albums", () => {
+    expect(
+      readPresetCode("BA1.voice.choice.12.15.random.halo.0.6.global.Old")
+    ).toEqual({
+      name: "Old",
+      settings: {
+        ...DEFAULT_ROOM_SETTINGS,
+        game: "voice",
+        answers: "choice",
+        rounds: 12,
+        guessSeconds: 15,
+        maxPlayers: 6,
+      },
+    });
   });
 });
 

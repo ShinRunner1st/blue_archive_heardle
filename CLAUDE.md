@@ -161,7 +161,7 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   score. No badges.
 - **Jukebox** (☰ menu): every song in full, searchable, with album chips
   like All OST's artist chips; songs guessed right in any mode are bright.
-  Its player keeps one fixed layout; the repeat button cycles off / next
+  Its player keeps one fixed layout and its own volume (`jukeboxVolume`); the repeat button cycles off / next
   song / this song, remembered. Rows come from `SongRows` (shared with All
   OST, kept light for speed) and chips from `FoldingChips`. Playing any audio pauses the rest (`src/helpers/onePlayer.ts`).
   `Jukebox` stays mounted and holds the audio: on every page the music plays
@@ -181,9 +181,10 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
 - **Multiplayer** (`/multiplayer`): private rooms of 2 to 8 playing the
   OST, Voice or Picture game together, as in Anime Music Quiz. A four-letter
   code or link; a name and a student picture per player; the host's
-  settings (game, typed or 4-Choice, 5-30 rounds, 5-40 s, start, server,
-  most players, Open, Password or Locked) in a pop-up, kept as presets
-  (twenty, shared as `BA1.…` codes). Each round everyone hears the same
+  settings (game, typed or 4-Choice, 5-30 rounds, 5-40 s, start, the
+  OST's albums, Voice's title calls only, server, most players, Open,
+  Password or Locked) in a pop-up, kept as presets (twenty, shared as
+  `BA2.…` codes; `BA1` still reads). Submit, or Skip a round. Each round everyone hears the same
   song from the whole file (a 3-2-1 before the first), answers and changes
   it freely until the time's up (the latest the room took counts, its time
   shown live on every card), then the reveal takes the stage. A point per

@@ -125,9 +125,12 @@ export function saveRoomPreset(preset: RoomPreset): RoomPreset[] {
 
 /**
  * A preset as a line of text to send a friend, who pastes it in to import
- * it: its settings in order, then its name. Short enough for a chat.
+ * it: its settings in order, then its name. Short enough for a chat. BA2
+ * added the albums ("-" for every song) and lines; a BA1 code from before
+ * still reads, with every song and every line.
  */
-const CODE_TAG = "BA1";
+const CODE_TAG = "BA2";
+const OLD_CODE_TAG = "BA1";
 
 export function presetCode({ name, settings: s }: RoomPreset): string {
   return [
@@ -141,6 +144,8 @@ export function presetCode({ name, settings: s }: RoomPreset): string {
     s.silhouette ? 1 : 0,
     s.maxPlayers,
     s.server,
+    s.albums.join("-") || "-",
+    s.lines,
     encodeURIComponent(name),
   ].join(".");
 }
@@ -148,7 +153,10 @@ export function presetCode({ name, settings: s }: RoomPreset): string {
 /** A pasted preset code, checked as the room checks settings; or null. */
 export function readPresetCode(text: string): RoomPreset | null {
   const parts = text.trim().split(".");
-  if (parts[0] !== CODE_TAG || parts.length < 11) return null;
+  const old = parts[0] === OLD_CODE_TAG;
+  if (!(old || parts[0] === CODE_TAG) || parts.length < (old ? 11 : 13)) {
+    return null;
+  }
   const [, game, answers, rounds, guess, start, picture, silhouette] = parts;
   const settings = cleanSettings({
     game,
@@ -156,6 +164,12 @@ export function readPresetCode(text: string): RoomPreset | null {
     rounds: Number(rounds),
     guessSeconds: Number(guess),
     start,
+    ...(old
+      ? {}
+      : {
+          albums: parts[10] === "-" ? [] : parts[10].split("-").map(Number),
+          lines: parts[11],
+        }),
     picture,
     silhouette: silhouette === "1",
     maxPlayers: Number(parts[8]),
@@ -163,7 +177,7 @@ export function readPresetCode(text: string): RoomPreset | null {
   });
   let name = "";
   try {
-    const typed = decodeURIComponent(parts.slice(10).join("."));
+    const typed = decodeURIComponent(parts.slice(old ? 10 : 12).join("."));
     if (typed.trim()) name = presetName(typed);
   } catch {
     // A name cut short in the paste: the settings still come in.

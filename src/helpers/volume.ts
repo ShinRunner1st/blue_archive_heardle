@@ -1,14 +1,25 @@
 import { DEFAULT_VOLUME } from "../constants/game";
-import { loadVolume, saveVolume } from "./storage";
+import { loadVolume, saveVolume, VolumeChannel } from "./storage";
+
+export type { VolumeChannel } from "./storage";
 
 /**
- * The one volume every player in the app follows. Held here rather than in
- * component state so the clip player and the result card stay in step, and
- * read from storage lazily so a returning player gets their own level back.
+ * The volumes the app plays at: one every game's player follows, and the
+ * Jukebox's own. Held here rather than in component state so the clip player
+ * and the result card stay in step, and read from storage lazily so a
+ * returning player gets their own levels back.
  */
-let volume: number | null = null;
-/** What unmuting goes back to. */
-let lastAudible: number = DEFAULT_VOLUME;
+interface Level {
+  volume: number | null;
+  /** What unmuting goes back to. */
+  lastAudible: number;
+}
+
+const fresh = (): Record<VolumeChannel, Level> => ({
+  game: { volume: null, lastAudible: DEFAULT_VOLUME },
+  jukebox: { volume: null, lastAudible: DEFAULT_VOLUME },
+});
+let levels = fresh();
 
 const listeners = new Set<() => void>();
 
@@ -17,27 +28,29 @@ function clamp(value: number): number {
   return Math.min(Math.max(value, 0), 1);
 }
 
-export function getVolume(): number {
-  if (volume === null) {
-    volume = loadVolume();
-    if (volume > 0) lastAudible = volume;
+export function getVolume(channel: VolumeChannel = "game"): number {
+  const level = levels[channel];
+  if (level.volume === null) {
+    level.volume = loadVolume(channel);
+    if (level.volume > 0) level.lastAudible = level.volume;
   }
-  return volume;
+  return level.volume;
 }
 
-export function setVolume(next: number): void {
+export function setVolume(next: number, channel: VolumeChannel = "game"): void {
   const value = clamp(next);
-  if (value === volume) return;
+  const level = levels[channel];
+  if (value === level.volume) return;
 
-  volume = value;
-  if (value > 0) lastAudible = value;
-  saveVolume(value);
+  level.volume = value;
+  if (value > 0) level.lastAudible = value;
+  saveVolume(value, channel);
   listeners.forEach((listener) => listener());
 }
 
 /** Mutes, or brings back the level the player had before muting. */
-export function toggleMute(): void {
-  setVolume(getVolume() > 0 ? 0 : lastAudible);
+export function toggleMute(channel: VolumeChannel = "game"): void {
+  setVolume(getVolume(channel) > 0 ? 0 : levels[channel].lastAudible, channel);
 }
 
 export function subscribeVolume(listener: () => void): () => void {
@@ -69,7 +82,6 @@ export function canSetVolume(): boolean {
 
 /** Test seam - this is module state that would otherwise leak across tests. */
 export function resetVolumeState(): void {
-  volume = null;
-  lastAudible = DEFAULT_VOLUME;
+  levels = fresh();
   settable = null;
 }

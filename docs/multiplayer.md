@@ -30,7 +30,9 @@ README's Multiplayer and Multiplayer rooms sections have the rest.
    crown, and the places still free. Only the host sees the **⚙**, a
    pop-up (two columns on a wide screen) with chips for the game (one
    row), answers, picture kind, silhouette, where songs start (Random or
-   From the top) and the room's server, a slider with a number box for
+   From the top), the OST's albums (Every song, or any of Vol.1-8; the
+   hint counts their songs, and a game is no longer than they are),
+   Voice's lines (All lines or Title calls) and the room's server, a slider with a number box for
    rounds (5-30), time to answer (5-40 s) and most players (2-8), and
    **Who can join**: Open, Password (with its box; left empty, the room
    keeps the one it has) or Locked. At its top, **Presets**: the settings
@@ -72,7 +74,8 @@ README's Multiplayer and Multiplayer rooms sections have the rest.
    answers of 4-Choice appear only now, in four empty places that were
    there from the start, so nothing moves. The player picks (typed
    search, empty again each round, the grid, or one of four with a tap or
-   1-4) and presses **Submit** (or Enter).
+   1-4) and presses **Submit** (or Enter), or **Skip**, which sends no
+   answer (a pick after it still goes, as any change does).
    **Quick answer** (the ⚡ toggle beside Submit, remembered in the
    browser) sends the first pick as it's made. After that the player can
    pick again as often as they like, as in Anime Music Quiz: each change
@@ -164,7 +167,7 @@ page                          Worker / room (Durable Object)
  | ready {round 0}             -> once everyone's in, or 10 s:
  | <- room {playing, startsIn, endsIn, current + choices, next: file}
  | ready {round 1}             (the next song, downloaded early)
- | guess {pick}   (Submit, or a pick with Quick answer)
+ | guess {pick}   (Submit, Skip, or a pick with Quick answer)
  |                             -> all answered: time cut to 3 s
  | <- room {playing, settling, endsIn, each latest answer's time}
  | guess {pick}   (each change, 0.4 s apart at least; the room takes one

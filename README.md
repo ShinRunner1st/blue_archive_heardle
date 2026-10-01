@@ -197,12 +197,14 @@ letter) and join; a room with a password asks for it in a pop-up. The host
 can pick the settings before making the room (the gear beside Make a
 room), and keep any as a named preset in the browser (twenty at most, in
 a list that scrolls; the same settings saved again rename theirs). A
-preset's ⧉ copies it as a short code (`BA1.ost.choice.10.20.…`) for a
-friend, who pastes it in with Import. The lobby shows the settings in a
+preset's ⧉ copies it as a short code (`BA2.ost.choice.10.20.…`; an
+older `BA1` one still reads) for a friend, who pastes it in with Import. The lobby shows the settings in a
 few words; only the host changes them, in the same pop-up (the lobby's
 gear), which sends them once, on Save: OST, Voice or Picture (halos or
 weapons, silhouettes or not), typed answers or 4-Choice, 5 to 30 rounds,
 5 to 40 seconds to answer, where each song starts (anywhere, or the top),
+the OST albums to deal from (any number of Vol.1-8, or every song; a few
+albums may make a shorter game), all lines or title calls only for Voice,
 the room's own Global or JP for Voice and Picture, the most players, 2 to
 8, and **who can join**: anyone with the code, only with a **password**
 (case, spaces and lookalike letters don't matter; it's never sent to the
@@ -223,7 +225,8 @@ The first round counts in, 3, 2, 1; every round then plays for everyone at
 once: a song for the whole time to answer, with no pause or seek, from the
 whole song; a voice line, which can be played again; or a picture. Players
 pick an answer and press Submit (or turn on Quick answer, remembered, and
-the first pick goes at once). Then they change it as often as they like,
+the first pick goes at once), or Skip a round they don't know, which
+counts as answered so a round nobody knows ends sooner. Then they change it as often as they like,
 as in Anime Music Quiz: each change is sent as it's made, 0.4 seconds
 apart at least (one sooner waits, and the latest pick goes), and the room
 takes one every 0.3 seconds at most. Every card shows live when that

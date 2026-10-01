@@ -13,6 +13,7 @@ import {
   STORAGE_KEY,
   TIME_ATTACK_STORAGE_KEY,
   VOLUME_KEY,
+  JUKEBOX_VOLUME_KEY,
   COLOR_SCHEME_KEY,
   CUSTOM_CURSOR_KEY,
   CHARACTER_KEY,
@@ -738,21 +739,34 @@ export function saveChoiceClip(seconds: number): void {
   writeKey(CHOICE_CLIP_KEY, String(seconds));
 }
 
-/** The volume the player last chose, or the default for a new player. */
-export function loadVolume(): number {
-  const stored = readKey(VOLUME_KEY);
+/** The game's audio, or the Jukebox's music, each at its own level. */
+export type VolumeChannel = "game" | "jukebox";
+
+const volumeKey = (channel: VolumeChannel) =>
+  channel === "game" ? VOLUME_KEY : JUKEBOX_VOLUME_KEY;
+
+/**
+ * The volume the player last chose, or the default for a new player: the
+ * game's, or the Jukebox's, which starts at the game's.
+ */
+export function loadVolume(channel: VolumeChannel = "game"): number {
+  const fallback = channel === "game" ? DEFAULT_VOLUME : loadVolume("game");
+  const stored = readKey(volumeKey(channel));
   // Number(null) and Number("") are both 0, which would silently mute a new
   // player, so an absent value has to be caught before converting.
-  if (stored === null || stored.trim() === "") return DEFAULT_VOLUME;
+  if (stored === null || stored.trim() === "") return fallback;
 
   const volume = Number(stored);
   return Number.isFinite(volume) && volume >= 0 && volume <= 1
     ? volume
-    : DEFAULT_VOLUME;
+    : fallback;
 }
 
-export function saveVolume(volume: number): void {
-  writeKey(VOLUME_KEY, String(volume));
+export function saveVolume(
+  volume: number,
+  channel: VolumeChannel = "game"
+): void {
+  writeKey(volumeKey(channel), String(volume));
 }
 
 /** The scheme the player picked, or null if they never have. */

@@ -14,6 +14,8 @@ import {
   sameSettings,
   saveRoomPreset,
 } from "../../helpers/roomClient";
+import { VOLUMES } from "../../constants/volumes";
+import { roomSongs } from "../../helpers/room";
 import { roundsName, settingsSummary } from "../../helpers/roomView";
 import {
   AccessChange,
@@ -340,6 +342,61 @@ function Presets({
   );
 }
 
+/**
+ * The OST albums to deal from, any number of them: none picked is every
+ * song. Says how many songs that makes, since a few albums may hold fewer
+ * than the rounds.
+ */
+function Albums({
+  value,
+  rounds,
+  onChange,
+}: {
+  value: number[];
+  rounds: number;
+  onChange: (albums: number[]) => void;
+}) {
+  const count = roomSongs(value).length;
+  const toggle = (album: number) =>
+    onChange(
+      value.includes(album)
+        ? value.filter((a) => a !== album)
+        : [...value, album].sort((a, b) => a - b)
+    );
+  return (
+    <Styled.Field>
+      <Styled.FieldName>Albums</Styled.FieldName>
+      <Styled.FieldHint>
+        {value.length === 0
+          ? "Every song; or pick OST albums, as many as you like"
+          : `${count} songs${count < rounds ? `, so a game of ${count}` : ""}`}
+      </Styled.FieldHint>
+      <Styled.Chips role="group" aria-label="Albums">
+        <Chip
+          type="button"
+          $active={value.length === 0}
+          aria-pressed={value.length === 0}
+          onClick={() => onChange([])}
+        >
+          Every song
+        </Chip>
+        {VOLUMES.map(({ number, title }) => (
+          <Chip
+            key={number}
+            type="button"
+            title={title}
+            $active={value.includes(number)}
+            aria-pressed={value.includes(number)}
+            onClick={() => toggle(number)}
+          >
+            Vol.{number}
+          </Chip>
+        ))}
+      </Styled.Chips>
+    </Styled.Field>
+  );
+}
+
 const ACCESS_HINTS: Record<RoomAccess, string> = {
   open: "Anyone with the code or the link",
   password: "Only with the password you give out",
@@ -476,6 +533,27 @@ export function SettingsPopUp({
           value={draft.answers}
           onChange={set("answers")}
         />
+        {game === "ost" && (
+          <Styled.Wide>
+            <Albums
+              value={draft.albums}
+              rounds={draft.rounds}
+              onChange={set("albums")}
+            />
+          </Styled.Wide>
+        )}
+        {game === "voice" && (
+          <Chips
+            name="Lines"
+            hint="Any line, or only the title call: the same words from all"
+            options={[
+              { value: "all", label: "All lines" },
+              { value: "titles", label: "Title calls" },
+            ]}
+            value={draft.lines}
+            onChange={set("lines")}
+          />
+        )}
         {game === "ost" ? (
           <Chips
             name="Songs start"
