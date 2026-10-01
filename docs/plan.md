@@ -73,6 +73,15 @@ voice lines and card scenes on the Worker and R2. The two Actions run from
   `ci/privacy-guard`, off `main`, with `live-check.yml` running it on
   baheardle.com daily and after each deploy (the live site passed on
   2026-10-01)._
+- **Multiplayer's scenes and a preview per page** (asked for on
+  2026-10-01): the hub's Multiplayer card gets the arcade (`Arcade`)
+  behind it and `/multiplayer` its own background, the Game Development
+  Department's room by day or night, over streak places and seasons
+  (`feat/multiplayer-scene`, off `ci/privacy-guard`); each page gets its
+  own link preview, the hub's with Multiplayer as a fifth card, and the
+  README a logo header with Play and Ko-fi buttons and new screenshots
+  (`feat/page-previews`, off `feat/multiplayer-scene`). The three
+  pictures need `npm run songs` before the merge.
 
 7. **Group 7: Multiplayer** (see "Multiplayer" below). _Built on
    `feat/multiplayer`, off `docs/vercel-domains`, after the free plan's
