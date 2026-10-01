@@ -849,6 +849,14 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   own free allowance, apart from the rooms'), a privacy policy, a way to
   delete an account, and a login provider's script or redirect, which the
   CSP and the page check must allow. Playing without an account stays.
+  The user's answers (2026-10-02): Google and Discord, one account with
+  both; the profile, cosmetics and progress in D1, settings in the
+  browser; profiles and cosmetics in rooms, no levels yet; guests as
+  now and never second-class; Durable Objects for live rooms only; the
+  privacy policy and deletion before anyone can sign in. The full plan,
+  **awaiting the user's approval**, is `docs/accounts.md`; nothing is
+  built yet. _Drafted on `docs/accounts-plan`, off
+  `feat/profile-identity`._
 - **Room feedback** (2026-10-01): Skip back in a round (Pass, renamed);
   the host picks OST albums to deal from (any number) and title calls
   only for Voice (`PROTOCOL` 4, `BA2` preset codes); the Jukebox's own
