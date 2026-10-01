@@ -434,6 +434,17 @@ the run's `check-pages` artifact.
 `npm run check:pages -- --url <address>` checks a deployed site instead,
 such as the workers.dev address after `npm run deploy:site`.
 
+It also holds the privacy promise: it fails on any cookie (in any site's
+jar, or a `Set-Cookie` from any response), any `<script>` but the build's
+own files under `/assets/`, any frame, and any request to `/cdn-cgi/`. The
+Content-Security-Policy allows the site's own address, which is where
+Cloudflare's dashboard settings put their scripts: Bot Fight Mode (a
+challenge and a `__cf_bm` cookie), Rocket Loader, Email Address
+Obfuscation, Zaraz and Web Analytics. Those change the live pages without
+a push, so `.github/workflows/live-check.yml` runs the check against
+baheardle.com every day and after each deployment from `main`; GitHub
+emails when it fails. Leave them all off.
+
 The pictures come from the Worker, as on the live site, so a new sheet must
 be uploaded (`npm run songs`) before its pull request passes. Chrome is
 found at `CHROME_PATH` or where it usually installs; GitHub's runners have

@@ -124,8 +124,11 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
 - CI (GitHub Actions) runs format, lint, typecheck, tests, `check:audio`, a
   build and `npm run check:pages` (`scripts/check-pages.mjs`: every page on
   Global and JP in headless Chrome, failing on page errors, failed loads and
-  any picture cut squashed, outside or blank from its sheet) on every push
-  to `main` and every pull request. `.github/workflows/content-update.yml`
+  any picture cut squashed, outside or blank from its sheet, and on any
+  cookie, frame or script but the build's own) on every push to `main` and
+  every pull request. `.github/workflows/live-check.yml` runs the page
+  check on baheardle.com daily and after each deploy, as a Cloudflare
+  dashboard setting can add a cookie or script without a push. `.github/workflows/content-update.yml`
   (Wednesdays) downloads the game's music with BA-AD (pinned,
   `npm run download:music`), looks for new students, voice lines, halos and
   tracks, from the game's files with names from the wiki

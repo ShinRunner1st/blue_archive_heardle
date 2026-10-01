@@ -69,7 +69,10 @@ voice lines and card scenes on the Worker and R2. The two Actions run from
   site's own bundle, including ones Cloudflare serves from the site's own
   address (`/cdn-cgi/`, which the CSP's `'self'` lets through), so a
   dashboard setting (Bot Fight Mode, Rocket Loader, Email Address
-  Obfuscation, Zaraz) can't quietly break the privacy promise.
+  Obfuscation, Zaraz) can't quietly break the privacy promise. _Built on
+  `ci/privacy-guard`, off `main`, with `live-check.yml` running it on
+  baheardle.com daily and after each deploy (the live site passed on
+  2026-10-01)._
 
 7. **Group 7: Multiplayer** (see "Multiplayer" below). _Built on
    `feat/multiplayer`, off `docs/vercel-domains`, after the free plan's

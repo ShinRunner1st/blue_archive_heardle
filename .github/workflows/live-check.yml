@@ -1,0 +1,49 @@
+name: Live site check
+
+# Runs the page check against baheardle.com itself, once a day and after
+# every deployment from main. A setting in the Cloudflare dashboard (Bot
+# Fight Mode, Rocket Loader, Email Address Obfuscation, Zaraz, Web
+# Analytics) changes the live pages without any push, adding a cookie or a
+# script from the site's own address that the CSP lets through; the check
+# fails on those (see scripts/check-pages.mjs). Its requests go to the site,
+# audio and Now Workers, whose static files are free; none to R2 or the
+# rooms. The repository is public, so the minutes are free too.
+on:
+  schedule:
+    - cron: "41 3 * * *"
+  workflow_run:
+    workflows: [CI]
+    branches: [main]
+    types: [completed]
+  workflow_dispatch:
+
+concurrency:
+  group: live-check
+  cancel-in-progress: true
+
+jobs:
+  check:
+    # After CI, only when it passed and so deployed.
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Check baheardle.com in a browser
+        run: npm run check:pages -- --url https://baheardle.com
+
+      - name: Keep the screenshots of what broke
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-check
+          path: check-pages-output/
+          if-no-files-found: ignore

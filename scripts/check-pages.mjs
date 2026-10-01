@@ -251,6 +251,48 @@ async function checkPictures(page, where) {
   for (const problem of problems.found) fail(where, problem);
 }
 
+/**
+ * Whether a script is one of the site's own built files: from the site's
+ * address, under /assets/. Anything else, even from the site's address, was
+ * put there by something other than the build.
+ */
+function ownScript(url) {
+  const { origin, pathname } = new URL(url);
+  return origin === new URL(BASE).origin && pathname.startsWith("/assets/");
+}
+
+/**
+ * Checks the page keeps the privacy promise: no cookies anywhere, no frames,
+ * and no <script> but the build's own files. The Content-Security-Policy
+ * lets through anything from the site's own address, which is where
+ * Cloudflare's dashboard settings put theirs (/cdn-cgi/: Bot Fight Mode's
+ * challenge and its __cf_bm cookie, Rocket Loader, Email Address
+ * Obfuscation, Zaraz, Web Analytics), so the CSP alone can't catch them.
+ */
+async function checkPrivacy(page, where) {
+  const session = await page.createCDPSession();
+  const { cookies } = await session.send("Network.getAllCookies");
+  await session.detach();
+  for (const cookie of cookies) {
+    fail(where, `cookie ${cookie.name} set by ${cookie.domain}`);
+  }
+
+  const scripts = await page.evaluate(() =>
+    [...document.querySelectorAll("script")].map((script) => ({
+      src: script.src,
+      inline: script.textContent.trim().slice(0, 60),
+    }))
+  );
+  for (const { src, inline } of scripts) {
+    if (!src) fail(where, `inline script: ${inline}`);
+    else if (!ownScript(src)) fail(where, `outside script: ${src}`);
+  }
+
+  for (const frame of page.frames()) {
+    if (frame !== page.mainFrame()) fail(where, `frame: ${frame.url()}`);
+  }
+}
+
 /** Checks the page has something in its play area. */
 async function checkShown(page, where) {
   const text = await page.evaluate(
@@ -273,7 +315,15 @@ async function checkServer(browser, server) {
   page.on("console", (message) => {
     if (message.type() === "error") fail(where, `console: ${message.text()}`);
   });
-  page.on("request", (request) => inFlight.add(request));
+  page.on("request", (request) => {
+    inFlight.add(request);
+    const url = request.url();
+    if (new URL(url).pathname.startsWith("/cdn-cgi/")) {
+      fail(where, `Cloudflare added something to the page: ${url}`);
+    } else if (request.resourceType() === "script" && !ownScript(url)) {
+      fail(where, `outside script: ${url}`);
+    }
+  });
   page.on("requestfinished", (request) => inFlight.delete(request));
   page.on("requestfailed", (request) => {
     inFlight.delete(request);
@@ -285,6 +335,10 @@ async function checkServer(browser, server) {
   page.on("response", (response) => {
     if (response.status() >= 400) {
       fail(where, `${response.status()} for ${response.url()}`);
+    }
+    // Names the address that tried, which a cookie found later can't.
+    if (response.headers()["set-cookie"]) {
+      fail(where, `${response.url()} tried to set a cookie`);
     }
   });
 
@@ -307,6 +361,7 @@ async function checkServer(browser, server) {
     await action();
     await checkShown(page, where);
     await checkPictures(page, where);
+    await checkPrivacy(page, where);
     if (failures.length > before) {
       await snap(page, `${server}-${name.replace(/[^\w-]+/g, "_")}`);
     }
