@@ -119,7 +119,11 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   (`--mode preview`, `.env.preview`) show the profile's Account tab.
   Step 2 adds the profile in the account (`profileSync.ts`: the later
   change wins, by `profile.editedAt`; a pick not unlocked here is kept;
-  `profiles.summary` is a cache from the saves, never read back).
+  `profiles.summary` is a cache from the saves, never read back). Step 3
+  the progress (`progressSync.ts`): the save in the account by revision,
+  merged on a 409 with `mergeSaves`, both sides backed up before a merge,
+  the browser's save changed only before the page draws (a signed-in page
+  waits up to 5 s), sign-out asking to keep or clear this browser's copy.
 - **Multiplayer rooms** on the one other Worker that runs code, `ba-heardle-rooms`
   (`rooms-worker/`, `VITE_ROOMS_URL`): a SQLite-backed Durable Object per
   room, over a hibernating WebSocket, on the free plan's daily limits

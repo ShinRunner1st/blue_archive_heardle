@@ -230,25 +230,54 @@ export type SaveFileResult =
  * isn't readable in a text editor either.
  */
 export function buildSaveFile(now: Date = new Date()): string {
-  const rounds = Object.fromEntries(
-    GAME_MODES.map((mode) => [
-      mode,
-      withRoundIds(ostSlot(mode), loadRounds(mode)).map(packRound),
-    ])
-  );
-  return obscure(
-    JSON.stringify({
-      app: SAVE_APP,
-      version: SAVE_VERSION,
-      exported: now.toISOString(),
-      rounds,
-      ...serverSave("global"),
-      jp: serverSave("jp"),
-      missions: loadClearedMissions(),
-      roomRecord: loadLegacyRoomRecord(),
-      roomGames: loadRoomGames(),
-    })
-  );
+  return obscure(JSON.stringify(saveData(currentSave(), now)));
+}
+
+/**
+ * This browser's progress, as a save holds it: every round with an id (a
+ * round saved without one, by a page from before the upgrade, gets the one
+ * it would have had), both servers', the missions and multiplayer games.
+ */
+export function currentSave(): SaveFile {
+  return {
+    exported: "",
+    rounds: Object.fromEntries(
+      GAME_MODES.map((mode) => [
+        mode,
+        withRoundIds(ostSlot(mode), loadRounds(mode)),
+      ])
+    ) as SaveFile["rounds"],
+    ...serverSave("global"),
+    jp: serverSave("jp"),
+    missions: loadClearedMissions(),
+    roomRecord: loadLegacyRoomRecord(),
+    roomGames: loadRoomGames(),
+  };
+}
+
+/**
+ * A save as the file and the account hold it: the current format's JSON,
+ * an OST song written as its theme number.
+ */
+export function saveData(
+  save: SaveFile,
+  now: Date = new Date()
+): Record<string, unknown> {
+  return {
+    app: SAVE_APP,
+    version: SAVE_VERSION,
+    exported: now.toISOString(),
+    rounds: Object.fromEntries(
+      GAME_MODES.map((mode) => [mode, save.rounds[mode].map(packRound)])
+    ),
+    students: save.students,
+    voices: save.voices,
+    pictures: save.pictures,
+    jp: save.jp,
+    missions: save.missions,
+    roomRecord: save.roomRecord,
+    roomGames: save.roomGames,
+  };
 }
 
 /** For example baheardle-save-2026-09-28.txt, dated by the player's calendar. */
@@ -272,7 +301,18 @@ export function readSaveFile(text: string): SaveFileResult {
   } catch {
     return { ok: false, error: NOT_A_SAVE };
   }
+  return readSaveData(parsed);
+}
 
+/**
+ * A save's data back, from a file or the account, checked the same way the
+ * saves are checked on load. A file with no rounds is refused (it's no
+ * use importing); the account's may be empty, with `allowEmpty`.
+ */
+export function readSaveData(
+  parsed: unknown,
+  { allowEmpty = false }: { allowEmpty?: boolean } = {}
+): SaveFileResult {
   if (typeof parsed !== "object" || parsed === null) {
     return { ok: false, error: NOT_A_SAVE };
   }
@@ -312,6 +352,7 @@ export function readSaveFile(text: string): SaveFileResult {
   const jp = readServerSave(asObject(file.jp), "jp");
 
   if (
+    !allowEmpty &&
     GAME_MODES.every((mode) => rounds[mode].length === 0) &&
     isEmptyServer(global) &&
     isEmptyServer(jp)

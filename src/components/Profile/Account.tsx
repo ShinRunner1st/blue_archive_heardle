@@ -2,6 +2,14 @@ import React from "react";
 import { IoLogoDiscord, IoLogoGoogle } from "react-icons/io5";
 
 import {
+  backupBeforeAccount,
+  clearLocalProgress,
+  forgetAccountProgress,
+  lastProgressSync,
+  saveBeforeSignOut,
+} from "../../helpers/progressSync";
+import { downloadText, reloadPage, saveFileName } from "../../helpers/saveFile";
+import {
   AccountsUnavailable,
   fetchAccount,
   finishSignIn,
@@ -24,6 +32,16 @@ import * as Styled from "./index.styled";
 const ICONS: Record<Provider, React.ComponentType> = {
   google: IoLogoGoogle,
   discord: IoLogoDiscord,
+};
+
+/** What a sync that couldn't happen means for the player. */
+const PROBLEMS: Record<"backupFailed" | "newerFormat" | "tooBig", string> = {
+  backupFailed:
+    "This browser's progress couldn't be copied aside first, so it hasn't been joined with your account yet. Free some space, or download a save file, then reload.",
+  newerFormat:
+    "Your account has progress from a newer version of the game. Reload the page to bring it in.",
+  tooBig:
+    "Your progress is too big to keep in your account. It's safe in this browser.",
 };
 
 const ERRORS: Record<AuthError, string> = {
@@ -72,6 +90,31 @@ export function AccountPanel() {
   const [state, setState] = React.useState<State>({ status: "loading" });
   const [notice, setNotice] = React.useState("");
   const [busy, setBusy] = React.useState(false);
+  // Signing out: the newest progress saving to the account, then the choice.
+  const [leaving, setLeaving] = React.useState<
+    "saving" | "saved" | "unsaved" | null
+  >(null);
+  const backup = backupBeforeAccount();
+  const result = lastProgressSync();
+  const problem =
+    result === "backupFailed" || result === "newerFormat" || result === "tooBig"
+      ? result
+      : null;
+
+  /** Signs out, keeping this browser's progress or clearing it. */
+  const leave = (clear: boolean) =>
+    act(async () => {
+      forgetAccountProgress();
+      if (clear) clearLocalProgress();
+      await signOut();
+      setLeaving(null);
+      if (clear) {
+        reloadPage();
+        return;
+      }
+      setNotice("Signed out. This browser keeps its progress.");
+      await load();
+    });
 
   const load = React.useCallback(async () => {
     try {
@@ -212,29 +255,80 @@ export function AccountPanel() {
               );
             })}
           </Styled.AccountRows>
-          <Styled.AccountButtons>
-            <Styled.AccountButton
-              type="button"
-              disabled={busy}
-              onClick={() =>
-                act(async () => {
-                  await signOut();
-                  setNotice(
-                    "Signed out. This browser's progress is as it was."
-                  );
-                  await load();
-                })
-              }
-            >
-              Sign out
-            </Styled.AccountButton>
-          </Styled.AccountButtons>
+          <Styled.AccountLead as="p">
+            Your progress is kept with your account, and here as well, so it
+            plays on offline.
+          </Styled.AccountLead>
+          {backup && (
+            <Styled.AccountButtons>
+              <Styled.AccountButton
+                type="button"
+                onClick={() => downloadText(saveFileName(), backup)}
+              >
+                Download this browser&apos;s progress from before signing in
+              </Styled.AccountButton>
+            </Styled.AccountButtons>
+          )}
+          {leaving ? (
+            <Styled.AccountLeave role="group" aria-label="Sign out">
+              <Styled.AccountLead as="p">
+                {leaving === "saving"
+                  ? "Saving your newest progress to your account…"
+                  : leaving === "saved"
+                  ? "Keep your progress in this browser too? It's in your account either way."
+                  : "Couldn't save your newest progress to your account just now, so this browser keeps its copy."}
+              </Styled.AccountLead>
+              {leaving !== "saving" && (
+                <Styled.AccountButtons>
+                  <Styled.AccountButton
+                    type="button"
+                    disabled={busy}
+                    onClick={() => leave(false)}
+                  >
+                    Keep it here and sign out
+                  </Styled.AccountButton>
+                  {leaving === "saved" && (
+                    <Styled.AccountButton
+                      type="button"
+                      disabled={busy}
+                      onClick={() => leave(true)}
+                    >
+                      Clear it from this browser
+                    </Styled.AccountButton>
+                  )}
+                  <Styled.AccountButton
+                    type="button"
+                    disabled={busy}
+                    onClick={() => setLeaving(null)}
+                  >
+                    Cancel
+                  </Styled.AccountButton>
+                </Styled.AccountButtons>
+              )}
+            </Styled.AccountLeave>
+          ) : (
+            <Styled.AccountButtons>
+              <Styled.AccountButton
+                type="button"
+                disabled={busy}
+                onClick={() => {
+                  setLeaving("saving");
+                  saveBeforeSignOut()
+                    .catch(() => false)
+                    .then((saved) => setLeaving(saved ? "saved" : "unsaved"));
+                }}
+              >
+                Sign out
+              </Styled.AccountButton>
+            </Styled.AccountButtons>
+          )}
         </>
       )}
 
+      {problem && <Styled.Note role="alert">{PROBLEMS[problem]}</Styled.Note>}
+
       <Styled.Note>
-        Testing only: accounts are on here, not on baheardle.com yet, and
-        nothing is kept in an account yet. Your progress stays in this browser.
+        Testing only: accounts are on here, not on baheardle.com yet.
       </Styled.Note>
     </Styled.AccountPanel>
   );

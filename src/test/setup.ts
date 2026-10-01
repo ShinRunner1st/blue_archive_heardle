@@ -25,9 +25,9 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true;
 
 // Volume, colour scheme, cursor and character are app-wide state, so every test starts
 // as a brand-new player.
-// The accounts Worker's tests run in Node, with no browser storage.
+// The accounts tests run in Node, with no page: nothing of it to reset.
 beforeEach(() => {
-  if (typeof localStorage === "undefined") return;
+  if (typeof document === "undefined") return;
   localStorage.removeItem(VOLUME_KEY);
   localStorage.removeItem(COLOR_SCHEME_KEY);
   localStorage.removeItem(CUSTOM_CURSOR_KEY);

@@ -9,6 +9,12 @@ import {
 import { readSigned, signValue } from "./crypto";
 import { cleanProfile, readProfile, writeProfile } from "./profile";
 import {
+  MAX_PROGRESS_BYTES,
+  progressMeta,
+  readProgress,
+  writeProgress,
+} from "./progress";
+import {
   authorizeUrl,
   exchangeCode,
   ProviderError,
@@ -44,7 +50,12 @@ import {
  * - `GET /me/profile` and `PUT /me/profile`: the profile in the account
  *   (step 2). The summary goes in with it and never comes back out: it's
  *   for other players later, and the page works its own out from the
- *   progress.
+ *   progress. The read also says which progress the account has, so a
+ *   page opening needs no second request to know whether to download.
+ * - `GET /me/progress` and `PUT /me/progress?base=&format=[&backup=1]`:
+ *   the save in the account (step 3), gzipped, as bytes; its revision and
+ *   format ride in headers. A write built on an older revision gets 409
+ *   and the account's revision, for the page to merge and send again.
  *
  * The token is a credential: it only ever travels in that header, and
  * nothing here logs a header, a body, a token or a code (docs/accounts.md,
@@ -148,6 +159,8 @@ function corsHeaders(origin: string): Record<string, string> {
     // Kept two hours (browsers' cap), so a page asks once, not each call:
     // every request, the check included, counts against the free plan.
     "Access-Control-Max-Age": "7200",
+    // The progress's revision and format, for the page to read.
+    "Access-Control-Expose-Headers": "X-Revision, X-Format",
     Vary: "Origin",
   };
 }
@@ -241,7 +254,54 @@ export async function handle(
     return view ? json(origin, 200, view) : json(origin, 401, {});
   }
   if (path === "/me/profile" && request.method === "GET") {
-    return json(origin, 200, { profile: await readProfile(env.db, account) });
+    return json(origin, 200, {
+      profile: await readProfile(env.db, account),
+      progress: await progressMeta(env.db, account),
+    });
+  }
+  if (path === "/me/progress" && request.method === "GET") {
+    const progress = await readProgress(env.db, account);
+    if (!progress) return json(origin, 204);
+    return new Response(progress.data, {
+      status: 200,
+      headers: {
+        ...corsHeaders(origin),
+        "Content-Type": "application/octet-stream",
+        "Cache-Control": "no-store",
+        "X-Revision": String(progress.revision),
+        "X-Format": String(progress.format),
+      },
+    });
+  }
+  if (path === "/me/progress" && request.method === "PUT") {
+    const params = new URL(request.url).searchParams;
+    const base = Number(params.get("base"));
+    const format = Number(params.get("format"));
+    if (
+      !Number.isSafeInteger(base) ||
+      base < 0 ||
+      !Number.isSafeInteger(format) ||
+      format < 1
+    ) {
+      return json(origin, 400, { error: "bad" });
+    }
+    const data = new Uint8Array(await request.arrayBuffer());
+    if (data.length === 0) return json(origin, 400, { error: "bad" });
+    if (data.length > MAX_PROGRESS_BYTES) {
+      return json(origin, 413, { error: "tooBig" });
+    }
+    const result = await writeProgress(
+      env.db,
+      account,
+      { base, format, data, backup: params.get("backup") === "1" },
+      now
+    );
+    if (result.ok) return json(origin, 200, { revision: result.revision });
+    return json(origin, 409, {
+      error: result.why,
+      revision: result.current?.revision ?? 0,
+      format: result.current?.format ?? format,
+    });
   }
   if (path === "/me/profile" && request.method === "PUT") {
     const body = await readJson(request);
@@ -283,6 +343,7 @@ const isApiPath = (path: string) =>
   path === "/auth/sign-out" ||
   path === "/me" ||
   path === "/me/profile" ||
+  path === "/me/progress" ||
   /^\/me\/identities\/\w+$/.test(path);
 
 async function readJson(

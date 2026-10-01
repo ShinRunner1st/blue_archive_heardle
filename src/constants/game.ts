@@ -268,6 +268,33 @@ export const PROFILE_EDITED_KEY = "profile.editedAt";
 export const PROFILE_SUMMARY_SENT_KEY = "profile.summarySent";
 
 /**
+ * localStorage key holding the account's progress revision this browser's
+ * save last matched (helpers/progressSync.ts). Absent: this browser's save
+ * isn't joined with an account yet, so the next sync backs it up and joins
+ * it, merging if both have progress.
+ */
+export const PROGRESS_REVISION_KEY = "progress.revision";
+
+/**
+ * localStorage key holding a fingerprint of the save last sent to the
+ * account, so an unchanged one isn't sent again.
+ */
+export const PROGRESS_SENT_KEY = "progress.sent";
+
+/**
+ * localStorage key holding what the account's save had that this page
+ * doesn't know (a newer page's lists or missions), sent back with every
+ * save so nothing of it is lost.
+ */
+export const PROGRESS_EXTRA_KEY = "progress.extra";
+
+/**
+ * localStorage key holding this browser's save as it was before it was
+ * first joined with an account, as a save file's text, to download.
+ */
+export const BACKUP_BEFORE_ACCOUNT_KEY = "backup.beforeAccount";
+
+/**
  * sessionStorage key holding the nonce of a sign-in under way, checked when
  * the page comes back, so nobody can sign a player in to their account.
  */

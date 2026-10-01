@@ -17,6 +17,11 @@ export interface FakeD1 extends Db {
   sqlite: DatabaseSync;
 }
 
+/** A write's answer as D1 gives it: how many rows it changed. */
+const d1Result = ({ changes }: { changes: number | bigint }) => ({
+  meta: { changes: Number(changes) },
+});
+
 interface FakeStatement extends Statement {
   runNow(): unknown;
 }
@@ -35,8 +40,8 @@ export function fakeD1(): FakeD1 {
     all: async <T>() => ({
       results: sqlite.prepare(sql).all(...values) as T[],
     }),
-    run: async () => sqlite.prepare(sql).run(...values),
-    runNow: () => sqlite.prepare(sql).run(...values),
+    run: async () => d1Result(sqlite.prepare(sql).run(...values)),
+    runNow: () => d1Result(sqlite.prepare(sql).run(...values)),
   });
 
   return {

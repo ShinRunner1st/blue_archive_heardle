@@ -17,6 +17,7 @@ import {
   withoutMarking,
 } from "./profileEdit";
 import { profileSummary } from "./profileSummary";
+import { isLocalBehind, progressSettled } from "./progressSync";
 
 /**
  * The profile in the account (docs/accounts.md, step 2): the name, the
@@ -94,6 +95,8 @@ function rememberSummary(text: string): void {
  * written). The summary is sent when it has changed since it was last.
  */
 async function syncOnce(now: number): Promise<void> {
+  // The summary comes from the progress, so the progress goes first.
+  await progressSettled().catch(() => {});
   const remote = await fetchProfile();
   if (remote === undefined) return;
 
@@ -103,8 +106,12 @@ async function syncOnce(now: number): Promise<void> {
   if (remote && remote.editedAt > profileEditedAt()) applyProfile(remote);
 
   const local = localProfile();
+  // From this browser's save, once it has the account's: while it's a step
+  // behind (a merge it takes in as the page next opens), the account's
+  // summary stays as it was rather than go back.
+  const behind = isLocalBehind();
   const summary = profileSummary();
-  const text = JSON.stringify(summary);
+  const text = behind ? summarySent() : JSON.stringify(summary);
   // The picks go when this browser's differ and aren't older; the summary
   // when it has changed since it last went.
   const differs = PROFILE_FIELDS.some(
@@ -112,10 +119,14 @@ async function syncOnce(now: number): Promise<void> {
   );
   const sendPicks = !remote || (differs && local.editedAt >= remote.editedAt);
   if (!sendPicks && text === summarySent()) return;
+  if (behind && !sendPicks) return;
 
-  const kept = await putProfile({ ...local, summary });
+  const kept = await putProfile({
+    ...local,
+    summary: behind && text ? JSON.parse(text) : summary,
+  });
   if (!kept) return;
-  rememberSummary(text);
+  if (text) rememberSummary(text);
   // Another device changed it meanwhile, later: that one is kept.
   if (kept.editedAt > profileEditedAt()) applyProfile(kept);
 }

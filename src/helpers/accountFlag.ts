@@ -1,4 +1,5 @@
 import { ACCOUNT_SESSION_KEY } from "../constants/game";
+import { subscribeSaved } from "./storage";
 import { AuthError, isAuthError, isProvider, Provider } from "../types/account";
 
 /**
@@ -26,6 +27,38 @@ export function hasSession(): boolean {
   }
 }
 
+/** How long after the last save the progress goes up: a few rounds' worth. */
+const UPLOAD_AFTER_MS = 5 * 60_000;
+let uploadTimer: number | undefined;
+
+function uploadProgress(): void {
+  window.clearTimeout(uploadTimer);
+  if (!hasSession()) return;
+  import("./progressSync")
+    .then(({ syncProgress }) =>
+      // The page has drawn: the account gets this browser's save, merged
+      // if it must be, and this browser takes the account's in next time.
+      syncProgress({ canApply: () => false })
+    )
+    .catch(() => {});
+}
+
+/**
+ * Signed in, as the page goes on: the progress goes up a few minutes after
+ * rounds are saved, and as the tab is hidden or closed. Nothing for a page
+ * that isn't signed in, which every one on baheardle.com is, for now.
+ */
+export function startAccountSync(): void {
+  if (!accountsEnabled() || !hasSession()) return;
+  subscribeSaved(() => {
+    window.clearTimeout(uploadTimer);
+    uploadTimer = window.setTimeout(uploadProgress, UPLOAD_AFTER_MS);
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") uploadProgress();
+  });
+}
+
 /**
  * Syncs the profile with the account, if signed in: as the page opens,
  * and after the profile is changed. Its code comes only then, so a page
@@ -47,6 +80,8 @@ export type SignInReturn =
   | { nonce: string; error: AuthError };
 
 let pending: SignInReturn | null = null;
+/** A sign-in came back with this page: the profile opens to say how it went. */
+let returned = false;
 
 /**
  * Takes a sign-in's result out of the address as the page loads, before
@@ -65,14 +100,18 @@ export function takeSignInReturn(): boolean {
 
   const { pathname, search } = window.location;
   window.history.replaceState(window.history.state, "", pathname + search);
+  returned = true;
   if (code) pending = { nonce, code };
   else if (isProvider(linked)) pending = { nonce, linked };
   else pending = { nonce, error: isAuthError(error) ? error : "failed" };
   return true;
 }
 
-/** Whether a sign-in came back with this page, still to be finished. */
-export const hasSignInReturn = () => pending !== null;
+/**
+ * Whether a sign-in came back with this page: finished before it drew (see
+ * accountStartup.ts), the profile still opens on the Account tab to say so.
+ */
+export const hasSignInReturn = () => returned;
 
 /** The sign-in result taken from the address, once. */
 export function pendingSignInReturn(): SignInReturn | null {

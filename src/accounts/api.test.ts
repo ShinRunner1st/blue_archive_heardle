@@ -550,3 +550,117 @@ describe("the profile", () => {
     expect((await get(token))!.editedAt).toBe(now + DAY);
   });
 });
+
+describe("the progress", () => {
+  const bytes = (text: string) =>
+    new Uint8Array(new TextEncoder().encode(text));
+  const put = (
+    token: string,
+    data: Uint8Array<ArrayBuffer>,
+    query: Record<string, string>
+  ) =>
+    handle(
+      new Request(`${WORKER}/me/progress?${new URLSearchParams(query)}`, {
+        method: "PUT",
+        headers: { Origin: SITE, Authorization: `Bearer ${token}` },
+        body: data,
+      }),
+      env
+    );
+  const get = (token: string) => call("GET", "/me/progress", { token });
+
+  it("has none at first, then keeps what's sent, as it was sent", async () => {
+    const token = await signIn("alice");
+    expect((await get(token)).status).toBe(204);
+
+    const first = await put(token, bytes("save one"), {
+      base: "0",
+      format: "2",
+    });
+    expect(await first.json()).toEqual({ revision: 1 });
+
+    const back = await get(token);
+    expect(back.status).toBe(200);
+    expect(back.headers.get("X-Revision")).toBe("1");
+    expect(back.headers.get("X-Format")).toBe("2");
+    expect(back.headers.get("Access-Control-Expose-Headers")).toContain(
+      "X-Revision"
+    );
+    expect(new TextDecoder().decode(await back.arrayBuffer())).toBe("save one");
+
+    const state = (await (
+      await call("GET", "/me/profile", { token })
+    ).json()) as {
+      progress: unknown;
+    };
+    expect(state.progress).toEqual({ format: 2, revision: 1 });
+  });
+
+  it("refuses a write built on an older revision, saying which is current", async () => {
+    const token = await signIn("alice");
+    await put(token, bytes("one"), { base: "0", format: "2" });
+    await put(token, bytes("two"), { base: "1", format: "2" });
+
+    const stale = await put(token, bytes("old"), { base: "1", format: "2" });
+    expect(stale.status).toBe(409);
+    expect(await stale.json()).toEqual({
+      error: "conflict",
+      revision: 2,
+      format: 2,
+    });
+    // A page that thinks there's none yet is turned away too.
+    expect(
+      (await put(token, bytes("new"), { base: "0", format: "2" })).status
+    ).toBe(409);
+    expect(
+      new TextDecoder().decode(await (await get(token)).arrayBuffer())
+    ).toBe("two");
+  });
+
+  it("gives one of two writes on the same revision, never both", async () => {
+    const token = await signIn("alice");
+    await put(token, bytes("one"), { base: "0", format: "2" });
+    const results = await Promise.all([
+      put(token, bytes("a"), { base: "1", format: "2" }),
+      put(token, bytes("b"), { base: "1", format: "2" }),
+    ]);
+    expect(results.map((r) => r.status).sort()).toEqual([200, 409]);
+  });
+
+  it("copies what a merge writes over, when asked", async () => {
+    const token = await signIn("alice");
+    await put(token, bytes("before"), { base: "0", format: "2" });
+    await put(token, bytes("merged"), { base: "1", format: "2", backup: "1" });
+    const backup = db.sqlite
+      .prepare("SELECT revision, data FROM progress_backups")
+      .get() as { revision: number; data: Uint8Array };
+    expect(backup.revision).toBe(1);
+    expect(new TextDecoder().decode(backup.data)).toBe("before");
+  });
+
+  it("never lets an older format write over a newer one", async () => {
+    const token = await signIn("alice");
+    await put(token, bytes("newer"), { base: "0", format: "3" });
+    const old = await put(token, bytes("older"), { base: "1", format: "2" });
+    expect(old.status).toBe(409);
+    expect(await old.json()).toMatchObject({ error: "format", format: 3 });
+  });
+
+  it("takes a save of 1 MB at most, and needs a session", async () => {
+    const token = await signIn("alice");
+    expect(
+      (
+        await put(token, new Uint8Array(1024 * 1024 + 1), {
+          base: "0",
+          format: "2",
+        })
+      ).status
+    ).toBe(413);
+    expect(
+      (await put("a".repeat(52), bytes("x"), { base: "0", format: "2" })).status
+    ).toBe(401);
+    expect(
+      (await put(token, bytes("x"), { base: "-1", format: "2" })).status
+    ).toBe(400);
+  });
+});

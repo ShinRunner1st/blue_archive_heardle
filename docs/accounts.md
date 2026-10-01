@@ -574,7 +574,61 @@ accounts`, localhost only), so the whole flow is tried without
      that exist (else the default), the edit time no more than a day
      ahead of its own clock._
 3. **Progress in the account:** the first sign-in's backups and merge,
-   syncing, the 409 retries, signing out.
+   syncing, the 409 retries, signing out. _Built on
+   `feat/account-progress` (migration `0003_progress.sql`;
+   `src/accounts/progress.ts`, `src/helpers/progressSync.ts`). How it
+   works:_
+   - _**The browser's save stays where it was**, so the games read it as
+     ever and play on offline. The account keeps a copy, the save file's
+     format 2, gzipped (`GET`/`PUT /me/progress`); the revision rides in a
+     header, and the profile's read says it too, so a page opening needs
+     one request to know whether to download._
+   - _**First time in a browser** (`progress.revision` absent): its save
+     is copied aside first (`backup.beforeAccount`, downloadable from the
+     Account tab); if that fails, nothing is changed. Then the four cases
+     of section 5: only the browser's goes up; only the account's comes
+     down; both are merged (`mergeSaves`, the account's as `base`) and the
+     account keeps a copy of what it had (`progress_backups`); neither,
+     nothing._
+   - _**After:** a changed save goes up built on the revision this
+     browser last matched; if another device wrote meanwhile (409), the
+     account's comes down, is merged, and the merge goes up (its backup
+     kept), up to four tries._
+   - _**The browser's save is only changed before the page draws**
+     (the games hold their rounds in memory): a signed-in page waits for
+     the sync, 5 s at most (it took under 1 s in testing), then draws.
+     After that, a merge goes to the account only, and the browser takes
+     it in as it next opens._
+   - _**When:** as the page opens; 5 minutes after the last save while
+     playing; and as the tab is hidden or closed (`keepalive`, under
+     60 KB). A save that hasn't changed isn't sent._
+   - _**Nothing counted twice:** rounds and multiplayer games are joined
+     by id, so the same save on two devices merges to itself (tested,
+     with a save file carried over); one daily a day by section 5's rule._
+   - _**Open rounds:** as the plan says, both are kept. Nothing new was
+     needed: the stats, streaks and missions count finished rounds only,
+     and the games resume only the newest, so an older open round from
+     another device stays in the save, unfinished and uncounted._
+   - _**What this page doesn't know** in the account's save (a newer
+     page's fields, lists, JP fields or missions) is kept aside
+     (`progress.extra`) and put back in every save sent. Changing what a
+     round itself holds needs the format raised, as the checks drop a
+     round's unknown fields; a page never writes over a newer format._
+   - _**Signing out** saves the newest progress first, then asks: keep it
+     in this browser (the default; it plays on as a guest, and a later
+     sign-in merges again, by id) or clear it (offered only once it's
+     saved; the copy put aside goes too, and the page reloads)._
+   - _**A save file imported while signed in** replaces this browser's
+     progress as ever, then is joined with the account's as the page
+     opens again (both copied aside), so nothing in the account is lost._
+   - _**The summary** is worked out after the progress syncs, from the
+     browser's save once it has the account's; while the browser is a
+     step behind, the account's summary is left as it was._
+   - _**Open question for the user:** Reset stats, signed in, clears the
+     mode here and in the account, but another signed-in device that
+     still has those rounds brings them back as it merges (merges only
+     ever add). The Reset card says so; making a reset stick everywhere
+     would need a new rule (a record of what was reset)._
 4. **Room passes:** the pass, `PROTOCOL` up, kicks by account.
 5. **Privacy:** the policy page, deletion, download, About and README,
    retired missions and cosmetics, the ids lock.

@@ -1,6 +1,7 @@
 import React from "react";
 import { IoRefresh } from "react-icons/io5";
 
+import { accountsEnabled, hasSession } from "../../helpers/accountFlag";
 import {
   PopUpCard,
   PopUpCardBody,
@@ -26,6 +27,7 @@ export interface ResetTarget {
  */
 export function ResetStats({ target }: { target: ResetTarget }) {
   const { name, canReset, onReset } = target;
+  const signedIn = accountsEnabled() && hasSession();
   const [confirming, setConfirming] = React.useState(false);
   const [done, setDone] = React.useState(false);
 
@@ -48,6 +50,13 @@ export function ResetStats({ target }: { target: ResetTarget }) {
             <Styled.Target>{name}</Styled.Target>, the game and mode on screen.
             Every other one keeps its own.
           </PopUpCardText>
+          {signedIn && (
+            <PopUpCardText>
+              You&apos;re signed in: this resets it here and in your account,
+              but another device you&apos;re signed in on that still has these
+              rounds brings them back when it next syncs.
+            </PopUpCardText>
+          )}
         </PopUpCardBody>
 
         {done ? (

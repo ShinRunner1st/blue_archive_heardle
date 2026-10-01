@@ -898,7 +898,15 @@ account yet; progress stays in the browser.
   the profile's cosmetics, the later change winning, here or from another
   device, synced as a signed-in page opens and after Customize saves; and
   its summary, the totals worked out from the saves, sent as a cache and
-  never read back.
+  never read back. Then the **progress** (`src/helpers/progressSync.ts`):
+  the save, as the save file's format 2, kept in the account too,
+  revision by revision; the first sign-in in a browser copies its save
+  aside, then uploads it, downloads the account's, or merges the two
+  (the account keeping a copy of what it had); after, a write on an
+  older revision is merged and sent again. The browser's save is only
+  changed before the page draws (a signed-in page waits up to 5 s), so
+  the games never write over it; signing out asks whether to keep this
+  browser's copy (kept by default) or clear it.
 - **Signing in** is a redirect, never a script of theirs on our pages: the
   page goes to the Worker, which sends it to Google or Discord with a
   signed `state` (the page's nonce, the page to come back to); their

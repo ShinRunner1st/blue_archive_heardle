@@ -169,6 +169,12 @@ export async function fetchProfile(): Promise<
   AccountProfile | null | undefined
 > {
   if (!readToken()) return undefined;
+  // Read a moment ago as the page opened (the progress's sync): used once.
+  if (recent && Date.now() - recent.at < RECENT_MS) {
+    const { state } = recent;
+    recent = null;
+    return state.profile;
+  }
   const response = await api("GET", "/me/profile");
   if (response.status === 401) {
     writeToken(null);
@@ -183,6 +189,7 @@ export async function fetchProfile(): Promise<
 export async function putProfile(
   profile: AccountProfile & { summary: ProfileSummary }
 ): Promise<AccountProfile | undefined> {
+  recent = null;
   const response = await api("PUT", "/me/profile", profile);
   if (response.status === 401) {
     writeToken(null);
@@ -190,6 +197,116 @@ export async function putProfile(
   }
   if (!response.ok) throw new AccountsUnavailable();
   return ((await response.json()) as { profile: AccountProfile }).profile;
+}
+
+/** What the account has: its profile, and which progress (not the save). */
+export interface AccountState {
+  profile: AccountProfile | null;
+  progress: { format: number; revision: number } | null;
+}
+
+/**
+ * The state read last, kept a few seconds so the profile's sync, straight
+ * after the progress's as the page opens, needs no request of its own.
+ */
+const RECENT_MS = 30_000;
+let recent: { state: AccountState; at: number } | null = null;
+
+/** The account's profile and progress revision; undefined if signed out. */
+export async function fetchAccountState(): Promise<AccountState | undefined> {
+  if (!readToken()) return undefined;
+  const response = await api("GET", "/me/profile");
+  if (response.status === 401) {
+    writeToken(null);
+    return undefined;
+  }
+  if (!response.ok) throw new AccountsUnavailable();
+  const state = (await response.json()) as AccountState;
+  recent = { state, at: Date.now() };
+  return state;
+}
+
+/** The account's save, gzipped, with its revision; null if it has none. */
+export async function downloadProgress(): Promise<
+  { revision: number; format: number; data: Uint8Array } | null | undefined
+> {
+  if (!readToken()) return undefined;
+  const response = await api("GET", "/me/progress");
+  if (response.status === 401) {
+    writeToken(null);
+    return undefined;
+  }
+  if (response.status === 204) return null;
+  if (!response.ok) throw new AccountsUnavailable();
+  return {
+    revision: Number(response.headers.get("X-Revision")),
+    format: Number(response.headers.get("X-Format")),
+    data: new Uint8Array(await response.arrayBuffer()),
+  };
+}
+
+export type UploadResult =
+  | { ok: true; revision: number }
+  | { ok: false; why: "conflict" | "format"; revision: number; format: number }
+  | { ok: false; why: "signedOut" | "tooBig" };
+
+/**
+ * Sends the save, built on the account's revision `base`. With `backup`,
+ * the account keeps a copy of what it writes over (a merge). Small enough,
+ * it goes with `keepalive`, so a tab closing doesn't stop it.
+ */
+export async function uploadProgress(
+  data: Uint8Array<ArrayBuffer>,
+  base: number,
+  format: number,
+  backup: boolean
+): Promise<UploadResult> {
+  const token = readToken();
+  if (!token) return { ok: false, why: "signedOut" };
+  const query = new URLSearchParams({
+    base: String(base),
+    format: String(format),
+    ...(backup ? { backup: "1" } : {}),
+  });
+  let response: Response;
+  try {
+    response = await fetch(`${accountsUrl()}/me/progress?${query}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/octet-stream",
+      },
+      body: data,
+      credentials: "omit",
+      referrerPolicy: "no-referrer",
+      keepalive: data.length < 60_000,
+    });
+  } catch {
+    throw new AccountsUnavailable();
+  }
+  if (response.status === 401) {
+    writeToken(null);
+    return { ok: false, why: "signedOut" };
+  }
+  if (response.status === 413) return { ok: false, why: "tooBig" };
+  if (response.status === 409) {
+    const body = (await response.json()) as {
+      error: "conflict" | "format";
+      revision: number;
+      format: number;
+    };
+    return {
+      ok: false,
+      why: body.error === "format" ? "format" : "conflict",
+      revision: body.revision,
+      format: body.format,
+    };
+  }
+  if (!response.ok) throw new AccountsUnavailable();
+  return {
+    ok: true,
+    revision: ((await response.json()) as { revision: number }).revision,
+  };
 }
 
 /** Unlinks a provider; false if it's the account's last way in. */
@@ -207,4 +324,10 @@ export async function signOut(): Promise<void> {
   } finally {
     writeToken(null);
   }
+}
+
+/** Test seam: a new page, as far as this module's memory goes. */
+export function resetAccountClientState(): void {
+  finishing = null;
+  recent = null;
 }

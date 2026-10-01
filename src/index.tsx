@@ -12,7 +12,12 @@ import {
 import { stopPictureDrags } from "./helpers/noPictureDrag";
 import { playOneAtATime } from "./helpers/onePlayer";
 import { upgradeSaves } from "./helpers/saveFormat";
-import { takeSignInReturn } from "./helpers/accountFlag";
+import {
+  accountsEnabled,
+  hasSession,
+  startAccountSync,
+  takeSignInReturn,
+} from "./helpers/accountFlag";
 import { useColorScheme } from "./hooks/useColorScheme";
 import App from "./app";
 import "./index.css";
@@ -36,10 +41,31 @@ function Root() {
   );
 }
 
+/** The longest a signed-in page waits for the account before drawing. */
+const ACCOUNT_WAIT_MS = 5000;
+
+/**
+ * Signed in, or just back from signing in (only in dev and on the preview
+ * until accounts are released): the account's progress is taken in before
+ * the games read the saves, waiting a few seconds at most. Nobody else
+ * waits, or loads any of it.
+ */
+async function joinAccount(): Promise<void> {
+  const returned = takeSignInReturn();
+  if (!accountsEnabled() || !(returned || hasSession())) return;
+  let drawn = false;
+  const sync = import("./helpers/accountStartup")
+    .then(({ startAccount }) => startAccount(() => !drawn))
+    .catch(() => {});
+  await Promise.race([
+    sync,
+    new Promise((resolve) => window.setTimeout(resolve, ACCOUNT_WAIT_MS)),
+  ]);
+  drawn = true;
+}
+
 // Before anything reads the saves: rounds from before ids get theirs, once.
 upgradeSaves();
-// A sign-in's one-time code out of the address before anything draws.
-takeSignInReturn();
 
 // Before the first paint, so the right cursor shows from the start. The
 // effects run outside React, on their own canvas.
@@ -47,8 +73,12 @@ applyCustomCursorToDocument(getCustomCursor());
 playOneAtATime();
 stopPictureDrags();
 
-createRoot(rootElement).render(
-  <React.StrictMode>
-    <Root />
-  </React.StrictMode>
-);
+joinAccount().finally(() => {
+  createRoot(rootElement).render(
+    <React.StrictMode>
+      <Root />
+    </React.StrictMode>
+  );
+  // Signed in: what's played goes to the account as the page goes on.
+  startAccountSync();
+});

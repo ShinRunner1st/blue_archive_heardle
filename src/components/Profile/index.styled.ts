@@ -249,6 +249,17 @@ export const AccountButton = styled.button`
   }
 `;
 
+/** Signing out: the choice of keeping this browser's copy or not. */
+export const AccountLeave = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+
+  background-color: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+`;
+
 export const AccountRows = styled.ul`
   display: flex;
   flex-direction: column;

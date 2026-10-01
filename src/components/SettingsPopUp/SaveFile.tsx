@@ -1,6 +1,9 @@
 import React from "react";
 import { IoSave } from "react-icons/io5";
 
+import { PROGRESS_REVISION_KEY } from "../../constants/game";
+import { accountsEnabled, hasSession } from "../../helpers/accountFlag";
+
 import { calStats } from "../../helpers";
 import {
   buildSaveFile,
@@ -123,6 +126,16 @@ export function SaveFile() {
     }
 
     mergeMissions(pending);
+    // Signed in: the save is joined with the account's as the page opens
+    // again (a merge, both kept aside first), rather than written over it.
+    if (accountsEnabled() && hasSession()) {
+      try {
+        localStorage.removeItem(PROGRESS_REVISION_KEY);
+      } catch {
+        // It would be sent as this browser's next change: still merged
+        // by the account if anything else wrote meanwhile.
+      }
+    }
     // A player bringing a save isn't new, so the welcome is skipped.
     markFirstRunDone();
     reloadPage();
@@ -145,8 +158,10 @@ export function SaveFile() {
         {pending ? (
           <>
             <Styled.Notice role="status">
-              {describe(pending)} Importing replaces the progress on this device
-              in every mode.
+              {describe(pending)}{" "}
+              {accountsEnabled() && hasSession()
+                ? "You're signed in: it replaces the progress on this device, then is joined with your account's, so nothing in your account is lost."
+                : "Importing replaces the progress on this device in every mode."}
             </Styled.Notice>
             <Styled.Actions>
               <Styled.Action type="button" $tone="red" onClick={replace}>
