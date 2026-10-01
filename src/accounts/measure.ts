@@ -13,6 +13,8 @@ export interface Tally {
   read: number;
   written: number;
   queries: number;
+  /** Each query: its SQL's start, and what it cost. */
+  each?: { sql: string; read: number; written: number }[];
 }
 
 interface Meta {
@@ -20,43 +22,50 @@ interface Meta {
   rows_written?: number;
 }
 
-const add = (tally: Tally, result: unknown) => {
+const add = (tally: Tally, result: unknown, sql: string) => {
   const meta = (result as { meta?: Meta } | null)?.meta;
-  tally.read += meta?.rows_read ?? 0;
-  tally.written += meta?.rows_written ?? 0;
+  const read = meta?.rows_read ?? 0;
+  const written = meta?.rows_written ?? 0;
+  tally.read += read;
+  tally.written += written;
   tally.queries += 1;
+  tally.each?.push({
+    sql: sql.replace(/\s+/g, " ").trim().slice(0, 70),
+    read,
+    written,
+  });
 };
 
 export function measured(db: Db, tally: Tally): Db {
-  const wrap = (inner: Statement): Statement => ({
-    bind: (...values) => wrap(inner.bind(...values)),
+  const wrap = (inner: Statement, sql: string): Statement => ({
+    bind: (...values) => wrap(inner.bind(...values), sql),
     first: async <T>() => {
       const result = await inner.all<T>();
-      add(tally, result);
+      add(tally, result, sql);
       return result.results[0] ?? null;
     },
     all: async <T>() => {
       const result = await inner.all<T>();
-      add(tally, result);
+      add(tally, result, sql);
       return result;
     },
     run: async () => {
       const result = await inner.run();
-      add(tally, result);
+      add(tally, result, sql);
       return result;
     },
-    // The real statement, for a batch.
-    ...({ inner } as object),
+    // The real statement and its SQL, for a batch.
+    ...({ inner, sql } as object),
   });
   return {
-    prepare: (sql) => wrap(db.prepare(sql)),
+    prepare: (sql) => wrap(db.prepare(sql), sql),
     batch: async (statements) => {
-      const results = await db.batch(
-        statements.map(
-          (each) => (each as unknown as { inner: Statement }).inner
-        )
-      );
-      results.forEach((result) => add(tally, result));
+      const wrapped = statements as unknown as {
+        inner: Statement;
+        sql: string;
+      }[];
+      const results = await db.batch(wrapped.map(({ inner }) => inner));
+      results.forEach((result, i) => add(tally, result, wrapped[i].sql));
       return results;
     },
   };

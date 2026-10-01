@@ -380,11 +380,13 @@ depends on the Worker being there.
 
 So the free plan holds about:
 
-- **Worker requests:** 100,000 ÷ 5 = **20,000** signed-in players a day,
-  less the rooms' connections that day (a busy day of 1,000 eight-player
-  games is about 10,000).
-- **D1 writes:** 100,000 ÷ 5 = **20,000** players a day.
-- **D1 reads:** 5,000,000 ÷ 50 = **100,000** players a day.
+- **Worker requests:** _superseded by the measurements below, which
+  found a day costs far more requests than 5 (preflights, tab switches);
+  see "The Worker-request quota, in theory" there._
+- **D1 writes:** 100,000 ÷ 5 = **20,000** players a day; measured below
+  at 4-8 a day.
+- **D1 reads:** 5,000,000 ÷ 50 = **100,000** players a day; measured
+  below at about 100 a day with tab switches, still far inside.
 - **D1 storage:** the developer save (every song, every mode on both
   servers, about 4,300 rounds) is **66 KB gzipped in format 2**, against
   505 KB as a save file (measured 2026-10-02). Without ids it would be
@@ -403,10 +405,14 @@ in, syncs, merges and asks for passes, and logs each D1 query's `meta`
 higher than above, this section and the sync rules change before
 anything goes public.
 
-_Measured locally, 2026-10-02 (step 6), with `npm run accounts:measure`
-and `node scripts/measure-accounts.mjs`: the real Worker on D1's own
-engine, each request's rows from D1's `meta` (index entries count as rows
-written, as D1 counts them). A save of 1,000 rounds, 10 to 11 missions:_
+_Measured locally, 2026-10-02 (step 6). Two ways, both against the real
+Worker on D1's local engine (workerd), which reports each query's rows in
+its `meta`; still to be checked against Cloudflare's own counts on the
+preview (`wrangler d1 insights`, the dashboard) once it's set up._
+
+**1. Each request's D1 cost** (`npm run accounts:measure`, then `node
+scripts/measure-accounts.mjs`; `EACH=Sign-in` prints every query). A save
+of 1,000 rounds, 10 to 11 missions:
 
 | What                                    | Requests | Rows read                                       | Rows written                            |
 | --------------------------------------- | -------- | ----------------------------------------------- | --------------------------------------- |
@@ -417,19 +423,111 @@ written, as D1 counts them). A save of 1,000 rounds, 10 to 11 missions:_
 | A room pass (`GET /room-pass`)          | 1        | 16 (about 44 with all 39 missions)              | 0                                       |
 | A merge: 409, download, merged up       | 3        | 11                                              | 3                                       |
 | Signing in, a new account               | 3        | 4                                               | 12                                      |
-| Signing in, returning                   | 3        | 5                                               | 6                                       |
+| Signing in, returning                   | 3        | 5                                               | 6 (7 on a new day)                      |
 | First sync of a new account's profile   | 1        | 3                                               | 12 (one per mission, once)              |
 | Download my data                        | 1        | 37                                              | 0                                       |
 | Delete account                          | 1        | 41                                              | 18                                      |
 | The daily run                           | 0        | about one per account, session and sign-in code | the deletions                           |
 
-_So a usual day (opening, three syncs, a summary, a room pass) is **6
-requests, 36-64 rows read, 4-6 written**, against the estimate's 5, 50
-and 5: the free plan holds about **16,000** signed-in players a day on
-requests and writes, less the rooms' requests. Signing in writes more
-than estimated (indexes), but happens rarely. Still to do on the preview,
-once it's set up: the same day signed in for real, against `wrangler d1
-insights` and the dashboard._
+**Signing in's writes, statement by statement.** D1 counts a row written
+for the row and one for each index entry the statement adds; every table
+here is an ordinary (rowid) table, so a `TEXT` or composite primary key
+is an index of its own (`sqlite_autoindex_…`), as is each `UNIQUE` and
+each `CREATE INDEX`. Measured, per statement:
+
+| Request                    | Statement                                         | Logical writes                                               | Rows written (measured) |
+| -------------------------- | ------------------------------------------------- | ------------------------------------------------------------ | ----------------------- |
+| Google's answer, new       | `SELECT … FROM identities` (none yet)             | -                                                            | 0                       |
+|                            | `INSERT INTO accounts`                            | the row, its `id` key, `public_id` UNIQUE                    | 3                       |
+|                            | `INSERT INTO identities`                          | the row, its `(provider, subject)` key, `identities_account` | 3                       |
+|                            | `DELETE FROM sign_in_codes WHERE expires_at < ?`  | none expired                                                 | 0                       |
+|                            | `INSERT INTO sign_in_codes`                       | the row, its `code_hash` key                                 | 2                       |
+| The session                | `DELETE FROM sign_in_codes … RETURNING`           | the code's row                                               | 1                       |
+|                            | `INSERT INTO sessions`                            | the row, its `token_hash` key, `sessions_account`            | 3                       |
+|                            | `UPDATE accounts SET seen_day … AND seen_day < ?` | none the same day; 1 on a later day                          | 0 (1)                   |
+| **New account**            |                                                   |                                                              | **8 + 4 = 12**          |
+| Google's answer, returning | `SELECT`, then the code's `DELETE` and `INSERT`   | the code's row and key                                       | 0 + 0 + 2               |
+| The session                | as above                                          |                                                              | 1 + 3 + 0 (or 1)        |
+| **Returning**              |                                                   |                                                              | **2 + 4 = 6 (7)**       |
+
+The plan's 3-5 counted rows, not index entries. So the real cost is **12
+for a new account and 6 (7 on a new day) for a returning one**, which is
+what the capacity notes below use. (Making `sessions` and
+`sign_in_codes` `WITHOUT ROWID` would drop their key entries, 12 to 10
+and 6 to 4; it needs a rebuilt table, so it isn't worth a migration now.)
+
+**2. What a browser really sends** (a production build pointed at the
+local Worker, in Chrome, counting every request the Worker answered,
+CORS preflights included; the dev server's StrictMode doubles some):
+
+| What the player does                     | Worker requests | Of them, preflights | Why                                                                                                |
+| ---------------------------------------- | --------------- | ------------------- | -------------------------------------------------------------------------------------------------- |
+| Signs in (new account, Account tab open) | 12              | 4                   | the two redirects, the session, the account's state, the first upload and profile, `GET /me`       |
+| Opens the site                           | 1, or 2         | 0, or 1             | the account's state; a preflight once its 2 hours (browsers' cap) are up                           |
+| Switches tab, nothing played             | 1               | 0                   | a hidden tab syncs, and every sync first reads the account's state                                 |
+| A sync with something to send            | 3               | 1                   | the state read, then a preflight every time (`?base=` makes each upload's address new), the upload |
+| Opens Multiplayer                        | 3               | 1                   | the page's state read, the room pass and its preflight                                             |
+
+So a **usual day**, if it's opening the site, 3 syncs with play, 10 tab
+switches, a summary and a Multiplayer visit, is about **2 + 9 + 10 + 1 + 3
+= 25 Worker requests**, not 5 or 6: the API-level count above leaves out
+preflights, the state read before each sync, and the tab switches. D1
+stays cheap: the extra requests are reads (about 4 rows each), so about
+100 rows read and 4-8 written a day.
+
+**The Worker-request quota, in theory.** This is a theoretical ceiling
+from these measurements, **not a capacity target**: it holds only if
+nothing else used the quota, and how often players switch tabs or play
+is a guess.
+
+- Quota: **100,000 Worker requests a day**, for all our Workers' code
+  together (the accounts and the rooms Workers; the site, audio, pictures
+  and Now in Global are static files and don't count).
+- Used: **R × N**, R the requests of a signed-in player's day (about 25
+  measured as above; more with more tab switches), N the signed-in
+  players that day.
+- Headroom: **100,000 - R × N - everything excluded below**.
+
+| Signed-in players a day (N) | At R = 25 | Left of 100,000, before the exclusions |
+| --------------------------- | --------- | -------------------------------------- |
+| 500                         | 12,500    | 87,500                                 |
+| 1,000                       | 25,000    | 75,000                                 |
+| 2,000                       | 50,000    | 50,000                                 |
+| 4,000                       | 100,000   | 0: the ceiling, with nothing else      |
+
+Left out of R, and taken from the same 100,000:
+
+- **the rooms Worker:** one request per connection, reconnects included,
+  for guests and signed-in players alike (about 8-10 for an 8-player
+  game, so a busy day of 1,000 games is about 10,000);
+- **sign-ins:** about 12 requests each (measured for a new account;
+  a returning one is a few fewer), however rare;
+- **merges** (3 requests each), the Account tab (`GET /me` and its
+  preflight), Download my data, Delete account;
+- **more tab switches** than assumed, which add one request each;
+- the daily cron (one a day, if it counts at all).
+
+Guests cost the accounts Worker nothing: they never call it. They cost
+the Worker-request quota only through the rooms.
+
+So the earlier "about 16,000 signed-in players a day" from 6 requests
+was wrong in two ways: it counted API calls only, and it read a
+theoretical ceiling as a capacity. **On today's code the ceiling is about
+4,000 signed-in players a day with no rooms at all.** Before opening,
+the sync can be made much cheaper (not built; for the user to decide):
+
+- a hidden tab with nothing new sends nothing (the page already keeps a
+  fingerprint of what it last sent): tab switches cost 0;
+- a sync sends straight on the revision it knows, without reading the
+  state first (a 409 already says when another device wrote): 1 request
+  less per sync;
+- the upload's `base`, `format` and `backup` go in headers, not the
+  address, so its preflight is cached for 2 hours like the others: 1
+  request less per sync.
+
+With those, the same day is about **2 + 3 + 1 + 1 + 3 = 10** requests
+(the one preflight for the uploads), a ceiling of about 10,000 a day
+with nothing else; still a ceiling, not a target.
 
 **Rate limits:** as for the rooms, the Worker's rate-limit binding, per
 address (hashed): 10 sign-ins and 30 syncs a minute.

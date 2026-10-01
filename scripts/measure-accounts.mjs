@@ -45,6 +45,7 @@ async function call(what, method, path, { token, body, raw } = {}) {
     read,
     written: Number(response.headers.get("X-D1-Written")),
     queries: Number(response.headers.get("X-D1-Queries")),
+    each: JSON.parse(response.headers.get("X-D1-Each") ?? "[]"),
   });
   return response;
 }
@@ -207,3 +208,17 @@ for (const row of rows) {
 }
 console.log(`\n${requests} requests to the accounts Worker.`);
 if (process.env.JSON) console.log(JSON.stringify(rows));
+// Each query's own cost, for the requests named (EACH="Sign-in").
+if (process.env.EACH) {
+  for (const row of rows.filter(({ what }) =>
+    what.includes(process.env.EACH)
+  )) {
+    console.log(`
+${row.what} (${row.request}): read ${row.read}, written ${row.written}`);
+    for (const query of row.each ?? []) {
+      console.log(
+        `  read ${query.read}, written ${query.written}: ${query.sql}`
+      );
+    }
+  }
+}

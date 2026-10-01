@@ -62,6 +62,7 @@ function tallied(response: Response, tally: Tally): Response {
   copy.headers.set("X-D1-Read", String(tally.read));
   copy.headers.set("X-D1-Written", String(tally.written));
   copy.headers.set("X-D1-Queries", String(tally.queries));
+  copy.headers.set("X-D1-Each", JSON.stringify(tally.each ?? []));
   return copy;
 }
 
@@ -87,7 +88,7 @@ export default {
     const local = ["localhost", "127.0.0.1"].includes(
       new URL(request.url).hostname
     );
-    const tally: Tally = { read: 0, written: 0, queries: 0 };
+    const tally: Tally = { read: 0, written: 0, queries: 0, each: [] };
     const measuring = env.MEASURE === "yes" && local;
     const db = measuring ? measured(env.DB, tally) : env.DB;
     if (measuring && new URL(request.url).pathname === "/__measure/tidy") {
