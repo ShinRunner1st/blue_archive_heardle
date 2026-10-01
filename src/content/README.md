@@ -73,7 +73,7 @@ player opens the page: they get a toast for it.
 
 ## What missions unlock (`cosmetics.json`)
 
-Three lists, each starting with the default everyone has (no `mission`):
+Lists, each starting with the default everyone has (no `mission`):
 
 - `titles`: a title on the Sensei card. `{ "id", "name", "mission" }`.
 - `frames`: the Sensei card's colours, as `#rrggbb`: `band` (left to right),
@@ -82,8 +82,28 @@ Three lists, each starting with the default everyone has (no `mission`):
 - `cursorColors`: the cursor's flash and trail. `hue` is 0-359 (the game's
   blue has none); the one with id `rainbow` changes hue with every tap.
   `swatch` is the colour (or CSS gradient) shown in Settings.
+- `characters`: who stands beside the game. Each also needs its sprite in
+  `public/spine/` and an entry in `src/constants/characters.ts`.
+- `banners`: the strip the title sits on, on the profile and its card.
+  `picture` is a picture on the Worker (a key in
+  `src/constants/pictureFiles.ts`, such as `seasons/beach-day`) under
+  `tint`; or, with no picture, `fill`, two or more colours for a foil.
+  `ink` is the title's colour, `accent` the emblem's ring, the stripes and
+  the line along its foot, and `emblem` an icon from
+  `src/constants/icons.ts`.
+- `borders`: the line round the card. `kind` is how it's drawn: `line`,
+  `filigree`, `petals`, `halo` (ornaments on the corners), `neon` (a glow
+  of its colours) or `prism` (a ring of them); `colors` the line first,
+  then the ornaments or glow. A new kind needs drawing in
+  `src/components/Profile/ProfileFrame.tsx`.
+- `backgrounds`: the scene behind the profile's card, a `picture` on the
+  Worker as banners name theirs. Pictures already there cost nothing more;
+  a new one goes in `pictures/` and up with `npm run songs`.
 
-`mission` is the id of the mission that unlocks it.
+`mission` is the id of the mission that unlocks it. A new kind of cosmetic
+is its list here, an entry in `COSMETIC_KINDS` (`src/helpers/cosmetics.ts`)
+and, for Customize, its swatch and place in
+`src/components/Profile/Customize.tsx`.
 
 ## OST badges (`badges.json`)
 

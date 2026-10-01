@@ -71,6 +71,22 @@
       "goal": 1
     },
     {
+      "id": "daily-14",
+      "group": "daily",
+      "title": "Two weeks on duty",
+      "text": "Win a daily puzzle 14 days in a row, in one game.",
+      "fact": "bestDailyStreak",
+      "goal": 14
+    },
+    {
+      "id": "dailies-50",
+      "group": "daily",
+      "title": "Schale regular",
+      "text": "Win 50 daily puzzles, in any game.",
+      "fact": "dailiesWon",
+      "goal": 50
+    },
+    {
       "id": "ost-first-try",
       "group": "ost",
       "title": "Perfect pitch",
@@ -119,6 +135,14 @@
       "goal": 10
     },
     {
+      "id": "ost-200",
+      "group": "ost",
+      "title": "Crate digger",
+      "text": "Guess 200 different songs in Daily or Classic.",
+      "fact": "songsGuessed",
+      "goal": 200
+    },
+    {
       "id": "voice-first-try",
       "group": "voice",
       "title": "I know that voice",
@@ -151,6 +175,22 @@
       "goal": 15
     },
     {
+      "id": "voice-100",
+      "group": "voice",
+      "title": "Voice library",
+      "text": "Name 100 different students by their voice.",
+      "fact": "voicesNamed",
+      "goal": 100
+    },
+    {
+      "id": "voice-timeattack-25",
+      "group": "voice",
+      "title": "Full attendance",
+      "text": "Name 25 voices in one Voice Time Attack run.",
+      "fact": "voiceTimeAttack",
+      "goal": 25
+    },
+    {
       "id": "halo-shape",
       "group": "picture",
       "title": "Shape of a halo",
@@ -173,6 +213,14 @@
       "text": "Name 50 different halos or weapons.",
       "fact": "picturesNamed",
       "goal": 50
+    },
+    {
+      "id": "picture-100",
+      "group": "picture",
+      "title": "Picture archive",
+      "text": "Name 100 different halos and weapons.",
+      "fact": "picturesNamed",
+      "goal": 100
     },
     {
       "id": "students-quick",
@@ -207,6 +255,22 @@
       "goal": 100
     },
     {
+      "id": "students-quick-10",
+      "group": "students",
+      "title": "Detective",
+      "text": "Find 10 students in 3 guesses or fewer.",
+      "fact": "quickFinds",
+      "goal": 10
+    },
+    {
+      "id": "students-200",
+      "group": "students",
+      "title": "Student council",
+      "text": "Find 200 different students in the student game.",
+      "fact": "studentsFound",
+      "goal": 200
+    },
+    {
       "id": "room-first",
       "group": "multiplayer",
       "title": "Party time",
@@ -231,6 +295,22 @@
       "goal": 10
     },
     {
+      "id": "room-win-5",
+      "group": "multiplayer",
+      "title": "Champion of the room",
+      "text": "Finish first in 5 multiplayer games.",
+      "fact": "roomsWon",
+      "goal": 5
+    },
+    {
+      "id": "room-25",
+      "group": "multiplayer",
+      "title": "Arcade regular",
+      "text": "Play 25 multiplayer games to the standings.",
+      "fact": "roomsPlayed",
+      "goal": 25
+    },
+    {
       "id": "jp",
       "group": "kivotos",
       "title": "Ahead of time",
@@ -244,6 +324,22 @@
       "title": "Above Kivotos",
       "text": "Win 100 in a row, in any mode, and reach the sky.",
       "fact": "bestStreak",
+      "goal": 100
+    },
+    {
+      "id": "streak-30",
+      "group": "kivotos",
+      "title": "On a roll",
+      "text": "Win 30 in a row in any mode.",
+      "fact": "bestStreak",
+      "goal": 30
+    },
+    {
+      "id": "jp-100",
+      "group": "kivotos",
+      "title": "Seasoned on JP",
+      "text": "Play 100 rounds on the JP server.",
+      "fact": "jpRounds",
       "goal": 100
     }
   ]

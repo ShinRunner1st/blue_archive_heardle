@@ -364,7 +364,7 @@ they need no more height than the OST, and every game fits a 1080p window.
   badges shows each album's progress; the result screen says when a
   round adds to one. The albums' songs are in `src/constants/volumes.ts`, from their
   published tracklists.
-- **Missions** - 27 one-off missions in ☰ → Missions, a tab for each game
+- **Missions** - 39 one-off missions in ☰ → Missions, a tab for each game
   (Daily, OST, Voice, Picture, Students, Multiplayer, Kivotos), such as all
   six dailies on one day, a song from its 1-second clip, a halo from its
   silhouette or a multiplayer win. They're worked out from the saves on both
@@ -378,8 +378,21 @@ they need no more height than the OST, and every game fits a 1080p window.
   Some unlock a cosmetic (`src/constants/cosmetics.ts`, all drawn in code):
   a title and a frame for the Sensei card, picked on the card, and a colour
   for the cursor's flash and trail (pink, gold, green, violet or a
-  rainbow, each tap the next hue), picked in Settings. The hub's record and
-  the card's footer count them.
+  rainbow, each tap the next hue), picked in Settings, a student beside the
+  game, and the profile's banner, border and background. The hub's record
+  and the card's footer count them.
+- **Profile** - ☰ → Profile (or Profile on the hub's record): the player's
+  card at its head (their favourite student, name, title on its banner,
+  border and background scene), then their record from this browser's
+  saves: totals (rounds, days played, dailies won, streaks, songs and
+  students found, missions, badges, room games) and a table by game, and a
+  tab per game with each way to play (played, won, best run), the daily
+  puzzles' spread by tries (guesses in bands for Students), average tries,
+  the best Time Attack or the fastest and average find
+  (`src/helpers/profileStats.ts`). **Customize** picks the title, banner,
+  border and background, the locked ones naming their mission; banners
+  and backgrounds are pictures already on the Worker, fetched only when
+  shown. Others see a profile in rooms once accounts arrive.
 - **Character** - on wide screens, Arona (light mode) or Plana (dark mode)
   stands beside the game and reacts to your guesses. Hold her to make her look
   at you, stroke her head, or tap her. ☰ → Settings swaps in Mari or turns

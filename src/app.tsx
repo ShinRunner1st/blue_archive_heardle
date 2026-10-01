@@ -104,6 +104,9 @@ const MODE_NAMES: Record<GameMode, string> = {
 /** Loaded when first opened, with the portrait list it needs. */
 const SenseiCard = React.lazy(() => import("./components/SenseiCard"));
 
+/** The profile and Customize, loaded when first opened. */
+const ProfilePopUp = React.lazy(() => import("./components/Profile"));
+
 /** Loaded on its own page only: most players never open a room. */
 const Multiplayer = React.lazy(() => import("./components/Multiplayer"));
 
@@ -446,6 +449,15 @@ function App() {
   const openCard = React.useCallback(() => setIsCardOpen(true), []);
   const closeCard = React.useCallback(() => setIsCardOpen(false), []);
 
+  const [isProfileOpen, setIsProfileOpen] = React.useState(false);
+  const openProfile = React.useCallback(() => setIsProfileOpen(true), []);
+  const closeProfile = React.useCallback(() => setIsProfileOpen(false), []);
+  // The profile's Sensei card takes its place, rather than piling on it.
+  const cardFromProfile = React.useCallback(() => {
+    setIsProfileOpen(false);
+    setIsCardOpen(true);
+  }, []);
+
   const [isJukeboxOpen, setIsJukeboxOpen] = React.useState(false);
   const openJukebox = React.useCallback(() => {
     if (held === "game") nudgeFor("jukebox");
@@ -620,7 +632,8 @@ function App() {
     isMissionsOpen ||
     isWhatsNewOpen ||
     isJukeboxOpen ||
-    isCardOpen;
+    isCardOpen ||
+    isProfileOpen;
 
   // Marked in the song list, so a wrong answer isn't picked twice by accident.
   const guessedThemeNos = React.useMemo(
@@ -662,6 +675,7 @@ function App() {
         openWhatsNewPopUp={openWhatsNew}
         openJukeboxPopUp={openJukebox}
         openSenseiCard={openCard}
+        openProfile={openProfile}
         // The student game has Daily and Endless only.
         mode={
           isStudents
@@ -806,6 +820,11 @@ function App() {
           <SenseiCard onClose={closeCard} streak={run} />
         </React.Suspense>
       )}
+      {isProfileOpen && (
+        <React.Suspense fallback={null}>
+          <ProfilePopUp onClose={closeProfile} onSenseiCard={cardFromProfile} />
+        </React.Suspense>
+      )}
       {isSongListOpen && (
         <SongListPopUp
           onClose={closeSongList}
@@ -848,6 +867,7 @@ function App() {
               onOpen={changePage}
               onSenseiCard={openCard}
               onMissions={openMissions}
+              onProfile={openProfile}
             />
           ) : isRooms ? (
             <React.Suspense fallback={null}>

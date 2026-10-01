@@ -161,5 +161,218 @@
       "name": "Aris",
       "mission": "room-first"
     }
+  ],
+  "banners": [
+    {
+      "id": "schale",
+      "name": "Schale",
+      "fill": ["#22305A", "#2E4A8C"],
+      "ink": "#FFFFFF",
+      "accent": "#7FB0FF",
+      "emblem": "IoSchool"
+    },
+    {
+      "id": "sakura",
+      "name": "Cherry blossom",
+      "mission": "daily-14",
+      "picture": "seasons/cherry-blossom-day",
+      "tint": "#781E46",
+      "ink": "#FFFFFF",
+      "accent": "#FFB3D1",
+      "emblem": "IoHeart"
+    },
+    {
+      "id": "beach",
+      "name": "Beach",
+      "mission": "ost-200",
+      "picture": "seasons/beach-day",
+      "tint": "#0A3C6E",
+      "ink": "#FFFFFF",
+      "accent": "#7FE0FF",
+      "emblem": "IoMusicalNotes"
+    },
+    {
+      "id": "festival",
+      "name": "Summer festival",
+      "mission": "room-25",
+      "picture": "seasons/summer-festival-night",
+      "tint": "#28145A",
+      "ink": "#F2C14E",
+      "accent": "#FF9F43",
+      "emblem": "IoSparkles"
+    },
+    {
+      "id": "halloween",
+      "name": "Night carnival",
+      "mission": "picture-100",
+      "picture": "seasons/halloween-night",
+      "tint": "#3C0F3C",
+      "ink": "#FFB86B",
+      "accent": "#B04CFF",
+      "emblem": "IoMoon"
+    },
+    {
+      "id": "autumn",
+      "name": "Autumn",
+      "mission": "students-quick-10",
+      "picture": "seasons/autumn-day",
+      "tint": "#5A280A",
+      "ink": "#FFE3B8",
+      "accent": "#FFB061",
+      "emblem": "IoSearch"
+    },
+    {
+      "id": "snow",
+      "name": "Winter lodge",
+      "mission": "dailies-50",
+      "picture": "seasons/christmas-night",
+      "tint": "#0E2A4A",
+      "ink": "#E8F4FF",
+      "accent": "#9BD8FF",
+      "emblem": "IoSnow"
+    },
+    {
+      "id": "gold",
+      "name": "Gold foil",
+      "mission": "room-win-5",
+      "fill": ["#B8892B", "#F7DC8B", "#C9972F", "#F2C14E"],
+      "ink": "#3A2A05",
+      "accent": "#FFF3C4",
+      "emblem": "IoTrophy"
+    }
+  ],
+  "borders": [
+    {
+      "id": "schale",
+      "name": "Schale",
+      "kind": "line",
+      "colors": ["#5A6A8F"]
+    },
+    {
+      "id": "sakura",
+      "name": "Sakura",
+      "mission": "daily-sweep",
+      "kind": "petals",
+      "colors": ["#F7A8C8", "#FBC3DA"]
+    },
+    {
+      "id": "halo",
+      "name": "Halo",
+      "mission": "picture-50",
+      "kind": "halo",
+      "colors": ["#7FD3FF", "#9BE0FF"]
+    },
+    {
+      "id": "silver",
+      "name": "Silver filigree",
+      "mission": "voice-100",
+      "kind": "filigree",
+      "colors": ["#C9D3E0", "#E9EEF5"]
+    },
+    {
+      "id": "gold",
+      "name": "Gold filigree",
+      "mission": "daily-30",
+      "kind": "filigree",
+      "colors": ["#F2C14E", "#F7DC8B"]
+    },
+    {
+      "id": "neon",
+      "name": "Arcade neon",
+      "mission": "room-win",
+      "kind": "neon",
+      "colors": ["#00E5FF", "#B04CFF", "#FF4FA3"]
+    },
+    {
+      "id": "prism",
+      "name": "Prism",
+      "mission": "streak-30",
+      "kind": "prism",
+      "colors": ["#FF6B6B", "#FFD93D", "#6BCB77", "#4D96FF", "#B04CFF"]
+    }
+  ],
+  "backgrounds": [
+    {
+      "id": "none",
+      "name": "None"
+    },
+    {
+      "id": "cherry",
+      "name": "Cherry blossom",
+      "mission": "first-daily",
+      "picture": "seasons/cherry-blossom-day"
+    },
+    {
+      "id": "valentine",
+      "name": "Dessert café",
+      "mission": "birthday",
+      "picture": "seasons/valentine-day"
+    },
+    {
+      "id": "beach",
+      "name": "Beach",
+      "mission": "ost-100",
+      "picture": "seasons/beach-day"
+    },
+    {
+      "id": "festival",
+      "name": "Summer festival",
+      "mission": "voice-50",
+      "picture": "seasons/summer-festival-night"
+    },
+    {
+      "id": "carnival",
+      "name": "Night carnival",
+      "mission": "halo-shape",
+      "picture": "seasons/halloween-night"
+    },
+    {
+      "id": "autumn",
+      "name": "Autumn road",
+      "mission": "students-100",
+      "picture": "seasons/autumn-day"
+    },
+    {
+      "id": "lodge",
+      "name": "Winter lodge",
+      "mission": "daily-7",
+      "picture": "seasons/christmas-night"
+    },
+    {
+      "id": "shrine",
+      "name": "New Year shrine",
+      "mission": "jp",
+      "picture": "seasons/new-year-day"
+    },
+    {
+      "id": "arcade",
+      "name": "Arcade",
+      "mission": "room-first",
+      "picture": "hub/multiplayer"
+    },
+    {
+      "id": "gamedev",
+      "name": "Game Development Dept.",
+      "mission": "room-10",
+      "picture": "multiplayer/backdrop-night"
+    },
+    {
+      "id": "plaza",
+      "name": "Anniversary plaza",
+      "mission": "jp-100",
+      "picture": "seasons/anniversary-night"
+    },
+    {
+      "id": "students-200",
+      "name": "Student council",
+      "mission": "students-200",
+      "picture": "hub/students"
+    },
+    {
+      "id": "roll-call",
+      "name": "Roll call",
+      "mission": "voice-timeattack-25",
+      "picture": "hub/voice"
+    }
   ]
 }

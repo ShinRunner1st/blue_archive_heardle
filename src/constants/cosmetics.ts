@@ -2,12 +2,14 @@ import cosmeticData from "../content/cosmetics.json";
 import type { CharacterChoice } from "../types/character";
 
 /**
- * What missions unlock, from src/content/cosmetics.json, each a setting the player picks once it's theirs:
- * a title and a frame for the Sensei card, and a colour for the cursor's
- * effects. All drawn in code, so none adds a file to host. An entry with no
- * mission is everyone's from the start.
+ * What missions unlock, from src/content/cosmetics.json, each a setting the
+ * player picks once it's theirs: a title and a frame for the Sensei card, a
+ * colour for the cursor's effects, a character, and the profile's banner,
+ * border and background. Drawn in code, or pictures already on the Worker,
+ * so none adds a file to host. An entry with no mission is everyone's from
+ * the start.
  */
-interface Cosmetic {
+export interface Cosmetic {
   id: string;
   name: string;
   /** The mission that unlocks it (missions.ts); none for the default. */
@@ -58,3 +60,53 @@ export interface CharacterOption extends Cosmetic {
 }
 
 export const CHARACTER_CHOICES = cosmeticData.characters as CharacterOption[];
+
+/**
+ * The strip the player's title sits on, on the profile and its card: a
+ * picture from the Worker (pictureFiles.ts) under a tint, or a foil of
+ * colours, with an emblem (an icon from icons.ts) at its head.
+ */
+export interface Banner extends Cosmetic {
+  picture?: string;
+  /** A gradient's colours, left to right, where there's no picture. */
+  fill?: string[];
+  /** The picture's tint, under the title. */
+  tint?: string;
+  /** The title. */
+  ink: string;
+  /** The emblem's ring and the stripes at the end. */
+  accent: string;
+  emblem: string;
+}
+
+export const BANNERS = cosmeticData.banners as Banner[];
+
+/**
+ * How a border is drawn, each in code (ProfileFrame): a line; filigree,
+ * petals or a halo on the corners; a neon glow; a prism of colours. A new
+ * one needs drawing there; a new border of a kind there is only an entry.
+ */
+export const BORDER_KINDS = [
+  "line",
+  "filigree",
+  "petals",
+  "halo",
+  "neon",
+  "prism",
+] as const;
+export type BorderKind = (typeof BORDER_KINDS)[number];
+
+export interface Border extends Cosmetic {
+  kind: BorderKind;
+  /** The kind's colours: the line first, then its ornaments or glow. */
+  colors: string[];
+}
+
+export const BORDERS = cosmeticData.borders as Border[];
+
+/** A scene behind the profile and its card: a picture on the Worker. */
+export interface ProfileBackground extends Cosmetic {
+  picture?: string;
+}
+
+export const BACKGROUNDS = cosmeticData.backgrounds as ProfileBackground[];

@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 
 import { songs } from "../constants";
 import { spineCharacters } from "../constants/characters";
+import { BORDER_KINDS } from "../constants/cosmetics";
 import { ICONS } from "../constants/icons";
 import { MISSION_FACTS } from "../constants/missions";
 import { pictureFiles } from "../constants/pictureFiles";
@@ -117,6 +118,9 @@ describe("cosmetics.json", () => {
     titles: cosmetics.titles,
     frames: cosmetics.frames,
     cursorColors: cosmetics.cursorColors,
+    banners: cosmetics.banners,
+    borders: cosmetics.borders,
+    backgrounds: cosmetics.backgrounds,
   };
 
   it("starts each list with a default anyone has", () => {
@@ -159,6 +163,57 @@ describe("cosmetics.json", () => {
       if (hue !== undefined) {
         expect(hue >= 0 && hue < 360, `cursor ${color.id}: hue`).toBe(true);
       }
+    }
+  });
+});
+
+describe("cosmetics.json profile", () => {
+  const hex = /^#[0-9a-fA-F]{6}$/;
+
+  it("gives banners a picture on the Worker or a foil, and a known emblem", () => {
+    for (const banner of cosmetics.banners) {
+      const { picture, fill, tint } = banner as {
+        picture?: string;
+        fill?: string[];
+        tint?: string;
+      };
+      if (picture) {
+        expect(
+          pictureFiles[picture],
+          `banner ${banner.id}: ${picture}`
+        ).toBeTruthy();
+        expect(tint, `banner ${banner.id}: tint`).toMatch(hex);
+      } else {
+        expect(fill?.length, `banner ${banner.id}: fill`).toBeGreaterThan(1);
+        for (const color of fill ?? []) expect(color).toMatch(hex);
+      }
+      expect(banner.ink, `banner ${banner.id}: ink`).toMatch(hex);
+      expect(banner.accent, `banner ${banner.id}: accent`).toMatch(hex);
+      expect(
+        banner.emblem in ICONS,
+        `banner ${banner.id}: emblem ${banner.emblem} isn't in icons.ts`
+      ).toBe(true);
+    }
+  });
+
+  it("draws each border with a kind the code knows", () => {
+    for (const border of cosmetics.borders) {
+      expect(
+        (BORDER_KINDS as readonly string[]).includes(border.kind),
+        `border ${border.id}: kind ${border.kind}`
+      ).toBe(true);
+      expect(border.colors.length, `border ${border.id}`).toBeGreaterThan(0);
+      for (const color of border.colors) expect(color).toMatch(hex);
+    }
+  });
+
+  it("puts backgrounds on pictures the Worker has", () => {
+    for (const background of cosmetics.backgrounds.slice(1)) {
+      const { picture } = background as { picture?: string };
+      expect(
+        picture !== undefined && pictureFiles[picture] !== undefined,
+        `background ${background.id}: ${picture}`
+      ).toBe(true);
     }
   });
 });

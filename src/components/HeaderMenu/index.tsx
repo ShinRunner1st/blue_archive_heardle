@@ -5,6 +5,7 @@ import {
   IoGift,
   IoGameController,
   IoIdCard,
+  IoPerson,
   IoInformationCircle,
   IoMenu,
   IoMoon,
@@ -29,6 +30,7 @@ interface Props {
   openBadgesPopUp: () => void;
   openMissionsPopUp: () => void;
   openSenseiCard: () => void;
+  openProfile: () => void;
 }
 
 /**
@@ -45,6 +47,7 @@ export function HeaderMenu({
   openBadgesPopUp,
   openMissionsPopUp,
   openSenseiCard,
+  openProfile,
 }: Props) {
   const [open, setOpen] = React.useState(false);
   const wrapperRef = React.useRef<HTMLDivElement>(null);
@@ -128,6 +131,10 @@ export function HeaderMenu({
           >
             <IoDisc aria-hidden="true" />
             OST badges
+          </Styled.Item>
+          <Styled.Item type="button" onClick={openPopUp(openProfile)}>
+            <IoPerson aria-hidden="true" />
+            Profile
           </Styled.Item>
           <Styled.Item type="button" onClick={openPopUp(openMissionsPopUp)}>
             <IoRibbon aria-hidden="true" />

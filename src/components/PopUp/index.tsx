@@ -14,6 +14,8 @@ interface Props {
    * a long pop-up can always be closed.
    */
   actions?: React.ReactNode;
+  /** As wide as a laptop's screen allows, for the profile and its like. */
+  wide?: boolean;
   children?: React.ReactNode;
 }
 
@@ -30,7 +32,14 @@ let openCount = 0;
  * and only the body between them scrolls. On a phone it is a sheet from the
  * bottom edge.
  */
-export function PopUp({ title, subtitle, onClose, actions, children }: Props) {
+export function PopUp({
+  title,
+  subtitle,
+  onClose,
+  actions,
+  wide = false,
+  children,
+}: Props) {
   const panelRef = React.useRef<HTMLDivElement>(null);
   const titleId = React.useId();
 
@@ -104,6 +113,7 @@ export function PopUp({ title, subtitle, onClose, actions, children }: Props) {
     >
       <Styled.Panel
         ref={panelRef}
+        $wide={wide}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}

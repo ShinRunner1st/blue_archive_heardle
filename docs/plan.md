@@ -861,14 +861,21 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   user picked the split panel: the room's code, settings a row each
   with an icon, and Leave and Start on the left; wide player cards, two
   to a row, on the right. _Built on `feat/lobby-redesign`, off
-  `fix/room-feedback`._ The cards keep room for the cosmetics below.
+  `fix/room-feedback`._ The cards keep room for the cosmetics below. The
+  user found the first build plainer than the mockup (2026-10-01): each
+  card now has the student its player picked faded in behind it (their
+  portrait), a state chip, and Leave and Start in the panel's foot.
 - **A profile in normal mode** (asked for 2026-10-01): the player's own,
   from the saves, as no one else's numbers are involved: name, banner,
   favourite student, days played, totals, a row per game (rounds, won,
   best streak, average tries, best Time Attack or fastest find), the
   OST's daily guess spread, badges and missions; and **Customize**, to
   pick the banner, border and background unlocked, with the card's
-  preview. Mocked up on the canvas; to build once the user approves.
+  preview. The user approved the card, banner (with "some element on
+  it": an emblem, stripes and a line), borders and Customize, and asked
+  for more stats and room for more kinds of cosmetic later. _Built on
+  `feat/profile`, off `feat/lobby-redesign`, with 12 more missions (39)
+  to unlock them._
 - **Cosmetics** (asked for 2026-10-01), unlocked by missions and shown on
   the player's own profile first: a **banner**, the title on a slanted
   strip with a picture or a foil behind it (not only a coloured pill); a
@@ -876,6 +883,8 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   gradients (gold filigree, sakura, arcade neon, halo, prism), not only
   a colour; a **card background**, a Kivotos scene (small pictures on the
   Worker and R2 like the hub's, fetched only when a card shows one).
+- **Levels, with accounts** (asked for 2026-10-01): an account level
+  from the rounds and missions it has played, shown on the card.
 - **Other players' profiles and cosmetics in rooms, with accounts**:
   tapping a card opens their profile, and cards show their cosmetics.
   The user chose to wait for accounts (2026-10-01): without them a room
@@ -887,6 +896,13 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
 
 ## Future
 
+- **An admin page** (raised 2026-10-01, maybe): for the user or staff to
+  add, upload and edit songs, missions, badges, cosmetics and characters
+  without the code. The site has no server for its content, so it would
+  sign in (with accounts) and open a pull request with the content files
+  and pictures, as the weekly Action does, the full check and a review
+  still before anything goes live; the content files already make it
+  possible.
 - **Chat and emotes** in rooms (asked for 2026-10-01). Emotes first: a
   fixed set, each one message (incoming messages count 20 to a request),
   a few seconds apart at most, shown on the sender's card. Free-text

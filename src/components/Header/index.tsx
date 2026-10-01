@@ -20,6 +20,7 @@ interface Props {
   openWhatsNewPopUp: () => void;
   openJukeboxPopUp: () => void;
   openSenseiCard: () => void;
+  openProfile: () => void;
   mode: GameMode;
   onModeChange: (mode: GameMode) => void;
   /**
@@ -60,6 +61,7 @@ export function Header({
   openWhatsNewPopUp,
   openJukeboxPopUp,
   openSenseiCard,
+  openProfile,
   mode,
   onModeChange,
   streak,
@@ -159,6 +161,7 @@ export function Header({
             openBadgesPopUp={openBadgesPopUp}
             openMissionsPopUp={openMissionsPopUp}
             openSenseiCard={openSenseiCard}
+            openProfile={openProfile}
           />
         </Styled.Tools>
         <Styled.Tagline as={isHub ? "p" : "h1"}>{tagline}</Styled.Tagline>

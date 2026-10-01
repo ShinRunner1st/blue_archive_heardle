@@ -248,3 +248,7 @@ export const ROOM_RECORD_KEY = "roomRecord";
 export const CARD_TITLE_KEY = "cardTitle";
 export const CARD_FRAME_KEY = "cardFrame";
 export const CURSOR_COLOR_KEY = "cursorColor";
+/** The profile's banner, border and background, as picked in Customize. */
+export const PROFILE_BANNER_KEY = "profileBanner";
+export const PROFILE_BORDER_KEY = "profileBorder";
+export const PROFILE_BACKGROUND_KEY = "profileBackground";

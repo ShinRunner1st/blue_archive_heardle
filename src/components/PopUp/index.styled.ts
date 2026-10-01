@@ -42,7 +42,7 @@ export const Overlay = styled.div`
   }
 `;
 
-export const Panel = styled.div`
+export const Panel = styled.div<{ $wide?: boolean }>`
   animation: popup 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
 
   @keyframes popup {
@@ -63,7 +63,7 @@ export const Panel = styled.div`
   flex-direction: column;
 
   width: 100%;
-  max-width: 430px;
+  max-width: ${({ $wide }) => ($wide ? "960px" : "430px")};
   /* Never taller than the screen, whatever the browser's toolbars do. dvh
      follows them where supported; vh is the fallback. */
   max-height: calc(100vh - 48px);

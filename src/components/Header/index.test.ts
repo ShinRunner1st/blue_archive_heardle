@@ -12,6 +12,7 @@ const openHowToPopUp = vi.fn();
 const openSettingsPopUp = vi.fn();
 const openBadgesPopUp = vi.fn();
 const openMissionsPopUp = vi.fn();
+const openProfile = vi.fn();
 const openWhatsNewPopUp = vi.fn();
 const openJukeboxPopUp = vi.fn();
 const openSenseiCard = vi.fn();
@@ -51,6 +52,7 @@ function mount(mode: GameMode = "daily", streak = 0, isHub = false) {
       openSettingsPopUp,
       openBadgesPopUp,
       openMissionsPopUp,
+      openProfile,
       openWhatsNewPopUp,
       openJukeboxPopUp,
       openSenseiCard,

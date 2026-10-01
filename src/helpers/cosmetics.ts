@@ -1,9 +1,13 @@
 import {
+  BACKGROUNDS,
+  BANNERS,
+  BORDERS,
   CARD_FRAMES,
   CARD_TITLES,
   CHARACTER_CHOICES,
   CardFrame,
   CardTitle,
+  Cosmetic,
   CURSOR_COLORS,
   CursorColor,
 } from "../constants/cosmetics";
@@ -11,6 +15,9 @@ import {
   CARD_FRAME_KEY,
   CARD_TITLE_KEY,
   CURSOR_COLOR_KEY,
+  PROFILE_BACKGROUND_KEY,
+  PROFILE_BANNER_KEY,
+  PROFILE_BORDER_KEY,
 } from "../constants/game";
 import { isMissionCleared, loadClearedMissions } from "./missions";
 
@@ -72,6 +79,44 @@ function pick<T extends { id: string; mission?: string }>(
   // The effects keep the colour they read; let them read the new one.
   if (key === CURSOR_COLOR_KEY) resetCursorColor();
   listeners.forEach((listener) => listener());
+}
+
+/**
+ * Every kind of cosmetic a player picks from a list and keeps under a key:
+ * what Customize and the mission pop-up go through. A new kind is its list
+ * in cosmetics.json, an entry here, and how it looks (CosmeticSwatch).
+ */
+export const COSMETIC_KINDS = {
+  title: { label: "Card title", list: CARD_TITLES, key: CARD_TITLE_KEY },
+  frame: { label: "Card frame", list: CARD_FRAMES, key: CARD_FRAME_KEY },
+  cursor: {
+    label: "Cursor colour",
+    list: CURSOR_COLORS,
+    key: CURSOR_COLOR_KEY,
+  },
+  banner: { label: "Banner", list: BANNERS, key: PROFILE_BANNER_KEY },
+  border: { label: "Border", list: BORDERS, key: PROFILE_BORDER_KEY },
+  background: {
+    label: "Background",
+    list: BACKGROUNDS,
+    key: PROFILE_BACKGROUND_KEY,
+  },
+} satisfies Record<string, { label: string; list: Cosmetic[]; key: string }>;
+
+export type CosmeticKind = keyof typeof COSMETIC_KINDS;
+type ItemOf<K extends CosmeticKind> =
+  (typeof COSMETIC_KINDS)[K]["list"][number];
+
+/** The player's pick of a kind, or its default. */
+export function pickedOf<K extends CosmeticKind>(kind: K): ItemOf<K> {
+  const { list, key } = COSMETIC_KINDS[kind];
+  return picked(list as ItemOf<K>[], key);
+}
+
+/** Picks one, if it's unlocked. */
+export function setPicked(kind: CosmeticKind, id: string): void {
+  const { list, key } = COSMETIC_KINDS[kind];
+  pick(list as Cosmetic[], key, id);
 }
 
 export const cardTitle = (): CardTitle => picked(CARD_TITLES, CARD_TITLE_KEY);
@@ -173,14 +218,10 @@ export function nextCursorPalette(): CursorPalette {
 /** What clearing a mission unlocks, as the pop-up and the toast name it. */
 export function unlocksOf(missionId: string): string[] {
   return [
-    ...CARD_TITLES.filter(({ mission }) => mission === missionId).map(
-      ({ name }) => `Card title: ${name}`
-    ),
-    ...CARD_FRAMES.filter(({ mission }) => mission === missionId).map(
-      ({ name }) => `Card frame: ${name}`
-    ),
-    ...CURSOR_COLORS.filter(({ mission }) => mission === missionId).map(
-      ({ name }) => `Cursor colour: ${name}`
+    ...Object.values(COSMETIC_KINDS).flatMap(({ label, list }) =>
+      (list as Cosmetic[])
+        .filter(({ mission }) => mission === missionId)
+        .map(({ name }) => `${label}: ${name}`)
     ),
     ...CHARACTER_CHOICES.filter(({ mission }) => mission === missionId).map(
       ({ name }) => `Character: ${name}`

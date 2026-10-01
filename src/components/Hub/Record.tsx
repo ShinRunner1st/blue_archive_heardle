@@ -1,5 +1,5 @@
 import React from "react";
-import { IoIdCard, IoRibbon } from "react-icons/io5";
+import { IoIdCard, IoPerson, IoRibbon } from "react-icons/io5";
 
 import { MISSIONS } from "../../constants/missions";
 import { loadClearedMissions } from "../../helpers/missions";
@@ -17,9 +17,11 @@ import * as Styled from "./index.styled";
 export function Record({
   onSenseiCard,
   onMissions,
+  onProfile,
 }: {
   onSenseiCard: () => void;
   onMissions: () => void;
+  onProfile: () => void;
 }) {
   const server = useServer();
   const stats = React.useMemo(() => senseiStats(undefined, server), [server]);
@@ -46,6 +48,10 @@ export function Record({
       <Styled.PanelHead>
         <Styled.PanelTitle id="hub-record">Your record</Styled.PanelTitle>
         <Styled.PanelActions>
+          <Styled.PanelAction type="button" onClick={onProfile}>
+            <IoPerson aria-hidden="true" />
+            Profile
+          </Styled.PanelAction>
           <Styled.PanelAction type="button" onClick={onMissions}>
             <IoRibbon aria-hidden="true" />
             Missions {missions}/{MISSIONS.length}
