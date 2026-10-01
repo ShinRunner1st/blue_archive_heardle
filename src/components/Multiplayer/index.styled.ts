@@ -254,29 +254,6 @@ export const IconRow = styled.div`
   flex-wrap: wrap;
 `;
 
-export const CodeLabel = styled.span`
-  font-size: 0.75rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  opacity: 0.7;
-`;
-
-export const CodeText = styled.span`
-  font-size: 2.2rem;
-  font-weight: 900;
-  line-height: 1.1;
-  letter-spacing: 0.25em;
-  ${shadowText}
-`;
-
-/** Copy code and Copy link, kept on one row even on a phone. */
-export const CopyRow = styled.div`
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 8px;
-`;
-
 export const Pills = styled.ul`
   display: flex;
   flex: 1;
@@ -302,14 +279,18 @@ export const Pill = styled.li<{ $lead?: boolean }>`
   border-radius: 999px;
 `;
 
-/** Everyone in the room, as cards that keep their place all game. */
+/**
+ * Everyone in the room, as cards that keep their place all game: as wide
+ * as the lobby, a little wider than the stage, so four fit to a row.
+ */
 export const PlayerGrid = styled.ol`
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px 8px;
+  align-self: center;
 
   box-sizing: border-box;
-  width: 100%;
+  width: min(720px, calc(100vw - 32px));
   margin: 10px 0 0;
   padding: 0;
 
@@ -319,66 +300,6 @@ export const PlayerGrid = styled.ol`
   @media (min-width: 600px) {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
-`;
-
-export const PlayerCard = styled.li<{
-  $you?: boolean;
-  $away?: boolean;
-  $empty?: boolean;
-  $right?: boolean | null;
-}>`
-  position: relative;
-
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  grid-template-rows: auto auto;
-  column-gap: 6px;
-  align-items: center;
-
-  box-sizing: border-box;
-  height: 50px;
-  padding: 6px 7px;
-
-  background-color: ${({ theme, $empty }) =>
-    $empty ? "transparent" : `${theme.background1}e6`};
-  border: 1px ${({ $empty }) => ($empty ? "dashed" : "solid")}
-    ${({ theme, $you, $right }) =>
-      $right === true
-        ? theme.green
-        : $right === false
-        ? theme.red
-        : $you
-        ? theme.blue
-        : theme.background100};
-  border-radius: 10px;
-  opacity: ${({ $away, $empty }) => ($empty ? 0.45 : $away ? 0.55 : 1)};
-
-  & > :first-child {
-    grid-row: 1 / 3;
-  }
-`;
-
-export const CardName = styled.span`
-  grid-column: 2;
-  min-width: 0;
-  font-size: 0.85rem;
-  font-weight: 800;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-`;
-
-export const CardLine = styled.span<{ $right?: boolean | null }>`
-  grid-column: 2;
-  min-width: 0;
-
-  font-size: 0.75rem;
-  font-weight: 800;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: ${({ $right }) =>
-    $right === true ? "lightgreen" : $right === false ? "#ff8a8a" : "inherit"};
 `;
 
 /**
@@ -417,11 +338,9 @@ export const Kick = styled.button<{ $armed: boolean }>`
 
 /** A player's score, big enough to read across the room at a glance. */
 export const CardScore = styled.span<{ $some: boolean }>`
-  grid-row: 1 / 3;
-  grid-column: 3;
-
+  display: block;
   min-width: 24px;
-  padding: 2px 4px;
+  padding: 2px 5px;
 
   font-size: 1.1rem;
   font-weight: 900;
@@ -431,28 +350,17 @@ export const CardScore = styled.span<{ $some: boolean }>`
   color: ${({ $some }) => ($some ? "lightgreen" : "inherit")};
 
   background-color: ${({ $some }) =>
-    $some ? "rgba(76, 175, 80, 0.2)" : "rgba(255, 255, 255, 0.06)"};
+    $some ? "rgba(76, 175, 80, 0.25)" : "rgba(14, 12, 30, 0.55)"};
   border-radius: 8px;
-  opacity: ${({ $some }) => ($some ? 1 : 0.6)};
 `;
 
-/** The top three's medal, or the host's crown, on the card's corner. */
-export const Badge = styled.span<{ $medal?: boolean }>`
+/** The top three's medal, on the corner of their picture. */
+export const FaceMedal = styled.span`
   position: absolute;
-  top: -7px;
-  left: -5px;
-
-  min-width: 18px;
-  padding: 0 4px;
-
-  font-size: ${({ $medal }) => ($medal ? "0.9rem" : "0.7rem")};
-  font-weight: 900;
-  line-height: 18px;
-  text-align: center;
-
-  background-color: ${({ theme, $medal }) =>
-    $medal ? "transparent" : theme.background100};
-  border-radius: 999px;
+  right: -6px;
+  bottom: -5px;
+  font-size: 0.9rem;
+  line-height: 1;
 `;
 
 /** The round's number and its clock, above the stage. */
@@ -773,7 +681,9 @@ export const QuitRow = styled.div`
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  width: 100%;
+  /* Under the players' cards, as wide. */
+  align-self: center;
+  width: min(720px, calc(100vw - 32px));
   margin-top: 14px;
 `;
 
@@ -1108,29 +1018,22 @@ const PODIUM_DELAYS = [0, 0.5, 0.25, 0];
 export const PodiumSpot = styled.li<{
   $place: number;
   $column: number;
-  $you: boolean;
 }>`
   grid-row: 1;
   grid-column: ${({ $column }) => $column};
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 2px;
+  align-items: stretch;
   min-width: 0;
 
   /* Third rises first, the winner last. */
   animation: ${rise} 0.45s ease-out both;
   animation-delay: ${({ $place }) => PODIUM_DELAYS[$place] ?? 0}s;
-
-  & > :last-child {
-    border-color: ${({ theme, $you }) => ($you ? theme.blue : "transparent")};
-  }
 `;
 
-export const PodiumFace = styled.span`
-  position: relative;
-  display: inline-flex;
-  margin-bottom: 4px;
+/** The card on its block: the winner's a little taller. */
+export const PodiumCard = styled.div<{ $place: number }>`
+  --card-tall: ${({ $place }) => ($place === 1 ? 172 : 150)}px;
 `;
 
 export const PodiumMedal = styled.span`
@@ -1139,16 +1042,6 @@ export const PodiumMedal = styled.span`
   bottom: -6px;
   font-size: 1.3rem;
   line-height: 1;
-`;
-
-export const PodiumName = styled.span`
-  max-width: 100%;
-  font-size: 0.95rem;
-  font-weight: 900;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  ${shadowText}
 `;
 
 export const PodiumScore = styled.span`
@@ -1187,24 +1080,14 @@ export const PodiumBlock = styled.span<{ $place: number }>`
 
 /** Fourth place and after, one row each. */
 export const Places = styled.ol`
-  ${panel}
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  margin: 12px 0 0;
-  padding: 6px;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 14px 0 0;
+  padding: 0;
   list-style: none;
-`;
-
-export const PlaceRow = styled.li<{ $you?: boolean }>`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 38px;
-  padding: 2px 8px;
-
-  border: 1px solid ${({ theme, $you }) => ($you ? theme.blue : "transparent")};
-  border-radius: 8px;
 `;
 
 export const PlaceNo = styled.span<{ $right?: boolean }>`
@@ -1268,12 +1151,22 @@ export const BackTrack = styled.span`
 `;
 
 /** Every answer of a game, with who named it. */
-export const Rounds = styled(Places)`
-  margin-top: 14px;
+export const Rounds = styled.ol`
+  ${panel}
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 14px 0 0;
+  padding: 6px;
+  list-style: none;
 `;
 
-export const RoundRow = styled(PlaceRow)`
+export const RoundRow = styled.li`
+  display: flex;
+  align-items: center;
+  gap: 10px;
   min-height: 34px;
+  padding: 2px 8px;
 `;
 
 export const WhoNamed = styled.span`
@@ -1291,179 +1184,264 @@ export const Nobody = styled.span`
 `;
 
 /**
- * The lobby: the room's panel (code, settings, Leave and Start) on the
- * left and the players on the right, wider than the play area; one column
- * on a phone, the players under the panel and the buttons last. Where the
- * character stands left of the play area (1100 px up, see Character), it
- * starts at the play area's left edge and grows to the right, clear of
- * her.
+ * The lobby: the room's ticket, the players two to a row and the buttons,
+ * in the page's middle column. Where the character stands left of it
+ * (1100 px up, see Character), it stays clear of her and leaves the right
+ * of the page free, for a chat later.
  */
 export const LobbyLayout = styled.div`
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "panel" "players" "buttons";
-  gap: 16px;
-  align-self: center;
-
-  box-sizing: border-box;
-  width: min(1080px, calc(100vw - 32px));
-
-  font-family: "Nunito Sans Variable";
-
-  @media (min-width: 900px) {
-    grid-template-columns: 340px minmax(0, 1fr);
-    grid-template-areas: "panel players" "buttons players";
-    grid-template-rows: auto 1fr;
-    gap: 0 24px;
-  }
-
-  @media (min-width: 1100px) {
-    align-self: flex-start;
-    width: min(1000px, calc(50vw + 284px));
-  }
-`;
-
-export const RoomPanel = styled.section`
-  ${panel}
-  grid-area: panel;
-
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 20px 22px 16px;
+  align-self: center;
 
+  box-sizing: border-box;
+  width: min(720px, calc(100vw - 32px));
+
+  font-family: "Nunito Sans Variable";
+
+  @media (max-width: 600px) {
+    gap: 10px;
+  }
+`;
+
+export const Ticket = styled.section`
+  ${panel}
+  overflow: hidden;
+  border-radius: 14px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-
-  @media (min-width: 900px) {
-    border-bottom: none;
-    border-radius: 16px 16px 0 0;
-  }
 `;
 
-export const PanelCode = styled.div`
+/** The code on a blue strip cut on a slant, as the game's name plates. */
+export const TicketStrip = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: 2px;
-`;
-
-export const BigCode = styled(CodeText)`
-  font-size: 3.1rem;
-  line-height: 1.05;
-`;
-
-/**
- * The settings, a row each with its icon; on a phone two to a row, the
- * value under its label, so the players aren't pushed out of sight.
- */
-export const SettingList = styled.ul`
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 12px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-
-  @media (min-width: 900px) {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-`;
-
-export const SettingItem = styled.li`
-  display: grid;
-  grid-template-columns: 30px minmax(0, 1fr);
-  column-gap: 10px;
   align-items: center;
+  gap: 12px;
+  padding: 10px 30px 10px 18px;
 
-  & > :first-child {
-    grid-row: 1 / 3;
-  }
+  color: #ffffff;
+  background: linear-gradient(100deg, #1f5fd6, #128afa);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 18px) 100%, 0 100%);
 
-  & > :last-child {
-    text-align: left;
-  }
-
-  @media (min-width: 900px) {
-    grid-template-columns: 30px minmax(0, 1fr) auto;
-    gap: 12px;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-
-    & > :first-child {
-      grid-row: auto;
-    }
-
-    & > :last-child {
-      text-align: right;
-    }
-
-    &:last-child {
-      border-bottom: none;
-    }
+  @media (max-width: 600px) {
+    gap: 10px;
+    padding: 8px 26px 8px 14px;
   }
 `;
 
-export const SettingIcon = styled.span`
+export const TicketLabel = styled.span`
+  font-size: 0.75rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #cfe6ff;
+`;
+
+export const TicketCode = styled.span`
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+
+  @media (max-width: 600px) {
+    font-size: 1.7rem;
+  }
+`;
+
+export const TicketCopies = styled.div`
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+`;
+
+/** The ticket's round buttons: Copy code, Copy link, the host's gear. */
+export const TicketButton = styled.button<{ $done?: boolean }>`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  padding: 0;
 
-  font-size: 16px;
-  color: #8ab8ff;
+  font-size: 18px;
+  color: #ffffff;
 
-  background-color: rgba(18, 138, 250, 0.2);
-  border-radius: 8px;
-`;
+  background-color: ${({ $done }) =>
+    $done ? "rgba(76, 175, 80, 0.85)" : "rgba(14, 12, 30, 0.35)"};
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  cursor: pointer;
 
-export const SettingLabel = styled.span`
-  font-size: 0.78rem;
-  font-weight: 700;
-  opacity: 0.75;
+  &:hover {
+    background-color: ${({ $done }) =>
+      $done ? "rgba(76, 175, 80, 0.85)" : "rgba(14, 12, 30, 0.55)"};
+  }
 
-  @media (min-width: 900px) {
-    font-size: 0.88rem;
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
   }
 `;
 
-export const SettingValue = styled.span`
-  font-size: 0.95rem;
+export const TicketChips = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+
+  @media (max-width: 600px) {
+    padding: 0 12px 12px;
+  }
+`;
+
+export const ChipRow = styled.ul`
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+`;
+
+/** A setting as a chip: its icon and value, its name for a pointer. */
+export const SettingChip = styled.li`
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px 4px 8px;
+
+  font-size: 0.8rem;
   font-weight: 800;
-  text-align: right;
+  white-space: nowrap;
+
+  background-color: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+
+  & > svg {
+    flex-shrink: 0;
+    color: #8ab8ff;
+  }
+
+  &:first-child {
+    background-color: ${({ theme }) => theme.blue};
+
+    & > svg {
+      color: #ffffff;
+    }
+  }
+`;
+
+/** The setting's name, for screen readers: the chip shows the value. */
+export const ChipLabel = styled.span`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+`;
+
+/** On a phone: the settings in a line, Details opening the chips. */
+export const TicketDetails = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 12px 2px 4px;
+`;
+
+export const DetailsToggle = styled.button`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 8px;
+
+  font-family: inherit;
+  text-align: left;
+  color: ${({ theme }) => theme.text};
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: -2px;
+  }
+`;
+
+export const DetailsLine = styled.span`
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  font-size: 0.82rem;
+  font-weight: 800;
+`;
+
+export const DetailsWord = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+
+  font-size: 0.75rem;
+  font-weight: 800;
+  opacity: 0.75;
 `;
 
 /**
- * Leave and Start: the foot of the panel on a wide screen, as one piece
- * with it; on a phone, on their own after the players.
+ * Leave and Start under the players; on a phone pinned to the foot of the
+ * play area, so Start is in reach however many have joined.
  */
 export const LobbyButtons = styled.div`
-  grid-area: buttons;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 12px;
+  margin-top: 4px;
 
-  @media (min-width: 900px) {
-    ${panel}
-    align-self: start;
-    padding: 4px 22px 22px;
-    border-top: none;
-    border-radius: 0 0 16px 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  & > button {
+    min-width: 120px;
+  }
+
+  & > button:last-child:not(:first-child) {
+    min-width: 220px;
+  }
+
+  @media (max-width: 600px) {
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    margin: 0 -16px;
+    padding: 18px 16px 10px;
+    background: linear-gradient(
+      ${({ theme }) => theme.background1}00,
+      ${({ theme }) => theme.background1}f2 35%
+    );
+
+    & > button {
+      min-width: 100px;
+    }
 
     & > button:last-child:not(:first-child) {
       flex: 1 1 auto;
+      min-width: 0;
     }
   }
 `;
 
 export const LobbyPlayers = styled.section`
-  grid-area: players;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
 `;
 
@@ -1477,7 +1455,7 @@ export const PlayersHead = styled.div`
 
 export const PlayersTitle = styled.h2`
   margin: 0;
-  font-size: 1.35rem;
+  font-size: 1.3rem;
   font-weight: 900;
   ${shadowText}
 
@@ -1485,151 +1463,91 @@ export const PlayersTitle = styled.h2`
     font-weight: 700;
     opacity: 0.7;
   }
+
+  @media (max-width: 600px) {
+    font-size: 1.05rem;
+  }
 `;
 
 export const PlayersHint = styled.span`
   font-size: 0.85rem;
   font-weight: 700;
-  opacity: 0.8;
+  opacity: 0.85;
+  text-align: right;
   ${shadowText}
+
+  @media (max-width: 600px) {
+    font-size: 0.75rem;
+  }
 `;
 
+/** The players two to a row, on a phone too. */
 export const LobbyGrid = styled.ol`
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
   margin: 0;
   padding: 0;
   list-style: none;
 
-  @media (min-width: 520px) {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-`;
-
-/**
- * A player in the lobby: their picture, name and what they're doing, the
- * student they picked faded in on the right (a hue from the name for a
- * player without one). It keeps room for what accounts bring: a banner
- * under the name, a background and a border.
- */
-export const LobbyCard = styled.li<{
-  $you?: boolean;
-  $away?: boolean;
-  $empty?: boolean;
-  $hue?: number;
-}>`
-  position: relative;
-  overflow: hidden;
-
-  display: flex;
-  align-items: center;
-  gap: 14px;
-
-  box-sizing: border-box;
-  height: 100px;
-  padding: 0 16px;
-
-  background: ${({ theme, $empty, $hue }) =>
-    $empty
-      ? "transparent"
-      : $hue === undefined
-      ? `${theme.background1}eb`
-      : `linear-gradient(90deg, ${theme.background1}eb 35%, hsla(${$hue}, 55%, 45%, 0.45)), ${theme.background1}`};
-  border: ${({ $empty, $you }) => ($empty ? 2 : $you ? 2 : 1)}px
-    ${({ $empty }) => ($empty ? "dashed" : "solid")}
-    ${({ theme, $you, $empty }) =>
-      $empty
-        ? "rgba(255, 255, 255, 0.22)"
-        : $you
-        ? theme.blue
-        : theme.background100};
-  border-radius: 14px;
-  box-shadow: ${({ $empty }) =>
-    $empty ? "none" : "0 8px 22px rgba(0, 0, 0, 0.28)"};
-  opacity: ${({ $away, $empty }) => ($empty ? 0.6 : $away ? 0.55 : 1)};
-`;
-
-/** The picked student's portrait, faded in from the card's middle. */
-export const CardArt = styled.img`
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 58%;
-  height: 100%;
-
-  object-fit: cover;
-  object-position: center 18%;
-  opacity: 0.7;
-  pointer-events: none;
-
-  mask-image: linear-gradient(90deg, transparent, #000 70%);
-`;
-
-export const LobbyCardText = styled.div`
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 1 1 auto;
-  min-width: 0;
-`;
-
-export const LobbyName = styled.span`
-  font-size: 1.15rem;
-  font-weight: 900;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  ${shadowText}
-
-  & > small {
-    font-size: 0.75rem;
-    font-weight: 700;
-    opacity: 0.75;
+  @media (max-width: 600px) {
+    gap: 8px;
   }
 `;
 
 /** Host, Ready, Away: a small chip in the card's top corner. */
 export const LobbyState = styled.span<{ $host?: boolean; $ready?: boolean }>`
-  position: absolute;
-  top: 9px;
-  right: 10px;
-
+  display: block;
   padding: 2px 9px;
 
   font-size: 0.72rem;
   font-weight: 800;
+  white-space: nowrap;
   color: ${({ $host, $ready }) =>
     $host ? "#f2c14e" : $ready ? "lightgreen" : "inherit"};
 
   background-color: rgba(14, 12, 30, 0.72);
   border-radius: 999px;
+
+  @media (max-width: 600px) {
+    padding: 1px 6px;
+    font-size: 0.62rem;
+  }
 `;
 
-/** The host's Kick on a lobby card, in its bottom corner. */
+/** The host's Kick on a lobby card, beside its state in the corner. */
 export const CardKick = styled(Kick)`
-  position: absolute;
-  right: 10px;
-  bottom: 9px;
+  height: 20px;
+  min-width: 20px;
   background-color: ${({ $armed }) =>
-    $armed ? "rgba(255, 77, 77, 0.45)" : "rgba(14, 12, 30, 0.72)"};
+    $armed ? "rgba(255, 77, 77, 0.6)" : "rgba(14, 12, 30, 0.72)"};
 `;
 
-/** A free place's picture: an empty circle with a plus. */
-export const FreeCircle = styled.span`
+/** A place still free: a dashed card, as tall as a player's. */
+export const FreePlace = styled.li`
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-  width: 64px;
-  height: 64px;
+  gap: 8px;
+  box-sizing: border-box;
+  min-height: 106px;
 
-  font-size: 1.8rem;
-  font-weight: 300;
+  font-size: 0.9rem;
+  font-weight: 800;
+  opacity: 0.6;
 
-  background-color: rgba(255, 255, 255, 0.06);
-  border-radius: 50%;
+  border: 2px dashed rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+
+  & > span {
+    font-size: 1.4rem;
+    font-weight: 300;
+  }
+
+  @media (max-width: 600px) {
+    min-height: 82px;
+    font-size: 0.8rem;
+  }
 `;
 
 /** A guest's note where the host's Start would be. */

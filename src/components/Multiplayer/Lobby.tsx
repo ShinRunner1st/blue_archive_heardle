@@ -1,22 +1,32 @@
 import React from "react";
 import {
   IoChatbubbleEllipses,
+  IoCheckmark,
+  IoChevronDown,
+  IoChevronUp,
+  IoCopyOutline,
   IoDisc,
   IoEnter,
   IoGameController,
   IoGlobe,
   IoKey,
   IoLayers,
+  IoLink,
   IoList,
   IoLockClosed,
   IoPlay,
+  IoSettingsSharp,
   IoTimer,
 } from "react-icons/io5";
 
 import { PAGES } from "../../constants/pages";
-import { backupUrlFor } from "../../helpers/audioUrl";
 import { roomLink, saveRoomSettings } from "../../helpers/roomClient";
-import { SettingRow, settingsRows } from "../../helpers/roomView";
+import {
+  SettingRow,
+  settingsRows,
+  settingsSummary,
+} from "../../helpers/roomView";
+import { useMediaQuery } from "../../hooks/useMediaQuery";
 import {
   ClientMessage,
   IDLE_MS,
@@ -27,9 +37,9 @@ import {
 } from "../../types/room";
 
 import { Button } from "../Button";
-import { usePortraits } from "../Portrait";
+import { defaultLook, PlayerCard } from "../Profile/PlayerCard";
 
-import { Avatar, hueOf } from "./PlayerList";
+import { Avatar } from "./PlayerList";
 import { SettingsPopUp } from "./SettingsPopUp";
 import * as Styled from "./index.styled";
 import { useNow, useTickAt } from "./useRoomClock";
@@ -67,12 +77,13 @@ const ACCESS_ICONS: Record<RoomAccess, React.ComponentType> = {
 };
 
 /**
- * A room before its game: on the left its panel, the code to share, the
- * settings a row each (the host changes them, and who can join, in a
- * pop-up) and Start; on the right everyone who has joined, with the
- * places still free, and for the host a Kick on everyone else's card. A
- * lobby where nothing happens for IDLE_MS closes, with a warning for its
- * last minute.
+ * A room before its game, in the page's middle column clear of the
+ * character (the right side kept for a chat later): its ticket, the code
+ * to share and the settings (the host changes them, and who can join, in
+ * a pop-up); everyone who has joined on their cards, two to a row, with
+ * the places still free and for the host a Kick on everyone else's; then
+ * Leave and Start, pinned to the foot on a phone. A lobby where nothing
+ * happens for IDLE_MS closes, with a warning for its last minute.
  */
 export function Lobby({ view, receivedAt, send, onLeave }: Props) {
   const now = useNow();
@@ -146,56 +157,12 @@ export function Lobby({ view, receivedAt, send, onLeave }: Props) {
       </Styled.Toasts>
 
       <Styled.LobbyLayout>
-        <Styled.RoomPanel aria-label="Room">
-          <Styled.PanelCode>
-            <Styled.CodeLabel>Room code</Styled.CodeLabel>
-            <Styled.BigCode
-              aria-label={`Room code ${view.code.split("").join(" ")}`}
-            >
-              {view.code}
-            </Styled.BigCode>
-          </Styled.PanelCode>
-          <Styled.CopyRow>
-            <Styled.Small
-              type="button"
-              $strong={copied === "code"}
-              onClick={() => copy(view.code, "code")}
-            >
-              {copied === "code" ? "Copied ✓" : "Copy code"}
-            </Styled.Small>
-            <Styled.Small
-              type="button"
-              $strong={copied === "link"}
-              onClick={() => copy(link, "link")}
-            >
-              {copied === "link" ? "Copied ✓" : "Copy link"}
-            </Styled.Small>
-          </Styled.CopyRow>
-
-          <Styled.SettingList aria-label="Room settings">
-            {settingsRows(settings, view.access).map((row) => {
-              const Icon =
-                row.key === "access"
-                  ? ACCESS_ICONS[view.access]
-                  : ROW_ICONS[row.key];
-              return (
-                <Styled.SettingItem key={row.key}>
-                  <Styled.SettingIcon aria-hidden="true">
-                    <Icon />
-                  </Styled.SettingIcon>
-                  <Styled.SettingLabel>{row.label}</Styled.SettingLabel>
-                  <Styled.SettingValue>{row.value}</Styled.SettingValue>
-                </Styled.SettingItem>
-              );
-            })}
-          </Styled.SettingList>
-
-          {isHost && !early && (
-            <Styled.Small type="button" onClick={() => setEditing(true)}>
-              Change settings
-            </Styled.Small>
-          )}
-        </Styled.RoomPanel>
+        <RoomTicket
+          view={view}
+          copied={copied}
+          onCopy={(what) => copy(what === "code" ? view.code : link, what)}
+          onSettings={isHost && !early ? () => setEditing(true) : undefined}
+        />
 
         <LobbyPlayers
           view={view}
@@ -250,10 +217,119 @@ export function Lobby({ view, receivedAt, send, onLeave }: Props) {
 }
 
 /**
- * Everyone in the room as wide cards, in the order they came, and the
- * places still free: each with the student the player picked faded in
- * behind it (a portrait, about 7.5 KB, cached for a year). For the host, a
- * Kick on everyone else's, pressed twice.
+ * The room's ticket: its code on a slanted strip like the game's name
+ * plates, with Copy code, Copy link and the host's gear, and under it the
+ * settings as chips. On a phone the chips fold into one line, so the
+ * players come first.
+ */
+function RoomTicket({
+  view,
+  copied,
+  onCopy,
+  onSettings,
+}: {
+  view: RoomView;
+  copied?: "code" | "link" | "failed";
+  onCopy: (what: "code" | "link") => void;
+  onSettings?: () => void;
+}) {
+  const phone = useMediaQuery("(max-width: 600px)");
+  const [open, setOpen] = React.useState(false);
+  const rows = settingsRows(view.settings, view.access);
+
+  const chips = (
+    <Styled.ChipRow aria-label="Room settings" id="room-settings">
+      {rows.map((row) => {
+        const Icon =
+          row.key === "access" ? ACCESS_ICONS[view.access] : ROW_ICONS[row.key];
+        return (
+          <Styled.SettingChip key={row.key} title={row.label}>
+            <Icon aria-hidden="true" />
+            <Styled.ChipLabel>{row.label}: </Styled.ChipLabel>
+            {row.value}
+          </Styled.SettingChip>
+        );
+      })}
+    </Styled.ChipRow>
+  );
+  const gear = onSettings && (
+    <Styled.TicketButton
+      type="button"
+      onClick={onSettings}
+      aria-label="Change the room's settings"
+      title="Change settings"
+    >
+      <IoSettingsSharp aria-hidden="true" />
+    </Styled.TicketButton>
+  );
+
+  return (
+    <Styled.Ticket aria-label="Room">
+      <Styled.TicketStrip>
+        <Styled.TicketLabel>Room</Styled.TicketLabel>
+        <Styled.TicketCode
+          aria-label={`Room code ${view.code.split("").join(" ")}`}
+        >
+          {view.code}
+        </Styled.TicketCode>
+        <Styled.TicketCopies>
+          {(["code", "link"] as const).map((what) => (
+            <Styled.TicketButton
+              key={what}
+              type="button"
+              $done={copied === what}
+              onClick={() => onCopy(what)}
+              aria-label={copied === what ? "Copied" : `Copy ${what}`}
+              title={`Copy ${what}`}
+            >
+              {copied === what ? (
+                <IoCheckmark aria-hidden="true" />
+              ) : what === "code" ? (
+                <IoCopyOutline aria-hidden="true" />
+              ) : (
+                <IoLink aria-hidden="true" />
+              )}
+            </Styled.TicketButton>
+          ))}
+          {gear}
+        </Styled.TicketCopies>
+      </Styled.TicketStrip>
+      {phone ? (
+        <>
+          <Styled.TicketDetails>
+            <Styled.DetailsToggle
+              type="button"
+              aria-expanded={open}
+              aria-controls="room-settings"
+              onClick={() => setOpen((was) => !was)}
+            >
+              <Styled.DetailsLine>
+                {settingsSummary(view.settings, view.access).join(" · ")}
+              </Styled.DetailsLine>
+              <Styled.DetailsWord>
+                Details{" "}
+                {open ? (
+                  <IoChevronUp aria-hidden="true" />
+                ) : (
+                  <IoChevronDown aria-hidden="true" />
+                )}
+              </Styled.DetailsWord>
+            </Styled.DetailsToggle>
+          </Styled.TicketDetails>
+          {open && <Styled.TicketChips>{chips}</Styled.TicketChips>}
+        </>
+      ) : (
+        <Styled.TicketChips>{chips}</Styled.TicketChips>
+      )}
+    </Styled.Ticket>
+  );
+}
+
+/**
+ * Everyone in the room, two to a row in the order they came, and the
+ * places still free: each on their card as Customize draws it, with the
+ * student they picked; the cosmetics are the default ones until accounts.
+ * For the host, a Kick on everyone else's, pressed twice.
  */
 function LobbyPlayers({
   view,
@@ -265,9 +341,6 @@ function LobbyPlayers({
   onKick?: (id: string) => void;
 }) {
   const free = Math.max(0, view.settings.maxPlayers - view.players.length);
-  const portraits = usePortraits(
-    view.players.flatMap(({ icon }) => (icon === null ? [] : [icon]))
-  );
   const [arming, setArming] = React.useState<string | null>(null);
   React.useEffect(() => {
     if (!arming) return;
@@ -292,87 +365,62 @@ function LobbyPlayers({
           const isHost = player.id === view.host;
           // Back from the standings early, or still on them.
           const onResults = view.phase === "over" && !player.returned;
-          const art =
-            player.icon === null ? undefined : portraits.get(player.icon);
           return (
-            <Styled.LobbyCard
-              key={player.id}
-              $you={isYou}
-              $away={!player.here}
-              $hue={player.icon === null ? hueOf(player.name) : undefined}
-            >
-              {art && <CardArt url={art} />}
-              <Avatar icon={player.icon} name={player.name} size={64} />
-              <Styled.LobbyCardText>
-                <Styled.LobbyName title={player.name}>
-                  {player.name} {isYou && <small>(you)</small>}
-                </Styled.LobbyName>
-              </Styled.LobbyCardText>
-              <Styled.LobbyState
-                $host={isHost && player.here}
-                $ready={!isHost && player.here && !onResults}
-              >
-                {!player.here
-                  ? "Away"
-                  : isHost
-                  ? "👑 Host"
-                  : onResults
-                  ? "On the results"
-                  : "Ready"}
-              </Styled.LobbyState>
-              {onKick && !isYou && (
-                <Styled.CardKick
-                  type="button"
-                  $armed={arming === player.id}
-                  aria-label={
-                    arming === player.id
-                      ? `Tap again to kick ${player.name}`
-                      : `Kick ${player.name}`
-                  }
-                  onClick={() => {
-                    if (arming === player.id) {
-                      setArming(null);
-                      onKick(player.id);
-                    } else {
-                      setArming(player.id);
-                    }
-                  }}
-                >
-                  {arming === player.id ? "Kick?" : "✕"}
-                </Styled.CardKick>
-              )}
-            </Styled.LobbyCard>
+            <li key={player.id}>
+              <PlayerCard
+                look={defaultLook(player.name, player.icon)}
+                face={(size) => (
+                  <Avatar icon={player.icon} name={player.name} size={size} />
+                )}
+                you={isYou}
+                away={!player.here}
+                corner={
+                  <>
+                    <Styled.LobbyState
+                      $host={isHost && player.here}
+                      $ready={!isHost && player.here && !onResults}
+                    >
+                      {!player.here
+                        ? "Away"
+                        : isHost
+                        ? "👑 Host"
+                        : onResults
+                        ? "On the results"
+                        : "Ready"}
+                    </Styled.LobbyState>
+                    {onKick && !isYou && (
+                      <Styled.CardKick
+                        type="button"
+                        $armed={arming === player.id}
+                        aria-label={
+                          arming === player.id
+                            ? `Tap again to kick ${player.name}`
+                            : `Kick ${player.name}`
+                        }
+                        onClick={() => {
+                          if (arming === player.id) {
+                            setArming(null);
+                            onKick(player.id);
+                          } else {
+                            setArming(player.id);
+                          }
+                        }}
+                      >
+                        {arming === player.id ? "Kick?" : "✕"}
+                      </Styled.CardKick>
+                    )}
+                  </>
+                }
+              />
+            </li>
           );
         })}
         {Array.from({ length: free }, (_, index) => (
-          <Styled.LobbyCard key={`free-${index}`} $empty aria-hidden="true">
-            <Styled.FreeCircle>+</Styled.FreeCircle>
-            <Styled.LobbyName>Free place</Styled.LobbyName>
-          </Styled.LobbyCard>
+          <Styled.FreePlace key={`free-${index}`} aria-hidden="true">
+            <span>+</span> Free
+          </Styled.FreePlace>
         ))}
       </Styled.LobbyGrid>
     </Styled.LobbyPlayers>
-  );
-}
-
-/**
- * A portrait behind a card, from its copy on R2 if the Worker fails; gone
- * if both do. Decorative: the name is on the card.
- */
-function CardArt({ url }: { url: string }) {
-  const [src, setSrc] = React.useState(url);
-  const [failed, setFailed] = React.useState(false);
-  if (failed) return null;
-  return (
-    <Styled.CardArt
-      src={src}
-      alt=""
-      loading="lazy"
-      onError={() => {
-        const backup = backupUrlFor(url);
-        if (backup && src !== backup) setSrc(backup);
-        else setFailed(true);
-      }}
-    />
   );
 }

@@ -65,7 +65,7 @@ export function settingsSummary(
   ];
 }
 
-/** One of the settings as the lobby's panel lists it. */
+/** One of the settings as the lobby's ticket shows it, a chip each. */
 export interface SettingRow {
   /** Names the row's icon, and keys it. */
   key:
@@ -89,9 +89,10 @@ const ACCESS_ROWS: Record<RoomAccess, string> = {
 };
 
 /**
- * The settings a row each, as the lobby's panel lists them: only the
- * game's own (albums for the OST, lines for Voice), then who can join.
- * Not the most players: the free places show it.
+ * The settings as the lobby's ticket shows them, a chip each whose value
+ * reads alone ("10 songs", "20s each"), its label for a pointer and screen
+ * readers: only the game's own (albums for the OST, lines for Voice),
+ * then who can join. Not the most players: the free places show it.
  */
 export function settingsRows(
   settings: RoomSettings,
@@ -137,18 +138,18 @@ export function settingsRows(
     {
       key: "rounds",
       label: `How many ${roundsName(settings)}`,
-      value: String(settings.rounds),
+      value: `${settings.rounds} ${roundsName(settings, settings.rounds)}`,
     },
     {
       key: "time",
       label: "Time to answer",
-      value: `${settings.guessSeconds}s`,
+      value: `${settings.guessSeconds}s each`,
     },
     game === "ost"
       ? {
           key: "start",
           label: "Songs start",
-          value: settings.start === "start" ? "From the top" : "Random",
+          value: settings.start === "start" ? "From the top" : "Random start",
         }
       : {
           key: "server",

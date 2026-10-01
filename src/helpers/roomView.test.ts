@@ -58,9 +58,9 @@ describe("settingsRows", () => {
       "Game: OST",
       "Albums: Vol.1, Vol.3",
       "Answers: Typed",
-      "How many songs: 10",
-      "Time to answer: 20s",
-      "Songs start: Random",
+      "How many songs: 10 songs",
+      "Time to answer: 20s each",
+      "Songs start: Random start",
       "Who can join: Password",
     ]);
   });
@@ -80,8 +80,8 @@ describe("settingsRows", () => {
     ).toEqual([
       "Game: Weapon silhouettes",
       "Answers: Typed",
-      "How many weapons: 10",
-      "Time to answer: 20s",
+      "How many weapons: 10 weapons",
+      "Time to answer: 20s each",
       "Server: JP",
       "Who can join: Open",
     ]);

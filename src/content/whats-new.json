@@ -29,6 +29,11 @@
         "text": "A room's host can now pick which OST albums the songs come from, as many as they like, and have Voice play title calls only. Skip is back, for a round nobody knows."
       },
       {
+        "icon": "IoIdCard",
+        "title": "A new look for rooms",
+        "text": "Rooms have a new lobby: the code on a ticket with the settings under it, and everyone on a card with their student, in the lobby, the rounds and on the podium. On a phone the settings fold away, so the players fit on screen."
+      },
+      {
         "icon": "IoMusicalNotes",
         "title": "The Jukebox's own volume",
         "text": "The Jukebox now has a volume of its own, so music to listen to and clips to name can sit at different levels."

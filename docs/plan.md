@@ -865,6 +865,15 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   user found the first build plainer than the mockup (2026-10-01): each
   card now has the student its player picked faded in behind it (their
   portrait), a state chip, and Leave and Start in the panel's foot.
+  The user then asked for a new design from the real page (the
+  character beside it, and on a phone the settings took over half the
+  screen); of three drawn on screenshots (a compact bar, a side panel
+  with phone tabs, a ticket and roster) they picked the ticket, with the
+  players two to a row and centred, the page's right left for a chat,
+  and the Customize card as every player's card in the lobby, the
+  rounds and the standings (2026-10-01). Customize lists the titles as
+  rows and keeps the card in sight. _Built on `feat/room-cards`, off
+  `feat/profile`._
 - **A profile in normal mode** (asked for 2026-10-01): the player's own,
   from the saves, as no one else's numbers are involved: name, banner,
   favourite student, days played, totals, a row per game (rounds, won,

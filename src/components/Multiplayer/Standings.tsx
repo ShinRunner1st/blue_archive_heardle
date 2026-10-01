@@ -2,6 +2,7 @@ import { pickName, places, standings } from "../../helpers/roomView";
 import { ClientMessage, OVER_MS, PlayerView, RoomView } from "../../types/room";
 
 import { Button } from "../Button";
+import { defaultLook, PlayerCard } from "../Profile/PlayerCard";
 import { StudentIcon } from "../StudentIcon";
 
 import { Avatar } from "./PlayerList";
@@ -30,10 +31,11 @@ interface Props {
 }
 
 /**
- * After the last round: the top three on a podium, if they named one,
- * everyone else under it (a tie on answers and time shares a place), and
- * every answer with who named it. Each player goes back to the lobby when they like, and after
- * OVER_MS the room takes everyone still here.
+ * After the last round: the top three on a podium, if they named one, on
+ * the lobby's cards stood up tall; everyone else under it on the cards as
+ * rows (a tie on answers and time shares a place); and every answer with
+ * who named it. Each player goes back to the lobby when they like, and
+ * after OVER_MS the room takes everyone still here.
  */
 export function Standings({ view, receivedAt, send, onLeave }: Props) {
   const now = useNow();
@@ -80,26 +82,30 @@ export function Standings({ view, receivedAt, send, onLeave }: Props) {
           {podium.map(({ player, column }) => {
             const at = place.get(player.id)!;
             return (
-              <Styled.PodiumSpot
-                key={player.id}
-                $place={at}
-                $column={column}
-                $you={player.id === view.you}
-              >
-                <Styled.PodiumFace>
-                  <Avatar
-                    icon={player.icon}
-                    name={player.name}
-                    size={at === 1 ? 60 : 48}
+              <Styled.PodiumSpot key={player.id} $place={at} $column={column}>
+                <Styled.PodiumCard $place={at}>
+                  <PlayerCard
+                    look={defaultLook(player.name, player.icon)}
+                    variant="tall"
+                    faceSize={at === 1 ? 60 : 48}
+                    face={(size) => (
+                      <>
+                        <Avatar
+                          icon={player.icon}
+                          name={player.name}
+                          size={size}
+                        />
+                        <Styled.PodiumMedal aria-hidden="true">
+                          {MEDALS[at - 1] ?? at}
+                        </Styled.PodiumMedal>
+                      </>
+                    )}
+                    you={player.id === view.you}
+                    line={
+                      <Styled.PodiumScore>{score(player)}</Styled.PodiumScore>
+                    }
                   />
-                  <Styled.PodiumMedal aria-hidden="true">
-                    {MEDALS[at - 1] ?? at}
-                  </Styled.PodiumMedal>
-                </Styled.PodiumFace>
-                <Styled.PodiumName title={player.name}>
-                  {player.name}
-                </Styled.PodiumName>
-                <Styled.PodiumScore>{score(player)}</Styled.PodiumScore>
+                </Styled.PodiumCard>
                 <Styled.PodiumBlock
                   $place={at}
                   aria-label={`${ordinal(at)} place`}
@@ -115,16 +121,23 @@ export function Standings({ view, receivedAt, send, onLeave }: Props) {
       {rest.length > 0 && (
         <Styled.Places aria-label="Everyone else">
           {rest.map((player) => (
-            <Styled.PlaceRow key={player.id} $you={player.id === view.you}>
-              <Styled.PlaceNo>
-                {player.score > 0 ? place.get(player.id) : "–"}
-              </Styled.PlaceNo>
-              <Avatar icon={player.icon} name={player.name} size={28} />
-              <Styled.PlaceName title={player.name}>
-                {player.name}
-              </Styled.PlaceName>
-              <Styled.PlaceScore>{score(player)}</Styled.PlaceScore>
-            </Styled.PlaceRow>
+            <li key={player.id}>
+              <PlayerCard
+                look={defaultLook(player.name, player.icon)}
+                variant="row"
+                face={(size) => (
+                  <Avatar icon={player.icon} name={player.name} size={size} />
+                )}
+                you={player.id === view.you}
+                away={!player.here}
+                lead={
+                  <Styled.PlaceNo>
+                    {player.score > 0 ? place.get(player.id) : "–"}
+                  </Styled.PlaceNo>
+                }
+                aside={<Styled.PlaceScore>{score(player)}</Styled.PlaceScore>}
+              />
+            </li>
           ))}
         </Styled.Places>
       )}

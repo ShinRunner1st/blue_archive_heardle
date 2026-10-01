@@ -199,9 +199,10 @@ room), and keep any as a named preset in the browser (twenty at most, in
 a list that scrolls; the same settings saved again rename theirs). A
 preset's ⧉ copies it as a short code (`BA2.ost.choice.10.20.…`; an
 older `BA1` one still reads) for a friend, who pastes it in with Import.
-The lobby has a panel with the code and the settings, a row each, beside
-wide cards for the players; only the host changes the settings, in the
-same pop-up (Change settings), which sends them once, on Save: OST,
+The lobby has a ticket with the code and the settings as chips (folded
+into one line on a phone), above the players' cards, two to a row, in
+the page's middle column; only the host changes the settings, in the
+same pop-up (the ticket's gear), which sends them once, on Save: OST,
 Voice or Picture (halos or weapons, silhouettes or not), typed answers or 4-Choice, 5 to 30 rounds,
 5 to 40 seconds to answer, where each song starts (anywhere, or the top),
 the OST albums to deal from (any number of Vol.1-8, or every song; a few
@@ -250,7 +251,10 @@ next round starts once everyone has it, after 6 seconds at least and 12 at
 most, without a slow connection. A right answer is a point; a tie goes to
 the faster over their right answers, and a tie on both shares the place.
 After the last round come the standings, the top three on a podium, and
-every answer with who named it. Each player goes back to the lobby when
+every answer with who named it. Every player shows on the profile's card
+throughout (wide in the lobby, small in the rounds, stood up on the
+podium), with the student they picked and, until accounts, the default
+banner, frame and background. Each player goes back to the lobby when
 they like, the host staying host; the room is a lobby again once everyone
 has, or after 30 seconds.
 

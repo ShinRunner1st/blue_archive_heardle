@@ -194,7 +194,9 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   Nothing takes a player out of a room by a slip (the bar, Back, the
   Jukebox and reloads wait). When an allowance runs out it says
   Multiplayer is resting until tomorrow; the rest of the site doesn't
-  depend on it. Its page has its own background, the Game Development
+  depend on it. The lobby is a ticket (code, settings as chips) over the
+  players' cards, two to a row, in the middle column (the page's right
+  kept for a chat later); the rounds and podium use the same cards. Its page has its own background, the Game Development
   Department's room (`ROOMS_SCENE`), over streak places and seasons.
 - **Students** (`/students`; Daily and
   Endless work for both): guess a student and each guess shows how it
@@ -304,8 +306,9 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   background scene from the Worker) and their record from the saves
   (`profileStats.ts`): totals, a table by game, and a tab per game with its
   ways to play, daily spread, tries, Time Attack or find times. Customize
-  picks the cosmetics. A lazy chunk. Other players' profiles and cards in
-  rooms wait for accounts.
+  picks the cosmetics, the card kept in sight. A lazy chunk. The same card
+  (`PlayerCard`) shows every player in a room, with the default
+  cosmetics: other players' own, and their profiles, wait for accounts.
 - **What's new** pop-up after updates, the welcome/How to play pop-up, About
   with a privacy notice and a Ko-fi card.
 - **Keyboard play**: type anywhere to search, Space plays, Enter picks/submits,

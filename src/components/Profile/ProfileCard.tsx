@@ -1,25 +1,14 @@
 import React from "react";
 
-import { Banner, Frame, ProfileBackground } from "../../constants/cosmetics";
 import { cardTitle, pickedOf } from "../../helpers/cosmetics";
 import { pictureName } from "../../helpers/playerName";
 import { loadFavStudent } from "../../helpers/storage";
-import { Portrait, usePortraits } from "../Portrait";
 
 import { ProfileBanner, WorkerPicture } from "./ProfileBanner";
-import { ProfileFrame } from "./ProfileFrame";
+import { CardLook, Face } from "./PlayerCard";
 import * as Styled from "./index.styled";
 
-/** What a card shows: who, and the cosmetics they picked. */
-export interface CardLook {
-  name: string;
-  /** The favourite student, whose portrait is the picture; or a letter. */
-  student: number | null;
-  title: string;
-  banner: Banner;
-  frame: Frame;
-  background: ProfileBackground;
-}
+export type { CardLook };
 
 /** The card as the player has it now. */
 export function currentLook(): CardLook {
@@ -71,66 +60,5 @@ export function ProfileHero({
         </Styled.HeroText>
       </Styled.HeroBody>
     </Styled.Hero>
-  );
-}
-
-/** The favourite student's portrait in a circle, or the name's letter. */
-function Face({
-  student,
-  name,
-  size,
-}: {
-  student: number | null;
-  name: string;
-  size: number;
-}) {
-  const portraits = usePortraits(student === null ? [] : [student]);
-  const portrait = student === null ? undefined : portraits.get(student);
-  return portrait ? (
-    <Portrait url={portrait} size={size} />
-  ) : (
-    <Styled.Letter $size={size}>
-      {[...name][0]?.toUpperCase() ?? "S"}
-    </Styled.Letter>
-  );
-}
-
-/**
- * The player's card: their background scene, frame, picture, name and
- * banner, as the profile shows it at its head and Customize previews it,
- * and as a room will show it to the others once accounts arrive.
- */
-export function ProfileCard({
-  look,
-  size = "small",
-  children,
-}: {
-  look: CardLook;
-  size?: "small" | "large";
-  /** A line or two under the banner. */
-  children?: React.ReactNode;
-}) {
-  const face = size === "large" ? 104 : 64;
-  return (
-    <ProfileFrame frame={look.frame}>
-      <Styled.Card $size={size}>
-        {look.background.picture && (
-          <Styled.CardScene>
-            <WorkerPicture
-              key={look.background.picture}
-              picture={look.background.picture}
-            />
-          </Styled.CardScene>
-        )}
-        <Styled.Face $size={face}>
-          <Face student={look.student} name={look.name} size={face} />
-        </Styled.Face>
-        <Styled.CardText>
-          <Styled.CardName $size={size}>{look.name}</Styled.CardName>
-          <ProfileBanner banner={look.banner} title={look.title} size={size} />
-          {children}
-        </Styled.CardText>
-      </Styled.Card>
-    </ProfileFrame>
   );
 }

@@ -1,6 +1,8 @@
 import { pickName, places, seconds } from "../../helpers/roomView";
 import { PlayerView, RoomView } from "../../types/room";
 
+import { defaultLook, PlayerCard } from "../Profile/PlayerCard";
+import * as Card from "../Profile/card.styled";
 import { StudentIcon } from "../StudentIcon";
 
 import * as Styled from "./index.styled";
@@ -86,11 +88,12 @@ function stateOf(
 }
 
 /**
- * Everyone in the room during a game, as cards in the order they came:
- * they keep their place all game, their score big on the right and a
- * medal on the corner for the top three. While a round plays, each card
- * shows when its player's latest answer reached the room, live. The lobby
- * has cards of its own (Lobby.tsx).
+ * Everyone in the room during a game, on the lobby's cards made small, in
+ * the order they came: they keep their place all game, the score big on
+ * the right and a medal on the picture for the top three. While a round
+ * plays, each card shows when its player's latest answer reached the
+ * room, live, in the banner's place; at the reveal it's ringed green or
+ * red.
  */
 export function PlayerList({ view }: { view: RoomView }) {
   const place = places(view.players);
@@ -99,38 +102,41 @@ export function PlayerList({ view }: { view: RoomView }) {
     <Styled.PlayerGrid aria-label="Players">
       {view.players.map((player) => {
         const state = stateOf(player, view);
-        const isYou = player.id === view.you;
+        const at = place.get(player.id) ?? 99;
         return (
-          <Styled.PlayerCard
-            key={player.id}
-            $you={isYou}
-            $away={!player.here}
-            $right={view.phase === "reveal" ? state.right : null}
-          >
-            <Avatar icon={player.icon} name={player.name} size={32} />
-            <Styled.CardName
-              title={isYou ? `${player.name} (you)` : player.name}
-            >
-              {player.name}
-            </Styled.CardName>
-            <Styled.CardLine $right={state.right}>{state.text}</Styled.CardLine>
-            <Styled.CardScore
-              $some={player.score > 0}
-              aria-label={`${player.score} right`}
-              title={`${player.score} right`}
-            >
-              {player.score}
-            </Styled.CardScore>
-            {player.score > 0 &&
-              (place.get(player.id) ?? 99) <= MEDALS.length && (
-                <Styled.Badge
-                  aria-label={`Place ${place.get(player.id)}`}
-                  $medal
-                >
-                  {MEDALS[place.get(player.id)! - 1]}
-                </Styled.Badge>
+          <li key={player.id}>
+            <PlayerCard
+              look={defaultLook(player.name, player.icon)}
+              variant="mini"
+              face={(size) => (
+                <>
+                  <Avatar icon={player.icon} name={player.name} size={size} />
+                  {player.score > 0 && at <= MEDALS.length && (
+                    <Styled.FaceMedal aria-label={`Place ${at}`}>
+                      {MEDALS[at - 1]}
+                    </Styled.FaceMedal>
+                  )}
+                </>
               )}
-          </Styled.PlayerCard>
+              you={player.id === view.you}
+              away={!player.here}
+              right={view.phase === "reveal" ? state.right : null}
+              line={
+                <Card.CardLine $right={state.right}>
+                  {state.text || "\u00a0"}
+                </Card.CardLine>
+              }
+              aside={
+                <Styled.CardScore
+                  $some={player.score > 0}
+                  aria-label={`${player.score} right`}
+                  title={`${player.score} right`}
+                >
+                  {player.score}
+                </Styled.CardScore>
+              }
+            />
+          </li>
         );
       })}
     </Styled.PlayerGrid>

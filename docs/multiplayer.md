@@ -22,21 +22,24 @@ README's Multiplayer and Multiplayer rooms sections have the rest.
    couldn't be joined, Reconnecting, "press Leave to go", the idle
    warning) float over the top of the screen and move nothing, and each
    screen starts scrolled to its top.
-2. **Lobby.** A panel on the left: the room's code, big, with Copy
-   code and Copy link on one row (each says "Copied ✓" for a moment),
-   then the settings a row each with an icon (game, the OST's albums or
-   Voice's lines, answers, how many, time to answer, where songs start or
-   the server, who can join), and Leave and Start at its foot. On the
-   right, "Players 4/8", a line on what's next (the host's "Start when
-   everyone's in", a guest's "Waiting for the host to start") and a wide
-   card for each, two to a row: their picture and name, the student they
+2. **Lobby.** In the page's middle column, 720 px at most, clear of
+   the character and leaving the page's right for a chat later. At the
+   top the room's ticket: the code, big, on a blue strip cut on a slant,
+   with Copy code, Copy link (each a tick for a moment) and the host's
+   gear, and under it the settings as chips, an icon and a few words each
+   (game, the OST's albums or Voice's lines, answers, how many, time to
+   answer, where songs start or the server, who can join); on a phone the
+   chips fold into one line, with Details to open them. Then "Players
+   4/8", a line on what's next (the host's "Start when everyone's in", a
+   guest's "Waiting for the host to start") and a card for each, two to
+   a row, phones too: the profile's card (`PlayerCard`), with their
+   picture, name, the default banner ("Sensei") and the student they
    picked faded in behind (their portrait, about 7.5 KB from the Worker,
-   cached for a year; a hue from the name without one), a chip for Host,
-   Ready or Away, and the places still free. On a phone it's one column,
-   the settings two to a row and the buttons last; where the character stands
-   beside the game, the lobby starts at the play area's left edge and
-   grows to the right, clear of her. Only the host sees **Change
-   settings**, a
+   cached for a year), a chip for Host, Ready or Away and the host's ✕;
+   then the places still free, and Leave and Start, pinned to the foot
+   on a phone. A player's own banner, frame and background wait for
+   accounts: a room can check a cosmetic exists, not that its player
+   unlocked it. Only the host sees the **gear**, a
    pop-up (two columns on a wide screen) with chips for the game (one
    row), answers, picture kind, silhouette, where songs start (Random or
    From the top), the OST's albums (Every song, or any of Vol.1-8; the
@@ -90,9 +93,11 @@ README's Multiplayer and Multiplayer rooms sections have the rest.
    pick again as often as they like, as in Anime Music Quiz: each change
    goes as it's made, 0.4 s apart at least (one sooner waits, and the
    latest pick goes), and the room takes one every 0.3 s at most. Each
-   card shows live when that player's latest answer reached the room
-   ("3.24s"), or "thinking…", never what. Each player's score is big on
-   the card's right, with a medal on the corner for the top three. No line
+   card (the lobby's made small, four to a row as wide as the lobby)
+   shows live when that player's latest answer reached the room
+   ("3.24s"), or "thinking…", never what, and at the reveal is ringed
+   green or red. Each player's score is big on the card's right, with a
+   medal on the picture for the top three. No line
    of text under the stage keeps changing: the clock, the cards and the
    Submit button say how it's going. The volume keeps one place, a row at
    the stage's foot, from loading to the reveal.
@@ -128,7 +133,9 @@ README's Multiplayer and Multiplayer rooms sections have the rest.
    full, and the next song plays.
 8. **Standings** after the last round (or once the players agree to end
    early): the top three who named any on a podium (second, first,
-   third, in solid gold, silver and bronze), the rest in rows under it
+   third, in solid gold, silver and bronze), each on their card stood up
+   tall, their student's portrait above their name, the rest on their
+   cards as rows under it
    ("–" for nobody's place who named none), ties on answers and time
    sharing a place; every
    answer, with the pictures of who named it. **Back to the lobby** takes
