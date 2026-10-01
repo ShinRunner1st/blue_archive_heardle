@@ -870,6 +870,37 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   own free allowance, apart from the rooms'), a privacy policy, a way to
   delete an account, and a login provider's script or redirect, which the
   CSP and the page check must allow. Playing without an account stays.
+- **Room feedback** (2026-10-01): Skip back in a round (Pass, renamed);
+  the host picks OST albums to deal from (any number) and title calls
+  only for Voice (`PROTOCOL` 4, `BA2` preset codes); the Jukebox's own
+  volume; the character no longer keeps the listening face after a game;
+  the play area centred again on the hub and Multiplayer after Students;
+  Shiroko's and Aris's faces. _Built on `fix/room-feedback`, off
+  `feat/characters`._
+- **A new lobby and player card** (asked for 2026-10-01): mockups first,
+  two or three for the user to pick from, then the one chosen. The card
+  keeps room for what accounts bring (below): a banner, a background and
+  a border.
+- **Profiles and room cosmetics** (asked for 2026-10-01), **with
+  accounts**: tapping a player's card opens their profile (missions
+  cleared and title, multiplayer games and wins, the Sensei card's
+  records, favourite student), and cards show cosmetics unlocked by
+  missions: a **banner** (their title on a pill with a background), a
+  **card background** (a Kivotos scene, small pictures on the Worker and
+  R2 like the hub's, fetched only when a card shows one) and a **card
+  border**. The user chose to wait for accounts (2026-10-01): without
+  them a room can check an item exists but not that its player unlocked
+  it, and a profile's numbers come from the player's own browser.
+- **Missions for the new rewards**: more missions, so each banner,
+  background and border has one to unlock it, in `missions.json` and
+  `cosmetics.json` as now; ids never renamed. With the cosmetics above.
+
+## Future
+
+- **Chat and emotes** in rooms (asked for 2026-10-01). Emotes first: a
+  fixed set, each one message (incoming messages count 20 to a request),
+  a few seconds apart at most, shown on the sender's card. Free-text
+  chat needs a filter and a way to report or mute, so it waits.
 
 ## Always
 
