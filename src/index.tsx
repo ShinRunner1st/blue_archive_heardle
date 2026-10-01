@@ -9,6 +9,7 @@ import {
   applyCustomCursorToDocument,
   getCustomCursor,
 } from "./helpers/customCursor";
+import { stopPictureDrags } from "./helpers/noPictureDrag";
 import { playOneAtATime } from "./helpers/onePlayer";
 import { useColorScheme } from "./hooks/useColorScheme";
 import App from "./app";
@@ -37,6 +38,7 @@ function Root() {
 // effects run outside React, on their own canvas.
 applyCustomCursorToDocument(getCustomCursor());
 playOneAtATime();
+stopPictureDrags();
 
 createRoot(rootElement).render(
   <React.StrictMode>

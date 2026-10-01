@@ -55,6 +55,11 @@ textarea {
   user-select: text;
 }
 
+/* Nor can pictures be dragged off it (Firefox: helpers/noPictureDrag.ts). */
+img {
+  -webkit-user-drag: none;
+}
+
 body {
   margin: 0;
   font-family: "Nunito Sans Variable";
