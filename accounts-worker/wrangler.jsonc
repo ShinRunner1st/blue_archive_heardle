@@ -45,6 +45,9 @@
       "simple": { "limit": 60, "period": 60 }
     }
   ],
+  // Once a day, at a quiet hour: accounts unused for two years are deleted
+  // (the privacy policy), and sessions and sign-in codes that ran out.
+  "triggers": { "crons": ["23 4 * * *"] },
   // No logs or traces: a request's headers can hold a session token.
   "observability": { "enabled": false },
   "workers_dev": true,

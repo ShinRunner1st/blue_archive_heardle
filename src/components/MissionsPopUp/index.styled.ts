@@ -144,3 +144,18 @@ export const Unlock = styled.span<{ $done: boolean }>`
   color: ${({ $done }) => ($done ? GOLD : "inherit")};
   opacity: ${({ $done }) => ($done ? 1 : 0.7)};
 `;
+
+/**
+ * Over the retired missions a player cleared: no longer to do, and what
+ * they unlocked stays the player's.
+ */
+export const Retired = styled.li`
+  margin-top: 6px;
+
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: ${({ theme }) => theme.text};
+  opacity: 0.6;
+`;

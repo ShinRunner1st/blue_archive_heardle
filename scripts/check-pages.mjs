@@ -396,6 +396,17 @@ async function checkServer(browser, server) {
   // Its first screen only: a room would be one more request to the rooms
   // Worker, whose free requests are counted.
   await step("multiplayer", () => openPage(page, "/multiplayer"));
+  await step("privacy", async () => {
+    // Off the game bar: from the footer, as a player opens it.
+    const link = await page.$('footer a[href="/privacy"]');
+    if (!link) return fail(where, "no link to the privacy policy");
+    await link.click();
+    await settle(page);
+    const shown = await page.evaluate(
+      () => document.querySelector("#privacy-title")?.textContent ?? ""
+    );
+    if (shown !== "Privacy") fail(where, "the privacy policy didn't show");
+  });
 
   await page.close();
 }

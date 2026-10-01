@@ -1,6 +1,6 @@
 import React from "react";
 
-import { MISSIONS } from "../../constants/missions";
+import { ACTIVE_MISSIONS } from "../../constants/missions";
 import { accountsEnabled } from "../../helpers/accountFlag";
 import { BadgeProgress } from "../../helpers/badges";
 import { ProfileGame, profileStats } from "../../helpers/profileStats";
@@ -284,7 +284,7 @@ function Overview({ stats }: { stats: ReturnType<typeof profileStats> }) {
         />
         <Tile
           label="Missions"
-          value={`${stats.missionsCleared}/${MISSIONS.length}`}
+          value={`${stats.missionsCleared}/${ACTIVE_MISSIONS.length}`}
         />
         <Tile
           label="Room games"

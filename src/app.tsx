@@ -109,6 +109,8 @@ const ProfilePopUp = React.lazy(() => import("./components/Profile"));
 
 /** Loaded on its own page only: most players never open a room. */
 const Multiplayer = React.lazy(() => import("./components/Multiplayer"));
+/** The privacy policy, loaded on its own page only. */
+const PrivacyPage = React.lazy(() => import("./components/PrivacyPage"));
 
 function App() {
   const [mode, setMode] = React.useState<GameMode>(loadMode);
@@ -120,6 +122,7 @@ function App() {
   const [page, navigate] = usePage(holdRef);
   const isHub = page === "hub";
   const isRooms = page === "multiplayer";
+  const isPrivacy = page === "privacy";
 
   // In a multiplayer room, nothing takes the player out of it by a slip:
   // the other pages' links and Back stay put (Leave is the way out), and
@@ -391,6 +394,10 @@ function App() {
     [navigate, page]
   );
   const goHome = React.useCallback(() => changePage("hub"), [changePage]);
+  const openPrivacy = React.useCallback(
+    () => changePage("privacy"),
+    [changePage]
+  );
   const [isStatsPopUpOpen, setIsStatsPopUpOpen] = React.useState(false);
   const [isHowToPopUpOpen, setIsHowToPopUpOpen] = React.useState(false);
   const [isSongListOpen, setIsSongListOpen] = React.useState(false);
@@ -702,6 +709,8 @@ function App() {
         tagline={
           isHub
             ? "Blue Archive guessing games"
+            : isPrivacy
+            ? "What the site keeps, and what it never does"
             : isRooms
             ? "Play Blue Archive Heardle with friends"
             : isStudents
@@ -872,13 +881,17 @@ function App() {
       <BirthdayNote students={birthdays} />
       {/* A new one for each page, so it starts scrolled to the top. */}
       <Styled.PlayArea key={page}>
-        <Styled.Container $top={isStudents && !noGame}>
+        <Styled.Container $top={(isStudents && !noGame) || isPrivacy}>
           {isHub ? (
             <Hub
               onOpen={changePage}
               onMissions={openMissions}
               onProfile={openProfile}
             />
+          ) : isPrivacy ? (
+            <React.Suspense fallback={null}>
+              <PrivacyPage />
+            </React.Suspense>
           ) : isRooms ? (
             <React.Suspense fallback={null}>
               <Multiplayer
@@ -992,7 +1005,7 @@ function App() {
         onClose={closeJukebox}
         guessed={jukeboxGuessed}
       />
-      <Footer />
+      <Footer onPrivacy={openPrivacy} />
     </Styled.BG>
   );
 }

@@ -25,6 +25,7 @@ import {
   PopUpMeta,
 } from "../PopUp";
 import { KOFI_URL, LAST_UPDATED } from "../../constants/game";
+import { PAGES } from "../../constants/pages";
 import { songs } from "../../constants";
 import { artists } from "../../helpers/searchSong";
 import { Game, GameMode } from "../../types/mode";
@@ -251,9 +252,16 @@ export function InfoPopUp({
           <PopUpCardBody>
             <PopUpCardTitle>Your privacy</PopUpCardTitle>
             <PopUpCardText>
-              No accounts, cookies, ads or analytics, and nothing is tracked.
-              Your score, streaks, missions and settings are saved only in this
-              browser and never sent anywhere.
+              No cookies, ads or analytics, and nothing is tracked. Without an
+              account, your score, streaks, missions and settings are saved only
+              in this browser and never sent anywhere.
+            </PopUpCardText>
+            <PopUpCardText>
+              Signing in with Google or Discord is optional. An account keeps
+              your Google or Discord id (not your email or name), your profile,
+              progress and missions, so they follow you to other devices. You
+              can download or delete it all at any time, and one unused for two
+              years is deleted.
             </PopUpCardText>
             <PopUpCardText>
               In Multiplayer, the room gets the name and picture from your
@@ -271,6 +279,17 @@ export function InfoPopUp({
               the game, its music, voices, pictures, what&apos;s on in Global
               and the multiplayer rooms — sees basic connection details, such as
               your IP address, to send you the pages.
+            </PopUpCardText>
+            <PopUpCardText>
+              The whole{" "}
+              <a
+                href={PAGES.privacy.path}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                privacy policy
+              </a>{" "}
+              says what&apos;s kept and for how long.
             </PopUpCardText>
           </PopUpCardBody>
         </PopUpCard>

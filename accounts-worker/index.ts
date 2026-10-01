@@ -8,6 +8,7 @@
  * console call): a request's headers can hold a session token.
  */
 import { AccountsEnv, handle } from "../src/accounts/api";
+import { tidyAccounts } from "../src/accounts/privacy";
 
 interface Env {
   DB: D1Database;
@@ -54,6 +55,15 @@ const limiter = (limit?: RateLimit) =>
     : undefined;
 
 export default {
+  /**
+   * Once a day (the cron in wrangler.jsonc): the accounts unused for two
+   * years are deleted, as the privacy policy says, and the sessions and
+   * sign-in codes that ran out. Nothing is logged.
+   */
+  async scheduled(_controller: ScheduledController, env: Env): Promise<void> {
+    await tidyAccounts(env.DB, Date.now());
+  },
+
   async fetch(request: Request, env: Env): Promise<Response> {
     if (!env.STATE_KEY) {
       return new Response("Accounts aren't set up here.", { status: 503 });

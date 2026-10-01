@@ -11,7 +11,7 @@ import {
 import react from "@vitejs/plugin-react";
 
 import {
-  PAGE_ORDER,
+  SITE_PAGES,
   PAGES,
   pageOfPath,
   pageUrl,
@@ -93,7 +93,7 @@ const gamePages: Plugin = {
     const index = bundle["index.html"];
     if (index?.type !== "asset") throw new Error("No index.html was built");
     const template = String(index.source);
-    for (const page of PAGE_ORDER) {
+    for (const page of SITE_PAGES) {
       const source = fillPage(template, page);
       if (page === "hub") index.source = source;
       else this.emitFile({ type: "asset", fileName: PAGES[page].file, source });

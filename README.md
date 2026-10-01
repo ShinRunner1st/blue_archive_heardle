@@ -1357,18 +1357,20 @@ deploys there. After that date the Vercel project can be deleted.
 
 ## Privacy
 
-The game collects nothing about its players: no accounts, cookies, ads,
-analytics or tracking scripts. Progress and settings are kept in the
-browser's `localStorage` (the keys are in `src/constants/game.ts`) and never
-sent anywhere; the clipboard is only written when a player presses Share.
+The policy players read is `/privacy` (`src/content/privacy.json`, linked
+from the footer, About and the Account tab, and given to Google and
+Discord for their sign-in screens). No cookies, ads, analytics or tracking
+scripts, signed in or not. Without an account, progress and settings are
+kept in the browser's `localStorage` (the keys are in
+`src/constants/game.ts`) and never sent anywhere; the clipboard is only
+written when a player presses Share.
 Result pictures are drawn in the browser and go only where the player sends
 them from the share sheet, or to their downloads; the player name from
 Customize is drawn on those pictures and the player's own card, and sent
 only to a multiplayer room the player makes or joins. A multiplayer room
 gets that name and the profile's picture (or a student picked for the
-visit, kept in this browser so a reload goes back in with it),
-and
-their answers, and shows them to the others in it; it keeps them only while
+visit, kept in this browser so a reload goes back in with it), the
+cosmetics picked, and their answers, and shows them to the others in it; it keeps them only while
 it's open, deletes everything when it closes, and keeps no logs. The
 browser counts the multiplayer games it finished and won, for the
 missions, and that count never leaves it. It keeps the room settings a
@@ -1383,6 +1385,20 @@ pictures, the hub's Global schedule and the multiplayer rooms - sees standard co
 The Global schedule is copied from SchaleDB to our own Worker; the page
 never asks SchaleDB for anything.
 Players see the same in About this game.
+
+**Accounts are optional.** One keeps the Google or Discord id (`sub`, or
+Discord's user id; never an email, name or picture), the profile and its
+summary, the progress and its last backup, the missions cleared, when it
+was made and last used, and each session's SHA-256 and end. Nothing else,
+and no IP address (the rate limits count a SHA-256 of it for a minute).
+The player can download all of it (`GET /me/data`, opened into one JSON
+file by `src/helpers/accountData.ts`) or delete all of it in one D1 batch
+(`DELETE /me`, every table named and also cascading), from the Account
+tab; D1's Time Travel keeps the history 7 days more. A daily cron
+(`tidyAccounts`, `src/accounts/privacy.ts`) deletes accounts unused for
+two years (`seen_day`, marked by any call or sign-in, at most once a day)
+and the sessions and sign-in codes that ran out. Room passes carry only
+the public id, name, favourite student and cosmetics.
 
 ## Support
 

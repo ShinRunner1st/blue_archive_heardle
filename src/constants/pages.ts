@@ -1,15 +1,16 @@
 import type { Game } from "../types/mode";
 
 /**
- * The site's pages: the hub at the root, a page for each game, and
- * multiplayer's rooms, which play the OST, Voice and Picture games together. Each is
+ * The site's pages: the hub at the root, a page for each game,
+ * multiplayer's rooms, which play the OST, Voice and Picture games
+ * together, and the privacy policy. Each is
  * its own HTML file, written at build time from index.html by the
  * "game-pages" plugin in vite.config.ts, so its title, description and link
  * preview are in the file itself: X and Discord read the tags without running
  * any JavaScript. The app reads the same table to name the tab as the player
  * moves between pages without a reload.
  */
-export type Page = "hub" | Game | "multiplayer";
+export type Page = "hub" | Game | "multiplayer" | "privacy";
 
 export interface PageInfo {
   /** Where the page lives, with no slash at the end but the root's. */
@@ -103,6 +104,16 @@ export const PAGES: Record<Page, PageInfo> = {
     previewAlt:
       "Blue Archive Heardle with friends: Mari beside private rooms for 2 to 8 players, no sign-up",
   },
+  privacy: {
+    path: "/privacy",
+    file: "privacy.html",
+    title: "Privacy - Blue Archive Heardle",
+    description:
+      "What Blue Archive Heardle keeps: nothing but your browser's saves when you play, and only what an optional account needs when you sign in.",
+    preview: previewOf("preview"),
+    previewAlt:
+      "Blue Archive Heardle: Mari beside the OST, Voice, Halo and Weapon, Students and Multiplayer games",
+  },
 };
 
 /**
@@ -118,9 +129,16 @@ export const PAGE_ORDER: Page[] = [
   "multiplayer",
 ];
 
+/**
+ * Every page there is: the bar's, then the privacy policy, which the
+ * footer, About and the Account tab link to (Google's and Discord's
+ * sign-in screens too).
+ */
+export const SITE_PAGES: Page[] = [...PAGE_ORDER, "privacy"];
+
 /** Whether a page is one of the games, which remember their saves. */
 export function isGamePage(page: Page): page is Game {
-  return page !== "hub" && page !== "multiplayer";
+  return page !== "hub" && page !== "multiplayer" && page !== "privacy";
 }
 
 /** The page's full address, for share texts and the canonical tag. */
@@ -134,6 +152,6 @@ export function pageUrl(page: Page): string {
  */
 export function pageOfPath(pathname: string): Page {
   const path = pathname.replace(/\.html$/, "").replace(/\/+$/, "") || "/";
-  const found = PAGE_ORDER.find((page) => PAGES[page].path === path);
+  const found = SITE_PAGES.find((page) => PAGES[page].path === path);
   return found ?? "hub";
 }

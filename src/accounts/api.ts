@@ -8,6 +8,7 @@ import {
 } from "../types/account";
 import { readSigned, signValue } from "./crypto";
 import { addMissions, cleanMissions } from "./missions";
+import { deleteAccounts, exportAccount } from "./privacy";
 import { cleanProfile, readProfile, writeProfile } from "./profile";
 import {
   MAX_PROGRESS_BYTES,
@@ -62,6 +63,8 @@ import {
  *   (step 4): rows only ever added, for the room pass.
  * - `GET /room-pass`: a signed-in player's pass for the rooms (step 4),
  *   signed with the key the rooms Worker shares; good for 12 hours.
+ * - `GET /me/data`: everything kept for the account, for the player to
+ *   download; `DELETE /me` deletes it all (step 5, the privacy policy).
  *
  * The token is a credential: it only ever travels in that header, and
  * nothing here logs a header, a body, a token or a code (docs/accounts.md,
@@ -264,6 +267,14 @@ export async function handle(
     const view = await accountView(env.db, account);
     return view ? json(origin, 200, view) : json(origin, 401, {});
   }
+  if (path === "/me" && request.method === "DELETE") {
+    await deleteAccounts(env.db, [account]);
+    return json(origin, 204);
+  }
+  if (path === "/me/data" && request.method === "GET") {
+    const data = await exportAccount(env.db, account);
+    return data ? json(origin, 200, data) : json(origin, 401, {});
+  }
   if (path === "/me/profile" && request.method === "GET") {
     return json(origin, 200, {
       profile: await readProfile(env.db, account),
@@ -361,6 +372,7 @@ const isApiPath = (path: string) =>
   path === "/auth/link-ticket" ||
   path === "/auth/sign-out" ||
   path === "/me" ||
+  path === "/me/data" ||
   path === "/me/profile" ||
   path === "/me/progress" ||
   path === "/room-pass" ||

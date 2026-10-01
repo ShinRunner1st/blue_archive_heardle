@@ -673,7 +673,46 @@ favourite student, title, banner, frame, background, expiry}` with
      be anyone's picture, so it isn't the pass's to decide. The pass
      carries the favourite student as planned._
 5. **Privacy:** the policy page, deletion, download, About and README,
-   retired missions and cosmetics, the ids lock.
+   retired missions and cosmetics, the ids lock. _Built on `feat/privacy`
+   (`src/accounts/privacy.ts`, `src/helpers/accountData.ts`,
+   `src/helpers/unlocks.ts`, `src/components/PrivacyPage/`). How it
+   works:_
+   - _**`/privacy`**, a seventh page (`SITE_PAGES`; not on the game bar,
+     which lights no pill there), its text in `src/content/privacy.json`
+     with the contact privacy@baheardle.com, which the user forwards to
+     their inbox with Cloudflare Email Routing. Linked from the footer
+     (in place, no reload), About, and the Account tab before and after
+     signing in; in the sitemap; a lazy chunk; and a step of the page
+     check._
+   - _**Download my data**: `GET /me/data` sends everything kept (the
+     account and when it was last used, the Google or Discord ids, each
+     session's end, the profile with its summary, the missions with
+     when, the progress and its backup gzipped); the page opens the
+     progress and saves one readable JSON file,
+     `baheardle-account-<date>.json`. No token, hash or account id is in
+     it._
+   - _**Delete account**: says what goes, asks again, then `DELETE /me`
+     deletes the account and every row of it in one batch (each table
+     named, not only the cascade), signs every device out, and asks
+     whether this browser keeps its progress as a guest (the default) or
+     clears it._
+   - _**The daily run**: a cron (04:23 UTC) deletes accounts whose
+     `seen_day` is over 730 days old, 50 to a batch, and the sessions and
+     sign-in codes that ran out. A sign-in now marks the account used too
+     (it was only the calls after it), as the policy counts one._
+   - _**Retired**: a mission or cosmetic is marked `"retired": true`,
+     never removed. A retired mission can't be cleared, shows only to
+     whoever cleared it, under Retired in its tab, and isn't counted in
+     the totals; a cosmetic keeps working for whoever has it, and
+     `formerMissions` lets a new mission take one over without taking it
+     from anyone. `src/content/ids.lock.json` holds every mission and
+     cosmetic id ever shipped, and the content test fails on a removal, a
+     rename or a new id not added to it._
+   - _**Also**: About's privacy card and the README's Privacy say an
+     account is optional and what it keeps; What's new has an Accounts
+     entry for the release; the CSP's `connect-src` has
+     `api.baheardle.com`; the footer fits one line on a phone with the
+     new link._
 6. **Measured and opened:** the preview's numbers against section 6, then,
    when the user says so, the release with everything held since 4a460a1.
 

@@ -6,6 +6,7 @@ import {
   ProfileSummary,
   Provider,
 } from "../types/account";
+import type { AccountExport } from "../accounts/privacy";
 import { accountsUrl, pendingSignInReturn } from "./accountFlag";
 
 /**
@@ -345,6 +346,33 @@ export async function fetchRoomPass(): Promise<{
   if (response.status === 503) return null;
   if (!response.ok) throw new AccountsUnavailable();
   return (await response.json()) as { pass: string; expires: number };
+}
+
+/**
+ * Deletes the account and everything kept for it (step 5); throws if the
+ * accounts can't be reached, and nothing is deleted. Its token goes with
+ * it.
+ */
+export async function deleteAccount(): Promise<void> {
+  const response = await api("DELETE", "/me");
+  if (!response.ok && response.status !== 401) throw new AccountsUnavailable();
+  writeToken(null);
+  recent = null;
+}
+
+/**
+ * Everything kept for the account, for "Download my data", its progress
+ * still gzipped (accountData.ts opens it); null if signed out.
+ */
+export async function fetchAccountData(): Promise<AccountExport | null> {
+  if (!readToken()) return null;
+  const response = await api("GET", "/me/data");
+  if (response.status === 401) {
+    writeToken(null);
+    return null;
+  }
+  if (!response.ok) throw new AccountsUnavailable();
+  return (await response.json()) as AccountExport;
 }
 
 /** Test seam: a new page, as far as this module's memory goes. */

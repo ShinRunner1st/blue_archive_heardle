@@ -100,10 +100,9 @@ export function Pills<T extends string>({
   compact = false,
   held = false,
 }: PillsProps<T>) {
-  const index = Math.max(
-    options.findIndex((option) => option.value === value),
-    0
-  );
+  const found = options.findIndex((option) => option.value === value);
+  // A page that isn't on the bar (the privacy policy): no pill is lit.
+  const index = Math.max(found, 0);
   const group = React.useRef<HTMLDivElement>(null);
   const box = usePickedBox(group, index, compact);
 
@@ -116,16 +115,18 @@ export function Pills<T extends string>({
       $count={options.length}
       $compact={compact}
     >
-      <Styled.Thumb
-        aria-hidden="true"
-        $index={index}
-        $count={options.length}
-        style={
-          compact && box
-            ? { left: box.left, width: box.width, transform: "none" }
-            : undefined
-        }
-      />
+      {found >= 0 && (
+        <Styled.Thumb
+          aria-hidden="true"
+          $index={index}
+          $count={options.length}
+          style={
+            compact && box
+              ? { left: box.left, width: box.width, transform: "none" }
+              : undefined
+          }
+        />
+      )}
       {options.map((option) => {
         const active = option.value === value;
         const stuck = held && !active;

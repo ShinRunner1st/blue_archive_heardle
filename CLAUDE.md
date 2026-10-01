@@ -22,9 +22,12 @@ What the project cares about:
 
 - **Feels like Blue Archive**: its cursor, characters, Kivotos backgrounds,
   mission-style wording, OST album badges.
-- **Private**: no accounts, cookies, ads, analytics or tracking. Everything is
-  kept in the player's browser. The About box and README Privacy section
-  promise this, so don't add anything that breaks it.
+- **Private**: no cookies, ads, analytics or tracking. Without an account
+  everything is kept in the player's browser; an optional account keeps
+  only what the privacy policy (`/privacy`, `src/content/privacy.json`)
+  lists. The policy, the About box and README Privacy section promise
+  this, so don't add anything that breaks it, and change the policy first
+  if what's kept changes.
 - **Cheap to run**: free tiers only (Cloudflare Workers and R2), so every
   change is checked for requests, bandwidth and storage.
 - **Fair**: the answer is kept out of the page source, DevTools requests and
@@ -35,9 +38,10 @@ What the project cares about:
 
 - A static single-page app: React 19 + Vite + TypeScript, styled-components,
   Vitest (jsdom). Node 24 (`.nvmrc`). No backend but the multiplayer rooms.
-  One bundle, six HTML pages written from `index.html` by a Vite plugin
+  One bundle, seven HTML pages written from `index.html` by a Vite plugin
   (`src/constants/pages.ts`): the hub at `/` and `/ost`, `/voice`,
-  `/picture`, `/students`, `/multiplayer`, each with its own title,
+  `/picture`, `/students`, `/multiplayer`, and `/privacy` (the policy, off
+  the game bar, linked from the footer), each with its own title,
   description and link preview. `usePage` moves between them with the
   History API, so there's no reload or new request.
 - **Site** on a Cloudflare Worker with only static files (`site-worker/`,
@@ -129,7 +133,12 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   missions (`missions_cleared`, sent with the profile) unlock, signed
   with `ROOM_PASS_KEY` for 12 hours, checked by the rooms Worker with no
   call to D1, kept in the page's memory only; kicks keep the account out
-  and it comes back from any device (`PROTOCOL` 5).
+  and it comes back from any device (`PROTOCOL` 5). Step 5 privacy: the
+  policy page; Download my data (`GET /me/data`, one readable JSON file)
+  and Delete account (`DELETE /me`, one D1 batch, asked twice, then keep
+  or clear this browser's copy) on the Account tab; a daily cron deleting
+  accounts unused for two years (`tidyAccounts`); retired missions and
+  cosmetics and `src/content/ids.lock.json`.
 - **Multiplayer rooms** on the one other Worker that runs code, `ba-heardle-rooms`
   (`rooms-worker/`, `VITE_ROOMS_URL`): a SQLite-backed Durable Object per
   room, over a hibernating WebSocket, on the free plan's daily limits
@@ -355,7 +364,7 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   Shift+Enter skips, Esc closes.
 - The answer is hidden from the page source and saves are scrambled.
 - SEO: a canonical, title, description and Open Graph/Twitter card on each
-  page, `robots.txt`, `sitemap.xml` (the six pages). Each page has its own
+  page, `robots.txt`, `sitemap.xml` (the seven pages). Each page has its own
   link preview (1200×630, `public/preview.jpg` for the hub with the five
   games, `public/previews/<page>.jpg` with that game's ways to play;
   `preview` in `pages.ts`; Mari (Idol), no counts, in her dress's
@@ -460,12 +469,14 @@ songs` put the new files on the Worker and R2 first. About 0.3 KB gzipped
 
 ## Content files
 
-Seasons, missions and what they unlock, OST badges and What's new are JSON
-in `src/content/` (its README has every field), read by thin loaders in
-`src/constants/`; `src/content/content.test.ts` checks them all. Add or
-remove one there, never in a component. A new season: its entry, then `npm
-run seasons` (makes missing pictures from the backgrounds it names) and
-`npm run songs`. Never rename a mission id (saves keep them).
+Seasons, missions and what they unlock, OST badges, What's new and the
+privacy policy are JSON in `src/content/` (its README has every field),
+read by thin loaders in `src/constants/`; `src/content/content.test.ts`
+checks them all. Add one there, never in a component. A new season: its
+entry, then `npm run seasons` (makes missing pictures from the backgrounds
+it names) and `npm run songs`. Never rename or remove a mission or
+cosmetic id (saves and accounts keep them): mark it `"retired": true`, and
+add every new id to `ids.lock.json`, which the content test holds them to.
 
 ## Commands
 

@@ -62,6 +62,12 @@ export interface Mission {
    * fact with a total (every song, every badge).
    */
   goal: number | "all";
+  /**
+   * No longer one to clear (docs/accounts.md, section 4): a mission whose
+   * ask changed gets a new id, and the old one is retired, never removed.
+   * Whoever cleared it sees it under Retired and keeps what it unlocked.
+   */
+  retired?: boolean;
 }
 
 /**
@@ -71,3 +77,6 @@ export interface Mission {
  * saves, so one is never renamed; removing one simply stops it showing.
  */
 export const MISSIONS = missionData.missions as Mission[];
+
+/** The missions there are to clear: every one but the retired. */
+export const ACTIVE_MISSIONS = MISSIONS.filter(({ retired }) => !retired);

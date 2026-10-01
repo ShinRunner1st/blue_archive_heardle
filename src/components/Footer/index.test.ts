@@ -20,9 +20,11 @@ afterEach(() => {
 });
 
 describe("Footer", () => {
-  it("links to Ko-fi, and nowhere else", () => {
-    expect(link().getAttribute("href")).toBe("https://ko-fi.com/shinrunner1st");
-    expect(harness.container.querySelectorAll("a")).toHaveLength(1);
+  it("links to Ko-fi and the privacy policy, and nowhere else", () => {
+    const links = [...harness.container.querySelectorAll("a")].map((a) =>
+      a.getAttribute("href")
+    );
+    expect(links).toEqual(["https://ko-fi.com/shinrunner1st", "/privacy"]);
     expect(harness.container.innerHTML).not.toContain("github");
   });
 

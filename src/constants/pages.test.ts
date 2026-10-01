@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { PAGE_ORDER, PAGES, pageOfPath, pageUrl } from "./pages";
+import { PAGES, pageOfPath, pageUrl, SITE_PAGES } from "./pages";
 
 describe("pages", () => {
   it("gives every page its own title, description and address", () => {
-    const infos = PAGE_ORDER.map((page) => PAGES[page]);
+    const infos = SITE_PAGES.map((page) => PAGES[page]);
 
     for (const key of ["path", "file", "title", "description"] as const) {
       expect(new Set(infos.map((info) => info[key])).size).toBe(infos.length);
@@ -13,7 +13,7 @@ describe("pages", () => {
 
   // Longer and Google cuts it short in the results.
   it("keeps each description short enough for search results", () => {
-    for (const page of PAGE_ORDER) {
+    for (const page of SITE_PAGES) {
       expect(PAGES[page].description.length).toBeLessThanOrEqual(160);
     }
   });
@@ -29,6 +29,7 @@ describe("pages", () => {
     expect(pageOfPath("/voice")).toBe("voice");
     expect(pageOfPath("/voice/")).toBe("voice");
     expect(pageOfPath("/voice.html")).toBe("voice");
+    expect(pageOfPath("/privacy")).toBe("privacy");
     expect(pageOfPath("/index.html")).toBe("hub");
     expect(pageOfPath("/nowhere")).toBe("hub");
   });

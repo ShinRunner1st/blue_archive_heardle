@@ -213,7 +213,8 @@ export const AccountButtons = styled.div`
   gap: 8px;
 `;
 
-export const AccountButton = styled.button`
+/** A pill; `$danger` for deleting the account, red when it's about to. */
+export const AccountButton = styled.button<{ $danger?: boolean }>`
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -231,7 +232,8 @@ export const AccountButton = styled.button`
   cursor: pointer;
 
   &:hover:not(:disabled) {
-    background-color: ${({ theme }) => theme.blue};
+    background-color: ${({ theme, $danger }) =>
+      $danger ? "#d3394c" : theme.blue};
   }
 
   &:disabled {
@@ -243,6 +245,14 @@ export const AccountButton = styled.button`
     outline: 2px solid ${({ theme }) => theme.border};
     outline-offset: 2px;
   }
+
+  ${({ $danger }) =>
+    $danger
+      ? `
+    background-color: rgba(211, 57, 76, 0.22);
+    border-color: rgba(255, 120, 135, 0.55);
+  `
+      : ""}
 
   svg {
     font-size: 1.1rem;
@@ -922,4 +932,13 @@ export const HeroName = styled.h2`
   @media (max-width: 480px) {
     font-size: 1.4rem;
   }
+`;
+
+/** The privacy policy, from the Account tab: underlined, like the text's. */
+export const AccountLink = styled.a`
+  font-weight: 700;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
 `;

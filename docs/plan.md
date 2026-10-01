@@ -871,7 +871,9 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   `fix/mission-toast-menu`, off it. Step 4, room passes, on
   `feat/room-passes`, off `fix/mission-toast-menu`, guests wearing their
   own cosmetics with it (decision 1, the user's go-ahead 2026-10-02).
-  The next step waits for the user._
+  Step 5, privacy, on `feat/privacy`, off `feat/room-passes`, its
+  contact privacy@baheardle.com (Cloudflare Email Routing to the user's
+  inbox, no mailbox of its own). The next step waits for the user._
 - **Room feedback** (2026-10-01): Skip back in a round (Pass, renamed);
   the host picks OST albums to deal from (any number) and title calls
   only for Voice (`PROTOCOL` 4, `BA2` preset codes); the Jukebox's own

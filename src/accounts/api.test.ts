@@ -1,11 +1,14 @@
 // @vitest-environment node
+import zlib from "node:zlib";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { fakeD1, FakeD1 } from "../test/fakeD1";
 import { DEFAULT_LOOK } from "../helpers/roomLook";
+import { ACCOUNT_UNUSED_DAYS } from "../types/account";
 import { ROOM_PASS_MS } from "../types/room";
 import { AccountsEnv, handle, pageToReturnTo } from "./api";
 import { signValue } from "./crypto";
+import { tidyAccounts } from "./privacy";
 import { readRoomPass } from "./roomPass";
 
 const WORKER = "http://localhost:8788";
@@ -826,5 +829,198 @@ describe("missions and room passes", () => {
     // The session (one read, as for every call), then the pass's three.
     expect(queries.filter((word) => word !== "SELECT")).toEqual([]);
     expect(queries).toHaveLength(4);
+  });
+});
+
+describe("deleting and downloading an account", () => {
+  const TABLES = [
+    "accounts",
+    "identities",
+    "sessions",
+    "sign_in_codes",
+    "profiles",
+    "progress",
+    "progress_backups",
+    "missions_cleared",
+  ];
+  const rows = () =>
+    Object.fromEntries(
+      TABLES.map((table) => [
+        table,
+        (
+          db.sqlite.prepare(`SELECT COUNT(*) AS n FROM ${table}`).get() as {
+            n: number;
+          }
+        ).n,
+      ])
+    );
+  /** An account with something in every table, and its token. */
+  async function fullAccount(who: string) {
+    const token = await signIn(who);
+    // Discord linked too.
+    const ticket = (
+      (await (await call("POST", "/auth/link-ticket", { token })).json()) as {
+        ticket: string;
+      }
+    ).ticket;
+    const state = await startSignIn("discord", { ticket });
+    await answer("discord", state, { code: `fake:${who}-discord` });
+    await call("PUT", "/me/profile", {
+      token,
+      body: {
+        name: "Shin",
+        student: 10004,
+        title: "dependable",
+        summary: { roundsPlayed: 3 },
+        missions: ["daily-7", "first-daily"],
+        editedAt: now,
+      },
+    });
+    const put = (base: number, backup = false) =>
+      handle(
+        new Request(
+          `${WORKER}/me/progress?base=${base}&format=2${
+            backup ? "&backup=1" : ""
+          }`,
+          {
+            method: "PUT",
+            headers: { Origin: SITE, Authorization: `Bearer ${token}` },
+            body: gzip('{"format":2}'),
+          }
+        ),
+        env
+      );
+    expect((await put(0)).status).toBe(200);
+    expect((await put(1, true)).status).toBe(200);
+    // A sign-in half done: its one-time code is still waiting.
+    await answer("google", await startSignIn(), { code: `fake:${who}` });
+    return token;
+  }
+  const gzip = (text: string) =>
+    new Uint8Array(
+      zlib.gzipSync(Buffer.from(text, "utf8"))
+    ) as Uint8Array<ArrayBuffer>;
+
+  it("deletes everything kept for the account, and nobody else's", async () => {
+    const alice = await fullAccount("alice");
+    const bob = await fullAccount("bob");
+    const before = rows();
+    expect(Object.values(before).every((n) => n > 0)).toBe(true);
+
+    expect((await call("DELETE", "/me", { token: alice })).status).toBe(204);
+    const after = rows();
+    for (const table of TABLES) {
+      expect(after[table], table).toBe(before[table] / 2);
+    }
+    expect((await me(alice)).status).toBe(401);
+    expect((await me(bob)).status).toBe(200);
+    // Signing in with the same Google again makes a new, empty account.
+    const again = await signIn("alice");
+    const profile = await call("GET", "/me/profile", { token: again });
+    expect(await profile.json()).toEqual({ profile: null, progress: null });
+  });
+
+  it("deletes in one batch: all of it, or none", async () => {
+    const token = await fullAccount("alice");
+    const batch = vi.spyOn(db, "batch");
+    await call("DELETE", "/me", { token });
+    expect(batch).toHaveBeenCalledOnce();
+    expect(batch.mock.calls[0][0]).toHaveLength(TABLES.length);
+  });
+
+  it("gives the player everything kept for them, and no secret", async () => {
+    const token = await fullAccount("alice");
+    const response = await call("GET", "/me/data", { token });
+    expect(response.status).toBe(200);
+    const data = (await response.json()) as Record<string, unknown> & {
+      progress: { gzipBase64: string };
+    };
+    expect(data).toMatchObject({
+      account: { createdAt: new Date(now).toISOString() },
+      identities: [
+        { provider: "google", id: "fake-alice" },
+        { provider: "discord", id: "fake-alice-discord" },
+      ],
+      profile: {
+        name: "Shin",
+        favouriteStudent: 10004,
+        title: "dependable",
+        summary: { roundsPlayed: 3 },
+      },
+      missions: [{ mission: "daily-7" }, { mission: "first-daily" }],
+      progress: { format: 2, revision: 2 },
+      progressBackup: { format: 2, revision: 1 },
+    });
+    expect(
+      zlib
+        .gunzipSync(Buffer.from(data.progress.gzipBase64, "base64"))
+        .toString()
+    ).toBe('{"format":2}');
+    expect((data.sessions as unknown[]).length).toBe(1);
+    const text = JSON.stringify(data);
+    expect(text).not.toContain(token);
+    const accountId = (
+      db.sqlite.prepare("SELECT id FROM accounts").get() as { id: string }
+    ).id;
+    expect(text).not.toContain(accountId);
+    expect(text).not.toMatch(/token_hash|code_hash/);
+  });
+
+  it("needs a session for either", async () => {
+    expect(
+      (await call("DELETE", "/me", { token: "a".repeat(52) })).status
+    ).toBe(401);
+    expect(
+      (await call("GET", "/me/data", { token: "a".repeat(52) })).status
+    ).toBe(401);
+  });
+});
+
+describe("the daily run", () => {
+  it("deletes accounts unused for two years, and runs-out sessions", async () => {
+    const old = await signIn("old");
+    now += 100 * DAY;
+    const recent = await signIn("recent");
+    // Two years later, less a day for the recent one.
+    now += (ACCOUNT_UNUSED_DAYS - 100) * DAY + DAY / 2;
+    const result = await tidyAccounts(db, now);
+    expect(result).toEqual({ accounts: 1 });
+    now -= DAY; // within the session's time again, for the check
+    expect((await me(old)).status).toBe(401);
+
+    // The recent one is kept, but its session ran out long ago: gone.
+    const sessions = db.sqlite
+      .prepare("SELECT COUNT(*) AS n FROM sessions")
+      .get() as { n: number };
+    expect(sessions.n).toBe(0);
+    const accounts = db.sqlite
+      .prepare("SELECT COUNT(*) AS n FROM accounts")
+      .get() as { n: number };
+    expect(accounts.n).toBe(1);
+    void recent;
+  });
+
+  it("keeps an account used within the two years, by any call", async () => {
+    const token = await signIn("alice");
+    now += (ACCOUNT_UNUSED_DAYS - 10) * DAY;
+    // Its session ran out, but a sign-in marks it used.
+    await signIn("alice");
+    now += 20 * DAY;
+    expect(await tidyAccounts(db, now)).toEqual({ accounts: 0 });
+    void token;
+  });
+
+  it("deletes many in batches", async () => {
+    for (let i = 0; i < 120; i++) {
+      db.sqlite
+        .prepare(
+          "INSERT INTO accounts (id, public_id, created_at, seen_day) VALUES (?, ?, 0, 0)"
+        )
+        .run(`account${i}`, `public${i}`);
+    }
+    const batch = vi.spyOn(db, "batch");
+    expect(await tidyAccounts(db, now)).toEqual({ accounts: 120 });
+    // The sessions' tidy, then three batches of at most 50.
+    expect(batch).toHaveBeenCalledTimes(4);
   });
 });

@@ -1,7 +1,7 @@
 import { IoLockClosed } from "react-icons/io5";
 
 import { MISSIONS } from "../../constants/missions";
-import { isUnlocked } from "../../helpers/cosmetics";
+import { isUnlocked, offered } from "../../helpers/cosmetics";
 import { loadClearedMissions } from "../../helpers/missions";
 import { useMissionsVersion } from "../../hooks/useMissions";
 
@@ -42,7 +42,7 @@ export function CosmeticChoices({
 
   return (
     <Styled.Choices role="radiogroup" aria-labelledby={labelledBy}>
-      {choices.map((choice) => {
+      {offered(choices, cleared).map((choice) => {
         const open = isUnlocked(choice, cleared);
         return (
           <Styled.Choice

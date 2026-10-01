@@ -14,6 +14,16 @@ export interface Cosmetic {
   name: string;
   /** The mission that unlocks it (missions.ts); none for the default. */
   mission?: string;
+  /**
+   * Retired missions that unlocked it before `mission` did: whoever cleared
+   * one keeps it (helpers/unlocks.ts).
+   */
+  formerMissions?: string[];
+  /**
+   * No longer offered to anyone new, never deleted: still worn, and still
+   * listed, by whoever has it (docs/accounts.md, section 4).
+   */
+  retired?: boolean;
 }
 
 /** A title under the name on the Sensei card. */

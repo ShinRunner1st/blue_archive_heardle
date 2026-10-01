@@ -1,0 +1,92 @@
+{
+  "updated": "2026-10-02",
+  "contact": "privacy@baheardle.com",
+  "intro": "Blue Archive Heardle is a free fan game, made and run by one person, ShinRunner1st. You can play every game without an account. Signing in is optional, and only for keeping your progress and profile across devices.",
+  "sections": [
+    {
+      "id": "guests",
+      "title": "Playing without an account",
+      "paragraphs": [
+        "Your scores, streaks, missions, profile and settings are saved only in this browser. Nothing about them is sent anywhere.",
+        "In Multiplayer, a room gets the name and picture from your profile (or the student you pick for it), the title, banner, frame and background you picked, and your answers, and shows them to the other players in it. When the room closes, everything about it is deleted. Your browser keeps a random key for each room you were in, for a few hours, so a tab closed by mistake can go back in as you."
+      ]
+    },
+    {
+      "id": "account",
+      "title": "If you sign in",
+      "paragraphs": [
+        "You sign in with Google or Discord, and can link both to one account. For it, we keep:"
+      ],
+      "list": [
+        "your Google or Discord account's id: a number that tells us it's you, not your email, name or picture there;",
+        "the name and favourite student you set in your profile, and the title, banner, frame, background and Sensei card colours you picked;",
+        "your progress: your rounds in every game and mode, your multiplayer games and the missions you've cleared, as a copy of your save, and the copy from before the last time two devices' progress was joined;",
+        "a summary of your record (rounds played, wins, best streaks and the like), worked out from your progress;",
+        "when the account was made and last used, and for each device you're signed in on, a scrambled form of its sign-in key and when it runs out."
+      ]
+    },
+    {
+      "id": "never",
+      "title": "What we never keep",
+      "list": [
+        "your email address, or your name, picture or friends on Google or Discord;",
+        "passwords: there are none;",
+        "your IP address: Cloudflare sees it to deliver the site, and to stop anyone making rooms or signing in by the hundred, the site counts requests from each address for a minute, under a scrambled form of it;",
+        "cookies, ads, analytics or tracking of any kind, signed in or not. The site loads no one else's scripts."
+      ]
+    },
+    {
+      "id": "who",
+      "title": "Who sees what",
+      "paragraphs": [
+        "Other players in a room see your name, picture, title, banner, frame and background while you're in it. Nobody else sees your progress or your Google or Discord account. If others can ever see more, such as your profile's record, this page will say so first."
+      ]
+    },
+    {
+      "id": "where",
+      "title": "Where it's kept",
+      "paragraphs": [
+        "On Cloudflare, which runs the site: its Workers answer the requests and its D1 database keeps accounts. Google and Discord are only asked who you are when you sign in, and are told nothing about how you play."
+      ]
+    },
+    {
+      "id": "how-long",
+      "title": "How long",
+      "paragraphs": [
+        "An account is kept until you delete it, or until it's gone unused for two years (no sign-in and no sync from any device), when it's deleted the same way. A device's sign-in ends after 90 days without use.",
+        "After an account is deleted, Cloudflare's history of the database keeps it for up to 7 days more, in case something goes wrong; then it's gone for good. A room's data lasts only while the room is open."
+      ]
+    },
+    {
+      "id": "choices",
+      "title": "Your choices",
+      "list": [
+        "Download everything kept for your account, at any time: ☰ Profile, Account, Download my data.",
+        "Delete your account and everything kept for it, at any time: ☰ Profile, Account, Delete account. You choose whether this browser keeps your progress as a guest.",
+        "Sign out: this browser keeps your progress, unless you choose to clear it.",
+        "Remove the site from your Google account under Security, Your connections to third-party apps and services, or from Discord under User Settings, Authorized Apps. Neither gave us anything to take back, so this only tidies their list."
+      ]
+    },
+    {
+      "id": "children",
+      "title": "Children",
+      "paragraphs": [
+        "Google and Discord accounts are for people 13 and over (older in some countries), and so is signing in here. The site isn't aimed at younger children."
+      ]
+    },
+    {
+      "id": "changes",
+      "title": "Changes",
+      "paragraphs": [
+        "If what the site keeps changes, this page changes first, with its date, and What's new says so."
+      ]
+    },
+    {
+      "id": "contact",
+      "title": "Questions",
+      "paragraphs": [
+        "Write to {contact} about your privacy, your data or deleting it."
+      ]
+    }
+  ]
+}

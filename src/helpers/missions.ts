@@ -159,6 +159,17 @@ export function loadClearedMissions(): string[] {
   return loadCleared() ?? [];
 }
 
+/**
+ * How many of the missions there are to clear are cleared: a retired one
+ * stays cleared, but isn't counted against today's total.
+ */
+export function activeClearedCount(
+  cleared: Iterable<string> = loadClearedMissions()
+): number {
+  const done = new Set(cleared);
+  return MISSIONS.filter(({ id, retired }) => !retired && done.has(id)).length;
+}
+
 export function saveClearedMissions(ids: string[]): void {
   writeJson(MISSIONS_KEY, ids);
 }
@@ -408,16 +419,20 @@ export function goalOf(mission: Mission): number {
 /**
  * Every mission's progress: done once its fact reaches the goal, or for
  * good once it was cleared before, even if the rounds that cleared it have
- * since been reset.
+ * since been reset. A retired mission is listed only for whoever cleared
+ * it, and can't be cleared any more.
  */
 export function missionProgress(
   facts: MissionFacts,
   cleared: Iterable<string> = loadClearedMissions()
 ): MissionProgress[] {
   const before = new Set(cleared);
-  return MISSIONS.map((mission) => {
+  const shown = MISSIONS.filter(
+    ({ id, retired }) => !retired || before.has(id)
+  );
+  return shown.map((mission) => {
     const goal = goalOf(mission);
-    const reached = facts[mission.fact] >= goal;
+    const reached = !mission.retired && facts[mission.fact] >= goal;
     const done = reached || before.has(mission.id);
     return {
       mission,

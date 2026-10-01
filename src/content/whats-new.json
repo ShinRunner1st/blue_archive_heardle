@@ -1,5 +1,21 @@
 [
   {
+    "id": "2026-10-accounts",
+    "name": "Accounts",
+    "items": [
+      {
+        "icon": "IoKey",
+        "title": "Sign in, if you like",
+        "text": "Sign in with Google or Discord (☰ Profile, Account) to keep your progress, missions and profile on every device you play on. It's optional: everything plays without an account, as before, and signing in first joins this browser's progress with your account's."
+      },
+      {
+        "icon": "IoShieldCheckmark",
+        "title": "Your data, your call",
+        "text": "An account keeps only your Google or Discord id, your profile, progress and missions: no email, cookies or tracking. Download it or delete it at any time from the Account tab, and read what's kept, and for how long, on the new Privacy page (linked at the foot of every page)."
+      }
+    ]
+  },
+  {
     "id": "2026-10-missions",
     "name": "Missions",
     "items": [

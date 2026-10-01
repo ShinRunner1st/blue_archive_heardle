@@ -14,7 +14,9 @@ import { pictureFiles } from "../constants/pictureFiles";
 import { FACT_TOTALS, missionFacts } from "../helpers/missions";
 import badges from "./badges.json";
 import cosmetics from "./cosmetics.json";
+import idsLock from "./ids.lock.json";
 import missions from "./missions.json";
+import privacy from "./privacy.json";
 import seasons from "./seasons.json";
 import whatsNew from "./whats-new.json";
 
@@ -62,6 +64,96 @@ describe("seasons.json", () => {
         ).toBe(true);
         expect(pictureFiles[key], `${key}: run npm run songs`).toBeTruthy();
       }
+    }
+  });
+});
+
+describe("ids.lock.json", () => {
+  // Saves and accounts keep these ids for good (docs/accounts.md, section
+  // 4): one changed or removed would take a cleared mission or an unlocked
+  // cosmetic away from whoever had it.
+  const shipped: Record<keyof typeof idsLock, { id: string }[]> = {
+    missions: missions.missions,
+    titles: cosmetics.titles,
+    cardColors: cosmetics.cardColors,
+    cursorColors: cosmetics.cursorColors,
+    characters: cosmetics.characters,
+    banners: cosmetics.banners,
+    frames: cosmetics.frames,
+    backgrounds: cosmetics.backgrounds,
+  };
+
+  it("keeps every id ever shipped: retire one, never rename or remove it", () => {
+    for (const [list, ids] of Object.entries(idsLock)) {
+      const there = new Set(
+        shipped[list as keyof typeof idsLock].map(({ id }) => id)
+      );
+      for (const id of ids) {
+        expect(
+          there.has(id),
+          `${list}: "${id}" was shipped; mark it "retired": true instead`
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("lists every id there is, so a new one is kept from now on", () => {
+    for (const [list, items] of Object.entries(shipped)) {
+      const locked = new Set(idsLock[list as keyof typeof idsLock]);
+      for (const { id } of items) {
+        expect(
+          locked.has(id),
+          `${list}: add "${id}" to src/content/ids.lock.json`
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("retires things so nobody keeps less than they had", () => {
+    const retired = new Set(
+      missions.missions
+        .filter((mission) => (mission as { retired?: boolean }).retired)
+        .map(({ id }) => id)
+    );
+    for (const group of missions.groups) {
+      expect(
+        missions.missions.some(
+          (mission) =>
+            mission.group === group.id &&
+            !(mission as { retired?: boolean }).retired
+        ),
+        `${group.id}: every mission in it is retired`
+      ).toBe(true);
+    }
+    for (const [list, items] of Object.entries(shipped)) {
+      if (list === "missions") continue;
+      items.forEach((item, i) => {
+        const {
+          mission,
+          formerMissions = [],
+          retired: gone,
+        } = item as {
+          mission?: string;
+          formerMissions?: string[];
+          retired?: boolean;
+        };
+        // The default is everyone's, and stays so.
+        if (i === 0)
+          expect(gone, `${list}: the default is retired`).toBeFalsy();
+        // Nobody new can get a retired one: its mission is retired too.
+        if (gone && mission !== undefined) {
+          expect(
+            retired.has(mission),
+            `${list}: ${item.id} is retired, its mission isn't`
+          ).toBe(true);
+        }
+        for (const former of formerMissions) {
+          expect(
+            retired.has(former),
+            `${list}: ${item.id}: "${former}" isn't a retired mission`
+          ).toBe(true);
+        }
+      });
     }
   });
 });
@@ -280,5 +372,28 @@ describe("whats-new.json", () => {
         expect(item.title && item.text, update.id).toBeTruthy();
       }
     }
+  });
+});
+
+describe("privacy.json", () => {
+  it("has a date, the contact address, and whole sections", () => {
+    expect(privacy.updated).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(Number.isNaN(Date.parse(privacy.updated))).toBe(false);
+    expect(privacy.contact).toBe("privacy@baheardle.com");
+    expect(privacy.intro).toBeTruthy();
+    unique(
+      privacy.sections.map(({ id }) => id),
+      "privacy section"
+    );
+    for (const section of privacy.sections) {
+      const { paragraphs = [], list = [] } = section as {
+        paragraphs?: string[];
+        list?: string[];
+      };
+      expect(section.title, section.id).toBeTruthy();
+      expect(paragraphs.length + list.length, section.id).toBeGreaterThan(0);
+    }
+    // The address shows in the policy itself, as a link.
+    expect(JSON.stringify(privacy.sections)).toContain("{contact}");
   });
 });

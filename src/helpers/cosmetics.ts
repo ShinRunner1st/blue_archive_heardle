@@ -19,16 +19,28 @@ import {
   PROFILE_BANNER_KEY,
   PROFILE_FRAME_KEY,
 } from "../constants/game";
-import { isMissionCleared, loadClearedMissions } from "./missions";
+import { loadClearedMissions } from "./missions";
 import { markProfileEdited } from "./profileEdit";
+import { isOffered, Unlockable, unlockedBy, unlockedWith } from "./unlocks";
 
 /** Whether the player may use it: the default, or its mission cleared. */
 export function isUnlocked(
-  cosmetic: { mission?: string },
+  cosmetic: Unlockable,
   cleared: Iterable<string> = loadClearedMissions()
 ): boolean {
-  if (cosmetic.mission === undefined) return true;
-  return new Set(cleared).has(cosmetic.mission);
+  return unlockedBy(cosmetic, cleared);
+}
+
+/**
+ * A list's items to show the player: all but the retired ones they don't
+ * have, which nobody new can get.
+ */
+export function offered<T extends Unlockable>(
+  list: T[],
+  cleared: Iterable<string> = loadClearedMissions()
+): T[] {
+  const done = [...cleared];
+  return list.filter((item) => isOffered(item, done));
 }
 
 function read(key: string): string | null {
@@ -60,22 +72,22 @@ export function subscribeCosmetics(listener: () => void): () => void {
  * The player's pick from a list, if it's still theirs (a save file from
  * before its mission wouldn't have it), or the list's first, the default.
  */
-function picked<T extends { id: string; mission?: string }>(
+function picked<T extends { id: string } & Unlockable>(
   list: T[],
   key: string
 ): T {
   const id = read(key);
   const found = list.find((item) => item.id === id);
-  return found && isMissionCleared(found.mission) ? found : list[0];
+  return found && isUnlocked(found) ? found : list[0];
 }
 
-function pick<T extends { id: string; mission?: string }>(
+function pick<T extends { id: string } & Unlockable>(
   list: T[],
   key: string,
   id: string
 ): void {
   const found = list.find((item) => item.id === id);
-  if (!found || !isMissionCleared(found.mission)) return;
+  if (!found || !isUnlocked(found)) return;
   store(key, id);
 }
 
@@ -249,15 +261,18 @@ export function nextCursorPalette(): CursorPalette {
   return color.hue === undefined ? BLUE_PALETTE : paletteOfHue(color.hue);
 }
 
-/** What clearing a mission unlocks, as the pop-up and the toast name it. */
+/**
+ * What clearing a mission unlocks, as the pop-up and the toast name it: a
+ * retired mission's too, as whoever cleared it keeps them.
+ */
 export function unlocksOf(missionId: string): string[] {
   return [
     ...Object.values(COSMETIC_KINDS).flatMap(({ label, list }) =>
       (list as Cosmetic[])
-        .filter(({ mission }) => mission === missionId)
+        .filter((item) => unlockedWith(item, missionId))
         .map(({ name }) => `${label}: ${name}`)
     ),
-    ...CHARACTER_CHOICES.filter(({ mission }) => mission === missionId).map(
+    ...CHARACTER_CHOICES.filter((item) => unlockedWith(item, missionId)).map(
       ({ name }) => `Character: ${name}`
     ),
   ];

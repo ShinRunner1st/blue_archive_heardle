@@ -35,6 +35,16 @@ export const Text = styled.footer`
   svg {
     vertical-align: -2px;
   }
+
+  /* One line on a phone, the privacy link included: a little smaller, and
+     the links without their icons. */
+  @media (max-width: 480px) {
+    font-size: 0.78rem;
+
+    a svg {
+      display: none;
+    }
+  }
 `;
 
 /**

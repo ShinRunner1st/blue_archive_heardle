@@ -1,8 +1,8 @@
 import React from "react";
 import { IoPerson, IoRibbon } from "react-icons/io5";
 
-import { MISSIONS } from "../../constants/missions";
-import { loadClearedMissions } from "../../helpers/missions";
+import { ACTIVE_MISSIONS } from "../../constants/missions";
+import { activeClearedCount } from "../../helpers/missions";
 import { senseiStats } from "../../helpers/senseiStats";
 import { useMissionsVersion } from "../../hooks/useMissions";
 import { useServer } from "../../hooks/useServer";
@@ -25,7 +25,7 @@ export function Record({
   const stats = React.useMemo(() => senseiStats(undefined, server), [server]);
   // Read again once a mission is cleared, so the count is right.
   useMissionsVersion();
-  const missions = loadClearedMissions().length;
+  const missions = activeClearedCount();
   if (stats.roundsPlayed === 0) return null;
 
   const tiles = [
@@ -52,7 +52,7 @@ export function Record({
           </Styled.PanelAction>
           <Styled.PanelAction type="button" onClick={onMissions}>
             <IoRibbon aria-hidden="true" />
-            Missions {missions}/{MISSIONS.length}
+            Missions {missions}/{ACTIVE_MISSIONS.length}
           </Styled.PanelAction>
         </Styled.PanelActions>
       </Styled.PanelHead>

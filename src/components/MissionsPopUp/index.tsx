@@ -19,7 +19,10 @@ interface Props {
  * as it opens, and again when one is cleared while it's open.
  */
 export function MissionsPopUp({ onClose }: Props) {
-  const progress = useMissionProgress();
+  const all = useMissionProgress();
+  // The missions there are to clear; the retired ones cleared come last,
+  // under Retired, and count for nothing.
+  const progress = all.filter(({ mission }) => !mission.retired);
   const cleared = progress.filter(({ done }) => done).length;
   // Opens on the first tab with something left to do.
   const [group, setGroup] = React.useState<MissionGroup>(
@@ -67,43 +70,51 @@ export function MissionsPopUp({ onClose }: Props) {
       </Styled.Tabs>
 
       <Styled.List role="tabpanel">
-        {progress
+        {all
           .filter(({ mission }) => mission.group === group)
-          .map(({ mission, value, goal, done }) => {
+          .sort(
+            (a, b) => Number(!!a.mission.retired) - Number(!!b.mission.retired)
+          )
+          .map(({ mission, value, goal, done }, i, shown) => {
             const unlocks = unlocksOf(mission.id);
+            const firstRetired =
+              mission.retired && !shown[i - 1]?.mission.retired;
             return (
-              <Styled.Mission key={mission.id} $done={done}>
-                <Styled.Head>
-                  <Styled.Title>{mission.title}</Styled.Title>
-                  {done ? (
-                    <Styled.Stamp>
-                      <IoCheckmarkCircle aria-hidden="true" />
-                      Cleared
-                    </Styled.Stamp>
-                  ) : (
-                    goal > 1 && (
-                      <Styled.Count>
-                        {value} / {goal}
-                      </Styled.Count>
-                    )
+              <React.Fragment key={mission.id}>
+                {firstRetired && <Styled.Retired>Retired</Styled.Retired>}
+                <Styled.Mission $done={done}>
+                  <Styled.Head>
+                    <Styled.Title>{mission.title}</Styled.Title>
+                    {done ? (
+                      <Styled.Stamp>
+                        <IoCheckmarkCircle aria-hidden="true" />
+                        Cleared
+                      </Styled.Stamp>
+                    ) : (
+                      goal > 1 && (
+                        <Styled.Count>
+                          {value} / {goal}
+                        </Styled.Count>
+                      )
+                    )}
+                  </Styled.Head>
+                  <Styled.Text>{mission.text}</Styled.Text>
+                  {goal > 1 && !done && (
+                    <Styled.Track aria-hidden="true">
+                      <Styled.Fill
+                        style={{ width: `${(value / goal) * 100}%` }}
+                      />
+                    </Styled.Track>
                   )}
-                </Styled.Head>
-                <Styled.Text>{mission.text}</Styled.Text>
-                {goal > 1 && !done && (
-                  <Styled.Track aria-hidden="true">
-                    <Styled.Fill
-                      style={{ width: `${(value / goal) * 100}%` }}
-                    />
-                  </Styled.Track>
-                )}
-                {unlocks.length > 0 && (
-                  <Styled.Unlock $done={done}>
-                    <IoGift aria-hidden="true" />
-                    {done ? "Unlocked: " : "Unlocks "}
-                    {unlocks.join(", ")}
-                  </Styled.Unlock>
-                )}
-              </Styled.Mission>
+                  {unlocks.length > 0 && (
+                    <Styled.Unlock $done={done}>
+                      <IoGift aria-hidden="true" />
+                      {done ? "Unlocked: " : "Unlocks "}
+                      {unlocks.join(", ")}
+                    </Styled.Unlock>
+                  )}
+                </Styled.Mission>
+              </React.Fragment>
             );
           })}
       </Styled.List>

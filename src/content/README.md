@@ -59,8 +59,12 @@ from `pictures/seasons/` unless another season shares them.
 }
 ```
 
-- `id`: kept in players' saves once cleared, so **never rename one**. A
-  removed mission stops showing; its id is dropped from saves when read.
+- `id`: kept in players' saves and accounts once cleared, so **never
+  rename or remove one** (`ids.lock.json` below).
+- `retired`: `true` once it's no longer one to clear, as when what it asks
+  changes (that's a new mission, with a new id). Nobody can clear it any
+  more; whoever did sees it under Retired in its tab and keeps what it
+  unlocked. It doesn't count towards the missions' total.
 - `fact`: what it counts, one of `MISSION_FACTS` in
   `src/constants/missions.ts` (each described there): daily wins, songs
   guessed, a Time Attack's best, multiplayer games and more. A new kind of
@@ -100,10 +104,21 @@ Lists, each starting with the default everyone has (no `mission`):
   Worker as banners name theirs. Pictures already there cost nothing more;
   a new one goes in `pictures/` and up with `npm run songs`.
 
-`mission` is the id of the mission that unlocks it. A new kind of cosmetic
+`mission` is the id of the mission that unlocks it. `formerMissions` lists
+retired missions that unlocked it before, so whoever cleared one keeps it
+when a new mission takes over. `retired: true` stops offering it: nobody
+new can get it (its mission must be retired too), and whoever has it still
+wears it and sees it in the list. A default is never retired. A new kind of cosmetic
 is its list here, an entry in `COSMETIC_KINDS` (`src/helpers/cosmetics.ts`)
 and, for Customize, its swatch and place in
 `src/components/Profile/Customize.tsx`.
+
+## Ids for good (`ids.lock.json`)
+
+Every mission and cosmetic id ever shipped, by list. The content test fails
+if one of them is missing from the files (retire it instead) and if an id
+in the files isn't in it yet: add a new one there in the same change. A
+removal or a rename never reaches players.
 
 ## OST badges (`badges.json`)
 

@@ -9,8 +9,10 @@ import {
   saveBeforeSignOut,
 } from "../../helpers/progressSync";
 import { downloadText, reloadPage, saveFileName } from "../../helpers/saveFile";
+import { downloadAccountData } from "../../helpers/accountData";
 import {
   AccountsUnavailable,
+  deleteAccount,
   fetchAccount,
   finishSignIn,
   SignInNotice,
@@ -20,6 +22,7 @@ import {
 } from "../../helpers/accountClient";
 import { forgetMissionsSent, syncProfile } from "../../helpers/profileSync";
 import { forgetRoomPass } from "../../helpers/roomPass";
+import { PAGES } from "../../constants/pages";
 import {
   AccountView,
   AuthError,
@@ -80,12 +83,25 @@ const date = (ms: number) =>
     year: "numeric",
   });
 
+/** The privacy policy, in a tab of its own, so this one stays as it is. */
+function PolicyLink({ children }: { children: React.ReactNode }) {
+  return (
+    <Styled.AccountLink
+      href={PAGES.privacy.path}
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      {children}
+    </Styled.AccountLink>
+  );
+}
+
 /**
- * The profile's Account tab (docs/accounts.md, step 1): sign in with
- * Google or Discord, link the other, unlink one, sign out. Only where
- * accounts are on, the dev server and the site's preview, until their
- * release; nothing is kept in an account yet. A sign-in that just came back
- * is finished here, as the profile opens on this tab by itself.
+ * The profile's Account tab (docs/accounts.md): sign in with Google or
+ * Discord, link the other, unlink one, sign out, download everything kept,
+ * delete the account. Only where accounts are on, the dev server and the
+ * site's preview, until their release. A sign-in that just came back is
+ * finished here, as the profile opens on this tab by itself.
  */
 export function AccountPanel() {
   const [state, setState] = React.useState<State>({ status: "loading" });
@@ -94,6 +110,11 @@ export function AccountPanel() {
   // Signing out: the newest progress saving to the account, then the choice.
   const [leaving, setLeaving] = React.useState<
     "saving" | "saved" | "unsaved" | null
+  >(null);
+  // Deleting the account: what goes, then are you sure, then, once it's
+  // gone, whether this browser keeps its progress as a guest's.
+  const [deleting, setDeleting] = React.useState<
+    "ask" | "sure" | "deleted" | null
   >(null);
   const backup = backupBeforeAccount();
   const result = lastProgressSync();
@@ -118,6 +139,30 @@ export function AccountPanel() {
       setNotice("Signed out. This browser keeps its progress.");
       await load();
     });
+
+  /** Deletes the account; this browser's progress stays until asked. */
+  const deleteIt = () =>
+    act(async () => {
+      await deleteAccount();
+      forgetAccountProgress();
+      forgetMissionsSent();
+      forgetRoomPass();
+      setDeleting("deleted");
+    });
+
+  /** After a deletion: this browser's progress kept as a guest's, or not. */
+  const afterDeleting = (clear: boolean) => {
+    if (clear) {
+      clearLocalProgress();
+      reloadPage();
+      return;
+    }
+    setDeleting(null);
+    setNotice(
+      "Your account and everything kept for it are deleted. This browser keeps its progress, as a guest's."
+    );
+    void load();
+  };
 
   const load = React.useCallback(async () => {
     try {
@@ -179,8 +224,15 @@ export function AccountPanel() {
       {state.status === "signedOut" && (
         <>
           <Styled.AccountLead>
-            Sign in with Google or Discord to keep your profile with an account.
+            Sign in with Google or Discord to keep your progress and profile
+            with an account, on every device. It&apos;s optional: everything
+            plays without one.
           </Styled.AccountLead>
+          <Styled.Note>
+            An account keeps your Google or Discord id (not your email or name),
+            your profile, progress and missions, and nothing else.{" "}
+            <PolicyLink>What&apos;s kept, and for how long</PolicyLink>
+          </Styled.Note>
           <Styled.AccountButtons>
             {PROVIDERS.map((provider) => {
               const Icon = ICONS[provider];
@@ -272,7 +324,57 @@ export function AccountPanel() {
               </Styled.AccountButton>
             </Styled.AccountButtons>
           )}
-          {leaving ? (
+          {deleting === "ask" || deleting === "sure" ? (
+            <Styled.AccountLeave role="group" aria-label="Delete account">
+              <Styled.AccountLead as="p">
+                {deleting === "ask"
+                  ? "Deleting your account deletes everything kept for it: your Google and Discord links, your profile, your progress and its backup, your missions, and every device's sign-in. This browser's progress isn't touched: you choose after."
+                  : "Are you sure? It can't be undone, and other devices are signed out too."}
+              </Styled.AccountLead>
+              <Styled.AccountButtons>
+                <Styled.AccountButton
+                  type="button"
+                  disabled={busy}
+                  $danger
+                  onClick={() =>
+                    deleting === "ask" ? setDeleting("sure") : deleteIt()
+                  }
+                >
+                  {deleting === "ask"
+                    ? "Delete my account"
+                    : "Yes, delete it for good"}
+                </Styled.AccountButton>
+                <Styled.AccountButton
+                  type="button"
+                  disabled={busy}
+                  onClick={() => setDeleting(null)}
+                >
+                  Cancel
+                </Styled.AccountButton>
+              </Styled.AccountButtons>
+            </Styled.AccountLeave>
+          ) : deleting === "deleted" ? (
+            <Styled.AccountLeave role="group" aria-label="Account deleted">
+              <Styled.AccountLead as="p">
+                Your account is deleted. Keep your progress in this browser, to
+                play on as a guest?
+              </Styled.AccountLead>
+              <Styled.AccountButtons>
+                <Styled.AccountButton
+                  type="button"
+                  onClick={() => afterDeleting(false)}
+                >
+                  Keep it here
+                </Styled.AccountButton>
+                <Styled.AccountButton
+                  type="button"
+                  onClick={() => afterDeleting(true)}
+                >
+                  Clear it from this browser
+                </Styled.AccountButton>
+              </Styled.AccountButtons>
+            </Styled.AccountLeave>
+          ) : leaving ? (
             <Styled.AccountLeave role="group" aria-label="Sign out">
               <Styled.AccountLead as="p">
                 {leaving === "saving"
@@ -323,8 +425,30 @@ export function AccountPanel() {
               >
                 Sign out
               </Styled.AccountButton>
+              <Styled.AccountButton
+                type="button"
+                disabled={busy}
+                onClick={() =>
+                  act(async () => {
+                    if (!(await downloadAccountData())) await load();
+                  })
+                }
+              >
+                Download my data
+              </Styled.AccountButton>
+              <Styled.AccountButton
+                type="button"
+                disabled={busy}
+                onClick={() => setDeleting("ask")}
+              >
+                Delete account
+              </Styled.AccountButton>
             </Styled.AccountButtons>
           )}
+          <Styled.Note>
+            Kept while you play; deleted after 2 years unused.{" "}
+            <PolicyLink>Privacy</PolicyLink>
+          </Styled.Note>
         </>
       )}
 

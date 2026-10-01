@@ -107,3 +107,8 @@ export const SIGN_IN_STATE_MS = 10 * 60_000;
 export const LINK_TICKET_MS = 60_000;
 /** A session ends after this long unused. */
 export const SESSION_MS = 90 * 24 * 60 * 60_000;
+/**
+ * An account nobody signs in with or syncs for this long is deleted, as
+ * the privacy policy says (/privacy): two years.
+ */
+export const ACCOUNT_UNUSED_DAYS = 730;

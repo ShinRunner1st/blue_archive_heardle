@@ -1,5 +1,6 @@
 import cosmetics from "../content/cosmetics.json";
 import { RoomLook } from "../types/room";
+import { Unlockable, unlockedBy } from "./unlocks";
 
 /**
  * The cosmetics a player's card wears in a room (docs/accounts.md, section
@@ -9,7 +10,7 @@ import { RoomLook } from "../types/room";
  */
 
 /** Each kind's items, the first its default. */
-const LISTS: Record<keyof RoomLook, { id: string; mission?: string }[]> = {
+const LISTS: Record<keyof RoomLook, ({ id: string } & Unlockable)[]> = {
   title: cosmetics.titles,
   banner: cosmetics.banners,
   frame: cosmetics.frames,
@@ -54,14 +55,14 @@ export function unlockedLook(
   look: RoomLook,
   cleared: Iterable<string>
 ): RoomLook {
-  const missions = new Set(cleared);
+  const missions = [...cleared];
   const clean = cleanLook(look);
   return Object.fromEntries(
     LOOK_KINDS.map((kind) => {
       const item = LISTS[kind].find(({ id }) => id === clean[kind]);
       return [
         kind,
-        item?.mission === undefined || missions.has(item.mission)
+        item === undefined || unlockedBy(item, missions)
           ? clean[kind]
           : DEFAULT_LOOK[kind],
       ];

@@ -1,7 +1,8 @@
 import { CHARACTER_CHOICES } from "../constants/cosmetics";
 import { CharacterChoice } from "../types/character";
-import { isMissionCleared } from "./missions";
+import { loadClearedMissions } from "./missions";
 import { loadCharacterChoice, saveCharacterChoice } from "./storage";
+import { unlockedBy } from "./unlocks";
 
 /**
  * Whether the player may have her: off and the free ones always, the others
@@ -11,7 +12,7 @@ import { loadCharacterChoice, saveCharacterChoice } from "./storage";
 export function isCharacterUnlocked(choice: CharacterChoice): boolean {
   if (choice === "off") return true;
   const option = CHARACTER_CHOICES.find(({ id }) => id === choice);
-  return option !== undefined && isMissionCleared(option.mission);
+  return option !== undefined && unlockedBy(option, loadClearedMissions());
 }
 
 /** The player's pick, read from storage lazily. */

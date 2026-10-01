@@ -13,6 +13,7 @@ import {
   COSMETIC_KINDS,
   CosmeticKind,
   isUnlocked,
+  offered,
   pickedOf,
   setPicked,
 } from "../../helpers/cosmetics";
@@ -167,7 +168,7 @@ export function CustomizePopUp({ onClose }: { onClose: () => void }) {
           />
           {SECTIONS.map((kind) => {
             const { label, list } = COSMETIC_KINDS[kind];
-            const items = list as Cosmetic[];
+            const items = offered(list as Cosmetic[], cleared);
             const open = items.filter((item) =>
               isUnlocked(item, cleared)
             ).length;

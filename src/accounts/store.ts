@@ -167,12 +167,17 @@ export async function createSession(
   now: number
 ): Promise<string> {
   const token = newSecret();
-  await db
-    .prepare(
-      "INSERT INTO sessions (token_hash, account_id, expires_at) VALUES (?, ?, ?)"
-    )
-    .bind(await sha256Hex(token), account, now + SESSION_MS)
-    .run();
+  await db.batch([
+    db
+      .prepare(
+        "INSERT INTO sessions (token_hash, account_id, expires_at) VALUES (?, ?, ?)"
+      )
+      .bind(await sha256Hex(token), account, now + SESSION_MS),
+    // A sign-in is a use: the two years unused start again (/privacy).
+    db
+      .prepare("UPDATE accounts SET seen_day = ? WHERE id = ? AND seen_day < ?")
+      .bind(dayOf(now), account, dayOf(now)),
+  ]);
   return token;
 }
 

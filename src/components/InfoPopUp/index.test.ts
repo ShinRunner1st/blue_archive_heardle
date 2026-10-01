@@ -52,9 +52,15 @@ describe("InfoPopUp credit", () => {
   });
 
   it("says what is and isn't collected", () => {
-    expect(text()).toContain("No accounts, cookies, ads or analytics");
+    expect(text()).toContain("No cookies, ads or analytics");
     expect(text()).toContain("saved only in this browser");
+    expect(text()).toContain("Signing in with Google or Discord is optional");
+    expect(text()).toContain("download or delete it all at any time");
     expect(text()).toContain("IP address");
+    const policy = Array.from(document.querySelectorAll("a")).find(
+      (a) => a.textContent === "privacy policy"
+    );
+    expect(policy?.getAttribute("href")).toBe("/privacy");
   });
 
   it("offers a Ko-fi link, in a new tab", () => {
