@@ -91,6 +91,87 @@ export const Heading = styled.h3`
   font-weight: 900;
 `;
 
+export const HeadingCount = styled.span`
+  font-weight: 700;
+  opacity: 0.65;
+`;
+
+const GOLD = "#f5c542";
+
+/** The OST badges, four to a row, two on a phone. */
+export const BadgeGrid = styled.ul`
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @media (max-width: 600px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+`;
+
+export const BadgeTile = styled.li<{ $done: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 6px 8px 6px 6px;
+
+  background-color: rgba(255, 255, 255, 0.06);
+  border: 1px solid
+    ${({ $done }) => ($done ? GOLD : "rgba(255, 255, 255, 0.08)")};
+  border-radius: 10px;
+  box-shadow: ${({ $done }) =>
+    $done ? "0 0 10px rgba(245, 197, 66, 0.3)" : "none"};
+`;
+
+/** Grey and dim until earned, in full colour after. */
+export const BadgeCover = styled.img<{ $done: boolean }>`
+  display: block;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  filter: ${({ $done }) => ($done ? "none" : "grayscale(1) brightness(0.55)")};
+`;
+
+export const BadgeText = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+`;
+
+export const BadgeName = styled.span`
+  font-size: 0.85rem;
+  font-weight: 900;
+`;
+
+export const BadgeCount = styled.span<{ $done: boolean }>`
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: ${({ $done }) => ($done ? GOLD : "inherit")};
+  opacity: ${({ $done }) => ($done ? 1 : 0.75)};
+`;
+
+export const BadgeTrack = styled.div`
+  height: 4px;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+`;
+
+export const BadgeFill = styled.div<{ $done: boolean }>`
+  height: 100%;
+  background-color: ${({ $done, theme }) => ($done ? GOLD : theme.blue)};
+  border-radius: inherit;
+`;
+
 export const SubHeading = styled.h4`
   margin: 14px 0 6px;
   font-size: 0.88rem;
@@ -257,6 +338,144 @@ export const SectionHead = styled.div`
 export const SectionCount = styled.span`
   font-size: 0.75rem;
   opacity: 0.65;
+`;
+
+/** Customize's name and picture: side by side, or stacked on a phone. */
+export const WhoFields = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: 12px 18px;
+`;
+
+export const WhoField = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+`;
+
+export const FieldLabel = styled.label`
+  font-size: 0.8rem;
+  font-weight: 800;
+  opacity: 0.8;
+`;
+
+/** The player's name, for their card, rooms and shared pictures. */
+export const NameInput = styled.input`
+  box-sizing: border-box;
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: ${({ theme }) => theme.text};
+
+  background-color: rgba(0, 0, 0, 0.18);
+  border: 1px solid rgba(241, 247, 237, 0.22);
+  border-radius: 8px;
+
+  &::placeholder {
+    color: ${({ theme }) => theme.text};
+    opacity: 0.5;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
+`;
+
+/** Turns the "Sensei" after the name on or off. */
+export const NameToggle = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  width: 100%;
+  padding: 4px 0 0;
+
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: left;
+  color: inherit;
+
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+`;
+
+/** How the name will read, under the switch's label. */
+export const NameExample = styled.span`
+  display: block;
+
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.6;
+`;
+
+export const PictureRow = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+`;
+
+/** No student picked: the name's letter, as the card shows it. */
+export const PictureLetter = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+
+  font-weight: 900;
+  color: #ffffff;
+  background-color: #2f7f9e;
+  border-radius: 50%;
+`;
+
+export const PictureName = styled.span`
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 800;
+`;
+
+export const PictureRemove = styled.button`
+  padding: 4px 10px;
+
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: inherit;
+
+  background: none;
+  border: 1px solid rgba(241, 247, 237, 0.3);
+  border-radius: 999px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(241, 247, 237, 0.08);
+  }
+`;
+
+/** The student search, its list over what follows. */
+export const Picker = styled.div`
+  position: relative;
+  z-index: 2;
+  width: 100%;
 `;
 
 /** How wide each kind's choices are: a banner needs its title's room. */

@@ -878,6 +878,17 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   only, smaller round cards, and every screen checked at 1920×1080, 945
   and 911 with eight players. _Built on `feat/room-cards`, off
   `feat/profile`._
+- **The profile as who you are** (asked for 2026-10-02, after trying the
+  rooms): the name and picture move into Customize (the name out of
+  Settings), and rooms take both from the profile, the picture changeable
+  before joining; the Sensei card leaves the ☰ menu and the hub (it was
+  there to share, and opens from the profile); the OST badges on the
+  profile; the page before a room redesigned as the lobby (your card, a
+  Join ticket with Paste, a New room ticket); the ticket's strip across
+  its whole top; banners as pills; picked albums as runs ("Vol.1-8").
+  _Built on `feat/profile-identity`, off `feat/room-cards`._
+- **No release before accounts** (the user, 2026-10-02): everything
+  stacked since 4a460a1 waits on `main` until accounts are built.
 - **A profile in normal mode** (asked for 2026-10-01): the player's own,
   from the saves, as no one else's numbers are involved: name, banner,
   favourite student, days played, totals, a row per game (rounds, won,

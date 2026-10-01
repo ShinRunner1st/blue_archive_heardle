@@ -1,18 +1,20 @@
 import React from "react";
-import { IoSettingsSharp } from "react-icons/io5";
+import {
+  IoClipboardOutline,
+  IoCreateOutline,
+  IoImageOutline,
+  IoSettingsSharp,
+} from "react-icons/io5";
 
 import { students } from "../../constants/students";
 import {
-  loadRoomIcon,
-  loadRoomName,
+  codeIn,
   loadRoomSettings,
   saveRoomIcon,
-  saveRoomName,
   saveRoomSettings,
 } from "../../helpers/roomClient";
-import { settingsSummary } from "../../helpers/roomView";
-import { studentById } from "../../helpers/studentRounds";
-import { usePlayerName } from "../../hooks/usePlayerName";
+import { settingsRows } from "../../helpers/roomView";
+import { useFavStudent, usePlayerName } from "../../hooks/usePlayerName";
 import { RoomStatus } from "../../hooks/useRoom";
 import {
   AccessChange,
@@ -21,15 +23,16 @@ import {
   isRoomCode,
   MAX_PASSWORD,
   MAX_PLAYERS,
-  MAX_ROOM_NAME,
   RoomError,
   RoomSettings,
 } from "../../types/room";
 
 import { Button } from "../Button";
 import { PopUp } from "../PopUp";
+import { PlayerCard, roomLook } from "../Profile/PlayerCard";
 import { StudentListPopUp } from "../StudentGame/StudentListPopUp";
 
+import { ACCESS_ICONS, ROW_ICONS } from "./Lobby";
 import { Avatar } from "./PlayerList";
 import { SettingsPopUp } from "./SettingsPopUp";
 import * as Styled from "./index.styled";
@@ -54,6 +57,9 @@ const PROBLEMS: Record<RoomError, string> = {
 /** Nobody picked yet: any student may be anyone's picture. */
 const NONE = new Set<number>();
 
+/** How long a note about the clipboard stays. */
+const NOTE_MS = 3000;
+
 interface Props {
   status: RoomStatus;
   error: RoomError | null;
@@ -71,19 +77,31 @@ interface Props {
     icon: number | null,
     password?: string
   ) => void;
+  /** Opens the profile's Customize, where the name and picture are set. */
+  onProfile?: () => void;
 }
 
 /**
- * Before a room: a name and a picture, then make a room, with settings
- * picked here first if the player likes, or join one by its code, filled in
- * already when the page was opened from a room's link.
+ * Before a room, laid out as the lobby is: the player's card as a room
+ * will show it, a ticket to join a friend's room by its code (filled in
+ * already when the page was opened from a room's link, or pasted), and a
+ * ticket for a new room with its settings, picked here first if the player
+ * likes. The name and picture come from the profile; the picture can be
+ * another student's for the rooms of this visit.
  */
-export function Entry({ status, error, linked, onCreate, onJoin }: Props) {
-  // The name typed for the last room, or else the one in Settings, to
-  // start from: it goes to a room only once the player makes or joins one.
-  const saved = usePlayerName();
-  const [name, setName] = React.useState(() => loadRoomName() || saved.trim());
-  const [icon, setIcon] = React.useState(loadRoomIcon);
+export function Entry({
+  status,
+  error,
+  linked,
+  onCreate,
+  onJoin,
+  onProfile,
+}: Props) {
+  const name = usePlayerName().trim();
+  const favourite = useFavStudent();
+  // Another student for this visit's rooms; undefined follows the profile.
+  const [chosen, setChosen] = React.useState<number | null>();
+  const icon = chosen === undefined ? favourite : chosen;
   const [picking, setPicking] = React.useState(false);
   const [settings, setSettings] = React.useState(loadRoomSettings);
   const [editing, setEditing] = React.useState(false);
@@ -95,6 +113,12 @@ export function Entry({ status, error, linked, onCreate, onJoin }: Props) {
   const [code, setCode] = React.useState(
     linked && isRoomCode(linked) ? linked : ""
   );
+  const [note, setNote] = React.useState("");
+  React.useEffect(() => {
+    if (!note) return;
+    const timer = window.setTimeout(() => setNote(""), NOTE_MS);
+    return () => window.clearTimeout(timer);
+  }, [note]);
   // A room that asked for its password: a pop-up asks for it, and stays
   // for another try if it was wrong.
   const [password, setPassword] = React.useState("");
@@ -112,32 +136,47 @@ export function Entry({ status, error, linked, onCreate, onJoin }: Props) {
     const timer = window.setTimeout(() => passwordRef.current?.focus(), 0);
     return () => window.clearTimeout(timer);
   }, [asked]);
+  const codeRef = React.useRef<HTMLInputElement>(null);
   const busy = status === "connecting";
   const canJoin = isRoomCode(code) && !busy;
 
-  const pick = (next: number | null) => {
-    setIcon(next);
-    saveRoomIcon(next);
-  };
   const join = (withPassword?: string) => {
     if (!canJoin) return;
-    saveRoomName(name);
+    saveRoomIcon(icon);
     setSentPassword(withPassword !== undefined);
     onJoin(code, name, icon, withPassword);
   };
   const create = () => {
-    saveRoomName(name);
+    saveRoomIcon(icon);
     onCreate(name, icon, settings, access);
   };
 
+  // Paste reads the clipboard, which the browser may refuse or not offer:
+  // the box then takes Ctrl+V, a link as well as a code.
+  const paste = () => {
+    const ask = navigator.clipboard?.readText?.();
+    if (!ask) {
+      codeRef.current?.focus();
+      setNote("Paste the code into the box.");
+      return;
+    }
+    ask
+      .then((text) => {
+        const found = codeIn(text);
+        if (found) setCode(found);
+        else setNote("No room code on the clipboard.");
+      })
+      .catch(() => {
+        codeRef.current?.focus();
+        setNote("Couldn't read the clipboard: paste into the box.");
+      });
+  };
+
+  const shownName = name || "Sensei";
+  const rows = settingsRows(settings, access.access);
+
   return (
     <>
-      <Styled.Title>Multiplayer 🎮</Styled.Title>
-      <Styled.Lead>
-        Play the OST, Voice or Picture game with friends, everyone hearing the
-        same song at once. One of you makes a room and shares its code.
-      </Styled.Lead>
-
       <Styled.Toasts>
         {status === "failed" && (
           <Styled.Problem role="alert">
@@ -152,97 +191,144 @@ export function Entry({ status, error, linked, onCreate, onJoin }: Props) {
         )}
       </Styled.Toasts>
 
-      <Styled.Card aria-label="Join or make a room">
-        <Styled.Form as="div">
-          <Styled.Label htmlFor="room-name">Your name</Styled.Label>
-          <Styled.Input
-            id="room-name"
-            name="room-name"
-            autoComplete="off"
-            value={name}
-            maxLength={MAX_ROOM_NAME}
-            placeholder="Sensei"
-            onChange={(event) => setName(event.target.value)}
-          />
-          <Styled.Label as="span">Your picture</Styled.Label>
-          <Styled.IconRow>
-            <Avatar icon={icon} name={name.trim() || "Sensei"} size={44} />
-            <Styled.Small type="button" onClick={() => setPicking(true)}>
-              {icon === null ? "Pick a student" : "Change"}
-            </Styled.Small>
-            {icon !== null && (
-              <Styled.Small type="button" onClick={() => pick(null)}>
-                Use my letter
+      <Styled.LobbyLayout>
+        <Styled.EntryHead>
+          <Styled.EntryTitle>Multiplayer</Styled.EntryTitle>
+          <Styled.PlayersHint $start>
+            Play the OST, Voice or Picture game with friends, everyone hearing
+            the same song at once.
+          </Styled.PlayersHint>
+        </Styled.EntryHead>
+
+        <Styled.LobbyPlayers aria-label="You">
+          <Styled.PlayersHead>
+            <Styled.PlayersTitle>You</Styled.PlayersTitle>
+            <Styled.YouActions>
+              <Styled.Small type="button" onClick={() => setPicking(true)}>
+                <IoImageOutline aria-hidden="true" /> Picture
               </Styled.Small>
-            )}
-            <Styled.FieldHint>
-              {icon === null
-                ? "Or keep your name's first letter."
-                : studentById.get(icon)?.name}
-            </Styled.FieldHint>
-          </Styled.IconRow>
-        </Styled.Form>
-
-        <Styled.Divider>Join a friend&apos;s room</Styled.Divider>
-        <Styled.JoinRow>
-          <Styled.Input
-            $code
-            aria-label="Room code"
-            name="room-code"
-            autoComplete="off"
-            autoCapitalize="characters"
-            spellCheck={false}
-            value={code}
-            maxLength={CODE_LENGTH}
-            placeholder="Code"
-            onChange={(event) =>
-              setCode(event.target.value.toUpperCase().replace(/[^A-Z]/g, ""))
-            }
-            onKeyDown={(event) => {
-              if (event.key === "Enter") join();
-            }}
+              {onProfile && (
+                <Styled.Small type="button" onClick={onProfile}>
+                  <IoCreateOutline aria-hidden="true" /> Edit profile
+                </Styled.Small>
+              )}
+            </Styled.YouActions>
+          </Styled.PlayersHead>
+          <PlayerCard
+            look={roomLook(shownName, icon, true)}
+            face={(size) => <Avatar icon={icon} name={shownName} size={size} />}
           />
-          <Button
-            stroke
-            variant="blue"
-            onClick={() => join()}
-            disabled={!canJoin}
-          >
-            Join
-          </Button>
-        </Styled.JoinRow>
+          <Styled.PlayersHint as="p" $start>
+            {chosen === undefined || chosen === favourite ? (
+              <>Your name and card come from your profile.</>
+            ) : (
+              <>
+                Another picture for today&apos;s rooms.{" "}
+                <Styled.TextButton
+                  type="button"
+                  onClick={() => setChosen(undefined)}
+                >
+                  Use your profile&apos;s
+                </Styled.TextButton>
+              </>
+            )}
+          </Styled.PlayersHint>
+        </Styled.LobbyPlayers>
 
-        <Styled.Divider>or make your own</Styled.Divider>
-        <Styled.NewRoom>
-          <Styled.Pills aria-label="Your room's settings">
-            {settingsSummary(settings, access.access).map((part, index) => (
-              <Styled.Pill key={part} $lead={index === 0}>
-                {part}
-              </Styled.Pill>
-            ))}
-          </Styled.Pills>
-          <Styled.Buttons style={{ marginTop: 0 }}>
-            <Styled.IconButton
-              type="button"
-              $big
-              aria-label="Your room's settings"
-              title="Your room's settings"
-              onClick={() => setEditing(true)}
-              disabled={busy}
-            >
-              <IoSettingsSharp aria-hidden="true" />
-            </Styled.IconButton>
-            <Button stroke variant="green" onClick={create} disabled={busy}>
-              {busy ? "Connecting…" : "Make a room"}
-            </Button>
-          </Styled.Buttons>
-        </Styled.NewRoom>
-      </Styled.Card>
+        <Styled.Ticket aria-label="Join a friend's room">
+          <Styled.TicketStrip>
+            <Styled.TicketLabel>Join</Styled.TicketLabel>
+            <Styled.CodeInput
+              ref={codeRef}
+              aria-label="Room code"
+              name="room-code"
+              autoComplete="off"
+              autoCapitalize="characters"
+              spellCheck={false}
+              value={code}
+              maxLength={CODE_LENGTH}
+              placeholder="CODE"
+              onChange={(event) =>
+                setCode(event.target.value.toUpperCase().replace(/[^A-Z]/g, ""))
+              }
+              onPaste={(event) => {
+                // A link or a spaced code, longer than the box takes.
+                const found = codeIn(event.clipboardData.getData("text"));
+                if (found) {
+                  event.preventDefault();
+                  setCode(found);
+                }
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") join();
+              }}
+            />
+            <Styled.TicketCopies>
+              <Styled.TicketButton
+                type="button"
+                onClick={paste}
+                aria-label="Paste a code or link"
+                title="Paste a code or link"
+              >
+                <IoClipboardOutline aria-hidden="true" />
+              </Styled.TicketButton>
+              <Button
+                stroke
+                variant="green"
+                onClick={() => join()}
+                disabled={!canJoin}
+              >
+                Join
+              </Button>
+            </Styled.TicketCopies>
+          </Styled.TicketStrip>
+          <Styled.TicketNote role="status" aria-live="polite">
+            {note || "Ask a friend for their room's code or link."}
+          </Styled.TicketNote>
+        </Styled.Ticket>
 
-      <Styled.Note>
-        Up to {MAX_PLAYERS} players. A room keeps your name and picture only
-        while it&apos;s open, and nothing about it is saved.
-      </Styled.Note>
+        <Styled.Ticket aria-label="Make a room">
+          <Styled.TicketStrip>
+            <Styled.TicketLabel>New room</Styled.TicketLabel>
+            <Styled.TicketCopies>
+              <Styled.TicketButton
+                type="button"
+                onClick={() => setEditing(true)}
+                disabled={busy}
+                aria-label="Your room's settings"
+                title="Your room's settings"
+              >
+                <IoSettingsSharp aria-hidden="true" />
+              </Styled.TicketButton>
+              <Button stroke variant="green" onClick={create} disabled={busy}>
+                {busy ? "Connecting…" : "Make a room"}
+              </Button>
+            </Styled.TicketCopies>
+          </Styled.TicketStrip>
+          <Styled.TicketChips>
+            <Styled.ChipRow aria-label="Your room's settings">
+              {rows.map((row) => {
+                const Icon =
+                  row.key === "access"
+                    ? ACCESS_ICONS[access.access]
+                    : ROW_ICONS[row.key];
+                return (
+                  <Styled.SettingChip key={row.key} title={row.label}>
+                    <Icon aria-hidden="true" />
+                    <Styled.ChipLabel>{row.label}: </Styled.ChipLabel>
+                    {row.value}
+                  </Styled.SettingChip>
+                );
+              })}
+            </Styled.ChipRow>
+          </Styled.TicketChips>
+        </Styled.Ticket>
+
+        <Styled.Note>
+          Up to {MAX_PLAYERS} players. A room keeps your name and picture only
+          while it&apos;s open, and nothing about it is saved.
+        </Styled.Note>
+      </Styled.LobbyLayout>
 
       {editing && (
         <SettingsPopUp
@@ -318,7 +404,7 @@ export function Entry({ status, error, linked, onCreate, onJoin }: Props) {
           pool={students}
           guessed={NONE}
           onPick={(id) => {
-            pick(id);
+            setChosen(id);
             setPicking(false);
           }}
           onClose={() => setPicking(false)}

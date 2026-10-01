@@ -141,27 +141,24 @@ export const Banner = styled.div<{
   width: ${({ $size }) => ($size === "large" ? "280px" : "220px")};
   max-width: 100%;
   height: ${({ $size }) => ($size === "large" ? "38px" : "30px")};
-  padding: 0 18px 0 4px;
+  padding: 0 16px 0 4px;
 
   font-family: "Nunito Sans Variable";
   font-size: ${({ $size }) => ($size === "large" ? "0.95rem" : "0.8rem")};
 
   background: ${({ $fill }) =>
     $fill ? `linear-gradient(100deg, ${$fill.join(", ")})` : "#22305a"};
-  border-radius: 4px;
-  /* Cut on a slant at its tail, as the game's name plates are. */
-  clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+  /* A pill, its emblem's ring round at its head. */
+  border-radius: 999px;
 
-  /* A thin line of the accent along its foot. */
+  /* A thin ring of the accent round its edge. */
   &::after {
     content: "";
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    height: 2px;
-    background: ${({ $accent }) => $accent};
-    opacity: 0.85;
+    inset: 0;
+    border: 1.5px solid ${({ $accent }) => alpha($accent, 0.85)};
+    border-radius: inherit;
+    pointer-events: none;
     z-index: 2;
   }
 `;
@@ -191,7 +188,7 @@ export const BannerTint = styled.span<{ $tint: string }>`
 export const BannerStripes = styled.span<{ $accent: string }>`
   position: absolute;
   top: 0;
-  right: 10px;
+  right: 14px;
   bottom: 0;
   width: 44px;
   z-index: -1;

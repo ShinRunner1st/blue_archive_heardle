@@ -15,6 +15,7 @@ const stats: SenseiStats = {
   songsTotal: 345,
   badgesEarned: 1,
   badgesTotal: 8,
+  badges: [],
   bestDailyStreak: 4,
   bestWinStreak: 9,
   timeAttackBest: 15,

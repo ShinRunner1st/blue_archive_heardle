@@ -1,6 +1,7 @@
 import React from "react";
 
 import { MISSIONS } from "../../constants/missions";
+import { BadgeProgress } from "../../helpers/badges";
 import { ProfileGame, profileStats } from "../../helpers/profileStats";
 import { SERVER_NAMES } from "../../types/server";
 import { formatClock } from "../../helpers/timeAttack";
@@ -37,6 +38,8 @@ const number = (value: number) => value.toLocaleString("en-US");
 interface Props {
   onClose: () => void;
   onSenseiCard: () => void;
+  /** Open on Customize, as Multiplayer does for the name and picture. */
+  customize?: boolean;
 }
 
 /**
@@ -45,15 +48,24 @@ interface Props {
  * play. Customize swaps in for it, and back. Others see it in a room once
  * accounts arrive.
  */
-export default function ProfilePopUp({ onClose, onSenseiCard }: Props) {
+export default function ProfilePopUp({
+  onClose,
+  onSenseiCard,
+  customize = false,
+}: Props) {
   useMissionsVersion();
   const server = useServer();
   const stats = React.useMemo(() => profileStats(undefined, server), [server]);
   const [tab, setTab] = React.useState<Tab>("overview");
-  const [customizing, setCustomizing] = React.useState(false);
+  const [customizing, setCustomizing] = React.useState(customize);
 
   if (customizing) {
-    return <CustomizePopUp onClose={() => setCustomizing(false)} />;
+    // Opened on Customize from elsewhere: closing it goes back there.
+    return (
+      <CustomizePopUp
+        onClose={customize ? onClose : () => setCustomizing(false)}
+      />
+    );
   }
 
   const look = currentLook();
@@ -132,9 +144,14 @@ export default function ProfilePopUp({ onClose, onSenseiCard }: Props) {
               </Styled.Note>
             </Styled.Tiles>
           ) : (
-            stats.games
-              .filter((game) => shown.games.includes(game.id))
-              .map((game) => <GameDetail key={game.id} game={game} />)
+            <>
+              {stats.games
+                .filter((game) => shown.games.includes(game.id))
+                .map((game) => (
+                  <GameDetail key={game.id} game={game} />
+                ))}
+              {tab === "ost" && <Badges badges={stats.badges} />}
+            </>
           )}
         </div>
       </Styled.Body>
@@ -157,6 +174,50 @@ function Tile({
       <Styled.TileValue>{value}</Styled.TileValue>
       {sub && <Styled.TileSub>{sub}</Styled.TileSub>}
     </Styled.Tile>
+  );
+}
+
+/**
+ * The OST badges, an album each: its cover (grey until earned) and how
+ * many of its songs have been guessed, as the badges pop-up shows them.
+ */
+function Badges({ badges }: { badges: BadgeProgress[] }) {
+  const earned = badges.filter((badge) => badge.done).length;
+  return (
+    <section aria-label="OST badges">
+      <Styled.Heading>
+        OST badges{" "}
+        <Styled.HeadingCount>
+          {earned}/{badges.length}
+        </Styled.HeadingCount>
+      </Styled.Heading>
+      <Styled.BadgeGrid>
+        {badges.map(({ volume, found, total, done }) => (
+          <Styled.BadgeTile
+            key={volume.number}
+            $done={done}
+            title={volume.title}
+            aria-label={`Vol.${volume.number}: ${
+              done ? "earned" : `${found} of ${total} songs guessed`
+            }`}
+          >
+            <Styled.BadgeCover src={volume.cover} alt="" $done={done} />
+            <Styled.BadgeText>
+              <Styled.BadgeName>Vol.{volume.number}</Styled.BadgeName>
+              <Styled.BadgeCount $done={done}>
+                {done ? "✓ Earned" : `${found}/${total}`}
+              </Styled.BadgeCount>
+              <Styled.BadgeTrack aria-hidden="true">
+                <Styled.BadgeFill
+                  $done={done}
+                  style={{ width: `${(found / total) * 100}%` }}
+                />
+              </Styled.BadgeTrack>
+            </Styled.BadgeText>
+          </Styled.BadgeTile>
+        ))}
+      </Styled.BadgeGrid>
+    </section>
   );
 }
 
@@ -193,6 +254,8 @@ function Overview({ stats }: { stats: ReturnType<typeof profileStats> }) {
           sub={`${stats.room.wins} first places`}
         />
       </Styled.Tiles>
+
+      <Badges badges={stats.badges} />
 
       <Styled.Heading>By game</Styled.Heading>
       <Styled.TableWrap>

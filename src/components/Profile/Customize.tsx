@@ -8,6 +8,7 @@ import {
   ProfileBackground,
 } from "../../constants/cosmetics";
 import { MISSIONS } from "../../constants/missions";
+import { students } from "../../constants/students";
 import {
   COSMETIC_KINDS,
   CosmeticKind,
@@ -16,9 +17,23 @@ import {
   setPicked,
 } from "../../helpers/cosmetics";
 import { loadClearedMissions } from "../../helpers/missions";
+import {
+  getFavStudent,
+  getPlayerName,
+  getSenseiTitle,
+  MAX_PLAYER_NAME,
+  pictureName,
+  setFavStudent,
+  setPlayerName,
+  setSenseiTitle,
+} from "../../helpers/playerName";
+import { studentById } from "../../helpers/studentRounds";
 
 import { Button } from "../Button";
 import { PopUp } from "../PopUp";
+import { StudentIcon } from "../StudentIcon";
+import { StudentSearch } from "../StudentGame/StudentSearch";
+import { Switch } from "../Switch";
 
 import { ProfileBanner, WorkerPicture } from "./ProfileBanner";
 import { CardLook, currentLook, PlayerCard } from "./PlayerCard";
@@ -63,11 +78,20 @@ function Swatch({ kind, item }: { kind: Section; item: Cosmetic }) {
 const missionTitle = (id: string | undefined) =>
   MISSIONS.find((mission) => mission.id === id)?.title ?? "";
 
+/** Who the player is: their name, and the student on their card. */
+interface Who {
+  name: string;
+  /** Whether "Sensei" follows the name. */
+  title: boolean;
+  student: number | null;
+}
+
 /**
- * Picks the profile's title, banner, frame and background, each unlocked
- * by a mission (the locked ones say which), with the card previewed as it
- * will look, kept in sight while the choices scroll: beside them on a wide
- * screen, pinned over them on a phone. Nothing changes until Save.
+ * Sets the player's name and picture (a favourite student), then picks the
+ * profile's title, banner, frame and background, each unlocked by a mission
+ * (the locked ones say which), with the card previewed as it will look,
+ * kept in sight while the choices scroll: beside them on a wide screen,
+ * pinned over them on a phone. Nothing changes until Save.
  */
 export function CustomizePopUp({ onClose }: { onClose: () => void }) {
   const cleared = loadClearedMissions();
@@ -77,6 +101,11 @@ export function CustomizePopUp({ onClose }: { onClose: () => void }) {
     frame: pickedOf("frame").id,
     background: pickedOf("background").id,
   }));
+  const [who, setWho] = React.useState<Who>(() => ({
+    name: getPlayerName(),
+    title: getSenseiTitle(),
+    student: getFavStudent(),
+  }));
   const find = <K extends CosmeticKind>(kind: K, id: string) =>
     (COSMETIC_KINDS[kind].list as Cosmetic[]).find((item) => item.id === id);
 
@@ -84,6 +113,8 @@ export function CustomizePopUp({ onClose }: { onClose: () => void }) {
   const title = find("title", draft.title);
   const look: CardLook = {
     ...base,
+    name: pictureName(who.name, who.title) || "Sensei",
+    student: who.student,
     title: !title || title.mission === undefined ? "Sensei" : title.name,
     banner: find("banner", draft.banner) as Banner,
     frame: find("frame", draft.frame) as Frame,
@@ -91,6 +122,9 @@ export function CustomizePopUp({ onClose }: { onClose: () => void }) {
   };
 
   const save = () => {
+    setPlayerName(who.name);
+    setSenseiTitle(who.title);
+    setFavStudent(who.student);
     for (const kind of SECTIONS) setPicked(kind, draft[kind]);
     onClose();
   };
@@ -118,6 +152,12 @@ export function CustomizePopUp({ onClose }: { onClose: () => void }) {
           <PlayerCard look={look} />
         </Styled.Preview>
         <Styled.Choices>
+          <WhoSection
+            who={who}
+            onChange={(change) =>
+              setWho((current) => ({ ...current, ...change }))
+            }
+          />
           {SECTIONS.map((kind) => {
             const { label, list } = COSMETIC_KINDS[kind];
             const items = list as Cosmetic[];
@@ -211,6 +251,96 @@ export function CustomizePopUp({ onClose }: { onClose: () => void }) {
         </Styled.Choices>
       </Styled.CustomizeBody>
     </PopUp>
+  );
+}
+
+/**
+ * The name, with or without "Sensei" after it, and the student on the card,
+ * or the name's letter. Both go to a room the player joins, and the name
+ * on the pictures they share.
+ */
+function WhoSection({
+  who,
+  onChange,
+}: {
+  who: Who;
+  onChange: (change: Partial<Who>) => void;
+}) {
+  const nameId = React.useId();
+  const student = who.student === null ? null : studentById.get(who.student);
+  const picked = React.useMemo(
+    () => new Set(who.student === null ? [] : [who.student]),
+    [who.student]
+  );
+  const shown = who.name.trim() || "Arona";
+  return (
+    <Styled.Section>
+      <Styled.SectionHead>
+        <Styled.SubHeading>Name and picture</Styled.SubHeading>
+        <Styled.SectionCount>On your card and in rooms</Styled.SectionCount>
+      </Styled.SectionHead>
+      <Styled.WhoFields>
+        <Styled.WhoField>
+          <Styled.FieldLabel htmlFor={nameId}>Name</Styled.FieldLabel>
+          <Styled.NameInput
+            id={nameId}
+            name="player-name"
+            type="text"
+            value={who.name}
+            onChange={(event) => onChange({ name: event.currentTarget.value })}
+            maxLength={MAX_PLAYER_NAME}
+            placeholder="Your name"
+            autoComplete="off"
+            spellCheck={false}
+          />
+          <Styled.NameToggle
+            type="button"
+            role="switch"
+            aria-checked={who.title}
+            onClick={() => onChange({ title: !who.title })}
+          >
+            <span>
+              &ldquo;Sensei&rdquo; after my name
+              <Styled.NameExample>
+                {pictureName(shown, who.title)}
+              </Styled.NameExample>
+            </span>
+            <Switch $on={who.title} aria-hidden="true" />
+          </Styled.NameToggle>
+        </Styled.WhoField>
+        <Styled.WhoField>
+          <Styled.FieldLabel as="span">Picture</Styled.FieldLabel>
+          <Styled.PictureRow>
+            {student ? (
+              <StudentIcon id={student.id} size={36} />
+            ) : (
+              <Styled.PictureLetter aria-hidden="true">
+                {shown.charAt(0).toUpperCase()}
+              </Styled.PictureLetter>
+            )}
+            <Styled.PictureName>
+              {student ? student.name : "Your name's first letter"}
+            </Styled.PictureName>
+            {student && (
+              <Styled.PictureRemove
+                type="button"
+                onClick={() => onChange({ student: null })}
+              >
+                Remove
+              </Styled.PictureRemove>
+            )}
+          </Styled.PictureRow>
+          <Styled.Picker>
+            <StudentSearch
+              pool={students}
+              guessed={picked}
+              onGuess={(id) => onChange({ student: id })}
+              keyboardEnabled={false}
+            />
+          </Styled.Picker>
+        </Styled.WhoField>
+      </Styled.WhoFields>
+    </Styled.Section>
   );
 }
 

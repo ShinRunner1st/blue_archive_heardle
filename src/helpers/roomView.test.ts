@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { DEFAULT_ROOM_SETTINGS, PlayerView } from "../types/room";
 import {
+  albumRanges,
   pickName,
   places,
   settingsRows,
@@ -47,6 +48,14 @@ describe("places", () => {
   });
 });
 
+describe("albumRanges", () => {
+  it("joins runs of albums", () => {
+    expect(albumRanges([1, 2, 3, 4, 5, 6, 7, 8])).toBe("1-8");
+    expect(albumRanges([8, 1, 2, 3, 5, 7])).toBe("1-3, 5, 7-8");
+    expect(albumRanges([4])).toBe("4");
+  });
+});
+
 describe("settingsRows", () => {
   const rows = (...args: Parameters<typeof settingsRows>) =>
     settingsRows(...args).map(({ label, value }) => `${label}: ${value}`);
@@ -56,7 +65,7 @@ describe("settingsRows", () => {
       rows({ ...DEFAULT_ROOM_SETTINGS, albums: [1, 3] }, "password")
     ).toEqual([
       "Game: OST",
-      "Albums: Vol.1, Vol.3",
+      "Albums: Vol.1, 3",
       "Answers: Typed",
       "How many songs: 10 songs",
       "Time to answer: 20s each",

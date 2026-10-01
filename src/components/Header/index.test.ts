@@ -15,7 +15,6 @@ const openMissionsPopUp = vi.fn();
 const openProfile = vi.fn();
 const openWhatsNewPopUp = vi.fn();
 const openJukeboxPopUp = vi.fn();
-const openSenseiCard = vi.fn();
 const onModeChange = vi.fn();
 
 function buttonFor(label: string) {
@@ -55,7 +54,6 @@ function mount(mode: GameMode = "daily", streak = 0, isHub = false) {
       openProfile,
       openWhatsNewPopUp,
       openJukeboxPopUp,
-      openSenseiCard,
       mode,
       onModeChange,
       streak,

@@ -4,7 +4,6 @@ import {
   IoDisc,
   IoGift,
   IoGameController,
-  IoIdCard,
   IoPerson,
   IoInformationCircle,
   IoMenu,
@@ -29,7 +28,6 @@ interface Props {
   openJukeboxPopUp: () => void;
   openBadgesPopUp: () => void;
   openMissionsPopUp: () => void;
-  openSenseiCard: () => void;
   openProfile: () => void;
 }
 
@@ -46,7 +44,6 @@ export function HeaderMenu({
   openJukeboxPopUp,
   openBadgesPopUp,
   openMissionsPopUp,
-  openSenseiCard,
   openProfile,
 }: Props) {
   const [open, setOpen] = React.useState(false);
@@ -139,10 +136,6 @@ export function HeaderMenu({
           <Styled.Item type="button" onClick={openPopUp(openMissionsPopUp)}>
             <IoRibbon aria-hidden="true" />
             Missions
-          </Styled.Item>
-          <Styled.Item type="button" onClick={openPopUp(openSenseiCard)}>
-            <IoIdCard aria-hidden="true" />
-            Sensei card
           </Styled.Item>
           <Styled.Item type="button" onClick={openPopUp(openHowToPopUp)}>
             <IoGameController aria-hidden="true" />

@@ -4,16 +4,15 @@ import { ROOM_PRESETS_KEY } from "../constants/game";
 import { DEFAULT_ROOM_SETTINGS } from "../types/room";
 import {
   backToken,
+  codeIn,
   deleteRoomPreset,
   keepBackToken,
   loadQuickAnswer,
-  loadRoomName,
   loadRoomPresets,
   MAX_PRESETS,
   presetCode,
   readPresetCode,
   saveQuickAnswer,
-  saveRoomName,
   saveRoomPreset,
 } from "./roomClient";
 
@@ -144,11 +143,16 @@ describe("the token a closed tab leaves", () => {
   });
 });
 
-it("remembers the name typed for a room, but not an empty one", () => {
-  expect(loadRoomName()).toBe("");
-  saveRoomName("  Nonomi ");
-  saveRoomName("   ");
-  expect(loadRoomName()).toBe("Nonomi");
+it("finds a room's code in pasted text, or a room's link", () => {
+  expect(codeIn(" hjrb ")).toBe("HJRB");
+  expect(codeIn("H J R B")).toBe("HJRB");
+  expect(codeIn("https://baheardle.com/multiplayer?room=HJRB")).toBe("HJRB");
+  expect(codeIn("Join me! https://baheardle.com/multiplayer?room=hjrb")).toBe(
+    "HJRB"
+  );
+  // Not a code: too long, or with I or O, which codes never have.
+  expect(codeIn("Join my room")).toBeNull();
+  expect(codeIn("HOLA")).toBeNull();
 });
 
 it("remembers Quick answer", () => {

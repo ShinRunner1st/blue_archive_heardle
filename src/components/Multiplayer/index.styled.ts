@@ -37,11 +37,6 @@ export const Form = styled.form`
   width: 100%;
 `;
 
-export const Label = styled.label`
-  font-size: 0.95rem;
-  font-weight: 800;
-`;
-
 export const Input = styled.input<{ $code?: boolean }>`
   box-sizing: border-box;
   width: 100%;
@@ -70,26 +65,6 @@ export const Input = styled.input<{ $code?: boolean }>`
     outline: 2px solid ${({ theme }) => theme.border};
     outline-offset: 2px;
   }
-`;
-
-export const JoinRow = styled.div`
-  display: flex;
-  gap: 10px;
-  align-items: center;
-
-  & > input {
-    flex: 1;
-    min-width: 0;
-  }
-`;
-
-export const Divider = styled.p`
-  margin: 16px 0;
-
-  font-size: 0.85rem;
-  font-weight: 800;
-  text-align: center;
-  opacity: 0.7;
 `;
 
 /** Marks the top of the screen, to scroll back to; takes no room. */
@@ -244,39 +219,6 @@ export const AvatarBox = styled.span<{ $size: number }>`
   overflow: hidden;
   border-radius: 50%;
   background-color: rgba(0, 0, 0, 0.2);
-`;
-
-/** The picture picker before joining: the picture, and its buttons. */
-export const IconRow = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-`;
-
-export const Pills = styled.ul`
-  display: flex;
-  flex: 1;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-  /* The host's gear's height, so their panel and a guest's match. */
-  min-height: 26px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-`;
-
-export const Pill = styled.li<{ $lead?: boolean }>`
-  padding: 3px 10px;
-
-  font-size: 0.8rem;
-  font-weight: 800;
-  white-space: nowrap;
-
-  background-color: ${({ theme, $lead }) =>
-    $lead ? theme.blue : "rgba(255, 255, 255, 0.08)"};
-  border-radius: 999px;
 `;
 
 /**
@@ -951,17 +893,6 @@ export const PresetRow = styled.div`
   }
 `;
 
-/** The settings a new room starts with, on the page before it's made. */
-export const NewRoom = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  & > ul {
-    justify-content: center;
-  }
-`;
-
 /** The warning in a lobby about to close for want of anything happening. */
 export const IdleNote = styled.div`
   ${panel}
@@ -1218,20 +1149,28 @@ export const Ticket = styled.section`
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 `;
 
-/** The code on a blue strip cut on a slant, as the game's name plates. */
+/**
+ * The ticket's head: a blue strip across its whole top, with faint slanted
+ * stripes at its end like the banners'.
+ */
 export const TicketStrip = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 30px 10px 18px;
+  padding: 10px 16px 10px 18px;
 
   color: #ffffff;
-  background: linear-gradient(100deg, #1f5fd6, #128afa);
-  clip-path: polygon(0 0, 100% 0, calc(100% - 18px) 100%, 0 100%);
+  background: repeating-linear-gradient(
+        115deg,
+        rgba(255, 255, 255, 0.09) 0 5px,
+        transparent 5px 12px
+      )
+      right / 180px 100% no-repeat,
+    linear-gradient(100deg, #1f5fd6, #128afa);
 
   @media (max-width: 600px) {
     gap: 10px;
-    padding: 8px 26px 8px 14px;
+    padding: 8px 12px 8px 14px;
   }
 `;
 
@@ -1280,14 +1219,70 @@ export const TicketButton = styled.button<{ $done?: boolean }>`
   border-radius: 50%;
   cursor: pointer;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: ${({ $done }) =>
       $done ? "rgba(76, 175, 80, 0.85)" : "rgba(14, 12, 30, 0.55)"};
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
   }
 
   &:focus-visible {
     outline: 2px solid ${({ theme }) => theme.border};
     outline-offset: 2px;
+  }
+`;
+
+/** Under a ticket's strip: a line about it, as the join ticket's. */
+export const TicketNote = styled.p`
+  margin: 0;
+  padding: 10px 18px;
+
+  font-size: 0.82rem;
+  font-weight: 700;
+  opacity: 0.8;
+
+  @media (max-width: 600px) {
+    padding: 8px 14px;
+  }
+`;
+
+/** The code to join, typed on the strip in the code's own letters. */
+export const CodeInput = styled.input`
+  box-sizing: border-box;
+  flex: 0 1 auto;
+  width: 6.4em;
+  min-width: 0;
+  padding: 0 0 2px;
+
+  font-family: inherit;
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.45);
+  border-radius: 0;
+
+  &::placeholder {
+    color: #ffffff;
+    opacity: 0.35;
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-bottom-color: #ffffff;
+  }
+
+  @media (max-width: 600px) {
+    font-size: 1.7rem;
   }
 `;
 
@@ -1475,16 +1470,67 @@ export const PlayersTitle = styled.h2`
   }
 `;
 
-export const PlayersHint = styled.span`
+export const PlayersHint = styled.span<{ $start?: boolean }>`
+  margin: 0;
+  padding: ${({ $start }) => ($start ? "0 4px" : "0")};
+
   font-size: 0.85rem;
   font-weight: 700;
   opacity: 0.85;
-  text-align: right;
+  text-align: ${({ $start }) => ($start ? "left" : "right")};
   ${shadowText}
 
   @media (max-width: 600px) {
     font-size: 0.75rem;
   }
+`;
+
+/** The page before a room: its name and a line on what it is. */
+export const EntryHead = styled.div`
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+  flex-wrap: wrap;
+  padding: 0 4px;
+`;
+
+export const EntryTitle = styled.h1`
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 900;
+  ${shadowText}
+
+  @media (max-width: 600px) {
+    font-size: 1.4rem;
+  }
+`;
+
+/** Picture and Edit profile, beside "You". */
+export const YouActions = styled.div`
+  display: flex;
+  gap: 6px;
+
+  & > button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+`;
+
+/** A button that reads as a link, inside a line of text. */
+export const TextButton = styled.button`
+  padding: 0;
+
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 800;
+  color: inherit;
+  text-decoration: underline;
+
+  background: none;
+  border: none;
+  cursor: pointer;
 `;
 
 /** The players two to a row, on a phone too. */

@@ -1,5 +1,5 @@
 import React from "react";
-import { IoIdCard, IoPerson, IoRibbon } from "react-icons/io5";
+import { IoPerson, IoRibbon } from "react-icons/io5";
 
 import { MISSIONS } from "../../constants/missions";
 import { loadClearedMissions } from "../../helpers/missions";
@@ -11,15 +11,13 @@ import * as Styled from "./index.styled";
 
 /**
  * The player's record across every game, read from the saves when the hub
- * shows, as on the Sensei card, which it opens. A new player has none, so
- * there is nothing to show them yet.
+ * shows, with the way to their profile and missions. A new player has
+ * none, so there is nothing to show them yet.
  */
 export function Record({
-  onSenseiCard,
   onMissions,
   onProfile,
 }: {
-  onSenseiCard: () => void;
   onMissions: () => void;
   onProfile: () => void;
 }) {
@@ -55,10 +53,6 @@ export function Record({
           <Styled.PanelAction type="button" onClick={onMissions}>
             <IoRibbon aria-hidden="true" />
             Missions {missions}/{MISSIONS.length}
-          </Styled.PanelAction>
-          <Styled.PanelAction type="button" onClick={onSenseiCard}>
-            <IoIdCard aria-hidden="true" />
-            Sensei card
           </Styled.PanelAction>
         </Styled.PanelActions>
       </Styled.PanelHead>

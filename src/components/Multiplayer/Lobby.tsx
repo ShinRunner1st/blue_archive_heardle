@@ -56,7 +56,7 @@ const COPIED_MS = 2000;
 /** How long Kick waits for its second press. */
 const CONFIRM_MS = 3000;
 
-const ROW_ICONS: Record<
+export const ROW_ICONS: Record<
   Exclude<SettingRow["key"], "access">,
   React.ComponentType
 > = {
@@ -70,7 +70,7 @@ const ROW_ICONS: Record<
   server: IoGlobe,
 };
 
-const ACCESS_ICONS: Record<RoomAccess, React.ComponentType> = {
+export const ACCESS_ICONS: Record<RoomAccess, React.ComponentType> = {
   open: IoEnter,
   password: IoKey,
   locked: IoLockClosed,

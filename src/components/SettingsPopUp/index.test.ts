@@ -5,8 +5,6 @@ import {
   CHARACTER_KEY,
   CUSTOM_CURSOR_KEY,
   FIRST_RUN_KEY,
-  PLAYER_NAME_KEY,
-  SENSEI_TITLE_KEY,
 } from "../../constants/game";
 import { obscure } from "../../helpers/obscure";
 import { downloadText, reloadPage } from "../../helpers/saveFile";
@@ -49,21 +47,6 @@ describe("SettingsPopUp", () => {
     expect(cursorSwitch().textContent).toContain("use your own cursor");
   });
 
-  it("turns the Sensei after the name off, and shows how it reads", () => {
-    const title = () =>
-      Array.from(
-        harness.container.querySelectorAll<HTMLButtonElement>('[role="switch"]')
-      ).find((button) => button.textContent?.includes("after my name"))!;
-
-    expect(title().getAttribute("aria-checked")).toBe("true");
-    expect(title().textContent).toContain("Arona Sensei");
-
-    act(() => title().click());
-    expect(title().getAttribute("aria-checked")).toBe("false");
-    expect(localStorage.getItem(SENSEI_TITLE_KEY)).toBe("false");
-    expect(title().textContent).not.toContain("Arona Sensei");
-  });
-
   it("turns the cursor off and back on", async () => {
     act(() => cursorSwitch().click());
 
@@ -76,22 +59,6 @@ describe("SettingsPopUp", () => {
     expect(cursorSwitch().getAttribute("aria-checked")).toBe("true");
     expect(document.documentElement.dataset.cursor).toBe("custom");
     await vi.dynamicImportSettled();
-  });
-
-  it("keeps the name for shared pictures", () => {
-    const input =
-      harness.container.querySelector<HTMLInputElement>('input[type="text"]')!;
-
-    act(() => {
-      Object.getOwnPropertyDescriptor(
-        HTMLInputElement.prototype,
-        "value"
-      )!.set!.call(input, "Hoshino");
-      input.dispatchEvent(new Event("input", { bubbles: true }));
-    });
-
-    expect(input.value).toBe("Hoshino");
-    expect(localStorage.getItem(PLAYER_NAME_KEY)).toBe("Hoshino");
   });
 
   it("picks the character, or none", () => {

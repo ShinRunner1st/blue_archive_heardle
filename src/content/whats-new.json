@@ -31,7 +31,12 @@
       {
         "icon": "IoIdCard",
         "title": "A new look for rooms",
-        "text": "Rooms have a new lobby: the code on a ticket with the settings under it, and everyone on a card with their student, in the lobby, the rounds and on the podium. Yours wears the title, banner, frame and background you picked in Customize. On a phone the settings fold away, so the players fit on screen."
+        "text": "Rooms have a new lobby: the code on a ticket with the settings under it, and everyone on a card with their student, in the lobby, the rounds and on the podium. Yours wears the title, banner, frame and background you picked in Customize. Before a room, the page matches it, with your card, Paste for a friend's code or link, and the settings as chips. On a phone the settings fold away, so the players fit on screen."
+      },
+      {
+        "icon": "IoPerson",
+        "title": "Your name and picture in your profile",
+        "text": "Set your name and favourite student in Customize: they're on your card, your shared pictures and the Sensei card, and rooms use them too (pick another student for a room if you like). The profile also shows your OST badges, and the Sensei card now opens from it."
       },
       {
         "icon": "IoMusicalNotes",

@@ -8,9 +8,9 @@ import { pictureUrl } from "../../helpers/season";
 import * as Styled from "./index.styled";
 
 /**
- * The player's title on its banner: a slanted strip like the game's name
- * plates, with a picture under a tint or a foil of colours, the emblem in a
- * ring at its head and stripes at its tail.
+ * The player's title on its banner: a pill with a picture under a tint or
+ * a foil of colours, the emblem in a ring at its head and slanted stripes
+ * at its tail.
  */
 export function ProfileBanner({
   banner,

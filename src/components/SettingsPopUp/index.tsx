@@ -3,7 +3,6 @@ import {
   IoColorPalette,
   IoEarth,
   IoNavigate,
-  IoPerson,
   IoSparkles,
 } from "react-icons/io5";
 
@@ -11,12 +10,6 @@ import { CHARACTER_CHOICES, CURSOR_COLORS } from "../../constants/cosmetics";
 import { setCharacterChoice } from "../../helpers/characterChoice";
 import { getCursorColor, setCursorColor } from "../../helpers/cosmetics";
 import { setCustomCursor } from "../../helpers/customCursor";
-import {
-  MAX_PLAYER_NAME,
-  setPlayerName,
-  setSenseiTitle,
-} from "../../helpers/playerName";
-import { usePlayerName, useSenseiTitle } from "../../hooks/usePlayerName";
 import { useCharacterChoice } from "../../hooks/useCharacterChoice";
 import { useCustomCursor } from "../../hooks/useCustomCursor";
 import { useMissionsVersion } from "../../hooks/useMissions";
@@ -54,9 +47,6 @@ export function SettingsPopUp({ onClose, reset }: Props) {
   const customCursor = useCustomCursor();
   const character = useCharacterChoice();
   const characterLabel = React.useId();
-  const playerName = usePlayerName();
-  const senseiTitle = useSenseiTitle();
-  const nameLabel = React.useId();
   const server = useServer();
   const serverLabel = React.useId();
   const cursorColorLabel = React.useId();
@@ -170,48 +160,6 @@ export function SettingsPopUp({ onClose, reset }: Props) {
               selected={character}
               onPick={(id) => setCharacterChoice(id as CharacterChoice)}
             />
-          </Styled.Stack>
-        </PopUpCard>
-
-        <PopUpCard>
-          <PopUpCardIcon>
-            <IoPerson aria-hidden="true" />
-          </PopUpCardIcon>
-          <Styled.Stack>
-            <PopUpCardBody>
-              <PopUpCardTitle id={nameLabel}>Player name</PopUpCardTitle>
-              <PopUpCardText>
-                Shown on the pictures you share and your Sensei card, and
-                nowhere else. It stays on this device. Leave it empty to share
-                without a name.
-              </PopUpCardText>
-            </PopUpCardBody>
-            <Styled.NameInput
-              name="player-name"
-              type="text"
-              value={playerName}
-              onChange={(e) => setPlayerName(e.currentTarget.value)}
-              maxLength={MAX_PLAYER_NAME}
-              placeholder="Your name"
-              aria-labelledby={nameLabel}
-              autoComplete="off"
-              spellCheck={false}
-            />
-            <Styled.NameToggle
-              type="button"
-              role="switch"
-              aria-checked={senseiTitle}
-              onClick={() => setSenseiTitle(!senseiTitle)}
-            >
-              <span>
-                &ldquo;Sensei&rdquo; after my name
-                <Styled.NameExample>
-                  {playerName.trim() || "Arona"}
-                  {senseiTitle ? " Sensei" : ""}
-                </Styled.NameExample>
-              </span>
-              <Switch $on={senseiTitle} aria-hidden="true" />
-            </Styled.NameToggle>
           </Styled.Stack>
         </PopUpCard>
 

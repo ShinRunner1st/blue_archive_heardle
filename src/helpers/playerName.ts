@@ -1,6 +1,8 @@
 import {
+  loadFavStudent,
   loadPlayerName,
   loadSenseiTitle,
+  saveFavStudent,
   savePlayerName,
   saveSenseiTitle,
 } from "./storage";
@@ -9,13 +11,14 @@ import {
 export const MAX_PLAYER_NAME = 20;
 
 /**
- * The name the player gave in Settings, drawn on the pictures they share and
- * nowhere else. Kept on this device like every other setting; never sent.
- * Multiplayer's name box starts with it, and sends what's in the box only
- * when the player makes or joins a room.
+ * Who the player is, as their profile's Customize sets it: their name, drawn
+ * on their card and the pictures they share, and their favourite student,
+ * their card's picture. Kept on this device like every other setting. A
+ * room is sent both, only when the player makes or joins one.
  */
 let name: string | null = null;
 let title: boolean | null = null;
+let favourite: number | null | undefined;
 const listeners = new Set<() => void>();
 
 export function getPlayerName(): string {
@@ -54,6 +57,19 @@ export function setSenseiTitle(on: boolean): void {
   listeners.forEach((listener) => listener());
 }
 
+/** The favourite student: the card's picture, or null for the letter. */
+export function getFavStudent(): number | null {
+  if (favourite === undefined) favourite = loadFavStudent();
+  return favourite;
+}
+
+export function setFavStudent(id: number | null): void {
+  if (id === getFavStudent()) return;
+  favourite = id;
+  saveFavStudent(id);
+  listeners.forEach((listener) => listener());
+}
+
 /**
  * The name as pictures show it: "Arona Sensei", the title after the name as
  * students say it in the game, or the name alone with the title turned off.
@@ -80,4 +96,5 @@ export function subscribePlayerName(listener: () => void): () => void {
 export function resetPlayerNameState(): void {
   name = null;
   title = null;
+  favourite = undefined;
 }

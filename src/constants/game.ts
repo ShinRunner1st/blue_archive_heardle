@@ -101,12 +101,6 @@ export const ROOM_SETTINGS_KEY = "roomSettings";
 export const ROOM_ICON_KEY = "roomIcon";
 
 /**
- * localStorage key holding the name a player last typed for a room, so
- * they needn't type it again for the next. A setting, not in the save file.
- */
-export const ROOM_NAME_KEY = "roomName";
-
-/**
  * sessionStorage key, before a room's code, holding this tab's token in it:
  * a reload comes back as the same player, with their score. Per tab, so two
  * tabs are two players, and gone when the tab closes.

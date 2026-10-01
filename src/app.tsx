@@ -445,17 +445,27 @@ function App() {
     setIsWhatsNewOpen(false);
   }, []);
 
+  // The profile, opened on its record or straight on Customize (from
+  // Multiplayer, where the name and picture come from it). Its Sensei card
+  // takes its place rather than piling on it, and gives it back on closing.
+  const [profileOpen, setProfileOpen] = React.useState<
+    "profile" | "customize" | null
+  >(null);
+  const isProfileOpen = profileOpen !== null;
+  const openProfile = React.useCallback(() => setProfileOpen("profile"), []);
+  const openCustomize = React.useCallback(
+    () => setProfileOpen("customize"),
+    []
+  );
+  const closeProfile = React.useCallback(() => setProfileOpen(null), []);
   const [isCardOpen, setIsCardOpen] = React.useState(false);
-  const openCard = React.useCallback(() => setIsCardOpen(true), []);
-  const closeCard = React.useCallback(() => setIsCardOpen(false), []);
-
-  const [isProfileOpen, setIsProfileOpen] = React.useState(false);
-  const openProfile = React.useCallback(() => setIsProfileOpen(true), []);
-  const closeProfile = React.useCallback(() => setIsProfileOpen(false), []);
-  // The profile's Sensei card takes its place, rather than piling on it.
   const cardFromProfile = React.useCallback(() => {
-    setIsProfileOpen(false);
+    setProfileOpen(null);
     setIsCardOpen(true);
+  }, []);
+  const closeCard = React.useCallback(() => {
+    setIsCardOpen(false);
+    setProfileOpen("profile");
   }, []);
 
   const [isJukeboxOpen, setIsJukeboxOpen] = React.useState(false);
@@ -674,7 +684,6 @@ function App() {
         openSettingsPopUp={openSettingsPopUp}
         openWhatsNewPopUp={openWhatsNew}
         openJukeboxPopUp={openJukebox}
-        openSenseiCard={openCard}
         openProfile={openProfile}
         // The student game has Daily and Endless only.
         mode={
@@ -822,7 +831,11 @@ function App() {
       )}
       {isProfileOpen && (
         <React.Suspense fallback={null}>
-          <ProfilePopUp onClose={closeProfile} onSenseiCard={cardFromProfile} />
+          <ProfilePopUp
+            onClose={closeProfile}
+            onSenseiCard={cardFromProfile}
+            customize={profileOpen === "customize"}
+          />
         </React.Suspense>
       )}
       {isSongListOpen && (
@@ -865,7 +878,6 @@ function App() {
           {isHub ? (
             <Hub
               onOpen={changePage}
-              onSenseiCard={openCard}
               onMissions={openMissions}
               onProfile={openProfile}
             />
@@ -873,6 +885,7 @@ function App() {
             <React.Suspense fallback={null}>
               <Multiplayer
                 keyboardEnabled={!isPopUpOpen}
+                onProfile={openCustomize}
                 onHold={setRoomHold}
                 nudge={nudge}
               />

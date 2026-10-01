@@ -9,13 +9,16 @@ README's Multiplayer and Multiplayer rooms sections have the rest.
 
 ## Player flow
 
-1. **Entry** (`/multiplayer`). The player types a name (the one typed for
-   the last room, or else the one in Settings, to start with) and picks a
-   picture: a student from the grid, or their
-   name's first letter. Then type a friend's code and **Join**, or **Make a
-   room**: its settings show in a few words above the button, and the
-   **⚙** beside it opens the settings pop-up (below) to change them first,
-   a password too. A link `/multiplayer?room=ABCD` fills the code in. A
+1. **Entry** (`/multiplayer`), laid out as the lobby is. **You**: the
+   player's card as rooms will show it, with the name and picture from
+   their profile (**Edit profile** opens Customize; an empty name goes as
+   "Sensei"), and **Picture** to be another student for this visit's
+   rooms. Then a **Join** ticket, the code typed on its strip, where
+   **Paste** (the clipboard button) or Ctrl+V takes a code or a room's
+   link, and a **New room** ticket: its settings as chips under it, the
+   **⚙** opening the settings pop-up (below) to change them first, a
+   password too, and **Make a room**. A link `/multiplayer?room=ABCD`
+   fills the code in. A
    room with a password opens a pop-up, "This room has a password", its
    box ready to type in ("That isn't the room's password" under it for a
    wrong one, the pop-up staying for another try). Alerts (a room that

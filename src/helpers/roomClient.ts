@@ -6,7 +6,6 @@
 import {
   ROOM_BACK_KEY,
   ROOM_ICON_KEY,
-  ROOM_NAME_KEY,
   ROOM_PRESETS_KEY,
   ROOM_QUICK_KEY,
   ROOM_SETTINGS_KEY,
@@ -16,7 +15,7 @@ import {
   CODE_LENGTH,
   CODE_LETTERS,
   DEFAULT_ROOM_SETTINGS,
-  MAX_ROOM_NAME,
+  isRoomCode,
   RoomSettings,
 } from "../types/room";
 import { cleanIcon, cleanName, cleanSettings } from "./room";
@@ -217,24 +216,10 @@ export function saveQuickAnswer(on: boolean): void {
   }
 }
 
-/** The name the player last typed for a room, or "" for none yet. */
-export function loadRoomName(): string {
-  try {
-    return (localStorage.getItem(ROOM_NAME_KEY) ?? "").slice(0, MAX_ROOM_NAME);
-  } catch {
-    return "";
-  }
-}
-
-export function saveRoomName(name: string): void {
-  try {
-    if (name.trim()) localStorage.setItem(ROOM_NAME_KEY, name.trim());
-  } catch {
-    // Not remembered; it's still sent this time.
-  }
-}
-
-/** The student a player shows as in rooms, or null for their letter. */
+/**
+ * The student a player last joined a room as, or null for their letter: a
+ * reload goes back in with it.
+ */
 export function loadRoomIcon(): number | null {
   try {
     return cleanIcon(Number(localStorage.getItem(ROOM_ICON_KEY) ?? NaN));
@@ -365,8 +350,8 @@ export function forgetRoomToken(code: string): void {
 }
 
 /**
- * The name typed for a room, kept with the tab's token, so a reload goes
- * back in under it rather than the one in Settings, which is never sent.
+ * The name a room was joined under, kept with the tab's token, so a
+ * reload goes back in under it even if the profile's has changed since.
  */
 export function rememberRoomName(code: string, name: string): void {
   try {
@@ -425,6 +410,16 @@ export function setRoomInAddress(code: string | null): void {
   if (url.href !== window.location.href) {
     window.history.replaceState(window.history.state, "", url);
   }
+}
+
+/**
+ * A room's code in pasted text: the code itself, however it's spaced or
+ * cased, or a room's link a friend sent. Null if neither is there.
+ */
+export function codeIn(text: string): string | null {
+  const linked = /[?&]room=([a-z]+)/i.exec(text);
+  const code = (linked ? linked[1] : text).toUpperCase().replace(/[^A-Z]/g, "");
+  return isRoomCode(code) ? code : null;
 }
 
 /** The link that opens the room, to send to friends. */

@@ -25,6 +25,8 @@ interface Props {
   onHold?: (hold: RoomHold) => void;
   /** Something pressed while held, to say why nothing happened. */
   nudge?: RoomNudge;
+  /** Opens the profile's Customize: the name and picture rooms use. */
+  onProfile?: () => void;
 }
 
 /** How long the note saying why stays. */
@@ -41,7 +43,12 @@ const NUDGES: Record<RoomNudge["why"], string> = {
  * page, which is the only place that connects to a room; leaving the page
  * leaves the room.
  */
-export default function Multiplayer({ keyboardEnabled, onHold, nudge }: Props) {
+export default function Multiplayer({
+  keyboardEnabled,
+  onHold,
+  nudge,
+  onProfile,
+}: Props) {
   const room = useRoom();
   const { view, status, send, join, rejoin, create, leave } = room;
 
@@ -133,6 +140,7 @@ export default function Multiplayer({ keyboardEnabled, onHold, nudge }: Props) {
           linked={linked}
           onCreate={create}
           onJoin={join}
+          onProfile={onProfile}
         />
       </>
     );

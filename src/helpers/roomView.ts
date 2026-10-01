@@ -21,6 +21,22 @@ export function roundsName(settings: RoomSettings, count = 2): string {
   return count === 1 ? one : `${one}s`;
 }
 
+/**
+ * The albums a room deals from, runs of them joined ("1-3, 5, 7-8"), so
+ * picking all eight reads "1-8" rather than eight names in a row.
+ */
+export function albumRanges(albums: number[]): string {
+  const runs: Array<[number, number]> = [];
+  for (const album of [...albums].sort((a, b) => a - b)) {
+    const last = runs[runs.length - 1];
+    if (last && album === last[1] + 1) last[1] = album;
+    else runs.push([album, album]);
+  }
+  return runs
+    .map(([from, to]) => (from === to ? `${from}` : `${from}-${to}`))
+    .join(", ");
+}
+
 const START_NAMES: Record<RoomSettings["start"], string> = {
   start: "from the top",
   random: "random start",
@@ -44,7 +60,7 @@ export function settingsSummary(
   const game =
     settings.game === "ost"
       ? settings.albums.length
-        ? `OST Vol.${settings.albums.join("/")}`
+        ? `OST Vol.${albumRanges(settings.albums)}`
         : "OST"
       : settings.game === "voice"
       ? settings.lines === "titles"
@@ -118,7 +134,7 @@ export function settingsRows(
       key: "albums",
       label: "Albums",
       value: settings.albums.length
-        ? settings.albums.map((album) => `Vol.${album}`).join(", ")
+        ? `Vol.${albumRanges(settings.albums)}`
         : "Every song",
     });
   }

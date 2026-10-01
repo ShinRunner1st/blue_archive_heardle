@@ -10,8 +10,7 @@ import {
 } from "../../constants/cosmetics";
 import { backupUrlFor } from "../../helpers/audioUrl";
 import { cardTitle, pickedOf } from "../../helpers/cosmetics";
-import { pictureName } from "../../helpers/playerName";
-import { loadFavStudent } from "../../helpers/storage";
+import { getFavStudent, pictureName } from "../../helpers/playerName";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { Portrait, usePortraits } from "../Portrait";
 
@@ -35,7 +34,7 @@ export function currentLook(): CardLook {
   const title = cardTitle();
   return {
     name: pictureName() || "Sensei",
-    student: loadFavStudent(),
+    student: getFavStudent(),
     title: title.mission === undefined ? "Sensei" : title.name,
     banner: pickedOf("banner"),
     frame: pickedOf("frame"),

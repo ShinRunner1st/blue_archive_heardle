@@ -35,7 +35,7 @@ friends. The bar under the header moves between them without reloading, and
 the logo goes back home.
 
 Below the cards, the hub has **Your record** across every game (for anyone
-who has played; its button opens the Sensei card), **Now in Global** (the
+who has played; its buttons open the profile and the missions), **Now in Global** (the
 pickup students, the event and the raids on the Global server, each with
 when it ends) and **Birthdays this week**, with the students' portraits.
 Each card shows one of the game's scenes behind it.
@@ -293,10 +293,11 @@ they need no more height than the OST, and every game fits a 1080p window.
   the same style: rounds, win rate, streaks, the guess spread, songs guessed
   and badges. Time Attack's has runs, its best scores and the best run at
   each clip length. It names no songs.
-- **Player name** - ☰ → Settings takes a name, drawn as "… Sensei" on every
-  picture you share and the Sensei card; a switch under it leaves the
-  "Sensei" off. It's used for nothing else and stays in your browser; leave
-  it empty to share without one.
+- **Player name** - the profile's Customize takes a name, drawn as
+  "… Sensei" on the player's card, every picture they share and the Sensei
+  card; a switch under it leaves the "Sensei" off. It stays in the browser,
+  and goes to a multiplayer room only when the player makes or joins one;
+  leave it empty to share without one.
 - **Daily calendar** - daily stats show every puzzle on a month calendar,
   coloured by how it went: greener for fewer tries, red for a loss, faint
   for a day not played. It names no songs, so it spoils nothing.
@@ -391,12 +392,15 @@ they need no more height than the OST, and every game fits a 1080p window.
   card at its head (their favourite student, name, title on its banner,
   frame and background scene), then their record from this browser's
   saves: totals (rounds, days played, dailies won, streaks, songs and
-  students found, missions, badges, room games) and a table by game, and a
-  tab per game with each way to play (played, won, best run), the daily
+  students found, missions, badges, room games), the OST badges (each
+  album's cover and how many of its songs are guessed, on the overview and
+  the OST tab) and a table by game, and a tab per game with each way to play (played, won, best run), the daily
   puzzles' spread by tries (guesses in bands for Students), average tries,
   the best Time Attack or the fastest and average find
-  (`src/helpers/profileStats.ts`). **Customize** picks the title, banner,
-  frame and background, the locked ones naming their mission; banners
+  (`src/helpers/profileStats.ts`). **Customize** sets the name (and the
+  "Sensei" after it) and picture (a favourite student, or the name's
+  letter), and picks the title, banner, frame and background, the locked
+  ones naming their mission; banners
   and backgrounds are pictures already on the Worker, fetched only when
   shown. Others see a profile in rooms once accounts arrive.
 - **Character** - on wide screens, Arona (light mode) or Plana (dark mode)
@@ -408,11 +412,11 @@ they need no more height than the OST, and every game fits a 1080p window.
   another device. The file is made and read on the device; nothing is
   uploaded. An import is checked like a save, shows what's in it and asks
   before it replaces the progress there.
-- **Sensei card** - ☰ → Sensei card draws the player's record across every
-  mode (songs and students found, badges, best streaks, Time Attack best,
-  rounds played) on a Schale licence, with the player name from Settings and
-  a favourite student's portrait, remembered like the name and not in the
-  save file. Share or Download it. The card's code and the portrait list
+- **Sensei card** - Sensei card on the profile draws the player's record
+  across every mode (songs and students found, badges, best streaks, Time
+  Attack best, rounds played) on a Schale licence, with the player name and
+  favourite student from Customize, remembered like settings and not in the
+  save file; closing it goes back to the profile. Share or Download it. The card's code and the portrait list
   load only when it opens, and only the favourite's portrait is fetched.
 - **What's new** - after an update, returning players see what was added,
   once, with the two updates before it for anyone who missed them. It stays
@@ -1275,11 +1279,11 @@ analytics or tracking scripts. Progress and settings are kept in the
 browser's `localStorage` (the keys are in `src/constants/game.ts`) and never
 sent anywhere; the clipboard is only written when a player presses Share.
 Result pictures are drawn in the browser and go only where the player sends
-them from the share sheet, or to their downloads; the player name in Settings
-is only ever drawn on those pictures (multiplayer's name box starts with it,
-but sends what's in the box only when the player makes or joins a room).
-A multiplayer room gets the name a player types and the student they pick
-as their picture (both kept in this browser for next time, like a setting),
+them from the share sheet, or to their downloads; the player name from
+Customize is drawn on those pictures and the player's own card, and sent
+only to a multiplayer room the player makes or joins. A multiplayer room
+gets that name and the profile's picture (or a student picked for the
+visit, kept in this browser so a reload goes back in with it),
 and
 their answers, and shows them to the others in it; it keeps them only while
 it's open, deletes everything when it closes, and keeps no logs. The

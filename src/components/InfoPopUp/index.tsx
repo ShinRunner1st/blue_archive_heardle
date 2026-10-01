@@ -256,13 +256,13 @@ export function InfoPopUp({
               browser and never sent anywhere.
             </PopUpCardText>
             <PopUpCardText>
-              In Multiplayer, the room gets the name you type, the student you
-              pick as your picture and your answers, and shows them to the
-              others in it. It keeps them only while it&apos;s open: when it
-              closes, everything about it is deleted. This browser keeps a
-              random key for each room you were in, for a few hours, so a tab
-              closed by mistake can go back in as you. To stop anyone making
-              rooms by the hundred, the rooms count connections from each
+              In Multiplayer, the room gets the name and picture from your
+              profile (or the student you pick for it) and your answers, and
+              shows them to the others in it. It keeps them only while it&apos;s
+              open: when it closes, everything about it is deleted. This browser
+              keeps a random key for each room you were in, for a few hours, so
+              a tab closed by mistake can go back in as you. To stop anyone
+              making rooms by the hundred, the rooms count connections from each
               address for a minute, under a scrambled form of it.
             </PopUpCardText>
             <PopUpCardText>

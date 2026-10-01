@@ -192,7 +192,11 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   lobby after 30 s. Kick, End game by a majority vote, idle lobbies closed
   after 10 minutes, a token per tab to come back after a drop or reload.
   Nothing takes a player out of a room by a slip (the bar, Back, the
-  Jukebox and reloads wait). When an allowance runs out it says
+  Jukebox and reloads wait). The page before a room is laid out as the
+  lobby: the player's card (name and picture from the profile, the
+  picture changeable for the visit), a Join ticket (Paste reads a code or
+  a link) and a New room ticket with the settings as chips; picked
+  albums read as runs ("Vol.1-8"). When an allowance runs out it says
   Multiplayer is resting until tomorrow; the rest of the site doesn't
   depend on it. The lobby is a ticket (code, settings as chips) over the
   players' cards, two to a row, in the middle column (the page's right
@@ -247,7 +251,7 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   picture, any student it belongs to is right. Daily, Classic with Voice's
   hints (or none), 4-Choice and Time Attack, each with a Silhouette toggle;
   sheets on the Worker (`scripts/build-guess-pictures.mjs`).
-- **Sensei card** (☰ menu): the record across every mode
+- **Sensei card** (Sensei card on the profile): the record across every mode
   (`src/helpers/senseiStats.ts`, read from the saves) drawn on a Schale
   licence with a favourite student's portrait (`FAV_STUDENT_KEY`, a setting,
   not in the save file); Share or Download. Lazy-loaded with
@@ -269,10 +273,12 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   switch or reload.
 - **Settings**: volume (remembered, 20% default), dark mode, Blue Archive
   cursor with tap and drag effects (can be turned off), character choice,
-  player name (drawn as "… Sensei" on every share picture by `makePicture`
-  and on the Sensei card, used for nothing else; a switch leaves the "Sensei"
-  off; `pictureName` in `src/helpers/playerName.ts`), the student games'
-  server, and Reset stats for the game and mode on screen (asks twice).
+  the student games' server, and Reset stats for the game and mode on
+  screen (asks twice). The player name and favourite student are set in
+  the profile's Customize (`src/helpers/playerName.ts`): the name drawn as
+  "… Sensei" on the card and every share picture by `makePicture` (a
+  switch leaves the "Sensei" off; `pictureName`), and both sent to a room
+  only when the player makes or joins one.
 - **Save file**: export all modes to one scrambled file and import it on
   another device (`src/helpers/saveFile.ts`); checked like the saves, asks
   before replacing, then reloads the page.
@@ -306,7 +312,8 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   background scene from the Worker) and their record from the saves
   (`profileStats.ts`): totals, a table by game, and a tab per game with its
   ways to play, daily spread, tries, Time Attack or find times. Customize
-  picks the cosmetics, the card kept in sight. A lazy chunk. The same card
+  sets the name and picture and picks the cosmetics, the card kept in
+  sight; the overview and the OST tab show the OST badges. A lazy chunk. The same card
   (`PlayerCard`) shows every player in a room: yours as you dressed it,
   read in your browser; other players' with the defaults, as theirs, and
   their profiles, wait for accounts.

@@ -15,12 +15,12 @@ import {
 } from "../../helpers/picture/senseiCard";
 import { sharePicture } from "../../helpers/picture/share";
 import { senseiStats } from "../../helpers/senseiStats";
-import { loadFavStudent, saveFavStudent } from "../../helpers/storage";
 import { studentById } from "../../helpers/studentRounds";
 import { SITE_URL } from "../../constants/game";
 import { useBackdropSrc } from "../../hooks/useBackdropSrc";
 import { useMissionsVersion } from "../../hooks/useMissions";
-import { usePictureName } from "../../hooks/usePlayerName";
+import { setFavStudent } from "../../helpers/playerName";
+import { useFavStudent, usePictureName } from "../../hooks/usePlayerName";
 import logo from "../../image/BlueArchive-Heardle.png";
 
 import { Button } from "../Button";
@@ -47,7 +47,7 @@ const REDRAW_MS = 150;
  * when opened, portrait list included, so the page doesn't carry either.
  */
 export default function SenseiCard({ onClose, streak }: Props) {
-  const [favourite, setFavourite] = React.useState(loadFavStudent);
+  const favourite = useFavStudent();
   const [picture, setPicture] = React.useState<{ blob: Blob; url: string }>();
   const [status, setStatus] = React.useState("");
   const name = usePictureName();
@@ -62,10 +62,7 @@ export default function SenseiCard({ onClose, streak }: Props) {
   const titleLabel = React.useId();
   const frameLabel = React.useId();
 
-  const pick = React.useCallback((id: number | null) => {
-    setFavourite(id);
-    saveFavStudent(id);
-  }, []);
+  const pick = setFavStudent;
 
   React.useEffect(() => {
     let live = true;
@@ -207,8 +204,8 @@ export default function SenseiCard({ onClose, streak }: Props) {
         <Styled.Note role="status" aria-live="polite">
           {status ||
             (name
-              ? "Your name, and the Sensei after it, come from Settings."
-              : "Add your name in Settings to put it on the card.")}
+              ? "Your name, and the Sensei after it, come from Customize."
+              : "Add your name in Customize to put it on the card.")}
         </Styled.Note>
       </PopUpBody>
     </PopUp>

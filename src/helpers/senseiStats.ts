@@ -6,7 +6,7 @@ import { Server } from "../types/server";
 import { STUDENT_SLOTS, StudentRound, StudentSlot } from "../types/student";
 import { VOICE_MODES } from "../types/voice";
 import { PICTURE_KINDS, PICTURE_SLOTS } from "../types/picture";
-import { badgeProgress, guessedThemes } from "./badges";
+import { BadgeProgress, badgeProgress, guessedThemes } from "./badges";
 import { isFinished } from "./calStats";
 import { dateOfDay, dayNumber } from "./daily";
 import {
@@ -29,6 +29,8 @@ export interface SenseiStats {
   songsTotal: number;
   badgesEarned: number;
   badgesTotal: number;
+  /** Each OST album's badge and how far along it is. */
+  badges: BadgeProgress[];
   /** The longest run of daily puzzles won, in any game. */
   bestDailyStreak: number;
   /** The longest run of Classic wins in a row. */
@@ -111,6 +113,7 @@ export function senseiStats(
     songsTotal: songs.length,
     badgesEarned: badges.filter((badge) => badge.done).length,
     badgesTotal: badges.length,
+    badges,
     bestDailyStreak: Math.max(...dailyBests),
     bestWinStreak: bestWinStreak(rounds.endless),
     timeAttackBest: Math.max(timeAttack.best.typed, timeAttack.best.choice),

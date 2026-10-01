@@ -107,7 +107,6 @@ function CardArt({ game }: { game: Game | "multiplayer" }) {
 
 interface Props {
   onOpen: (page: Page) => void;
-  onSenseiCard: () => void;
   onMissions: () => void;
   onProfile: () => void;
 }
@@ -117,7 +116,7 @@ interface Props {
  * daily puzzle as the player left it. Each card is a link to the game's own
  * page, which a plain click opens in place.
  */
-export function Hub({ onOpen, onSenseiCard, onMissions, onProfile }: Props) {
+export function Hub({ onOpen, onMissions, onProfile }: Props) {
   const server = useServer();
   // Read once each time the hub shows: coming back from a game brings them
   // up to date. A new player has no game to continue.
@@ -234,11 +233,7 @@ export function Hub({ onOpen, onSenseiCard, onMissions, onProfile }: Props) {
         </Styled.WideItem>
       </Styled.Cards>
 
-      <Record
-        onSenseiCard={onSenseiCard}
-        onMissions={onMissions}
-        onProfile={onProfile}
-      />
+      <Record onMissions={onMissions} onProfile={onProfile} />
 
       <Styled.Panels>
         <GlobalNow />
