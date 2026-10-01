@@ -29,13 +29,14 @@ import { join } from "node:path";
 import { sourceFile } from "../src/helpers/audioFiles.ts";
 import { songs } from "../src/constants/songs.ts";
 import { gameTracks } from "./lib/gameTracks.mjs";
-import { trackChanges } from "./lib/wikiTracks.mjs";
+import { trackChanges, WIKI_HEADERS } from "./lib/wikiTracks.mjs";
 
 const SONGS_PATH = "src/constants/songs.ts";
 const SOURCE_DIR = "audio";
-const HEADERS = { "User-Agent": "baheardle.com build script" };
 
-const { added, named } = await trackChanges(songs, gameTracks());
+// find-updates.mjs has already warned the pull request if the wiki is down.
+const { added, named, wikiDown } = await trackChanges(songs, gameTracks());
+if (wikiDown) console.warn(`The wiki couldn't be reached (${wikiDown}).`);
 
 const list = songs.map((song) => ({ ...song }));
 const summary = [];
@@ -43,7 +44,7 @@ const summary = [];
 /** A new track's file: the game's as it is, or the wiki's, checked. */
 async function trackBytes(track) {
   if (track.path) return readFileSync(track.path);
-  const response = await fetch(track.url, { headers: HEADERS });
+  const response = await fetch(track.url, { headers: WIKI_HEADERS });
   if (!response.ok) {
     console.warn(`Could not download ${track.file}: left for next time.`);
     return null;

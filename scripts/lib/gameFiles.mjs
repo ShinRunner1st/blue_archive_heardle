@@ -110,10 +110,13 @@ export function reportFallbacks(source) {
 
 /**
  * Something the pull request's reader should see before merging: printed,
- * and added to UPDATE_SUMMARY in bold.
+ * and added to UPDATE_SUMMARY in bold. On GitHub it's also a warning on the
+ * run's page, for a week with nothing new and so no pull request.
  */
 export function warnInSummary(text) {
-  console.warn(`Warning: ${text}`);
+  console.warn(
+    process.env.GITHUB_ACTIONS ? `::warning::${text}` : `Warning: ${text}`
+  );
   if (process.env.UPDATE_SUMMARY) {
     appendFileSync(process.env.UPDATE_SUMMARY, `- **Warning:** ${text}\n`);
   }

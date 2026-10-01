@@ -5,16 +5,40 @@
  * Action's check (scripts/find-updates.mjs).
  */
 const WIKI_API = "https://bluearchive.wiki/w/api.php";
-const HEADERS = { "User-Agent": "baheardle.com build script" };
+/**
+ * Named as MediaWiki's User-Agent policy asks (a name, a version and where
+ * to reach us): the wiki answered GitHub's runners 403 to a bare one.
+ */
+export const WIKI_HEADERS = {
+  "User-Agent":
+    "baheardle-content-update/1.0 (https://baheardle.com; https://github.com/ShinRunner1st/blue_archive_heardle)",
+};
 
 /** The special tracks (10000 and up) are left out, as they always were. */
 const MAX_THEME = 9999;
 
+/** The wiki didn't answer, or refused: the songs wait for another week. */
+class WikiUnreachable extends Error {}
+
 async function api(params) {
   const url = new URL(WIKI_API);
   url.search = new URLSearchParams({ format: "json", ...params });
-  const response = await fetch(url, { headers: HEADERS });
-  if (!response.ok) throw new Error(`The wiki answered ${response.status}`);
+  let response;
+  try {
+    response = await fetch(url, { headers: WIKI_HEADERS });
+  } catch (error) {
+    throw new WikiUnreachable(`no answer: ${error.message}`);
+  }
+  if (!response.ok) {
+    // The start of the page says who refused: the wiki, or Cloudflare in
+    // front of it.
+    const text = (await response.text().catch(() => ""))
+      .replace(/<[^>]*>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 120);
+    throw new WikiUnreachable(`it answered ${response.status}: ${text}`);
+  }
   return response.json();
 }
 
@@ -118,9 +142,20 @@ const sameWords = (a, b) => {
  * comes along. Once both are filled, the song is the list's own, and the
  * wiki's spelling (its typos and Japanese titles among them) never replaces
  * it. A difference only of case or punctuation isn't a change.
+ *
+ * When the wiki can't be reached, the game's new tracks still come, as
+ * "Theme N" by "Unknown", which a later week names; `wikiDown` says why.
+ * A Music page that answers but has lost its tracks still stops it.
  */
 export async function trackChanges(songs, game = new Map()) {
-  const tracks = await wikiTracks();
+  let tracks = [];
+  let wikiDown = null;
+  try {
+    tracks = await wikiTracks();
+  } catch (error) {
+    if (!(error instanceof WikiUnreachable)) throw error;
+    wikiDown = error.message;
+  }
   const have = new Map(songs.map((song) => [song.themeNo, song]));
   const onWiki = new Map(tracks.map((track) => [track.themeNo, track]));
 
@@ -138,6 +173,7 @@ export async function trackChanges(songs, game = new Map()) {
     (track) =>
       !have.has(track.themeNo) && !game.has(track.themeNo) && track.file
   );
+  // Reached a moment ago, so a failure now is the wiki's: it stops.
   const files = await wikiFiles(candidates.map(({ file }) => file));
   const fromWiki = candidates.flatMap((track) => {
     const file = files.get(track.file);
@@ -158,5 +194,5 @@ export async function trackChanges(songs, game = new Map()) {
     return name || artist ? [{ song, name, artist }] : [];
   });
 
-  return { added, named };
+  return { added, named, wikiDown };
 }

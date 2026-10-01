@@ -41,7 +41,9 @@ const variantRank = (variant) => {
 export function downloadGameTracks(dir = GAME_DIR) {
   return baad({
     media: true,
-    filter: "^Theme_d{1,4}(_[A-Za-z0-9_]+)?.ogg$",
+    // Raw, so the backslashes stay: in a plain string "\d" is a "d", and
+    // the weekly Action's first run downloaded no music at all.
+    filter: String.raw`^Theme_\d{1,4}(_[A-Za-z0-9_]+)?\.ogg$`,
     dir,
   });
 }

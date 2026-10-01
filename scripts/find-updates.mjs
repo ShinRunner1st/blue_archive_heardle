@@ -32,6 +32,7 @@ import {
   gameHalos,
   gameNames,
   gameVoices,
+  warnInSummary,
 } from "./lib/gameFiles.mjs";
 import { gameTracks } from "./lib/gameTracks.mjs";
 import { haloKey, wikiName } from "./lib/halos.mjs";
@@ -165,8 +166,13 @@ if (noHalo.length > 0) {
 // Songs: new tracks in the game's files (BA-AD's download, when there is
 // one) or on the wiki, and names for placeholders. Counted, not listed:
 // build-new-songs.mjs lists them, with their names, as it adds them.
-const { added, named } = await trackChanges(songs, gameTracks());
+const { added, named, wikiDown } = await trackChanges(songs, gameTracks());
 const songChanges = added.length + named.length;
+if (wikiDown) {
+  warnInSummary(
+    `The Blue Archive wiki couldn't be reached (${wikiDown}), so new songs come from the game's files as "Theme N" by "Unknown", for a later week to name.`
+  );
+}
 
 const changed = found.length > 0 || songChanges > 0;
 console.log(
