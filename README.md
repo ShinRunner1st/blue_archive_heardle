@@ -1378,8 +1378,11 @@ player saved as presets, and for a few
 hours a random token for each room it was in, so a closed tab can go back
 in as the same player. A room's password stays in the room while it's
 open, and in the tab that typed or set it, for a reload, until it leaves. To stop
-room spam it counts connections per address for a minute, under a SHA-256
-of the address rather than the address itself.
+room spam it counts connections per address in one-minute windows with
+Cloudflare's rate limiter, handing it a SHA-256 of the address as its key
+rather than the address itself; the address is never stored in D1, a
+room's state or logs, and Cloudflare doesn't publish how long the limiter
+keeps a key.
 Like any website, the host - Cloudflare, for the site, audio, voice lines,
 pictures, the hub's Global schedule and the multiplayer rooms - sees standard connection details such as IP addresses to serve the files.
 The Global schedule is copied from SchaleDB to our own Worker; the page

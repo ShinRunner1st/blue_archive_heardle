@@ -57,6 +57,11 @@ describe("InfoPopUp credit", () => {
     expect(text()).toContain("Signing in with Google or Discord is optional");
     expect(text()).toContain("download or delete it all at any time");
     expect(text()).toContain("IP address");
+    // As /privacy says: counted in windows, how long kept is Cloudflare's.
+    expect(text()).toContain("in one-minute windows");
+    expect(text()).toContain("hashed form of the address");
+    expect(text()).toContain("never stores your IP address");
+    expect(text()).not.toMatch(/for a minute|scrambled form/);
     const policy = Array.from(document.querySelectorAll("a")).find(
       (a) => a.textContent === "privacy policy"
     );

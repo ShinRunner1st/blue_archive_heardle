@@ -271,8 +271,12 @@ export function InfoPopUp({
               closes, everything about it is deleted. This browser keeps a
               random key for each room you were in, for a few hours, so a tab
               closed by mistake can go back in as you. To stop anyone making
-              rooms by the hundred, the rooms count connections from each
-              address for a minute, under a scrambled form of it.
+              rooms or signing in by the hundred, Cloudflare&apos;s rate limiter
+              counts requests from each address in one-minute windows, given a
+              hashed form of the address rather than the address itself. The
+              site never stores your IP address, in its database, the rooms or
+              logs; Cloudflare doesn&apos;t say how long its limiter keeps a
+              count.
             </PopUpCardText>
             <PopUpCardText>
               Like any website, the service that delivers it — Cloudflare, for
