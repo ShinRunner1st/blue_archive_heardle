@@ -349,6 +349,24 @@ async function syncOnce(
   { canApply, state }: Options,
   attempt: number
 ): Promise<ProgressSync | "again"> {
+  // Joined already, nothing waiting to be merged, and no state read as the
+  // page opened: nothing to send costs nothing (a tab switch), and a change
+  // goes straight up on the revision this browser matched. If another
+  // device wrote meanwhile, the account refuses it (409) and the next try
+  // reads the state and merges, as ever.
+  const joinedHere = joinedRevision();
+  if (attempt === 0 && !state && joinedHere !== null && !localBehind) {
+    const local = currentSave();
+    if (fingerprint(contentOf(local)) === readKey(PROGRESS_SENT_KEY)) {
+      return "synced";
+    }
+    const extras = storedExtras();
+    const sent = await upload(local, extras, joinedHere, false);
+    if (!sent.ok) return failed(sent.why);
+    matched(sent.revision, local, extras);
+    return "synced";
+  }
+
   const known = attempt === 0 && state ? state : await fetchAccountState();
   if (!known) return "signedOut";
   const meta = known.progress;

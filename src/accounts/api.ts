@@ -55,10 +55,13 @@ import {
  *   for other players later, and the page works its own out from the
  *   progress. The read also says which progress the account has, so a
  *   page opening needs no second request to know whether to download.
- * - `GET /me/progress` and `PUT /me/progress?base=&format=[&backup=1]`:
- *   the save in the account (step 3), gzipped, as bytes; its revision and
- *   format ride in headers. A write built on an older revision gets 409
- *   and the account's revision, for the page to merge and send again.
+ * - `GET /me/progress` and `PUT /me/progress`: the save in the account
+ *   (step 3), gzipped, as bytes; its revision and format ride in headers
+ *   both ways (a write's in `X-Base`, `X-Format` and `X-Backup: 1`, so its
+ *   address, and the browser's preflight for it, stays the same; the
+ *   query `?base=&format=&backup=1` of the first pages still works). A
+ *   write built on an older revision gets 409 and the account's revision,
+ *   for the page to merge and send again.
  * - `PUT /me/profile` also takes the missions cleared, when they changed
  *   (step 4): rows only ever added, for the room pass.
  * - `GET /room-pass`: a signed-in player's pass for the rooms (step 4),
@@ -168,7 +171,8 @@ function plainPage(status: number, text: string): Response {
 function corsHeaders(origin: string): Record<string, string> {
   return {
     "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Headers": "Authorization, Content-Type",
+    "Access-Control-Allow-Headers":
+      "Authorization, Content-Type, X-Base, X-Format, X-Backup",
     "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
     // Kept two hours (browsers' cap), so a page asks once, not each call:
     // every request, the check included, counts against the free plan.
@@ -296,9 +300,13 @@ export async function handle(
     });
   }
   if (path === "/me/progress" && request.method === "PUT") {
+    // In headers (the page now), or the address (pages from before).
     const params = new URL(request.url).searchParams;
-    const base = Number(params.get("base"));
-    const format = Number(params.get("format"));
+    const field = (name: string) =>
+      request.headers.get(`X-${name[0].toUpperCase()}${name.slice(1)}`) ??
+      params.get(name);
+    const base = Number(field("base"));
+    const format = Number(field("format"));
     if (
       !Number.isSafeInteger(base) ||
       base < 0 ||
@@ -315,7 +323,7 @@ export async function handle(
     const result = await writeProgress(
       env.db,
       account,
-      { base, format, data, backup: params.get("backup") === "1" },
+      { base, format, data, backup: field("backup") === "1" },
       now
     );
     if (result.ok) return json(origin, 200, { revision: result.revision });

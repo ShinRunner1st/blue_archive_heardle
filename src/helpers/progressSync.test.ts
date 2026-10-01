@@ -13,12 +13,13 @@ import { fakeD1, FakeD1 } from "../test/fakeD1";
 import { MemoryStorage } from "../test/memoryStorage";
 import { Round } from "../types/stats";
 import { StudentRound } from "../types/student";
-import { resetAccountClientState } from "./accountClient";
+import { fetchAccountState, resetAccountClientState } from "./accountClient";
 import { loadRoomGames, recordRoomGame, saveClearedMissions } from "./missions";
 import {
   clearLocalProgress,
   isLocalBehind,
   resetProgressSyncState,
+  saveBeforeSignOut,
   syncProgress,
 } from "./progressSync";
 import { stamped } from "./roundId";
@@ -37,6 +38,8 @@ let db: FakeD1;
 let env: AccountsEnv;
 let now: number;
 let online: boolean;
+/** Every request the page made: its method, address and revision header. */
+let calls: { method: string; url: string; base: string | null }[];
 const realFetch = globalThis.fetch;
 
 /** A browser: its own storage, as each device has. */
@@ -118,18 +121,32 @@ const ids = (rounds: Array<{ id?: string }>) => rounds.map((round) => round.id);
 
 const sync = (canApply = true) => syncProgress({ canApply: () => canApply });
 
+/**
+ * The page opening, as accountStartup.ts does it: the account's state read
+ * first and handed to the sync, which then takes in another device's
+ * writes. A later sync (a timer, a hidden tab) has none, and only sends.
+ */
+const opens = async () =>
+  syncProgress({ canApply: () => true, state: await fetchAccountState() });
+
 let account: string;
 
 beforeEach(async () => {
   db = fakeD1();
   now = Date.UTC(2026, 9, 2, 12);
   online = true;
+  calls = [];
   env = { db, stateKey: "test-key", now: () => now };
   account = await createAccount(db, "google", "alice", now);
   // The page's requests reach the Worker's code, from the site's address.
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     if (!online) throw new TypeError("Failed to fetch");
     const request = new Request(input, init);
+    calls.push({
+      method: request.method,
+      url: request.url.replace(/^https?:\/\/[^/]+/, ""),
+      base: request.headers.get("X-Base"),
+    });
     const headers = new Headers(request.headers);
     headers.set("Origin", SITE);
     return handle(new Request(request, { headers }), env);
@@ -289,12 +306,12 @@ describe("after, between devices", () => {
 
     // B opens again: it takes the merge in, and sends nothing new.
     on(b);
-    expect(await sync(true)).toBe("synced");
+    expect(await opens()).toBe("synced");
     expect(loadRounds("endless")).toHaveLength(3);
     expect(revision()).toBe(3);
 
     on(a);
-    await sync(true);
+    await opens();
     expect(loadRounds("endless")).toHaveLength(3);
   });
 
@@ -368,6 +385,87 @@ describe("what this page doesn't know", () => {
     saveRounds([ost(9)], "endless");
     expect(await sync()).toBe("newerFormat");
     expect(loadRounds("endless")).toHaveLength(1);
+    expect(revision()).toBe(1);
+  });
+});
+
+describe("what a sync costs", () => {
+  async function joined() {
+    const a = await device(account);
+    on(a);
+    saveRounds([ost(0)], "endless");
+    await opens();
+    calls = [];
+    return a;
+  }
+  const said = () => calls.map(({ method, url }) => `${method} ${url}`);
+
+  it("sends nothing when nothing changed: a tab switch costs no request", async () => {
+    await joined();
+    expect(await sync(false)).toBe("synced");
+    expect(await saveBeforeSignOut()).toBe(true);
+    expect(calls).toEqual([]);
+  });
+
+  it("sends a change straight up on the revision it matched, to one address", async () => {
+    await joined();
+    saveRounds([...loadRounds("endless"), ost(1)], "endless");
+    expect(await sync(false)).toBe("synced");
+    expect(said()).toEqual(["PUT /me/progress"]);
+    expect(calls[0].base).toBe("1");
+
+    saveRounds([...loadRounds("endless"), ost(2)], "endless");
+    await sync(false);
+    // The same address every time, so the browser's preflight is reused.
+    expect(said()).toEqual(["PUT /me/progress", "PUT /me/progress"]);
+    expect(calls[1].base).toBe("2");
+    expect(revision()).toBe(3);
+  });
+
+  it("is refused on a stale revision, then reads, merges and backs up as ever", async () => {
+    const a = await joined();
+    const b = await device(account);
+    on(b);
+    await opens();
+    saveRounds([...loadRounds("endless"), ost(5)], "endless");
+    await sync(false);
+    expect(revision()).toBe(2);
+
+    on(a);
+    calls = [];
+    saveRounds([...loadRounds("endless"), ost(4)], "endless");
+    expect(await sync(false)).toBe("synced");
+    expect(said()).toEqual([
+      "PUT /me/progress",
+      "GET /me/profile",
+      "GET /me/progress",
+      "PUT /me/progress",
+    ]);
+    expect(calls[0].base).toBe("1");
+    expect(calls[3].base).toBe("2");
+    expect(revision()).toBe(3);
+    const saved = (await accountSave()) as { rounds: { endless: Round[] } };
+    expect(saved.rounds.endless).toHaveLength(3);
+    // What the merge wrote over was kept.
+    const backup = db.sqlite
+      .prepare("SELECT revision FROM progress_backups")
+      .get() as { revision: number };
+    expect(backup.revision).toBe(2);
+  });
+
+  it("still never writes over a newer format", async () => {
+    await joined();
+    db.sqlite.prepare("UPDATE progress SET format = 3").run();
+    saveRounds([...loadRounds("endless"), ost(1)], "endless");
+    expect(await sync(false)).toBe("newerFormat");
+    expect(revision()).toBe(1);
+  });
+
+  it("needs the session still, as every request does", async () => {
+    await joined();
+    db.sqlite.prepare("DELETE FROM sessions").run();
+    saveRounds([...loadRounds("endless"), ost(1)], "endless");
+    expect(await sync(false)).toBe("signedOut");
     expect(revision()).toBe(1);
   });
 });

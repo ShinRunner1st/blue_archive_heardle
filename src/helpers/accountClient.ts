@@ -254,7 +254,10 @@ export type UploadResult =
 /**
  * Sends the save, built on the account's revision `base`. With `backup`,
  * the account keeps a copy of what it writes over (a merge). Small enough,
- * it goes with `keepalive`, so a tab closing doesn't stop it.
+ * it goes with `keepalive`, so a tab closing doesn't stop it. The revision
+ * and format ride in headers, so the address is the same every time and
+ * the browser's CORS preflight for it is reused (2 hours), not asked
+ * again for each upload.
  */
 export async function uploadProgress(
   data: Uint8Array<ArrayBuffer>,
@@ -264,18 +267,16 @@ export async function uploadProgress(
 ): Promise<UploadResult> {
   const token = readToken();
   if (!token) return { ok: false, why: "signedOut" };
-  const query = new URLSearchParams({
-    base: String(base),
-    format: String(format),
-    ...(backup ? { backup: "1" } : {}),
-  });
   let response: Response;
   try {
-    response = await fetch(`${accountsUrl()}/me/progress?${query}`, {
+    response = await fetch(`${accountsUrl()}/me/progress`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/octet-stream",
+        "X-Base": String(base),
+        "X-Format": String(format),
+        ...(backup ? { "X-Backup": "1" } : {}),
       },
       body: data,
       credentials: "omit",

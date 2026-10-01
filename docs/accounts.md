@@ -335,7 +335,11 @@ it into the account, the same way.
 - **After play:** at most once every 5 minutes while rounds are played,
   and when the page is hidden (`fetch` with `keepalive`, which carries
   the session header; past its 64 KB limit, the 5-minute sync covers it).
-- **A write names the revision it built on.** If another device wrote
+  Only if the save changed since it was last sent: a hidden tab with
+  nothing new sends nothing (step 6).
+- **A write names the revision it built on** (in `X-Base`, so the
+  upload's address and its CORS preflight stay the same; step 6), and
+  goes straight up without reading the account first. If another device wrote
   meanwhile, the Worker answers 409 with its copy; the page merges
   (section 5) and sends again.
 
@@ -380,13 +384,14 @@ depends on the Worker being there.
 
 So the free plan holds about:
 
-- **Worker requests:** _superseded by the measurements below, which
-  found a day costs far more requests than 5 (preflights, tab switches);
-  see "The Worker-request quota, in theory" there._
+- **Worker requests:** _superseded by the measurements below: a
+  browser's day was about 25 requests with step 3's sync and is about 10
+  with step 6's cheaper one; see "The Worker-request quota, in theory"
+  there._
 - **D1 writes:** 100,000 ÷ 5 = **20,000** players a day; measured below
   at 4-8 a day.
 - **D1 reads:** 5,000,000 ÷ 50 = **100,000** players a day; measured
-  below at about 100 a day with tab switches, still far inside.
+  below at 35-64 a day, still far inside.
 - **D1 storage:** the developer save (every song, every mode on both
   servers, about 4,300 rounds) is **66 KB gzipped in format 2**, against
   505 KB as a save file (measured 2026-10-02). Without ids it would be
@@ -458,53 +463,73 @@ and 6 to 4; it needs a rebuilt table, so it isn't worth a migration now.)
 
 **2. What a browser really sends** (a production build pointed at the
 local Worker, in Chrome, counting every request the Worker answered,
-CORS preflights included; the dev server's StrictMode doubles some):
+CORS preflights included; syncs with play were driven on the dev server,
+whose StrictMode doubles only what runs as a page opens). First as built
+in step 3, then with the cheaper sync (below), built in step 6:
 
-| What the player does                     | Worker requests | Of them, preflights | Why                                                                                                |
-| ---------------------------------------- | --------------- | ------------------- | -------------------------------------------------------------------------------------------------- |
-| Signs in (new account, Account tab open) | 12              | 4                   | the two redirects, the session, the account's state, the first upload and profile, `GET /me`       |
-| Opens the site                           | 1, or 2         | 0, or 1             | the account's state; a preflight once its 2 hours (browsers' cap) are up                           |
-| Switches tab, nothing played             | 1               | 0                   | a hidden tab syncs, and every sync first reads the account's state                                 |
-| A sync with something to send            | 3               | 1                   | the state read, then a preflight every time (`?base=` makes each upload's address new), the upload |
-| Opens Multiplayer                        | 3               | 1                   | the page's state read, the room pass and its preflight                                             |
+| What the player does                     | Requests, step 3  | Requests now      | Why, now                                                                                     |
+| ---------------------------------------- | ----------------- | ----------------- | -------------------------------------------------------------------------------------------- |
+| Signs in (new account, Account tab open) | 12 (4 preflights) | 12 (4 preflights) | the two redirects, the session, the account's state, the first upload and profile, `GET /me` |
+| Opens the site                           | 1, or 2           | 1, or 2           | the account's state; its preflight once the browser's 2 hours (its cap) are up               |
+| Switches tab, nothing played             | 1                 | **0**             | nothing changed since the last upload, so nothing is sent                                    |
+| A sync with something to send            | 3 (1 preflight)   | **1**             | the upload alone; its address is fixed, so its preflight is reused for 2 hours               |
+| Opens Multiplayer                        | 3 (1 preflight)   | 3 (1 preflight)   | the page's state read, the room pass and its preflight                                       |
+| Another device wrote first (rare)        | 3 + preflight     | 4                 | the upload refused (409), the state, the download, the merged upload                         |
 
-So a **usual day**, if it's opening the site, 3 syncs with play, 10 tab
-switches, a summary and a Multiplayer visit, is about **2 + 9 + 10 + 1 + 3
-= 25 Worker requests**, not 5 or 6: the API-level count above leaves out
-preflights, the state read before each sync, and the tab switches. D1
-stays cheap: the extra requests are reads (about 4 rows each), so about
-100 rows read and 4-8 written a day.
+**The cheaper sync** (step 6, the user's go-ahead), `progressSync.ts`:
+once this browser is joined and nothing waits to be merged, a sync with
+no state read as the page opened (the 5-minute timer, a hidden tab, a
+sign-out's save) sends nothing if the save hasn't changed since it was
+last sent, and otherwise sends it straight up on the revision it last
+matched, without reading the account first. A stale revision is refused
+(409), and the next try reads the state, downloads, merges and backs up
+as before; a newer format is still refused, and every request still
+needs the session. The upload's `base`, `format` and `backup` moved from
+the address to `X-Base`, `X-Format` and `X-Backup` (the Worker still
+takes the address's, from older pages). The page opening still reads
+the state, so it still takes in another device's writes. One thing it
+no longer notices between openings: another device's write while this
+tab sends nothing; it's taken in as the page next opens, as a merge
+already was.
+
+So a **usual day** (opening the site with its preflight, 3 syncs with
+play and the upload's one preflight, any number of tab switches, a
+summary, a Multiplayer visit) is about **2 + 4 + 0 + 1 + 3 = 10 Worker
+requests**, where it was about 25. D1 per request is unchanged (the
+Worker runs the same queries); a day reads less, as the state reads
+before each sync and on every tab switch are gone: about **35-64 rows
+read** (the room pass most of it) and **4-8 written**.
 
 **The Worker-request quota, in theory.** This is a theoretical ceiling
 from these measurements, **not a capacity target**: it holds only if
-nothing else used the quota, and how often players switch tabs or play
+nothing else used the quota, and how often players open the site or play
 is a guess.
 
 - Quota: **100,000 Worker requests a day**, for all our Workers' code
   together (the accounts and the rooms Workers; the site, audio, pictures
   and Now in Global are static files and don't count).
-- Used: **R × N**, R the requests of a signed-in player's day (about 25
-  measured as above; more with more tab switches), N the signed-in
-  players that day.
+- Used: **R × N**, R the requests of a signed-in player's day (about 10
+  measured as above; more for a player who opens the site more often,
+  each opening 1-2), N the signed-in players that day.
 - Headroom: **100,000 - R × N - everything excluded below**.
 
-| Signed-in players a day (N) | At R = 25 | Left of 100,000, before the exclusions |
-| --------------------------- | --------- | -------------------------------------- |
-| 500                         | 12,500    | 87,500                                 |
-| 1,000                       | 25,000    | 75,000                                 |
-| 2,000                       | 50,000    | 50,000                                 |
-| 4,000                       | 100,000   | 0: the ceiling, with nothing else      |
+| Signed-in players a day (N) | At R = 10 | Left of 100,000, before the exclusions | At R = 25 (step 3's sync) |
+| --------------------------- | --------- | -------------------------------------- | ------------------------- |
+| 1,000                       | 10,000    | 90,000                                 | 25,000 used               |
+| 2,000                       | 20,000    | 80,000                                 | 50,000 used               |
+| 5,000                       | 50,000    | 50,000                                 | over the quota            |
+| 10,000                      | 100,000   | 0: the ceiling, with nothing else      | over the quota            |
 
 Left out of R, and taken from the same 100,000:
 
 - **the rooms Worker:** one request per connection, reconnects included,
   for guests and signed-in players alike (about 8-10 for an 8-player
   game, so a busy day of 1,000 games is about 10,000);
-- **sign-ins:** about 12 requests each (measured for a new account;
-  a returning one is a few fewer), however rare;
-- **merges** (3 requests each), the Account tab (`GET /me` and its
+- **sign-ins:** about 12 requests each (measured for a new account; a
+  returning one is a few fewer), however rare;
+- **merges** (4 requests each), the Account tab (`GET /me` and its
   preflight), Download my data, Delete account;
-- **more tab switches** than assumed, which add one request each;
+- **more openings** of the site than assumed, 1-2 requests each;
 - the daily cron (one a day, if it counts at all).
 
 Guests cost the accounts Worker nothing: they never call it. They cost
@@ -512,22 +537,11 @@ the Worker-request quota only through the rooms.
 
 So the earlier "about 16,000 signed-in players a day" from 6 requests
 was wrong in two ways: it counted API calls only, and it read a
-theoretical ceiling as a capacity. **On today's code the ceiling is about
-4,000 signed-in players a day with no rooms at all.** Before opening,
-the sync can be made much cheaper (not built; for the user to decide):
-
-- a hidden tab with nothing new sends nothing (the page already keeps a
-  fingerprint of what it last sent): tab switches cost 0;
-- a sync sends straight on the revision it knows, without reading the
-  state first (a 409 already says when another device wrote): 1 request
-  less per sync;
-- the upload's `base`, `format` and `backup` go in headers, not the
-  address, so its preflight is cached for 2 hours like the others: 1
-  request less per sync.
-
-With those, the same day is about **2 + 3 + 1 + 1 + 3 = 10** requests
-(the one preflight for the uploads), a ceiling of about 10,000 a day
-with nothing else; still a ceiling, not a target.
+theoretical ceiling as a capacity. With step 3's sync the ceiling was
+about 4,000; **with the cheaper sync it is about 10,000 signed-in
+players a day with no rooms and nothing else** - a ceiling, not a
+production capacity, and still to be checked against Cloudflare's own
+counts on the preview.
 
 **Rate limits:** as for the rooms, the Worker's rate-limit binding, per
 address (hashed): 10 sign-ins and 30 syncs a minute.

@@ -21,8 +21,8 @@ const rows = [];
 let requests = 0;
 
 /** One request; its cost noted under `what`. */
-async function call(what, method, path, { token, body, raw } = {}) {
-  const headers = { Origin: SITE };
+async function call(what, method, path, { token, body, raw, extra } = {}) {
+  const headers = { Origin: SITE, ...extra };
   if (token) headers.Authorization = `Bearer ${token}`;
   if (body !== undefined && !raw) headers["Content-Type"] = "application/json";
   const response = await fetch(`${WORKER}${path}`, {
@@ -132,7 +132,8 @@ const profile = (missions) => ({
 // A new player's first sign-in, then the page joining their save.
 const token = await signIn(`measure-${RUN}`, "Sign-in, new account");
 await call("First open: account state", "GET", "/me/profile", { token });
-await call("First open: progress up", "PUT", "/me/progress?base=0&format=2", {
+await call("First open: progress up", "PUT", "/me/progress", {
+  extra: { "X-Base": "0", "X-Format": "2" },
   token,
   raw: save(1000),
 });
@@ -144,7 +145,8 @@ await call("First open: profile, missions", "PUT", "/me/profile", {
 // A usual day: opening the site, three syncs, a room pass, a profile sync.
 await call("Day: open the site", "GET", "/me/profile", { token });
 for (let i = 1; i <= 3; i++) {
-  await call(`Day: sync ${i}`, "PUT", `/me/progress?base=${i}&format=2`, {
+  await call(`Day: sync ${i}`, "PUT", "/me/progress", {
+    extra: { "X-Base": String(i), "X-Format": "2" },
     token,
     raw: save(1000 + i * 10),
   });
@@ -160,17 +162,17 @@ await call("Day: a new mission", "PUT", "/me/profile", {
 await call("Day: room pass", "GET", "/room-pass", { token });
 
 // Another device wrote first: refused, downloaded, merged, sent again.
-await call("Merge: refused (409)", "PUT", "/me/progress?base=1&format=2", {
+await call("Merge: refused (409)", "PUT", "/me/progress", {
+  extra: { "X-Base": "1", "X-Format": "2" },
   token,
   raw: save(1005),
 });
 await call("Merge: download", "GET", "/me/progress", { token });
-await call(
-  "Merge: merged up, backed up",
-  "PUT",
-  "/me/progress?base=4&format=2&backup=1",
-  { token, raw: save(1040) }
-);
+await call("Merge: merged up, backed up", "PUT", "/me/progress", {
+  extra: { "X-Base": "4", "X-Format": "2", "X-Backup": "1" },
+  token,
+  raw: save(1040),
+});
 
 // Signing in again on a second device, and the Account tab.
 const second = await signIn(`measure-${RUN}`, "Sign-in, returning");

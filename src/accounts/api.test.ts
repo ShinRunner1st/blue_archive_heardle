@@ -574,6 +574,62 @@ describe("the progress", () => {
       env
     );
   const get = (token: string) => call("GET", "/me/progress", { token });
+  /** As the page sends it now: the revision and format in headers. */
+  const putHeaders = (
+    token: string,
+    data: Uint8Array<ArrayBuffer>,
+    fields: Record<string, string>
+  ) =>
+    handle(
+      new Request(`${WORKER}/me/progress`, {
+        method: "PUT",
+        headers: { Origin: SITE, Authorization: `Bearer ${token}`, ...fields },
+        body: data,
+      }),
+      env
+    );
+
+  it("takes the revision, format and backup from headers, at one address", async () => {
+    const token = await signIn("alice");
+    const first = await putHeaders(token, bytes("one"), {
+      "X-Base": "0",
+      "X-Format": "2",
+    });
+    expect(await first.json()).toEqual({ revision: 1 });
+    // Stale: refused, saying which is current, as by the address.
+    const stale = await putHeaders(token, bytes("two"), {
+      "X-Base": "0",
+      "X-Format": "2",
+    });
+    expect(stale.status).toBe(409);
+    expect(await stale.json()).toMatchObject({
+      error: "conflict",
+      revision: 1,
+    });
+    const merged = await putHeaders(token, bytes("three"), {
+      "X-Base": "1",
+      "X-Format": "2",
+      "X-Backup": "1",
+    });
+    expect(merged.status).toBe(200);
+    const backup = db.sqlite
+      .prepare("SELECT revision FROM progress_backups")
+      .get() as { revision: number };
+    expect(backup.revision).toBe(1);
+    // A page from before, with them in the address, still works.
+    expect(
+      (await put(token, bytes("four"), { base: "2", format: "2" })).status
+    ).toBe(200);
+    // Neither: refused.
+    expect((await putHeaders(token, bytes("five"), {})).status).toBe(400);
+  });
+
+  it("lets the site's pages send those headers", async () => {
+    const response = await call("OPTIONS", "/me/progress");
+    expect(response.headers.get("Access-Control-Allow-Headers")).toBe(
+      "Authorization, Content-Type, X-Base, X-Format, X-Backup"
+    );
+  });
 
   it("has none at first, then keeps what's sent, as it was sent", async () => {
     const token = await signIn("alice");
