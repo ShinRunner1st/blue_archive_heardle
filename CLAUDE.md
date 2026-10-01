@@ -34,17 +34,18 @@ What the project cares about:
 ### How it works
 
 - A static single-page app: React 19 + Vite + TypeScript, styled-components,
-  Vitest (jsdom). Node 24 (`.nvmrc`). No backend. One bundle, five HTML
-  pages written from `index.html` by a Vite plugin (`src/constants/pages.ts`):
-  the hub at `/` and `/ost`, `/voice`, `/picture`, `/students`, each with its
-  own title, description and link preview. `usePage` moves between them with
-  the History API, so there's no reload or new request.
+  Vitest (jsdom). Node 24 (`.nvmrc`). No backend but the multiplayer rooms.
+  One bundle, six HTML pages written from `index.html` by a Vite plugin
+  (`src/constants/pages.ts`): the hub at `/` and `/ost`, `/voice`,
+  `/picture`, `/students`, `/multiplayer`, each with its own title,
+  description and link preview. `usePage` moves between them with the
+  History API, so there's no reload or new request.
 - **Site** on a Cloudflare Worker with only static files (`site-worker/`,
   `ba-heardle-site`, baheardle.com as its Custom Domain; www redirects by
   a Redirect Rule). CI deploys it from `main` only, after every check
   passes (`npm run deploy:site` by hand). Long cache headers in
   `public/_headers` to spare requests. It also sends security headers: a
-  Content-Security-Policy allowing only the site, the two Workers and R2 (a
+  Content-Security-Policy allowing only the site, the three Workers and R2 (a
   new outside address must be added there, or it's blocked), no framing by
   other sites, nosniff, no-referrer, HSTS. `npm run preview` and the page
   check serve the build with `wrangler dev`, headers and all. It moved
@@ -107,6 +108,19 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   (`src/helpers/server.ts`, Global for new players); each server has its own
   pools, daily schedules (`*_JP` seeds, only ever appended to) and saves
   (`.jp` keys, a `jp` field in the save file).
+- **Multiplayer rooms** on the one Worker that runs code, `ba-heardle-rooms`
+  (`rooms-worker/`, `VITE_ROOMS_URL`): a SQLite-backed Durable Object per
+  room, over a hibernating WebSocket, on the free plan's daily limits
+  (100,000 requests, 100,000 rows written; they reset at 00:00 UTC and are
+  refused, never billed, past them). The room holds the answers and marks
+  them; the messages are in `src/types/room.ts`, the rules in
+  `src/helpers/room.ts` (shared with the Worker), the page's side in
+  `src/hooks/useRoom.ts` and `src/components/Multiplayer/` (a lazy chunk).
+  A change to the messages bumps `PROTOCOL`. The flows and costs are in
+  `docs/multiplayer.md`. CI deploys the rooms from `main` just before the
+  site; `npm run deploy:rooms` by hand, `npm run rooms` locally, and
+  `npm run deploy:site-preview` publishes a branch to
+  `ba-heardle-site-preview` to try it on the real network.
 - CI (GitHub Actions) runs format, lint, typecheck, tests, `check:audio`, a
   build and `npm run check:pages` (`scripts/check-pages.mjs`: every page on
   Global and JP in headless Chrome, failing on page errors, failed loads and
@@ -157,9 +171,26 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   game (a scene behind it, its ways to play, today's daily result from the
   saves), Continue for the game played last, the Global/JP choice, the
   player's record (hidden for a new player) with a button to the Sensei
-  card, Now in Global (or JP) and birthdays this week.
-- **Game bar** (`GameSwitch`): Home, OST, Voice, Picture, Students, as real
-  links; the picked one shows its name.
+  card, Now in Global (or JP) and birthdays this week, and a wide
+  Multiplayer card under the four games.
+- **Game bar** (`GameSwitch`): Home, OST, Voice, Picture, Students,
+  Multiplayer, as real links; the picked one shows its name.
+- **Multiplayer** (`/multiplayer`): private rooms of 2 to 8 playing the
+  OST, Voice or Picture game together, as in Anime Music Quiz. A four-letter
+  code or link; a name and a student picture per player; the host's
+  settings (game, typed or 4-Choice, 5-30 rounds, 5-40 s, start, server,
+  most players, Open, Password or Locked) in a pop-up, kept as presets
+  (twenty, shared as `BA1.…` codes). Each round everyone hears the same
+  song from the whole file (a 3-2-1 before the first), answers and changes
+  it freely until the time's up (the latest the room took counts, its time
+  shown live on every card), then the reveal takes the stage. A point per
+  right answer, ties to the faster; standings with a podium, back to the
+  lobby after 30 s. Kick, End game by a majority vote, idle lobbies closed
+  after 10 minutes, a token per tab to come back after a drop or reload.
+  Nothing takes a player out of a room by a slip (the bar, Back, the
+  Jukebox and reloads wait). When an allowance runs out it says
+  Multiplayer is resting until tomorrow; the rest of the site doesn't
+  depend on it.
 - **Students** (`/students`; Daily and
   Endless work for both): guess a student and each guess shows how it
   compares with the answer, right, close or wrong, with arrows for numbers.
@@ -254,7 +285,7 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
 - The answer is hidden from the page source and saves are scrambled.
 - SEO: a canonical, title, description and Open Graph/Twitter card on each
   page (`public/preview.jpg`, 1200×630), `robots.txt`, `sitemap.xml` (the
-  five pages). The preview (Mari (Idol) and the four
+  six pages). The preview (Mari (Idol) and the four
   games, no counts, in her dress's colours) and the icons (her flustered
   face on charcoal) are drawn by `scripts/make-preview.mjs` from the pages in
   `scripts/preview/`.
@@ -335,6 +366,15 @@ songs` put the new files on the Worker and R2 first. About 0.3 KB gzipped
   passes, and the page check runs under the real headers. Cloudflare's Web
   Analytics beacon, found by the page check on the domain, was turned off.
   No new files for players; Vercel now only redirects the old domain.
+- **1 Oct 2026, Group 7 released** (fast-forward of `feat/multiplayer`):
+  Multiplayer, private rooms for the OST, Voice and Picture games on the
+  rooms Worker's Durable Objects, after the user and a friend played it on
+  the preview and eight rounds of feedback. About 2 KB gzipped more on the
+  first load; the Multiplayer screens are a 19 KB gzipped chunk loaded only
+  on `/multiplayer`. One more HTML page on the site Worker (73 files), no
+  new files on the audio Worker or R2. The page's CSP gained the rooms'
+  `wss://` address, and the sitemap `/multiplayer` (send it again in
+  Search Console).
 
 ## Commands
 
