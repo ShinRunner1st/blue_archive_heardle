@@ -539,7 +539,40 @@ on the preview) until step 6.
 accounts`, localhost only), so the whole flow is tried without
      their keys._
 2. **The profile in the account:** name, picture, cosmetics and the
-   summary, synced from Customize.
+   summary, synced from Customize. _Built on `feat/account-profile`
+   (migration `0002_profiles.sql`; `src/accounts/profile.ts`,
+   `src/helpers/profileSync.ts`). How it works:_
+   - _The profile is the name, the "Sensei" after it, the favourite
+     student, and the card title and colours, banner, frame and
+     background. The cursor's colour and the character stay this
+     browser's settings._
+   - _**The later change wins.** Every change to the profile here marks
+     when (`profile.editedAt`); the account keeps the time of the change
+     it holds (`edited_at`, a column the plan's table gains). A sync reads
+     the account's (one request) and takes it in if it's later, or sends
+     this browser's if it's later (one more, one row written); the Worker
+     keeps the picks only if they're at least as late as its own, so an
+     older change from another device can't undo a newer one. A browser
+     never changed since this step gives way to an account that has a
+     profile; the first to sign in gives the account its own._
+   - _**When:** once as a signed-in page opens, after Customize saves,
+     when the Sensei card closes having changed something, and right
+     after signing in. Failing quietly: the profile is always kept in the
+     browser, and the next sync catches up._
+   - _**A pick not unlocked here** (its mission cleared on another device
+     only, until progress syncs in step 3) is kept as it is, shown as the
+     default until it's unlocked here too; Customize saves only the kinds
+     the player changed, so it can't save the default over it._
+   - _**The summary** is worked out from this browser's saves at each
+     sync (`profileSummary.ts`) and sent when it has changed since it last
+     went. The Worker keeps it, numbers only, and never hands it back:
+     `GET /me/profile` has the picks only, and nothing reads a summary
+     into the progress. Until progress syncs (step 3), it is the totals of
+     whichever device synced last._
+   - _The Worker checks what comes in: the name cleaned as the rooms clean
+     theirs (20 characters), a student id a whole number, cosmetics ones
+     that exist (else the default), the edit time no more than a day
+     ahead of its own clock._
 3. **Progress in the account:** the first sign-in's backups and merge,
    syncing, the 409 retries, signing out.
 4. **Room passes:** the pass, `PROTOCOL` up, kicks by account.

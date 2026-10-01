@@ -55,6 +55,50 @@ export type AuthError = (typeof AUTH_ERRORS)[number];
 export const isAuthError = (value: unknown): value is AuthError =>
   AUTH_ERRORS.includes(value as AuthError);
 
+/**
+ * The profile as the account keeps it (step 2): who the player is and what
+ * they picked. Whether a pick is unlocked is the missions' to say, from the
+ * progress; the account keeps the pick either way.
+ */
+export interface AccountProfile {
+  /** Empty for none. */
+  name: string;
+  /** "Sensei" after the name. */
+  sensei: boolean;
+  /** The favourite student, or null for the name's letter. */
+  student: number | null;
+  title: string;
+  banner: string;
+  frame: string;
+  background: string;
+  cardColors: string;
+  /** When the picks were last changed, on the page that changed them. */
+  editedAt: number;
+}
+
+/**
+ * The profile's totals as a summary for other players to see, later: a
+ * cache, worked out from the progress by the page whenever it syncs. The
+ * progress is the source of truth; the summary is never read back into it.
+ */
+export const SUMMARY_FIELDS = [
+  "roundsPlayed",
+  "daysPlayed",
+  "dailiesWon",
+  "bestDailyStreak",
+  "bestWinStreak",
+  "songsGuessed",
+  "studentsFound",
+  "missionsCleared",
+  "badgesEarned",
+  "roomGames",
+  "roomWins",
+] as const;
+export type ProfileSummary = Record<(typeof SUMMARY_FIELDS)[number], number> & {
+  /** The server the student games' totals are from. */
+  server: "global" | "jp";
+};
+
 /** How long the one-time sign-in code in the address lasts. */
 export const SIGN_IN_CODE_MS = 60_000;
 /** How long a sign-in on Google's or Discord's page may take. */

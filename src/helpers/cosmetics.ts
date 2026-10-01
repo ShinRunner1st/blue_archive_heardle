@@ -20,6 +20,7 @@ import {
   PROFILE_FRAME_KEY,
 } from "../constants/game";
 import { isMissionCleared, loadClearedMissions } from "./missions";
+import { markProfileEdited } from "./profileEdit";
 
 /** Whether the player may use it: the default, or its mission cleared. */
 export function isUnlocked(
@@ -75,9 +76,16 @@ function pick<T extends { id: string; mission?: string }>(
 ): void {
   const found = list.find((item) => item.id === id);
   if (!found || !isMissionCleared(found.mission)) return;
+  store(key, id);
+}
+
+function store(key: string, id: string): void {
+  if (read(key) === id) return;
   write(key, id);
   // The effects keep the colour they read; let them read the new one.
   if (key === CURSOR_COLOR_KEY) resetCursorColor();
+  // The cursor's colour is this browser's setting; the rest are the profile.
+  else markProfileEdited();
   listeners.forEach((listener) => listener());
 }
 
@@ -118,6 +126,27 @@ export function pickedOf<K extends CosmeticKind>(kind: K): ItemOf<K> {
 }
 
 /** Picks one, if it's unlocked. */
+/**
+ * The pick kept for a kind, as stored: possibly one not unlocked here
+ * (the account's, before this browser's missions catch up), which
+ * pickedOf shows as the default until it is.
+ */
+export function storedPick(kind: CosmeticKind): string {
+  const { list, key } = COSMETIC_KINDS[kind];
+  const id = read(key);
+  return list.some((item) => item.id === id) ? id! : list[0].id;
+}
+
+/**
+ * Keeps a pick from the account as it is, unlocked here or not: dropping
+ * it would lose it, and pickedOf shows it only once its mission is
+ * cleared here too. Picks made on this page go through setPicked.
+ */
+export function storeAccountPick(kind: CosmeticKind, id: string): void {
+  const { list, key } = COSMETIC_KINDS[kind];
+  if (list.some((item) => item.id === id)) store(key, id);
+}
+
 export function setPicked(kind: CosmeticKind, id: string): void {
   const { list, key } = COSMETIC_KINDS[kind];
   pick(list as Cosmetic[], key, id);

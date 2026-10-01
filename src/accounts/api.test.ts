@@ -445,3 +445,108 @@ describe("Google and Discord", () => {
     ).toEqual([{ provider: "discord", subject: "80351110224678912" }]);
   });
 });
+
+describe("the profile", () => {
+  const profile = (overrides: Record<string, unknown> = {}) => ({
+    name: "Shin",
+    sensei: true,
+    student: 10004,
+    title: "dependable",
+    banner: "sakura",
+    frame: "gold",
+    background: "cherry",
+    cardColors: "night",
+    editedAt: now,
+    summary: { roundsPlayed: 12, songsGuessed: 3, server: "jp" },
+    ...overrides,
+  });
+  const put = (token: string, body: unknown) =>
+    call("PUT", "/me/profile", { token, body });
+  const get = async (token: string) =>
+    (
+      (await (await call("GET", "/me/profile", { token })).json()) as {
+        profile: Record<string, unknown> | null;
+      }
+    ).profile;
+
+  it("has none at first, then keeps what's sent, without its summary", async () => {
+    const token = await signIn("alice");
+    expect(await get(token)).toBeNull();
+    expect((await put(token, profile())).status).toBe(200);
+    const picks: Record<string, unknown> = profile();
+    delete picks.summary;
+    expect(await get(token)).toEqual(picks);
+    // The summary is kept, as a cache, but never handed back.
+    const row = db.sqlite.prepare("SELECT summary FROM profiles").get() as {
+      summary: string;
+    };
+    expect(JSON.parse(row.summary)).toMatchObject({
+      roundsPlayed: 12,
+      songsGuessed: 3,
+      daysPlayed: 0,
+      server: "jp",
+    });
+  });
+
+  it("keeps only what's whole: a clean name, real cosmetics, numbers", async () => {
+    const token = await signIn("alice");
+    await put(
+      token,
+      profile({
+        name: "  A\u200brona\u202e Sensei of Schale and more  ",
+        student: -3,
+        banner: "no-such-banner",
+        frame: 5,
+        summary: { roundsPlayed: -1, songsGuessed: 2.5, extra: 9, server: "x" },
+      })
+    );
+    expect(await get(token)).toMatchObject({
+      name: "Arona Sensei of Scha",
+      student: null,
+      banner: "schale",
+      frame: "schale",
+    });
+    const row = db.sqlite.prepare("SELECT summary FROM profiles").get() as {
+      summary: string;
+    };
+    const summary = JSON.parse(row.summary);
+    expect(summary).toMatchObject({
+      roundsPlayed: 0,
+      songsGuessed: 0,
+      server: "global",
+    });
+    expect(summary.extra).toBeUndefined();
+  });
+
+  it("never lets an older change undo a newer one, but takes its summary", async () => {
+    const token = await signIn("alice");
+    await put(token, profile({ name: "Newer", editedAt: now }));
+    await put(
+      token,
+      profile({
+        name: "Older",
+        editedAt: now - 1000,
+        summary: { roundsPlayed: 99, server: "global" },
+      })
+    );
+    expect(await get(token)).toMatchObject({ name: "Newer", editedAt: now });
+    const row = db.sqlite.prepare("SELECT summary FROM profiles").get() as {
+      summary: string;
+    };
+    expect(JSON.parse(row.summary).roundsPlayed).toBe(99);
+  });
+
+  it("is one row, written in one go", async () => {
+    const token = await signIn("alice");
+    await put(token, profile());
+    await put(token, profile({ name: "Again", editedAt: now + 1 }));
+    expect(db.sqlite.prepare("SELECT * FROM profiles").all()).toHaveLength(1);
+  });
+
+  it("needs a session, and keeps no clock far ahead", async () => {
+    expect((await put("a".repeat(52), profile())).status).toBe(401);
+    const token = await signIn("alice");
+    await put(token, profile({ editedAt: now + 365 * DAY }));
+    expect((await get(token))!.editedAt).toBe(now + DAY);
+  });
+});

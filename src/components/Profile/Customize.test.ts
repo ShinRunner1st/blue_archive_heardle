@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   FAV_STUDENT_KEY,
   PLAYER_NAME_KEY,
+  PROFILE_BANNER_KEY,
   SENSEI_TITLE_KEY,
 } from "../../constants/game";
 import { resetPlayerNameState } from "../../helpers/playerName";
@@ -71,6 +72,23 @@ describe("CustomizePopUp", () => {
     type(name, "Hoshino");
     act(() => button("Cancel").click());
     expect(localStorage.getItem(PLAYER_NAME_KEY)).toBeNull();
+  });
+
+  it("saves only what was changed, keeping a pick not unlocked here", () => {
+    harness.destroy();
+    // The account's banner, kept though its mission isn't cleared here.
+    localStorage.setItem(PROFILE_BANNER_KEY, "sakura");
+    harness = createHarness();
+    harness.render(React.createElement(CustomizePopUp, { onClose }));
+
+    const name = harness.container.querySelector<HTMLInputElement>(
+      'input[name="player-name"]'
+    )!;
+    type(name, "Hoshino");
+    act(() => button("Save").click());
+
+    expect(localStorage.getItem(PLAYER_NAME_KEY)).toBe("Hoshino");
+    expect(localStorage.getItem(PROFILE_BANNER_KEY)).toBe("sakura");
   });
 
   it("removes the picture, back to the name's letter", () => {

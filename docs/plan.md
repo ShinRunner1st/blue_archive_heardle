@@ -864,7 +864,9 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   `feat/save-format-2`, off `docs/accounts-plan`. Step 1, the accounts
   Worker (D1, Google and Discord sign-in, sessions, linking, rate
   limits), on `feat/accounts-worker`, off `feat/save-format-2`; sign-in
-  only in dev and on the preview. The next step waits for the user._
+  only in dev and on the preview. Step 2, the profile in the account, on
+  `feat/account-profile`, off `feat/accounts-worker`. The next step waits
+  for the user._
 - **Room feedback** (2026-10-01): Skip back in a round (Pass, renamed);
   the host picks OST albums to deal from (any number) and title calls
   only for Voice (`PROTOCOL` 4, `BA2` preset codes); the Jukebox's own

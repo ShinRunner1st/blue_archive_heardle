@@ -117,6 +117,9 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   logged or put in an address. Off on baheardle.com: only the dev server
   (`npm run accounts`, with stand-in sign-in pages) and the preview
   (`--mode preview`, `.env.preview`) show the profile's Account tab.
+  Step 2 adds the profile in the account (`profileSync.ts`: the later
+  change wins, by `profile.editedAt`; a pick not unlocked here is kept;
+  `profiles.summary` is a cache from the saves, never read back).
 - **Multiplayer rooms** on the one other Worker that runs code, `ba-heardle-rooms`
   (`rooms-worker/`, `VITE_ROOMS_URL`): a SQLite-backed Durable Object per
   room, over a hibernating WebSocket, on the free plan's daily limits

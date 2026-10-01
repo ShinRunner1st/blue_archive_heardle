@@ -19,7 +19,9 @@ import { studentById } from "../../helpers/studentRounds";
 import { SITE_URL } from "../../constants/game";
 import { useBackdropSrc } from "../../hooks/useBackdropSrc";
 import { useMissionsVersion } from "../../hooks/useMissions";
+import { requestProfileSync } from "../../helpers/accountFlag";
 import { setFavStudent } from "../../helpers/playerName";
+import { profileEditedAt } from "../../helpers/profileEdit";
 import { useFavStudent, usePictureName } from "../../hooks/usePlayerName";
 import logo from "../../image/BlueArchive-Heardle.png";
 
@@ -48,6 +50,14 @@ const REDRAW_MS = 150;
  */
 export default function SenseiCard({ onClose, streak }: Props) {
   const favourite = useFavStudent();
+  // The title, colours or favourite picked here are the profile's: once
+  // the card closes, they go to the account, if signed in.
+  React.useEffect(() => {
+    const opened = profileEditedAt();
+    return () => {
+      if (profileEditedAt() !== opened) requestProfileSync();
+    };
+  }, []);
   const [picture, setPicture] = React.useState<{ blob: Blob; url: string }>();
   const [status, setStatus] = React.useState("");
   const name = usePictureName();

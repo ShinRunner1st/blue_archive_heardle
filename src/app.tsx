@@ -27,7 +27,7 @@ import { useVoiceGame } from "./hooks/useVoiceGame";
 import { useVoiceTimeAttack } from "./hooks/useVoiceTimeAttack";
 import { usePictureGame } from "./hooks/usePictureGame";
 import { usePictureTimeAttack } from "./hooks/usePictureTimeAttack";
-import { hasSignInReturn } from "./helpers/accountFlag";
+import { hasSignInReturn, requestProfileSync } from "./helpers/accountFlag";
 import { pictureRunsOf } from "./helpers/pictureTimeAttack";
 import { KIND_NAMES, PICTURE_MODE_NAMES } from "./helpers/pictureRounds";
 import { guessesForCharacter, isWon } from "./helpers/studentRounds";
@@ -448,6 +448,9 @@ function App() {
   const [profileOpen, setProfileOpen] = React.useState<
     "profile" | "customize" | "account" | null
   >(() => (hasSignInReturn() ? "account" : null));
+  // Signed in (only in dev and on the preview, for now): the profile is
+  // brought up to date with the account once as the page opens.
+  React.useEffect(() => requestProfileSync(), []);
   const isProfileOpen = profileOpen !== null;
   const openProfile = React.useCallback(() => setProfileOpen("profile"), []);
   const openCustomize = React.useCallback(

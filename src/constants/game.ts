@@ -254,6 +254,20 @@ export const ROOM_GAMES_KEY = "roomGames";
 export const ACCOUNT_SESSION_KEY = "account.session";
 
 /**
+ * localStorage key holding when the profile (name, "Sensei", favourite
+ * student, card title and colours, banner, frame, background) was last
+ * changed here, in epoch milliseconds: with an account, the later change,
+ * here or there, is the one kept (helpers/profileSync.ts).
+ */
+export const PROFILE_EDITED_KEY = "profile.editedAt";
+
+/**
+ * localStorage key holding the profile summary last sent to the account,
+ * so an unchanged one isn't sent again: a write saved.
+ */
+export const PROFILE_SUMMARY_SENT_KEY = "profile.summarySent";
+
+/**
  * sessionStorage key holding the nonce of a sign-in under way, checked when
  * the page comes back, so nobody can sign a player in to their account.
  */

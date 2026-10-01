@@ -7,6 +7,7 @@ import {
   SIGN_IN_STATE_MS,
 } from "../types/account";
 import { readSigned, signValue } from "./crypto";
+import { cleanProfile, readProfile, writeProfile } from "./profile";
 import {
   authorizeUrl,
   exchangeCode,
@@ -40,6 +41,10 @@ import {
  * - `POST /auth/session` swaps that code for a session token.
  * - `GET /me`, `POST /auth/link-ticket`, `DELETE /me/identities/<provider>`
  *   and `POST /auth/sign-out` take the token, in `Authorization: Bearer`.
+ * - `GET /me/profile` and `PUT /me/profile`: the profile in the account
+ *   (step 2). The summary goes in with it and never comes back out: it's
+ *   for other players later, and the page works its own out from the
+ *   progress.
  *
  * The token is a credential: it only ever travels in that header, and
  * nothing here logs a header, a body, a token or a code (docs/accounts.md,
@@ -139,7 +144,7 @@ function corsHeaders(origin: string): Record<string, string> {
   return {
     "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Headers": "Authorization, Content-Type",
-    "Access-Control-Allow-Methods": "GET, POST, DELETE",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE",
     // Kept two hours (browsers' cap), so a page asks once, not each call:
     // every request, the check included, counts against the free plan.
     "Access-Control-Max-Age": "7200",
@@ -235,6 +240,20 @@ export async function handle(
     const view = await accountView(env.db, account);
     return view ? json(origin, 200, view) : json(origin, 401, {});
   }
+  if (path === "/me/profile" && request.method === "GET") {
+    return json(origin, 200, { profile: await readProfile(env.db, account) });
+  }
+  if (path === "/me/profile" && request.method === "PUT") {
+    const body = await readJson(request);
+    if (!body) return json(origin, 400, { error: "bad" });
+    const kept = await writeProfile(
+      env.db,
+      account,
+      cleanProfile(body, now),
+      now
+    );
+    return json(origin, 200, { profile: kept });
+  }
   if (path === "/auth/link-ticket" && request.method === "POST") {
     return json(origin, 200, {
       ticket: await signValue(
@@ -263,6 +282,7 @@ const isApiPath = (path: string) =>
   path === "/auth/link-ticket" ||
   path === "/auth/sign-out" ||
   path === "/me" ||
+  path === "/me/profile" ||
   /^\/me\/identities\/\w+$/.test(path);
 
 async function readJson(

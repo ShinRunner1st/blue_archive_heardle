@@ -16,6 +16,7 @@ import {
   pickedOf,
   setPicked,
 } from "../../helpers/cosmetics";
+import { requestProfileSync } from "../../helpers/accountFlag";
 import { loadClearedMissions } from "../../helpers/missions";
 import {
   getFavStudent,
@@ -95,12 +96,13 @@ interface Who {
  */
 export function CustomizePopUp({ onClose }: { onClose: () => void }) {
   const cleared = loadClearedMissions();
-  const [draft, setDraft] = React.useState<Record<Section, string>>(() => ({
+  const [start] = React.useState<Record<Section, string>>(() => ({
     title: pickedOf("title").id,
     banner: pickedOf("banner").id,
     frame: pickedOf("frame").id,
     background: pickedOf("background").id,
   }));
+  const [draft, setDraft] = React.useState(start);
   const [who, setWho] = React.useState<Who>(() => ({
     name: getPlayerName(),
     title: getSenseiTitle(),
@@ -125,7 +127,12 @@ export function CustomizePopUp({ onClose }: { onClose: () => void }) {
     setPlayerName(who.name);
     setSenseiTitle(who.title);
     setFavStudent(who.student);
-    for (const kind of SECTIONS) setPicked(kind, draft[kind]);
+    // Only what was changed: a pick kept from the account but not yet
+    // unlocked here shows as the default, and mustn't be saved over.
+    for (const kind of SECTIONS) {
+      if (draft[kind] !== start[kind]) setPicked(kind, draft[kind]);
+    }
+    requestProfileSync();
     onClose();
   };
 

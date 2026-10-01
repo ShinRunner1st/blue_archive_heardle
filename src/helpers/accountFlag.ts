@@ -1,3 +1,4 @@
+import { ACCOUNT_SESSION_KEY } from "../constants/game";
 import { AuthError, isAuthError, isProvider, Provider } from "../types/account";
 
 /**
@@ -15,6 +16,29 @@ export function accountsUrl(): string {
 }
 
 export const accountsEnabled = () => accountsUrl() !== "";
+
+/** Whether this browser is signed in: a session token is kept. */
+export function hasSession(): boolean {
+  try {
+    return localStorage.getItem(ACCOUNT_SESSION_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Syncs the profile with the account, if signed in: as the page opens,
+ * and after the profile is changed. Its code comes only then, so a page
+ * that isn't signed in (every one on baheardle.com, until accounts are
+ * released) never fetches it. Failing quietly: the profile is kept here
+ * whatever, and the next sync catches up.
+ */
+export function requestProfileSync(): void {
+  if (!accountsEnabled() || !hasSession()) return;
+  import("./profileSync")
+    .then(({ syncProfile }) => syncProfile())
+    .catch(() => {});
+}
 
 /** What the accounts Worker sent the page back with, in its `#` part. */
 export type SignInReturn =

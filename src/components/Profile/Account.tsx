@@ -10,6 +10,7 @@ import {
   startSignIn,
   unlinkProvider,
 } from "../../helpers/accountClient";
+import { syncProfile } from "../../helpers/profileSync";
 import {
   AccountView,
   AuthError,
@@ -88,6 +89,10 @@ export function AccountPanel() {
         (): SignInNotice => ({ kind: "error", error: "failed" })
       );
       if (live && returned) setNotice(noticeText(returned));
+      // Just signed in: the profile meets the account's (step 2).
+      if (returned?.kind === "signedIn") {
+        await syncProfile().catch(() => {});
+      }
       if (live) await load();
     })();
     return () => {

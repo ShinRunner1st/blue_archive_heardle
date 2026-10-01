@@ -893,7 +893,12 @@ account yet; progress stays in the browser.
   sign-in, an account made on the first and found after, sessions,
   linking the other provider (one of each) and unlinking (never the last),
   signing out, and rate limits (10 sign-ins and 60 other calls a minute
-  per address, hashed).
+  per address, hashed). Then the **profile** in the account
+  (`src/helpers/profileSync.ts`): the name, "Sensei", favourite student and
+  the profile's cosmetics, the later change winning, here or from another
+  device, synced as a signed-in page opens and after Customize saves; and
+  its summary, the totals worked out from the saves, sent as a cache and
+  never read back.
 - **Signing in** is a redirect, never a script of theirs on our pages: the
   page goes to the Worker, which sends it to Google or Discord with a
   signed `state` (the page's nonce, the page to come back to); their

@@ -1,5 +1,11 @@
 import { ACCOUNT_NONCE_KEY, ACCOUNT_SESSION_KEY } from "../constants/game";
-import { AccountView, AuthError, Provider } from "../types/account";
+import {
+  AccountProfile,
+  AccountView,
+  AuthError,
+  ProfileSummary,
+  Provider,
+} from "../types/account";
 import { accountsUrl, pendingSignInReturn } from "./accountFlag";
 
 /**
@@ -153,6 +159,37 @@ export async function fetchAccount(): Promise<AccountView | null> {
   }
   if (!response.ok) throw new AccountsUnavailable();
   return (await response.json()) as AccountView;
+}
+
+/**
+ * The account's profile, null before it has one; undefined if not signed
+ * in (a stale token is dropped).
+ */
+export async function fetchProfile(): Promise<
+  AccountProfile | null | undefined
+> {
+  if (!readToken()) return undefined;
+  const response = await api("GET", "/me/profile");
+  if (response.status === 401) {
+    writeToken(null);
+    return undefined;
+  }
+  if (!response.ok) throw new AccountsUnavailable();
+  return ((await response.json()) as { profile: AccountProfile | null })
+    .profile;
+}
+
+/** Sends the profile and its summary; the account's copy as kept after. */
+export async function putProfile(
+  profile: AccountProfile & { summary: ProfileSummary }
+): Promise<AccountProfile | undefined> {
+  const response = await api("PUT", "/me/profile", profile);
+  if (response.status === 401) {
+    writeToken(null);
+    return undefined;
+  }
+  if (!response.ok) throw new AccountsUnavailable();
+  return ((await response.json()) as { profile: AccountProfile }).profile;
 }
 
 /** Unlinks a provider; false if it's the account's last way in. */

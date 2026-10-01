@@ -6,6 +6,7 @@ import {
   savePlayerName,
   saveSenseiTitle,
 } from "./storage";
+import { markProfileEdited } from "./profileEdit";
 
 /** Longest name kept: enough for a handle, short enough for the picture. */
 export const MAX_PLAYER_NAME = 20;
@@ -41,6 +42,7 @@ export function setPlayerName(next: string): void {
 
   name = value;
   savePlayerName(value);
+  markProfileEdited();
   listeners.forEach((listener) => listener());
 }
 
@@ -54,6 +56,7 @@ export function setSenseiTitle(on: boolean): void {
   if (on === getSenseiTitle()) return;
   title = on;
   saveSenseiTitle(on);
+  markProfileEdited();
   listeners.forEach((listener) => listener());
 }
 
@@ -67,6 +70,7 @@ export function setFavStudent(id: number | null): void {
   if (id === getFavStudent()) return;
   favourite = id;
   saveFavStudent(id);
+  markProfileEdited();
   listeners.forEach((listener) => listener());
 }
 
