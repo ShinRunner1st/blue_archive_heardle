@@ -7,12 +7,16 @@ const slideIn = keyframes`
   to { opacity: 1; transform: translate(-50%, 0); }
 `;
 
-/** Over the page under the header, never moving the layout. */
+/**
+ * Over the page under the header, never moving the layout. Just below the
+ * header (10), so the ☰ menu's panel opens over it and stays clickable, and
+ * below the pop-ups (10) too.
+ */
 export const Toast = styled.div`
   position: fixed;
   top: 92px;
   left: 50%;
-  z-index: 900;
+  z-index: 9;
 
   display: flex;
   align-items: stretch;
