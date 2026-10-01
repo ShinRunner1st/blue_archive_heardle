@@ -30,6 +30,7 @@ import {
   calWinStreak,
 } from "../helpers/winStreak";
 import { SKIPPED, VoiceRound, VoiceRoundMode } from "../types/voice";
+import { stamped } from "../helpers/roundId";
 
 type Histories = Record<VoiceRoundMode, VoiceRound[]>;
 
@@ -37,14 +38,14 @@ type Histories = Record<VoiceRoundMode, VoiceRound[]>;
 function dealRound(mode: VoiceRoundMode, played: VoiceRound[]): VoiceRound {
   const { answer, line } = pickVoice(played);
   const student = studentById.get(answer);
-  return {
+  return stamped({
     answer,
     line,
     guesses: [],
     ...(mode === "choice" && student
       ? { choices: makeVoiceChoices(student) }
       : {}),
-  };
+  });
 }
 
 /**
@@ -58,7 +59,7 @@ function withToday(saved: VoiceRound[]): VoiceRound[] {
   );
   const last = stored[stored.length - 1];
   if (last && last.day === day) return stored;
-  return [...stored, { ...dailyVoice(day), guesses: [], day }];
+  return [...stored, stamped({ ...dailyVoice(day), guesses: [], day })];
 }
 
 /** A bag mode's history ready to play: the round left open, or a new one. */

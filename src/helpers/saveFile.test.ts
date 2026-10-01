@@ -3,21 +3,26 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { DAILY_STORAGE_KEY, STORAGE_KEY } from "../constants/game";
 import { PICTURE_SLOTS } from "../types/picture";
 import { Song } from "../types/song";
-import { obscure } from "./obscure";
+import { obscure, reveal } from "./obscure";
 import {
   loadClearedMissions,
+  loadRoomGames,
   loadRoomRecord,
+  recordRoomGame,
   saveClearedMissions,
   saveRoomRecord,
 } from "./missions";
+import { isRoundId, withoutStamp } from "./roundId";
 import {
   buildSaveFile,
   mergeMissions,
   readSaveFile,
   saveFileName,
 } from "./saveFile";
+import { upgradeSaves } from "./saveFormat";
 import {
   emptyGuesses,
+  loadRounds,
   savePictureRounds,
   saveRounds,
   saveStudentRounds,
@@ -62,6 +67,18 @@ const NO_SERVER = {
   pictures: NO_PICTURES,
 };
 
+/** Rounds without the ids and times a file gives them, to compare. */
+function bare<T>(value: T): T {
+  if (Array.isArray(value)) return value.map(bare) as T;
+  if (typeof value !== "object" || value === null) return value;
+  return Object.fromEntries(
+    Object.entries(withoutStamp(value)).map(([key, inner]) => [
+      key,
+      bare(inner),
+    ])
+  ) as T;
+}
+
 function file(contents: Record<string, unknown>): string {
   return obscure(JSON.stringify({ app: "baheardle", version: 1, ...contents }));
 }
@@ -78,7 +95,7 @@ describe("save files", () => {
     const now = new Date("2026-09-28T10:00:00Z");
     const result = readSaveFile(buildSaveFile(now));
 
-    expect(result).toEqual({
+    expect(bare(result)).toEqual({
       ok: true,
       save: {
         exported: now.toISOString(),
@@ -92,6 +109,7 @@ describe("save files", () => {
         jp: NO_SERVER,
         missions: [],
         roomRecord: { games: 0, wins: 0 },
+        roomGames: [],
       },
     });
   });
@@ -101,7 +119,9 @@ describe("save files", () => {
     saveStudentRounds("lore-daily", rounds);
 
     const result = readSaveFile(buildSaveFile());
-    expect(result.ok && result.save.students["lore-daily"]).toEqual(rounds);
+    expect(bare(result.ok && result.save.students["lore-daily"])).toEqual(
+      rounds
+    );
     expect(buildSaveFile()).not.toContain("10005");
   });
 
@@ -110,7 +130,7 @@ describe("save files", () => {
     saveVoiceRounds("daily", rounds);
 
     const result = readSaveFile(buildSaveFile());
-    expect(result.ok && result.save.voices.daily).toEqual(rounds);
+    expect(bare(result.ok && result.save.voices.daily)).toEqual(rounds);
     expect(buildSaveFile()).not.toContain("10005");
   });
 
@@ -122,7 +142,9 @@ describe("save files", () => {
     savePictureRounds("weapon-daily", rounds);
 
     const result = readSaveFile(buildSaveFile());
-    expect(result.ok && result.save.pictures["weapon-daily"]).toEqual(rounds);
+    expect(bare(result.ok && result.save.pictures["weapon-daily"])).toEqual(
+      rounds
+    );
     expect(buildSaveFile()).not.toContain("10005");
   });
 
@@ -186,7 +208,7 @@ describe("save files", () => {
 
   it("refuses a save from a newer game rather than half reading it", () => {
     const result = readSaveFile(
-      file({ version: 2, rounds: { endless: [round()] } })
+      file({ version: 3, rounds: { endless: [round()] } })
     );
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toContain("newer version");
@@ -196,7 +218,7 @@ describe("save files", () => {
     const result = readSaveFile(
       file({ rounds: { daily: [round(), { solution: 5 }], endless: "x" } })
     );
-    expect(result).toEqual({
+    expect(bare(result)).toEqual({
       ok: true,
       save: {
         exported: "",
@@ -210,6 +232,7 @@ describe("save files", () => {
         jp: NO_SERVER,
         missions: [],
         roomRecord: { games: 0, wins: 0 },
+        roomGames: [],
       },
     });
 
@@ -239,7 +262,7 @@ describe("save files", () => {
 
     const result = readSaveFile(buildSaveFile());
 
-    expect(result.ok && result.save.jp.students["lore-daily"]).toEqual([
+    expect(bare(result.ok && result.save.jp.students["lore-daily"])).toEqual([
       jpRound,
     ]);
     expect(result.ok && result.save.jp.voices.endless).toHaveLength(1);
@@ -278,6 +301,112 @@ describe("save files", () => {
     mergeMissions(result.save);
     expect(loadClearedMissions().sort()).toEqual(["birthday", "jp"]);
     expect(loadRoomRecord()).toEqual({ games: 5, wins: 1 });
+  });
+
+  it("gives every round an id, the same each time for an old one", () => {
+    saveRounds([round({ day: 1 }), round({ day: 2 })], "daily");
+    saveStudentRounds("lore-endless", [{ answer: 10005, guesses: [10005] }]);
+
+    const first = readSaveFile(buildSaveFile());
+    const again = readSaveFile(buildSaveFile());
+    if (!first.ok || !again.ok) throw new Error("not read");
+    const ids = first.save.rounds.daily.map((each) => each.id);
+    expect(ids.every(isRoundId)).toBe(true);
+    expect(new Set(ids).size).toBe(2);
+    expect(again.save.rounds.daily.map((each) => each.id)).toEqual(ids);
+    expect(isRoundId(first.save.students["lore-endless"][0].id)).toBe(true);
+  });
+
+  it("reads a version 1 file's rounds with the ids its browser gives them", () => {
+    const daily = [round({ day: 1 }), round({ day: 2 })];
+    const old = readSaveFile(file({ rounds: { daily } }));
+
+    saveRounds(daily, "daily");
+    upgradeSaves();
+    const here = loadRounds("daily").map((each) => each.id);
+
+    expect(old.ok && old.save.rounds.daily.map((each) => each.id)).toEqual(
+      here
+    );
+  });
+
+  it("keeps a round's own id and time", () => {
+    saveRounds([round({ id: "0123456789ab", at: 1000 })], "endless");
+    const result = readSaveFile(buildSaveFile());
+    expect(result.ok && result.save.rounds.endless[0]).toMatchObject({
+      id: "0123456789ab",
+      at: 1000,
+    });
+  });
+
+  it("writes a song as its theme number, and the tries used only", () => {
+    const guessed = emptyGuesses();
+    guessed[0] = {
+      song: { ...song, themeNo: "2" },
+      skipped: false,
+      isCorrect: false,
+    };
+    guessed[1] = { song: undefined, skipped: true, isCorrect: undefined };
+    guessed[2] = { song, skipped: false, isCorrect: true };
+    saveRounds([round({ guesses: guessed, currentTry: 3 })], "endless");
+
+    const text = buildSaveFile();
+    const json = JSON.parse(reveal(text)!);
+    expect(json.version).toBe(2);
+    expect(json.rounds.endless[0].solution).toBe("1");
+    expect(json.rounds.endless[0].guesses).toEqual([
+      ["2", false],
+      1,
+      ["1", true],
+    ]);
+
+    const result = readSaveFile(text);
+    if (!result.ok) throw new Error(result.error);
+    const back = result.save.rounds.endless[0];
+    expect(back.solution.themeNo).toBe("1");
+    expect(back.guesses).toHaveLength(6);
+    expect(back.guesses[0].song?.themeNo).toBe("2");
+    expect(back.guesses[1].skipped).toBe(true);
+    expect(back.guesses[2].isCorrect).toBe(true);
+    expect(back.guesses[3]).toEqual({
+      song: undefined,
+      skipped: false,
+      isCorrect: undefined,
+    });
+  });
+
+  it("drops a version 2 round whose song the game doesn't have", () => {
+    const result = readSaveFile(
+      obscure(
+        JSON.stringify({
+          app: "baheardle",
+          version: 2,
+          rounds: {
+            endless: [
+              { ...round(), solution: "1", guesses: [] },
+              { ...round(), solution: "no such song", guesses: [] },
+            ],
+          },
+        })
+      )
+    );
+    expect(result.ok && result.save.rounds.endless).toHaveLength(1);
+  });
+
+  it("carries multiplayer games one by one, never adding one twice", () => {
+    saveRounds([round()], "endless");
+    saveRoomRecord({ games: 4, wins: 1 });
+    recordRoomGame(true, 5000);
+    const result = readSaveFile(buildSaveFile());
+    if (!result.ok) throw new Error(result.error);
+    expect(result.save.roomRecord).toEqual({ games: 4, wins: 1 });
+    expect(result.save.roomGames).toMatchObject([{ at: 5000, won: true }]);
+
+    // The same file in again, and another game here meanwhile.
+    recordRoomGame(false, 6000);
+    mergeMissions(result.save);
+    expect(loadRoomGames()).toHaveLength(2);
+    expect(loadRoomRecord()).toEqual({ games: 6, wins: 2 });
   });
 
   it("exports nothing it wasn't given", () => {

@@ -1,3 +1,5 @@
+import { RoundStamp } from "./roundStamp";
+
 /**
  * Voice mode's ways to play, which mirror the OST's: daily, Classic, 4-Choice
  * and time attack, and Classic with no hints. Each keeps its own rounds,
@@ -45,7 +47,7 @@ export const SKIPPED = 0;
  * The last round in a saved list is always the one in progress, as in the
  * other games.
  */
-export interface NamedRound {
+export interface NamedRound extends RoundStamp {
   /** The answer's student id. */
   answer: number;
   /** The ids guessed, in order, SKIPPED for a skip; the answer last once found. */

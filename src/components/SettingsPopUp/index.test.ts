@@ -7,6 +7,7 @@ import {
   FIRST_RUN_KEY,
 } from "../../constants/game";
 import { obscure } from "../../helpers/obscure";
+import { withoutStamp } from "../../helpers/roundId";
 import { downloadText, reloadPage } from "../../helpers/saveFile";
 import { emptyGuesses, loadRounds, saveRounds } from "../../helpers/storage";
 import { createHarness } from "../../test/harness";
@@ -151,7 +152,9 @@ describe("SettingsPopUp save file", () => {
 
     act(() => button("Replace")!.click());
 
-    expect(loadRounds("daily")).toEqual([round(1), round(2)]);
+    // Imported with ids, so the rounds merge cleanly with copies of them.
+    expect(loadRounds("daily").map(withoutStamp)).toEqual([round(1), round(2)]);
+    expect(loadRounds("daily").every((each) => each.id)).toBe(true);
     expect(loadRounds("endless")).toEqual([]);
     expect(localStorage.getItem(FIRST_RUN_KEY)).toBe("false");
     expect(reloadPage).toHaveBeenCalledOnce();

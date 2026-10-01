@@ -859,8 +859,10 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   asking; accounts deleted after 2 years unused; profiles from a card
   after the first release). Built one step at a time, each only once the
   user approves it. _Drafted on `docs/accounts-plan`, off
-  `feat/profile-identity`. Step 0, save format 2, on
-  `feat/save-format-2`, off `docs/accounts-plan`._
+  `feat/profile-identity`. Step 0, save format 2 (round ids, theme
+  numbers, room games as a list, the merge), built on
+  `feat/save-format-2`, off `docs/accounts-plan`; the next step waits for
+  the user._
 - **Room feedback** (2026-10-01): Skip back in a round (Pass, renamed);
   the host picks OST albums to deal from (any number) and title calls
   only for Voice (`PROTOCOL` 4, `BA2` preset codes); the Jukebox's own

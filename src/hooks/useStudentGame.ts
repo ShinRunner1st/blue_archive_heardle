@@ -34,6 +34,7 @@ import {
   StudentRound,
   StudentSlot,
 } from "../types/student";
+import { stamped } from "../helpers/roundId";
 
 type Histories = Record<StudentSlot, StudentRound[]>;
 
@@ -52,7 +53,7 @@ function stopClock(round: StudentRound, now: number): StudentRound {
 }
 
 function dealRound(game: StudentGame, played: StudentRound[]): StudentRound {
-  return { answer: pickAnswer(game, played), guesses: [] };
+  return stamped({ answer: pickAnswer(game, played), guesses: [] });
 }
 
 /**
@@ -66,7 +67,10 @@ function withToday(game: StudentGame, saved: StudentRound[]): StudentRound[] {
   );
   const last = stored[stored.length - 1];
   if (last && last.day === day) return stored;
-  return [...stored, { answer: dailyAnswer(game, day), guesses: [], day }];
+  return [
+    ...stored,
+    stamped({ answer: dailyAnswer(game, day), guesses: [], day }),
+  ];
 }
 
 /** An endless history ready to play: the round left open, or a new one. */

@@ -27,18 +27,19 @@ import {
 import { BADGE_MODES, ROUND_MODES, RoundMode } from "../types/mode";
 import { Round } from "../types/stats";
 import { Song } from "../types/song";
+import { stamped } from "../helpers/roundId";
 
 type Histories = Record<RoundMode, Round[]>;
 
 function newRound(solution: Song, day?: number): Round {
-  return {
+  return stamped({
     solution,
     currentTry: 0,
     didGuess: false,
     guesses: emptyGuesses(),
     startTime: null,
     ...(day === undefined ? {} : { day }),
-  };
+  });
 }
 
 /**

@@ -41,6 +41,7 @@ import {
   PictureRoundMode,
 } from "../types/picture";
 import { SKIPPED } from "../types/voice";
+import { stamped } from "../helpers/roundId";
 
 type Slot = `${PictureKind}-${PictureRoundMode}`;
 
@@ -55,11 +56,11 @@ function dealRound(
   played: PictureRound[]
 ): PictureRound {
   const answer = pickPicture(kind, played);
-  return {
+  return stamped({
     answer,
     guesses: [],
     ...(isChoice(mode) ? { choices: makePictureChoices(kind, answer) } : {}),
-  };
+  });
 }
 
 /**
@@ -73,7 +74,10 @@ function withToday(kind: PictureKind, saved: PictureRound[]): PictureRound[] {
   );
   const last = stored[stored.length - 1];
   if (last && last.day === day) return stored;
-  return [...stored, { answer: dailyPicture(kind, day), guesses: [], day }];
+  return [
+    ...stored,
+    stamped({ answer: dailyPicture(kind, day), guesses: [], day }),
+  ];
 }
 
 /** A bag mode's history ready to play: the round left open, or a new one. */

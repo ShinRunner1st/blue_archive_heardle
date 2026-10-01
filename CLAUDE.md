@@ -282,7 +282,12 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   only when the player makes or joins one.
 - **Save file**: export all modes to one scrambled file and import it on
   another device (`src/helpers/saveFile.ts`); checked like the saves, asks
-  before replacing, then reloads the page.
+  before replacing, then reloads the page. Format 2 (`saveFormat.ts`):
+  every round has an id and when it was dealt (`roundId.ts`, 48 bits;
+  older rounds get one made from their slot, place and contents, once, at
+  load), OST songs as theme numbers, multiplayer games as a list
+  (`roomGames`) beside the old counts; `mergeSaves` (`saveMerge.ts`) puts
+  two copies together for accounts later. Format 1 files still import.
 - **Characters**: Arona (light) / Plana (dark) / Mari, and Shiroko,
   Hoshino, Hina and Aris unlocked by missions (`cosmetics.json`), drawn
   with Spine, react to guesses; Arona and Plana can be held and stroked,

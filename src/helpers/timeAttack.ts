@@ -6,6 +6,7 @@ import { Song } from "../types/song";
 import { makeChoices } from "./choices";
 import { pickSong } from "./pickSong";
 import { emptyGuesses } from "./storage";
+import { stamped } from "./roundId";
 
 /** How long a run lasts, in milliseconds. */
 export const TIME_ATTACK_MS = 3 * 60 * 1000;
@@ -83,7 +84,7 @@ export function dealRound(
     ? Math.floor(random() * latest * 10) / 10
     : 0;
 
-  return {
+  return stamped({
     solution,
     currentTry: 0,
     didGuess: false,
@@ -95,7 +96,7 @@ export function dealRound(
     ...(settings.answers === "choice"
       ? { choices: makeChoices(solution, random) }
       : {}),
-  };
+  });
 }
 
 /** The round answered: with a song, or passed on with none. */

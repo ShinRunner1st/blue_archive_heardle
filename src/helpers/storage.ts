@@ -1,3 +1,4 @@
+import { isRoundId, RoundStamp } from "./roundId";
 import {
   CHOICE_CLIP_KEY,
   CHOICE_CLIP_SECONDS,
@@ -149,6 +150,17 @@ function isGuess(value: unknown): value is GuessType {
   );
 }
 
+/** A saved round's id and when it was dealt, the parts that are whole. */
+function stampOf(round: Record<string, unknown> | RoundStamp): RoundStamp {
+  const { id, at } = round as Record<string, unknown>;
+  return {
+    ...(isRoundId(id) ? { id } : {}),
+    ...(typeof at === "number" && Number.isSafeInteger(at) && at >= 0
+      ? { at }
+      : {}),
+  };
+}
+
 export function emptyGuesses(): GuessType[] {
   // Built fresh each call so no two slots share an object reference.
   return Array.from({ length: MAX_TRIES }, () => ({
@@ -217,6 +229,7 @@ function toRound(value: unknown): Round | null {
       : undefined;
 
   return {
+    ...stampOf(round),
     solution: round.solution,
     currentTry,
     didGuess: round.didGuess === true,
@@ -383,6 +396,7 @@ function toStudentRound(value: unknown): StudentRound | null {
   const time = isTime(round.time) ? round.time : undefined;
 
   return {
+    ...stampOf(round),
     answer: round.answer,
     guesses,
     ...(round.gaveUp === true && !guesses.includes(round.answer)
@@ -473,6 +487,7 @@ function toNamedRound(value: unknown): NamedRound | null {
   const tries = choices || run !== undefined ? 1 : Infinity;
 
   return {
+    ...stampOf(round),
     answer: round.answer,
     guesses: guesses.slice(0, tries),
     ...(day === undefined ? {} : { day }),
@@ -494,6 +509,7 @@ function toVoiceRound(value: unknown): VoiceRound | null {
       : 0;
 
   return {
+    ...stampOf(named),
     answer: named.answer,
     line,
     guesses: named.guesses,

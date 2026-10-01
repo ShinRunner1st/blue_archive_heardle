@@ -12,6 +12,7 @@ import {
 } from "./timeAttack";
 import { isWon, makeVoiceChoices, pickVoice } from "./voiceRounds";
 import { serverSuffix } from "./server";
+import { stamped } from "./roundId";
 
 /**
  * Every line, or title calls only: "Blue Archive!" from everyone, so only
@@ -77,7 +78,7 @@ export function dealVoiceRound(
   const titles = settings.lines === "titles";
   const { answer, line } = pickVoice(played, random, titles);
   const student = studentById.get(answer);
-  return {
+  return stamped({
     answer,
     line,
     guesses: [],
@@ -86,7 +87,7 @@ export function dealVoiceRound(
     ...(settings.answers === "choice" && student
       ? { choices: makeVoiceChoices(student, random) }
       : {}),
-  };
+  });
 }
 
 /** The round answered: with a student, or passed on with null. */

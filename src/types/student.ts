@@ -1,3 +1,5 @@
+import { RoundStamp } from "./roundStamp";
+
 /** A calendar date, month first (1-12), then day. */
 export type Birthday = [month: number, day: number];
 
@@ -75,7 +77,7 @@ export function slotOf(game: StudentGame, mode: StudentMode): StudentSlot {
  * answer is guessed or the player gives up. The last round in a saved list
  * is always the one in progress.
  */
-export interface StudentRound {
+export interface StudentRound extends RoundStamp {
   /** The answer's id. */
   answer: number;
   /** The ids guessed, in order, the answer last once found. */

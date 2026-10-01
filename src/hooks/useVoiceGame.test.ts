@@ -100,7 +100,14 @@ describe("useVoiceGame", () => {
   it("plays today's line in daily, which can't be swapped or skipped past", () => {
     render("daily");
     const today = dailyVoice(dayNumber());
-    expect(game.round).toEqual({ ...today, guesses: [], day: dayNumber() });
+    expect(game.round).toEqual({
+      ...today,
+      guesses: [],
+      day: dayNumber(),
+      // Dealt with an id and the time, so copies of the save merge cleanly.
+      id: expect.stringMatching(/^[0-9a-f]{12}$/),
+      at: expect.any(Number),
+    });
 
     act(() => game.replaceCurrent());
     act(() => game.next());

@@ -1,5 +1,10 @@
 import { songs } from "../constants";
-import { MISSIONS_KEY, ROOM_RECORD_KEY } from "../constants/game";
+import { isRoundId, newRoundId } from "./roundId";
+import {
+  MISSIONS_KEY,
+  ROOM_GAMES_KEY,
+  ROOM_RECORD_KEY,
+} from "../constants/game";
 import { Mission, MissionFact, MISSIONS } from "../constants/missions";
 import { students } from "../constants/students";
 import { VOLUMES } from "../constants/volumes";
@@ -40,6 +45,14 @@ export interface RoomRecord {
   wins: number;
 }
 
+/** One multiplayer game finished, since save format 2. */
+export interface RoomGame {
+  id: string;
+  /** When it ended, in epoch milliseconds. */
+  at: number;
+  won: boolean;
+}
+
 function readJson(key: string): unknown {
   try {
     const text = localStorage.getItem(key);
@@ -71,18 +84,61 @@ export function toRoomRecord(value: unknown): RoomRecord {
   return { games: count(record.games), wins: count(record.wins) };
 }
 
-export function loadRoomRecord(): RoomRecord {
+/**
+ * The games finished before save format 2, as two counts. With the list
+ * since (loadRoomGames) they make the record; see loadRoomRecord.
+ */
+export function loadLegacyRoomRecord(): RoomRecord {
   return toRoomRecord(readJson(ROOM_RECORD_KEY));
 }
 
+/** The counts from before format 2; the list since is saveRoomGames's. */
 export function saveRoomRecord(record: RoomRecord): void {
   writeJson(ROOM_RECORD_KEY, record);
 }
 
+/** Checked like the saves: whole games, each once by id. */
+export function toRoomGames(value: unknown): RoomGame[] {
+  if (!Array.isArray(value)) return [];
+  const seen = new Set<string>();
+  return value.flatMap((entry): RoomGame[] => {
+    if (typeof entry !== "object" || entry === null) return [];
+    const { id, at, won } = entry as Record<string, unknown>;
+    if (!isRoundId(id) || seen.has(id)) return [];
+    if (typeof at !== "number" || !Number.isSafeInteger(at) || at < 0) {
+      return [];
+    }
+    seen.add(id);
+    return [{ id, at, won: won === true }];
+  });
+}
+
+export function loadRoomGames(): RoomGame[] {
+  return toRoomGames(readJson(ROOM_GAMES_KEY));
+}
+
+export function saveRoomGames(games: RoomGame[]): void {
+  writeJson(ROOM_GAMES_KEY, games);
+}
+
+/** Every multiplayer game this browser counts: the old counts and the list. */
+export function roomRecordOf(
+  legacy: RoomRecord,
+  games: RoomGame[]
+): RoomRecord {
+  return {
+    games: legacy.games + games.length,
+    wins: legacy.wins + games.filter((game) => game.won).length,
+  };
+}
+
+export function loadRoomRecord(): RoomRecord {
+  return roomRecordOf(loadLegacyRoomRecord(), loadRoomGames());
+}
+
 /** Counts a multiplayer game this player saw to its standings. */
-export function recordRoomGame(won: boolean): void {
-  const { games, wins } = loadRoomRecord();
-  saveRoomRecord({ games: games + 1, wins: wins + (won ? 1 : 0) });
+export function recordRoomGame(won: boolean, now: number = Date.now()): void {
+  saveRoomGames([...loadRoomGames(), { id: newRoundId(), at: now, won }]);
   notifySaved();
 }
 

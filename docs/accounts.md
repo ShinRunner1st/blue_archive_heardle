@@ -269,9 +269,9 @@ keep them); with accounts it matters more, as D1 keeps them too.
 format 1. **Format 2** comes first (step 0 in section 10), before any
 account:
 
-- Every round gets an **id** (random, 8 bytes) and the time it ended, so
-  two copies of the same progress merge without doubling or losing a
-  round.
+- Every round gets an **id** (random, 6 bytes: it only has to differ
+  within its own list) and the time it was dealt, so two copies of the
+  same progress merge without doubling or losing a round.
 - **Smaller**: an OST round keeps the song's theme number, not the whole
   song (name, artist and so on are 240 bytes of a round now).
 - **Room games** become a list (an id, when, and whether it was won), not
@@ -386,10 +386,14 @@ So the free plan holds about:
 - **D1 writes:** 100,000 ÷ 5 = **20,000** players a day.
 - **D1 reads:** 5,000,000 ÷ 50 = **100,000** players a day.
 - **D1 storage:** the developer save (every song, every mode on both
-  servers, about 2,900 rounds) is **31 KB gzipped**, against 505 KB as a
-  save file. Format 2 is smaller still. At about 20 KB for a keen player,
-  500 MB holds about **25,000 accounts**; a second database, or Workers
-  Paid ($5 a month, 10 GB a database), comes after that.
+  servers, about 4,300 rounds) is **66 KB gzipped in format 2**, against
+  505 KB as a save file (measured 2026-10-02). Without ids it would be
+  25 KB: the ids are most of it, about 9 bytes a round, as random digits
+  don't compress; the theme numbers in place of whole songs saved a fifth
+  of the rest. A keen player of 1,000 rounds is about 15 KB, so 500 MB
+  holds about **25,000 to 30,000 accounts**; a second database, or Workers
+  Paid ($5 a month, 10 GB a database), comes after that. Measured again on
+  real saves before it opens.
 - **Durable Object requests:** unchanged by accounts; still the rooms'
   own limit, as in `docs/multiplayer.md`.
 

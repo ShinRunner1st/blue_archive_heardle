@@ -232,10 +232,24 @@ export const MISSIONS_KEY = "missions";
 
 /**
  * localStorage key holding the multiplayer games this browser finished and
- * won, for the missions: { games, wins }. Nothing about a room is kept
- * anywhere else. Carried in the save file.
+ * won before save format 2, as two counts: { games, wins }. Kept as it is,
+ * no longer added to; the games since are in ROOM_GAMES_KEY. Nothing about
+ * a room is kept anywhere else. Both are carried in the save file.
  */
 export const ROOM_RECORD_KEY = "roomRecord";
+
+/**
+ * localStorage key holding the multiplayer games this browser finished
+ * since save format 2, one each ({ id, at, won }), so two devices' games
+ * add up when their saves merge rather than one count overwriting another.
+ */
+export const ROOM_GAMES_KEY = "roomGames";
+
+/**
+ * localStorage key holding the format this browser's saves are in (see
+ * helpers/saveFormat.ts); absent is format 1.
+ */
+export const SAVE_FORMAT_KEY = "saveFormat";
 
 /** localStorage keys for what missions unlock: the card's title and frame,
  * and the cursor effects' colour. Settings, so not in the save file. */

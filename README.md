@@ -413,7 +413,14 @@ they need no more height than the OST, and every game fits a 1080p window.
   file, scrambled like the saves, and imports it in another browser or on
   another device. The file is made and read on the device; nothing is
   uploaded. An import is checked like a save, shows what's in it and asks
-  before it replaces the progress there.
+  before it replaces the progress there. Since format 2 every round in it
+  has an id and when it was dealt (`src/helpers/roundId.ts`), so two
+  copies of the same progress can be put together without counting a
+  round twice (`src/helpers/saveMerge.ts`, ready for accounts), an OST
+  song is written as its theme number, and multiplayer games are listed
+  one by one. The page gives older rounds their ids once, when it first
+  loads (`upgradeSaves`), the same ids a format 1 file gets on import, and
+  format 1 files still import.
 - **Sensei card** - Sensei card on the profile draws the player's record
   across every mode (songs and students found, badges, best streaks, Time
   Attack best, rounds played) on a Schale licence, with the player name and

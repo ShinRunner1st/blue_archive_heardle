@@ -1,3 +1,4 @@
+import { RoundStamp } from "./roundStamp";
 import { GuessType } from "./guess";
 import { Song } from "./song";
 
@@ -5,7 +6,7 @@ import { Song } from "./song";
  * One playthrough of a single song. The last entry in the persisted array is
  * always the round currently in progress.
  */
-export type Round = {
+export type Round = RoundStamp & {
   solution: Song;
   currentTry: number;
   didGuess: boolean;

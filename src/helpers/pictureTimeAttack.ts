@@ -18,6 +18,7 @@ import {
 } from "./timeAttack";
 import { isWon } from "./voiceRounds";
 import { serverSuffix } from "./server";
+import { stamped } from "./roundId";
 
 /**
  * Picture time attack's settings: typed answers or four, and the pictures
@@ -76,7 +77,7 @@ export function dealPictureRound(
   random: () => number = Math.random
 ): PictureRound {
   const answer = pickPicture(kind, played, random);
-  return {
+  return stamped({
     answer,
     guesses: [],
     run,
@@ -84,7 +85,7 @@ export function dealPictureRound(
     ...(settings.answers === "choice"
       ? { choices: makePictureChoices(kind, answer, random) }
       : {}),
-  };
+  });
 }
 
 /** The saved rounds, as runs in the order they were played. */

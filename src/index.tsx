@@ -11,6 +11,7 @@ import {
 } from "./helpers/customCursor";
 import { stopPictureDrags } from "./helpers/noPictureDrag";
 import { playOneAtATime } from "./helpers/onePlayer";
+import { upgradeSaves } from "./helpers/saveFormat";
 import { useColorScheme } from "./hooks/useColorScheme";
 import App from "./app";
 import "./index.css";
@@ -33,6 +34,9 @@ function Root() {
     </ThemeProvider>
   );
 }
+
+// Before anything reads the saves: rounds from before ids get theirs, once.
+upgradeSaves();
 
 // Before the first paint, so the right cursor shows from the start. The
 // effects run outside React, on their own canvas.
