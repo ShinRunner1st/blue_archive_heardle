@@ -1,7 +1,8 @@
 # Accounts: the plan
 
-Status: **a draft for the user's approval** (2026-10-02). Nothing here is
-built. Once approved, it is built in the order at the end, each step on its
+Status: **approved by the user** (2026-10-02), with the four open
+decisions settled (see the end). Step 0 (save format 2) is being built;
+nothing else is, until the user approves the next step. Once approved, it is built in the order at the end, each step on its
 own stacked branch, and nothing is public until the privacy policy and
 account deletion are in. The release held since main 4a460a1 waits for it.
 
@@ -56,8 +57,8 @@ Changes from the first sketch:
   guest's room identity (name and picture) is for the room alone.
 - **Statistics are not stored as tables.** Every statistic, badge and
   mission is worked out from the rounds, in the browser, as the profile
-  does now. D1 keeps the rounds (the save) and a small summary, not a row
-  per number (section 3).
+  does now. D1 keeps the rounds (the save), which is authoritative, and a
+  small summary worked out from it, as a cache (section 3).
 - **No cookies, and no Google or Discord script on our pages.** Signing in
   is a redirect to their page and back. The session is a token in
   localStorage, sent with each request. The page check keeps failing on
@@ -98,10 +99,31 @@ types, as now.
 
 **Sessions:** a 32-byte random token. D1 keeps its SHA-256 only. A session
 lasts 90 days from its last use, pushed back at most once a day, so a
-request writes nothing. Sign out deletes it. The token sits in
-localStorage, so the site's strict Content-Security-Policy (only our own
-scripts) is what keeps it safe from other scripts; no outside script may
-ever be added.
+request writes nothing. Sign out deletes it.
+
+**The session token is a credential**, as good as the account to whoever
+holds it. So, without exception:
+
+- It travels only in the `Authorization: Bearer` header of a request to
+  `api.baheardle.com`, over HTTPS. **Never in an address** (no query
+  string, no `#` part; the one-time sign-in code is what goes in the `#`,
+  and it is spent within 60 seconds), never in a form field, a share text,
+  a save file or a room message.
+- It is **never logged**: the Worker logs no headers, no request bodies
+  from `/auth/*`, and no tokens or codes; errors name what failed, not
+  what was sent. Workers Logs and `console` calls are checked for it in
+  review.
+- It is **never in the page**: not in the DOM, an attribute, a title or
+  anything a screenshot or the page check could pick up; the settings show
+  only "Signed in with Google".
+- It sits in localStorage, where any script on our origin could read it.
+  So the site stays as it is: **a strict Content-Security-Policy, only the
+  build's own scripts, and no outside script, ever** (no analytics, no
+  provider SDKs, no widgets). The page check already fails on any script
+  not from the build, and keeps doing so.
+- The save file, the "Download my data" file and the room pass never
+  include it. Signing out, deleting the account, or the server finding it
+  expired removes it from localStorage at once.
 
 **One account, more identities:**
 
@@ -134,9 +156,14 @@ day (section 6). So the tables are shaped for few writes:
   row) and the format (below).
 - **Statistics are worked out, not stored.** The profile, badges, missions
   and Sensei card already come from the rounds. Storing each number would
-  cost writes after every round, for numbers the browser has. The profile
-  keeps a small **summary** (the overview's totals as JSON) only so other
-  players can see it without the save.
+  cost writes after every round, for numbers the browser has.
+- **The progress (the save) is the source of truth.** `profiles.summary`
+  (the overview's totals as JSON) is a **denormalized cache** of it, kept
+  only so other players can see a profile without the save. It is never
+  read back into progress, never merged, and never trusted over the save:
+  the page rebuilds it from the save on every sync, and if it is missing,
+  stale or from an older format it is simply rebuilt. Losing it loses
+  nothing.
 - **Missions cleared are rows**, because they are few (39 now, never more
   than one write each per account) and the room pass (section 7) and a
   profile need them without the save.
@@ -176,7 +203,8 @@ CREATE TABLE profiles (
   frame TEXT NOT NULL,
   background TEXT NOT NULL,
   card_colors TEXT NOT NULL,
-  summary TEXT NOT NULL,         -- JSON: the overview's totals
+  summary TEXT NOT NULL,         -- JSON cache of the overview's totals,
+                                 -- rebuilt from progress; never authoritative
   updated_at INTEGER NOT NULL
 ) STRICT;
 
@@ -290,7 +318,7 @@ After it, the browser's save **is** the account's copy, kept in the same
 localStorage keys as today, so the games read it as they always have and
 work offline.
 
-**Signing out** asks: keep this progress in this browser (it plays on as a
+**Signing out** asks each time, keeping it by default: keep this progress in this browser (it plays on as a
 guest, and a later sign-in merges again, without doubling, thanks to the
 ids), or clear it from this browser (for a shared computer). It stays in
 the account either way.
@@ -311,16 +339,29 @@ it into the account, the same way.
   meanwhile, the Worker answers 409 with its copy; the page merges
   (section 5) and sends again.
 
-**The free plan's limits** (Cloudflare, checked again before building):
+**The free plan's limits** (Cloudflare, checked again before building).
+These are **separate quotas**, each counted on its own; using one doesn't
+use another:
 
-| Limit           | Free plan                       | Note                                                |
-| --------------- | ------------------------------- | --------------------------------------------------- |
-| Worker requests | 100,000 a day, for every Worker | Shared with the rooms; the site's files don't count |
-| D1 rows read    | 5,000,000 a day                 |                                                     |
-| D1 rows written | 100,000 a day                   | Index entries count too                             |
-| D1 storage      | 500 MB a database, 5 GB in all  | Up to 10 databases                                  |
-| D1 row size     | 2 MB                            | We stop a save at 1 MB                              |
-| CPU per request | 10 ms                           | The Worker never opens a save                       |
+| Quota                       | Free plan, a day               | Used by                                                                                              |
+| --------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| **Worker requests**         | 100,000, all our Workers' code | the accounts Worker (every call), and the rooms Worker (one per connection, the WebSocket's upgrade) |
+| **Durable Object requests** | 100,000                        | the rooms only: each connection, and incoming messages (20 to a request)                             |
+| Durable Object rows written | 100,000                        | the rooms only (their SQLite storage)                                                                |
+| **D1 rows read**            | 5,000,000                      | the accounts Worker only                                                                             |
+| **D1 rows written**         | 100,000 (index entries count)  | the accounts Worker only                                                                             |
+| D1 storage                  | 500 MB a database, 5 GB in all | the accounts Worker only (up to 10 databases)                                                        |
+| Static file requests        | free, no limit                 | the site, the audio and pictures, Now in Global (no code runs)                                       |
+
+Per request, also: 10 ms of CPU (the accounts Worker never opens a save),
+and 2 MB a D1 row (we stop a save at 1 MB).
+
+So the **only quota the accounts and the rooms share is Worker requests**,
+and the rooms use few of those: one per connection, about 8 to 10 for an
+8-player game, reconnects included. Their messages, the 50 to 75 requests
+a game in `docs/multiplayer.md`, are **Durable Object** requests, a quota
+the accounts never touch. D1 and the rooms' storage are separate too.
+To be confirmed on the dashboard when it's measured (below).
 
 Past a limit, Cloudflare refuses, never bills, and it resets at 00:00 UTC.
 The page then plays on from its own copy and syncs the next day; nothing
@@ -328,7 +369,7 @@ depends on the Worker being there.
 
 **A signed-in player's day, estimated:**
 
-| What                               | Worker requests | Rows read    | Rows written     |
+| What                               | Worker requests | D1 rows read | D1 rows written  |
 | ---------------------------------- | --------------- | ------------ | ---------------- |
 | Opening the site (`/me`)           | 1               | 3            | 0-1 (once a day) |
 | Downloading progress (new only)    | 0-1             | 1            | 0                |
@@ -337,18 +378,20 @@ depends on the Worker being there.
 | **A usual day**                    | **about 5**     | **about 50** | **about 5**      |
 | Signing in (rarely)                | 3               | 3            | 3-5              |
 
-So, with nothing else running, the free plan holds about:
+So the free plan holds about:
 
-- **Requests:** 100,000 ÷ 5 = **20,000** signed-in players a day, less
-  what the rooms use that day (about 50 to 75 requests for an 8-player
-  game of 20 songs). Requests are the tightest limit, as for the rooms.
-- **Writes:** 100,000 ÷ 5 = **20,000** players a day.
-- **Reads:** 5,000,000 ÷ 50 = **100,000** players a day.
-- **Storage:** the developer save (every song, every mode on both servers,
-  about 2,900 rounds) is **31 KB gzipped**, against 505 KB as a save file.
-  Format 2 is smaller still. At about 20 KB for a keen player, 500 MB holds
-  about **25,000 accounts**; a second database, or Workers Paid ($5 a
-  month, 10 GB a database), comes after that.
+- **Worker requests:** 100,000 ÷ 5 = **20,000** signed-in players a day,
+  less the rooms' connections that day (a busy day of 1,000 eight-player
+  games is about 10,000).
+- **D1 writes:** 100,000 ÷ 5 = **20,000** players a day.
+- **D1 reads:** 5,000,000 ÷ 50 = **100,000** players a day.
+- **D1 storage:** the developer save (every song, every mode on both
+  servers, about 2,900 rounds) is **31 KB gzipped**, against 505 KB as a
+  save file. Format 2 is smaller still. At about 20 KB for a keen player,
+  500 MB holds about **25,000 accounts**; a second database, or Workers
+  Paid ($5 a month, 10 GB a database), comes after that.
+- **Durable Object requests:** unchanged by accounts; still the rooms'
+  own limit, as in `docs/multiplayer.md`.
 
 **Measured before it opens:** the preview build runs a script that signs
 in, syncs, merges and asks for passes, and logs each D1 query's `meta`
@@ -370,11 +413,15 @@ missions unlock), and a time limit of 12 hours. The page sends it with
 shows what the pass says, so nobody can wear what their account hasn't
 unlocked by editing a message. `PROTOCOL` goes up.
 
-**A guest** joins as now: a name and a picture, from their local profile.
+**A guest** joins as now, with a name and a picture from their local
+profile, and also sends the cosmetics they picked. The room checks only
+that each exists (in `cosmetics.json`), not that it was unlocked, as a
+guest's missions are worked out in their browser just as a signed-in
+player's are. `PROTOCOL` goes up for this too.
 
-**How cards look:** the same card for everyone, and no "guest" mark.
-A signed-in player's card wears their cosmetics. For a guest's card there
-is a choice (decision 1 below).
+**How cards look:** the same card for everyone, each wearing its player's
+cosmetics, and no "guest" mark. The difference is only that a signed-in
+player's are kept with the account.
 
 **Kick** also keeps out the kicked account, not only that browser, and a
 signed-in player can come back from another device as the same player.
@@ -389,7 +436,9 @@ rest of the progress.
 
 **How much to trust it:** missions are worked out in the browser, so a
 player who edits their own save can still clear any mission and sync it.
-The pass stops the easy forgery (editing a room message), not that.
+For a signed-in player the pass stops the easy forgery (editing a room
+message), not that; a guest's cosmetics are taken on trust (decision 1),
+as their missions are.
 Checking every save on the server would need far more than the free
 plan's 10 ms of CPU a request. With no leaderboards and only cosmetics at
 stake, this is accepted.
@@ -412,8 +461,9 @@ the footer). In plain words:
 - **Who sees what:** other players in a room see the name, picture and
   cosmetics, and later the profile's summary. Nobody sees the progress.
 - **Where:** Cloudflare (D1 and Workers).
-- **How long:** until the account is deleted. Sessions end after 90 days
-  unused. After a deletion, Cloudflare's Time Travel history keeps the
+- **How long:** until the account is deleted, or **after 2 years without
+  being used** (no sign-in or sync), when it is deleted the same way.
+  Sessions end after 90 days unused. After a deletion, Cloudflare's Time Travel history keeps the
   data for up to 7 days more, then it's gone.
 - **The player's rights:** download everything, delete everything, at any
   time, from the profile.
@@ -429,6 +479,12 @@ out within 12 hours. The page signs out and asks whether to keep the
 progress in this browser as a guest. Google and Discord kept nothing for
 us, so there's nothing to revoke there; the policy says how to remove the
 site from a Google or Discord account's connected apps.
+
+**Inactive accounts:** a scheduled run of the accounts Worker, once a day,
+deletes accounts whose `seen_day` is over 2 years old, as a deletion
+does. It reads the accounts table (about one row each), with no index on
+`seen_day`, which would cost a write each time it moves. The profile says
+"Kept while you play; deleted after 2 years unused."
 
 **Download my data:** the account as JSON (identities' providers, the
 profile, the missions) and the save file.
@@ -470,18 +526,10 @@ on the preview) until step 6.
 6. **Measured and opened:** the preview's numbers against section 6, then,
    when the user says so, the release with everything held since 4a460a1.
 
-## Decisions still open
+## Decisions (settled 2026-10-02)
 
-1. **A guest's cosmetics in rooms.** (a) Guests show the default card, as
-   now, and a signed-in player their own. (b) Guests show the cosmetics
-   their browser has unlocked too, unchecked, as their missions are worked
-   out in their browser just as a signed-in player's are. (b) treats
-   guests as equals, which the user asked for; (a) gives a reason to sign
-   in. **Recommended: (b)**, since the trust is the same either way.
-2. **Signing out** keeps this browser's copy by default, or clears it by
-   default. **Recommended: keep**, asking each time.
-3. **Inactive accounts:** kept until deleted, or deleted after two years
-   unused (said in the policy). **Recommended: two years**, as it keeps
-   less data and storage.
-4. **Tapping a card** for a profile: in the first release, or after.
-   **Recommended: after**, once the request counts are measured.
+1. **A guest's cosmetics in rooms:** (b), guests wear the cosmetics their
+   browser has unlocked, checked only to exist (section 7).
+2. **Signing out:** keeps this browser's copy, asking each time.
+3. **Inactive accounts:** deleted after 2 years unused (section 8).
+4. **Tapping a card** for a profile: after the first account release.

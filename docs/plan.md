@@ -853,10 +853,14 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   both; the profile, cosmetics and progress in D1, settings in the
   browser; profiles and cosmetics in rooms, no levels yet; guests as
   now and never second-class; Durable Objects for live rooms only; the
-  privacy policy and deletion before anyone can sign in. The full plan,
-  **awaiting the user's approval**, is `docs/accounts.md`; nothing is
-  built yet. _Drafted on `docs/accounts-plan`, off
-  `feat/profile-identity`._
+  privacy policy and deletion before anyone can sign in. The full plan is
+  `docs/accounts.md`, **approved 2026-10-02** with its four decisions
+  (guests wear their own cosmetics; sign-out keeps this browser's copy,
+  asking; accounts deleted after 2 years unused; profiles from a card
+  after the first release). Built one step at a time, each only once the
+  user approves it. _Drafted on `docs/accounts-plan`, off
+  `feat/profile-identity`. Step 0, save format 2, on
+  `feat/save-format-2`, off `docs/accounts-plan`._
 - **Room feedback** (2026-10-01): Skip back in a round (Pass, renamed);
   the host picks OST albums to deal from (any number) and title calls
   only for Voice (`PROTOCOL` 4, `BA2` preset codes); the Jukebox's own
