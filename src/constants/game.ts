@@ -268,6 +268,13 @@ export const PROFILE_EDITED_KEY = "profile.editedAt";
 export const PROFILE_SUMMARY_SENT_KEY = "profile.summarySent";
 
 /**
+ * localStorage key holding the missions cleared last sent to the account
+ * (helpers/profileSync.ts), for room passes, so they go only when one is
+ * new. Forgotten on signing out, so another account is sent its own.
+ */
+export const PROFILE_MISSIONS_SENT_KEY = "profile.missionsSent";
+
+/**
  * localStorage key holding the account's progress revision this browser's
  * save last matched (helpers/progressSync.ts). Absent: this browser's save
  * isn't joined with an account yet, so the next sync backs it up and joins

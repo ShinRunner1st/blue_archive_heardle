@@ -629,7 +629,49 @@ accounts`, localhost only), so the whole flow is tried without
      still has those rounds brings them back as it merges (merges only
      ever add). The Reset card says so; making a reset stick everywhere
      would need a new rule (a record of what was reset)._
-4. **Room passes:** the pass, `PROTOCOL` up, kicks by account.
+4. **Room passes:** the pass, `PROTOCOL` up, kicks by account. _Built on
+   `feat/room-passes` (migration `0004_missions.sql`;
+   `src/accounts/roomPass.ts`, `src/accounts/missions.ts`,
+   `src/helpers/roomPass.ts`, `src/helpers/roomLook.ts`), `PROTOCOL` 5,
+   with guests' cosmetics (decision 1) as the user asked. How it works:_
+   - _**Missions in the account:** `missions_cleared`, which section 3
+     planned and no step had built yet. The page sends its cleared
+     missions with the profile (`PUT /me/profile`) when one is new since
+     they last went; the Worker reads the account's rows and adds only
+     the new ones, so each costs one write, once, and none is ever taken
+     away. Signing out forgets what was sent, so another account gets
+     its own._
+   - _**The pass:** `GET /room-pass` reads the account's public id, its
+     profile and its missions (one session read and three small
+     queries, about 40 rows, no write) and signs `{public id, name,
+favourite student, title, banner, frame, background, expiry}` with
+     `ROOM_PASS_KEY` (HMAC-SHA-256, its own kind, so a sign-in's state
+     can't pass for one), good for 12 hours. Each cosmetic is the
+     profile's pick only if one of the account's missions unlocks it,
+     else the default. No account id, provider id or token is in it._
+   - _**The page** asks for it as `/multiplayer` opens, signed in only,
+     and keeps it in memory (never storage, an address or the page). If
+     the profile or the missions changed since, it brings the account up
+     to date first, so a pick or a mission from a moment ago shows; a
+     join waits 4 s at most, then goes in as a guest would. A guest's
+     page never loads that code or makes the request._
+   - _**The room** checks the pass in the rooms Worker before reading
+     the room (WebCrypto, no D1, no extra request), and a pass changed,
+     out of time or signed with another key makes the player a guest.
+     The room shows the pass's name and cosmetics, and keeps the public
+     id on the player only while the room is open (never sent to a
+     page); nothing goes to D1._
+   - _**Kicks** keep the browser out as before and the account too, from
+     any device, through a restart; a locked room lets the account back
+     in from another device; a signed-in player joining from a second
+     device or tab is the same player there (score, host and all), and
+     the first is told `elsewhere`._
+   - _**Guests** send the cosmetics unlocked in their browser with their
+     hello; the room checks each exists and every card wears them._
+   - _**The picture** in a room stays the one picked for the visit
+     (Entry's, the favourite by default) for everyone: any student may
+     be anyone's picture, so it isn't the pass's to decide. The pass
+     carries the favourite student as planned._
 5. **Privacy:** the policy page, deletion, download, About and README,
    retired missions and cosmetics, the ids lock.
 6. **Measured and opened:** the preview's numbers against section 6, then,

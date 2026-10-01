@@ -13,6 +13,8 @@ interface Env {
   DB: D1Database;
   /** Signs a sign-in's state and link tickets. A secret. */
   STATE_KEY?: string;
+  /** Signs room passes; the rooms Worker has the same one. A secret. */
+  ROOM_PASS_KEY?: string;
   GOOGLE_CLIENT_ID?: string;
   GOOGLE_CLIENT_SECRET?: string;
   DISCORD_CLIENT_ID?: string;
@@ -62,6 +64,7 @@ export default {
     const accounts: AccountsEnv = {
       db: env.DB,
       stateKey: env.STATE_KEY,
+      roomPassKey: env.ROOM_PASS_KEY || undefined,
       google: keys(env.GOOGLE_CLIENT_ID, env.GOOGLE_CLIENT_SECRET),
       discord: keys(env.DISCORD_CLIENT_ID, env.DISCORD_CLIENT_SECRET),
       fakeSignIn: env.FAKE_SIGN_IN === "yes" && local,

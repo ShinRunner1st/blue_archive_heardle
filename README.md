@@ -254,9 +254,11 @@ After the last round come the standings, the top three on a podium, and
 every answer with who named it. Every player shows on the profile's card
 throughout (wide with the banner in the lobby, small in the rounds, stood
 up with the banner on the podium, a row under it), with the student they
-picked. Your own card wears your title, banner, frame and background from
-Customize, read in your browser and sent nowhere; everyone else's has the
-defaults until accounts. Each player goes back to the lobby when
+picked. Every card wears its player's title, banner, frame and background
+from Customize: a guest's page sends the ones unlocked in its browser
+(the room checks only that each exists), and a signed-in player's come
+from their room pass, only what their account has unlocked. Each player
+goes back to the lobby when
 they like, the host staying host; the room is a lobby again once everyone
 has, or after 30 seconds.
 
@@ -404,7 +406,7 @@ they need no more height than the OST, and every game fits a 1080p window.
   letter), and picks the title, banner, frame and background, the locked
   ones naming their mission; banners
   and backgrounds are pictures already on the Worker, fetched only when
-  shown. Others see a profile in rooms once accounts arrive.
+  shown. In a room, everyone's card wears what they picked.
 - **Character** - on wide screens, Arona (light mode) or Plana (dark mode)
   stands beside the game and reacts to your guesses. Hold her to make her look
   at you, stroke her head, or tap her. ☰ → Settings swaps in Mari or turns
@@ -884,8 +886,7 @@ and message flows, with what each costs, are in
 Sign-in with Google or Discord, being built step by step (the plan,
 approved, is `docs/accounts.md`). **Off on baheardle.com**: only the dev
 server and the site's preview have an accounts Worker to sign in with, so
-only they show the profile's **Account** tab. Nothing is kept in an
-account yet; progress stays in the browser.
+only they show the profile's **Account** tab.
 
 - **The Worker**, `ba-heardle-accounts` (`accounts-worker/`, its requests
   in `src/accounts/api.ts`), with the D1 database `ba-heardle-accounts`
@@ -906,7 +907,18 @@ account yet; progress stays in the browser.
   older revision is merged and sent again. The browser's save is only
   changed before the page draws (a signed-in page waits up to 5 s), so
   the games never write over it; signing out asks whether to keep this
-  browser's copy (kept by default) or clear it.
+  browser's copy (kept by default) or clear it. Then **room passes**
+  (`src/accounts/roomPass.ts`, `src/helpers/roomPass.ts`): as
+  `/multiplayer` opens, a signed-in page asks `GET /room-pass` for a pass,
+  the account's public id, profile name, favourite student and the
+  cosmetics picked that its missions unlock (the missions cleared are
+  sent with the profile, rows only ever added), signed with
+  `ROOM_PASS_KEY`, which the rooms Worker shares, good for 12 hours. It's
+  sent with a room's hello and checked there with no call to D1; the room
+  shows what it says, a kick keeps the account out from any device, and
+  the player comes back as themselves from another device (the first is
+  told "elsewhere"). It lives in the page's memory only. A guest joins as
+  ever and never asks for one.
 - **Signing in** is a redirect, never a script of theirs on our pages: the
   page goes to the Worker, which sends it to Google or Discord with a
   signed `state` (the page's nonce, the page to come back to); their

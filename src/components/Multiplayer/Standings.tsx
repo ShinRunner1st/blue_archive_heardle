@@ -88,7 +88,8 @@ export function Standings({ view, receivedAt, send, onLeave }: Props) {
                     look={roomLook(
                       player.name,
                       player.icon,
-                      player.id === view.you
+                      player.id === view.you,
+                      player.look
                     )}
                     variant="tall"
                     banner
@@ -131,7 +132,8 @@ export function Standings({ view, receivedAt, send, onLeave }: Props) {
                 look={roomLook(
                   player.name,
                   player.icon,
-                  player.id === view.you
+                  player.id === view.you,
+                  player.look
                 )}
                 variant="row"
                 face={(size) => (

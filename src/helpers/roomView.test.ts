@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { DEFAULT_ROOM_SETTINGS, PlayerView } from "../types/room";
+import { DEFAULT_LOOK } from "./roomLook";
 import {
   albumRanges,
   pickName,
@@ -15,6 +16,7 @@ function player(id: string, score: number, time: number): PlayerView {
     id,
     name: id,
     icon: null,
+    look: DEFAULT_LOOK,
     score,
     time,
     here: true,

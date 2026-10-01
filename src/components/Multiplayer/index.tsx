@@ -8,6 +8,7 @@ import {
   roomName,
 } from "../../helpers/roomClient";
 import { recordRoomGame } from "../../helpers/missions";
+import { prepareRoomPass } from "../../helpers/roomPass";
 import { places } from "../../helpers/roomView";
 import { useRoom } from "../../hooks/useRoom";
 import { isRoomCode, RoomHold, RoomNudge } from "../../types/room";
@@ -51,6 +52,8 @@ export default function Multiplayer({
 }: Props) {
   const room = useRoom();
   const { view, status, send, join, rejoin, create, leave } = room;
+  // Signed in: the room pass asked for now, so joining needn't wait.
+  React.useEffect(prepareRoomPass, []);
 
   // In a room, the page holds the player there; in a game's rounds, the
   // browser asks before a reload or a closed tab too (on a computer:

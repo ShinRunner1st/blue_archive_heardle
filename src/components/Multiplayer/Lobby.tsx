@@ -372,7 +372,8 @@ function LobbyPlayers({
                 look={roomLook(
                   player.name,
                   player.icon,
-                  player.id === view.you
+                  player.id === view.you,
+                  player.look
                 )}
                 face={(size) => (
                   <Avatar icon={player.icon} name={player.name} size={size} />

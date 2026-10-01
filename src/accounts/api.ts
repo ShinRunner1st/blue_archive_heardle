@@ -7,6 +7,7 @@ import {
   SIGN_IN_STATE_MS,
 } from "../types/account";
 import { readSigned, signValue } from "./crypto";
+import { addMissions, cleanMissions } from "./missions";
 import { cleanProfile, readProfile, writeProfile } from "./profile";
 import {
   MAX_PROGRESS_BYTES,
@@ -20,6 +21,7 @@ import {
   ProviderError,
   ProviderKeys,
 } from "./providers";
+import { makeRoomPass } from "./roomPass";
 import {
   accountView,
   createAccount,
@@ -56,6 +58,10 @@ import {
  *   the save in the account (step 3), gzipped, as bytes; its revision and
  *   format ride in headers. A write built on an older revision gets 409
  *   and the account's revision, for the page to merge and send again.
+ * - `PUT /me/profile` also takes the missions cleared, when they changed
+ *   (step 4): rows only ever added, for the room pass.
+ * - `GET /room-pass`: a signed-in player's pass for the rooms (step 4),
+ *   signed with the key the rooms Worker shares; good for 12 hours.
  *
  * The token is a credential: it only ever travels in that header, and
  * nothing here logs a header, a body, a token or a code (docs/accounts.md,
@@ -66,6 +72,11 @@ export interface AccountsEnv {
   db: Db;
   /** Signs `state` and link tickets; a Worker secret. */
   stateKey: string;
+  /**
+   * Signs room passes, shared with the rooms Worker; a secret. Unset, a
+   * page gets no pass and joins rooms as a guest would.
+   */
+  roomPassKey?: string;
   /** Unset until that provider's sign-in is set up. */
   google?: ProviderKeys;
   discord?: ProviderKeys;
@@ -306,6 +317,9 @@ export async function handle(
   if (path === "/me/profile" && request.method === "PUT") {
     const body = await readJson(request);
     if (!body) return json(origin, 400, { error: "bad" });
+    if (body.missions !== undefined) {
+      await addMissions(env.db, account, cleanMissions(body.missions), now);
+    }
     const kept = await writeProfile(
       env.db,
       account,
@@ -313,6 +327,11 @@ export async function handle(
       now
     );
     return json(origin, 200, { profile: kept });
+  }
+  if (path === "/room-pass" && request.method === "GET") {
+    if (!env.roomPassKey) return json(origin, 503, { error: "unavailable" });
+    const made = await makeRoomPass(env.db, account, env.roomPassKey, now);
+    return made ? json(origin, 200, made) : json(origin, 401, {});
   }
   if (path === "/auth/link-ticket" && request.method === "POST") {
     return json(origin, 200, {
@@ -344,6 +363,7 @@ const isApiPath = (path: string) =>
   path === "/me" ||
   path === "/me/profile" ||
   path === "/me/progress" ||
+  path === "/room-pass" ||
   /^\/me\/identities\/\w+$/.test(path);
 
 async function readJson(

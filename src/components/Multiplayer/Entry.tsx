@@ -49,6 +49,8 @@ const PROBLEMS: Record<RoomError, string> = {
     IDLE_MS / 60_000
   } minutes.`,
   kicked: "The host took you out of that room.",
+  elsewhere:
+    "You're in that room from another device or tab now, so you left it here.",
   locked: "That room is locked: the host isn't letting anyone new in.",
   password: "That room has a password: ask the host for it.",
   slow: "Too many rooms or messages from here just now. Wait a minute, then try again.",
@@ -362,8 +364,8 @@ export function Entry({
         </Styled.EntryCards>
 
         <Styled.Note>
-          A room keeps your name and picture only while it&apos;s open, and
-          nothing about it is saved.
+          A room keeps your name, picture and card only while it&apos;s open,
+          and nothing about it is saved.
         </Styled.Note>
       </Styled.LobbyLayout>
 

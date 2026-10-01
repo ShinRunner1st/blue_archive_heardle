@@ -1,7 +1,11 @@
-import { PROFILE_SUMMARY_SENT_KEY } from "../constants/game";
+import {
+  PROFILE_MISSIONS_SENT_KEY,
+  PROFILE_SUMMARY_SENT_KEY,
+} from "../constants/game";
 import { AccountProfile } from "../types/account";
 import { fetchProfile, putProfile } from "./accountClient";
 import { storeAccountPick, storedPick } from "./cosmetics";
+import { loadClearedMissions } from "./missions";
 import {
   getFavStudent,
   getPlayerName,
@@ -28,7 +32,9 @@ import { isLocalBehind, progressSettled } from "./progressSync";
  *
  * The summary goes with them: the profile's totals, worked out from this
  * browser's saves each time (profileSummary.ts), only sent, never read
- * back. Nothing here reads or writes progress.
+ * back. So do the missions cleared, when one is new (step 4), for room
+ * passes: the account only ever adds them. Nothing here reads or writes
+ * progress.
  */
 
 /** What the profile is, besides when it was changed. */
@@ -73,21 +79,40 @@ export function applyProfile(profile: AccountProfile): void {
   setProfileEditedAt(profile.editedAt);
 }
 
-function summarySent(): string | null {
+function readKey(key: string): string | null {
   try {
-    return localStorage.getItem(PROFILE_SUMMARY_SENT_KEY);
+    return localStorage.getItem(key);
   } catch {
     return null;
   }
 }
 
-function rememberSummary(text: string): void {
+function writeKey(key: string, value: string | null): void {
   try {
-    localStorage.setItem(PROFILE_SUMMARY_SENT_KEY, text);
+    if (value === null) localStorage.removeItem(key);
+    else localStorage.setItem(key, value);
   } catch {
     // Sent again next time: one more write, nothing lost.
   }
 }
+
+const summarySent = () => readKey(PROFILE_SUMMARY_SENT_KEY);
+const rememberSummary = (text: string) =>
+  writeKey(PROFILE_SUMMARY_SENT_KEY, text);
+
+/** The missions cleared here, as one line, the same in any order. */
+const missionsText = () => [...loadClearedMissions()].sort().join(" ");
+
+/** Signed out: the next account is sent every mission this browser has. */
+export const forgetMissionsSent = () =>
+  writeKey(PROFILE_MISSIONS_SENT_KEY, null);
+
+/**
+ * What the last sync left the account with: the profile as changed then
+ * and the missions sent. A room pass wants them current (roomPass.ts).
+ */
+let synced: string | null = null;
+const syncState = () => `${profileEditedAt()}|${missionsText()}`;
 
 /**
  * One sync: read the account's profile (one request), then, only if
@@ -118,21 +143,52 @@ async function syncOnce(now: number): Promise<void> {
     (field) => !remote || local[field] !== remote[field]
   );
   const sendPicks = !remote || (differs && local.editedAt >= remote.editedAt);
-  if (!sendPicks && text === summarySent()) return;
-  if (behind && !sendPicks) return;
+  // The missions go when one is new since they last went: a few rows
+  // written once each, never again. While this browser is a step behind
+  // with no summary sent before, they wait: the summary going with them
+  // would be this browser's, a step back.
+  const missions = missionsText();
+  const sendMissions =
+    missions !== readKey(PROFILE_MISSIONS_SENT_KEY) && !(behind && !text);
+  const state = syncState();
+  // Whether the account will have this browser's missions after this.
+  const missionsKept = (sent: boolean) =>
+    sent || missions === readKey(PROFILE_MISSIONS_SENT_KEY);
+  if (!sendMissions && !sendPicks && (text === summarySent() || behind)) {
+    synced = missionsKept(false) ? state : null;
+    return;
+  }
 
   const kept = await putProfile({
     ...local,
     summary: behind && text ? JSON.parse(text) : summary,
+    ...(sendMissions ? { missions: loadClearedMissions() } : {}),
   });
   if (!kept) return;
   if (text) rememberSummary(text);
+  if (sendMissions) writeKey(PROFILE_MISSIONS_SENT_KEY, missions);
   // Another device changed it meanwhile, later: that one is kept.
   if (kept.editedAt > profileEditedAt()) applyProfile(kept);
+  synced = missionsKept(sendMissions) && state === syncState() ? state : null;
 }
 
 let running: Promise<void> | null = null;
 let again = false;
+
+/**
+ * Once the account has this browser's profile and missions as they are
+ * now: at once if the last sync left it so, else after one more. For a
+ * room pass, made from the account's copy.
+ */
+export async function profileUpToDate(): Promise<void> {
+  if (running) await running.catch(() => {});
+  if (synced !== syncState()) await syncProfile().catch(() => {});
+}
+
+/** Test seam: a new page, as far as this module's memory goes. */
+export function resetProfileSyncState(): void {
+  synced = null;
+}
 
 /**
  * Syncs the profile, one at a time: asked again while one runs, it runs

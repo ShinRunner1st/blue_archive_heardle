@@ -187,7 +187,7 @@ export async function fetchProfile(): Promise<
 
 /** Sends the profile and its summary; the account's copy as kept after. */
 export async function putProfile(
-  profile: AccountProfile & { summary: ProfileSummary }
+  profile: AccountProfile & { summary: ProfileSummary; missions?: string[] }
 ): Promise<AccountProfile | undefined> {
   recent = null;
   const response = await api("PUT", "/me/profile", profile);
@@ -324,6 +324,27 @@ export async function signOut(): Promise<void> {
   } finally {
     writeToken(null);
   }
+}
+
+/**
+ * A room pass for the account signed in (step 4), and when it runs out;
+ * null if signed out, or the Worker can't make one (no key set there).
+ * The pass is held in the page's memory only, and goes to a room in its
+ * hello: never into storage, an address or the page.
+ */
+export async function fetchRoomPass(): Promise<{
+  pass: string;
+  expires: number;
+} | null> {
+  if (!readToken()) return null;
+  const response = await api("GET", "/room-pass");
+  if (response.status === 401) {
+    writeToken(null);
+    return null;
+  }
+  if (response.status === 503) return null;
+  if (!response.ok) throw new AccountsUnavailable();
+  return (await response.json()) as { pass: string; expires: number };
 }
 
 /** Test seam: a new page, as far as this module's memory goes. */

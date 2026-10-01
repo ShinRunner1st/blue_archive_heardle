@@ -12,6 +12,7 @@ import {
   roomUrl,
   setRoomInAddress,
 } from "../helpers/roomClient";
+import { mayHavePass, ownLook, roomPass } from "../helpers/roomPass";
 import {
   AccessChange,
   ClientMessage,
@@ -110,6 +111,11 @@ interface Intent {
   codeTries: number;
   /** Got in at least once: a drop after that is worth a few more tries. */
   wasIn: boolean;
+  /**
+   * Signed in: the account's room pass, asked for before the first try
+   * (roomPass.ts), sent with each hello. Held in memory only.
+   */
+  pass?: string;
 }
 
 /**
@@ -168,6 +174,8 @@ export function useRoom(): RoomConnection {
           ...(back && back !== target.token ? { back } : {}),
           name: target.name,
           icon: target.icon,
+          look: ownLook(),
+          ...(target.pass ? { pass: target.pass } : {}),
           ...(target.password ? { password: target.password } : {}),
           ...(target.create
             ? {
@@ -265,17 +273,31 @@ export function useRoom(): RoomConnection {
   }, [close]);
 
   const start = React.useCallback(
-    (next: Omit<Intent, "token" | "codeTries" | "wasIn">) => {
-      intent.current = {
+    (next: Omit<Intent, "token" | "codeTries" | "wasIn" | "pass">) => {
+      const target: Intent = {
         ...next,
         token: roomToken(next.code),
         codeTries: 0,
         wasIn: false,
       };
+      intent.current = target;
       retries.current = 0;
       setError(null);
       setView(null);
-      connect();
+      // A guest goes straight in, as ever; a signed-in player once their
+      // pass is here (asked for as the page opened, so usually held).
+      if (!mayHavePass()) {
+        connect();
+        return;
+      }
+      setStatus("connecting");
+      void roomPass()
+        .catch(() => null)
+        .then((pass) => {
+          if (intent.current !== target) return;
+          if (pass) target.pass = pass;
+          connect();
+        });
     },
     [connect]
   );

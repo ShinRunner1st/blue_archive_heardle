@@ -106,7 +106,12 @@ export function PlayerList({ view }: { view: RoomView }) {
         return (
           <li key={player.id}>
             <PlayerCard
-              look={roomLook(player.name, player.icon, player.id === view.you)}
+              look={roomLook(
+                player.name,
+                player.icon,
+                player.id === view.you,
+                player.look
+              )}
               variant="mini"
               face={(size) => (
                 <>

@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   PROFILE_BANNER_KEY,
   PROFILE_EDITED_KEY,
+  PROFILE_MISSIONS_SENT_KEY,
   PROFILE_SUMMARY_SENT_KEY,
 } from "../constants/game";
 import { AccountProfile } from "../types/account";
@@ -10,7 +11,13 @@ import { fetchProfile, putProfile } from "./accountClient";
 import { pickedOf, setPicked, storeAccountPick } from "./cosmetics";
 import { getPlayerName, setPlayerName } from "./playerName";
 import { profileEditedAt } from "./profileEdit";
-import { syncProfile } from "./profileSync";
+import { saveClearedMissions } from "./missions";
+import {
+  forgetMissionsSent,
+  profileUpToDate,
+  resetProfileSyncState,
+  syncProfile,
+} from "./profileSync";
 import { emptyGuesses, saveRounds } from "./storage";
 
 // The account, as the Worker keeps it: the later change wins.
@@ -39,6 +46,7 @@ const song = { artist: "Mitsukiyo", name: "Constant Moderato", themeNo: "1" };
 
 beforeEach(() => {
   localStorage.clear();
+  resetProfileSyncState();
   fetched.mockReset();
   put.mockReset();
   put.mockImplementation(async (profile) => {
@@ -148,6 +156,52 @@ describe("syncProfile", () => {
     fetched.mockResolvedValue(account());
     await syncProfile();
     expect(progress()).toBe(before);
+  });
+});
+
+describe("missions for room passes", () => {
+  const missionsSent = () =>
+    put.mock.calls.map(([profile]) => profile.missions);
+
+  it("sends the missions cleared once, and again only when one is new", async () => {
+    fetched.mockResolvedValue(account({ editedAt: 1000 }));
+    saveClearedMissions(["daily-7"]);
+    await syncProfile();
+    expect(missionsSent()).toEqual([["daily-7"]]);
+    expect(localStorage.getItem(PROFILE_MISSIONS_SENT_KEY)).toBe("daily-7");
+
+    put.mockClear();
+    await syncProfile();
+    expect(put).not.toHaveBeenCalled();
+
+    saveClearedMissions(["first-daily", "daily-7"]);
+    await syncProfile();
+    expect(missionsSent()).toEqual([["first-daily", "daily-7"]]);
+
+    // Signed out: the next account is sent them all.
+    put.mockClear();
+    forgetMissionsSent();
+    await syncProfile();
+    expect(missionsSent()).toEqual([["first-daily", "daily-7"]]);
+  });
+
+  it("syncs for a pass only when something changed since the last sync", async () => {
+    fetched.mockResolvedValue(account({ editedAt: 1000 }));
+    await profileUpToDate();
+    expect(fetched).toHaveBeenCalledOnce();
+
+    await profileUpToDate();
+    expect(fetched).toHaveBeenCalledOnce();
+
+    saveClearedMissions(["daily-7"]);
+    await profileUpToDate();
+    expect(fetched).toHaveBeenCalledTimes(2);
+    expect(missionsSent().at(-1)).toEqual(["daily-7"]);
+
+    setPlayerName("Hoshino");
+    await profileUpToDate();
+    expect(fetched).toHaveBeenCalledTimes(3);
+    expect(put.mock.calls.at(-1)?.[0]).toMatchObject({ name: "Hoshino" });
   });
 });
 

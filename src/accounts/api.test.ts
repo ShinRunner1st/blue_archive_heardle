@@ -2,8 +2,11 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { fakeD1, FakeD1 } from "../test/fakeD1";
+import { DEFAULT_LOOK } from "../helpers/roomLook";
+import { ROOM_PASS_MS } from "../types/room";
 import { AccountsEnv, handle, pageToReturnTo } from "./api";
 import { signValue } from "./crypto";
+import { readRoomPass } from "./roomPass";
 
 const WORKER = "http://localhost:8788";
 const SITE = "http://localhost:3000";
@@ -662,5 +665,166 @@ describe("the progress", () => {
     expect(
       (await put(token, bytes("x"), { base: "-1", format: "2" })).status
     ).toBe(400);
+  });
+});
+
+describe("missions and room passes", () => {
+  const KEY = "test-room-pass-key";
+  const profile = (overrides: Record<string, unknown> = {}) => ({
+    name: "Shin",
+    sensei: true,
+    student: 10004,
+    title: "dependable", // daily-7
+    banner: "sakura", // daily-14
+    frame: "gold", // daily-30
+    background: "cherry", // first-daily
+    cardColors: "schale",
+    editedAt: now,
+    summary: {},
+    ...overrides,
+  });
+  const put = (token: string, body: unknown) =>
+    call("PUT", "/me/profile", { token, body });
+  const missionsOf = () =>
+    (
+      db.sqlite
+        .prepare("SELECT mission FROM missions_cleared ORDER BY mission")
+        .all() as { mission: string }[]
+    ).map(({ mission }) => mission);
+  const passFor = async (token: string) => {
+    const response = await call("GET", "/room-pass", { token });
+    return {
+      status: response.status,
+      body: (await response.json()) as { pass: string; expires: number },
+    };
+  };
+
+  beforeEach(() => {
+    env = { ...env, roomPassKey: KEY };
+  });
+
+  it("keeps the missions sent, known ones only, and only ever adds", async () => {
+    const token = await signIn("alice");
+    await put(token, {
+      ...profile(),
+      missions: ["daily-7", "first-daily", "made-up", 7, "daily-7"],
+    });
+    expect(missionsOf()).toEqual(["daily-7", "first-daily"]);
+
+    // The same again writes nothing; one more adds one row; a shorter list
+    // (a browser that hasn't the others yet) takes nothing away.
+    const prepare = vi.spyOn(db, "prepare");
+    const missionWrites = () =>
+      prepare.mock.calls.filter(([sql]) =>
+        /INSERT INTO missions_cleared/.test(sql)
+      ).length;
+    await put(token, { ...profile(), missions: ["first-daily", "daily-7"] });
+    expect(missionsOf()).toEqual(["daily-7", "first-daily"]);
+    expect(missionWrites()).toBe(0);
+    await put(token, { ...profile(), missions: ["daily-14"] });
+    expect(missionsOf()).toEqual(["daily-14", "daily-7", "first-daily"]);
+    expect(missionWrites()).toBe(1);
+    await put(token, profile());
+    expect(missionsOf()).toEqual(["daily-14", "daily-7", "first-daily"]);
+  });
+
+  it("gives a signed pass with only the cosmetics the account unlocked", async () => {
+    const token = await signIn("alice");
+    await put(token, { ...profile(), missions: ["daily-7", "first-daily"] });
+    const { status, body } = await passFor(token);
+    expect(status).toBe(200);
+    expect(body.expires).toBe(now + ROOM_PASS_MS);
+
+    const pass = await readRoomPass(body.pass, KEY, now);
+    const account = (await me(token)).body as { publicId: string };
+    expect(pass).toEqual({
+      publicId: account.publicId,
+      name: "Shin",
+      student: 10004,
+      // Sakura banner and the gold frame need missions not cleared.
+      look: {
+        title: "dependable",
+        banner: "schale",
+        frame: "schale",
+        background: "cherry",
+      },
+      expires: now + ROOM_PASS_MS,
+    });
+  });
+
+  it("says nothing in a pass but what a room shows", async () => {
+    const token = await signIn("alice");
+    await put(token, profile());
+    const { body } = await passFor(token);
+    const json = atob(
+      body.pass.split(".")[0].replace(/-/g, "+").replace(/_/g, "/")
+    );
+    const accountId = (
+      db.sqlite.prepare("SELECT id FROM accounts").get() as { id: string }
+    ).id;
+    expect(json).not.toContain(accountId);
+    expect(json).not.toContain(token);
+    expect(json).not.toContain("fake-alice");
+    expect(Object.keys(JSON.parse(json)).sort()).toEqual([
+      "e",
+      "l",
+      "n",
+      "p",
+      "s",
+    ]);
+  });
+
+  it("gives defaults to an account with no profile yet", async () => {
+    const token = await signIn("bob");
+    const pass = await readRoomPass((await passFor(token)).body.pass, KEY, now);
+    expect(pass).toMatchObject({ name: "", student: null, look: DEFAULT_LOOK });
+  });
+
+  it("is refused once changed, out of time, or signed with another key", async () => {
+    const token = await signIn("alice");
+    await put(token, profile());
+    const { pass } = (await passFor(token)).body;
+    expect(await readRoomPass(pass, KEY, now)).not.toBeNull();
+    expect(await readRoomPass(pass, KEY, now + ROOM_PASS_MS + 1)).toBeNull();
+    expect(await readRoomPass(pass, "another-key", now)).toBeNull();
+
+    const [body, signature] = pass.split(".");
+    const forged = JSON.parse(
+      atob(body.replace(/-/g, "+").replace(/_/g, "/"))
+    ) as Record<string, unknown>;
+    forged.l = ["champion", "gold", "prism", "plaza"];
+    const forgedBody = btoa(JSON.stringify(forged))
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+    expect(
+      await readRoomPass(`${forgedBody}.${signature}`, KEY, now)
+    ).toBeNull();
+    // A sign-in's state, signed with the same key, isn't a pass.
+    const state = await signValue("state", forged, KEY);
+    expect(await readRoomPass(state, KEY, now)).toBeNull();
+  });
+
+  it("needs a session, and a key on the Worker", async () => {
+    expect((await passFor("a".repeat(52))).status).toBe(401);
+    const token = await signIn("alice");
+    env = { ...env, roomPassKey: undefined };
+    expect((await passFor(token)).status).toBe(503);
+  });
+
+  it("reads the profile and missions only: two small queries", async () => {
+    const token = await signIn("alice");
+    await put(token, {
+      ...profile(),
+      missions: ["daily-7", "first-daily", "daily-14"],
+    });
+    const prepare = vi.spyOn(db, "prepare");
+    await passFor(token);
+    const queries = prepare.mock.calls.map(
+      ([sql]) => sql.trim().split(/\s+/)[0]
+    );
+    // The session (one read, as for every call), then the pass's three.
+    expect(queries.filter((word) => word !== "SELECT")).toEqual([]);
+    expect(queries).toHaveLength(4);
   });
 });

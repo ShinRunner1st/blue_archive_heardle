@@ -9,6 +9,8 @@
 //   npx wrangler d1 migrations apply ba-heardle-accounts --remote --config accounts-worker/wrangler.jsonc
 //   npx wrangler secret put STATE_KEY --config accounts-worker/wrangler.jsonc
 //   (and GOOGLE_CLIENT_SECRET, DISCORD_CLIENT_SECRET the same way)
+//   npx wrangler secret put ROOM_PASS_KEY --config accounts-worker/wrangler.jsonc
+//   (the same value on the rooms Worker: --config rooms-worker/wrangler.jsonc)
 {
   "name": "ba-heardle-accounts",
   "main": "index.ts",

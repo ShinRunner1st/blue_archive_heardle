@@ -16,6 +16,7 @@ import {
   PROTOCOL,
   REVEAL_MAX_MS,
   REVEAL_MS,
+  RoomPass,
   RoomSettings,
   SEND_GAP_MS,
   SETTLE_MS,
@@ -41,8 +42,10 @@ import {
   samePassword,
   TIDY_MS,
 } from "./room";
+import { DEFAULT_LOOK } from "./roomLook";
 import { hasTitleCall, voicePool } from "./voiceRounds";
 import badges from "../content/badges.json";
+import cosmetics from "../content/cosmetics.json";
 
 /** A seeded random, so a game deals the same rounds every run. */
 function seeded(seed = 1): () => number {
@@ -1339,5 +1342,299 @@ describe("pages that send anything at all", () => {
     }
     // It got somewhere: through rounds, or back to a lobby.
     expect(game.live!.phase !== "playing" || game.live!.round > 0).toBe(true);
+  });
+});
+
+describe("signed-in players, by their room pass", () => {
+  const LOOK = {
+    title: "dependable",
+    banner: "sakura",
+    frame: "gold",
+    background: "cherry",
+  };
+  const passOf = (publicId: string, name: string): RoomPass => ({
+    publicId,
+    name,
+    student: 10004,
+    look: LOOK,
+    expires: 1e13,
+  });
+  const MUTSUKI = passOf("mutsukimutsuki22", "Mutsuki");
+  const viewOf = (game: Room, id: string, now = 50) =>
+    game.viewFor(game.players[0], now).players.find((p) => p.id === id)!;
+
+  it("wears the pass's name and cosmetics, whatever the hello says", () => {
+    const { game } = room({}, []);
+    const joined = game.hello(
+      hello("token-m", "Not Mutsuki", {
+        look: { ...LOOK, title: "champion", frame: "prism" },
+      }),
+      5,
+      false,
+      MUTSUKI
+    );
+    if (!("player" in joined)) throw new Error(joined.error);
+    expect(viewOf(game, joined.player.id)).toMatchObject({
+      name: "Mutsuki",
+      look: LOOK,
+    });
+  });
+
+  it("shows a guest's cosmetics, each one that exists", () => {
+    const { game } = room({}, []);
+    const message = parseMessage(
+      JSON.stringify(
+        hello("token-kayoko", "Kayoko", {
+          look: {
+            title: "champion",
+            banner: "made-up",
+            frame: 7,
+            background: "arcade",
+          } as never,
+        })
+      )
+    );
+    expect(message).toMatchObject({
+      look: {
+        title: "champion",
+        banner: DEFAULT_LOOK.banner,
+        frame: DEFAULT_LOOK.frame,
+        background: "arcade",
+      },
+    });
+    const joined = game.hello(message as never, 5, false);
+    if (!("player" in joined)) throw new Error(joined.error);
+    expect(viewOf(game, joined.player.id).look.title).toBe("champion");
+    // A page that sends none: the defaults.
+    const plain = game.hello(hello("token-h", "Haruka"), 6, false);
+    if (!("player" in plain)) throw new Error(plain.error);
+    expect(viewOf(game, plain.player.id).look).toEqual(DEFAULT_LOOK);
+  });
+
+  it("never sends an account's id or a pass to a page", () => {
+    const { game } = room({}, []);
+    game.hello(hello("token-m", "Mutsuki"), 5, false, MUTSUKI);
+    const sent = JSON.stringify(
+      game.players.map((player) => game.viewFor(player, 6))
+    );
+    expect(sent).not.toContain(MUTSUKI.publicId);
+    expect(sent).not.toContain("token-m");
+  });
+
+  it("keeps a kicked account out from any browser, even after a restart", () => {
+    const { game, startsAt, players } = started({ maxPlayers: 4 });
+    const joined = game.hello(
+      hello("token-m", "Mutsuki"),
+      startsAt + 10,
+      false,
+      MUTSUKI
+    );
+    if (!("player" in joined)) throw new Error(joined.error);
+    game.message(
+      players[0],
+      { t: "kick", id: joined.player.id },
+      startsAt + 20
+    );
+
+    // Another browser, signed in to the same account: still out.
+    expect(
+      game.hello(hello("token-phone", "Mutsuki"), startsAt + 30, false, MUTSUKI)
+    ).toEqual({ error: "kicked" });
+    const restarted = Room.resume(
+      "ABCD",
+      JSON.parse(JSON.stringify(game.saved())),
+      90_000
+    );
+    expect(
+      restarted.hello(hello("token-tablet", "M"), 90_100, false, MUTSUKI)
+    ).toEqual({ error: "kicked" });
+    // Someone else's account isn't.
+    expect(
+      "player" in
+        restarted.hello(
+          hello("token-k", "Kayoko"),
+          90_200,
+          false,
+          passOf("kayokokayokokayo", "Kayoko")
+        )
+    ).toBe(true);
+  });
+
+  it("brings a signed-in player back as themselves from another device", () => {
+    const { game, players, startsAt } = started({ maxPlayers: 3 }, ["Kayoko"]);
+    const joined = game.hello(
+      hello("token-pc", "Mutsuki"),
+      startsAt - 500,
+      false,
+      MUTSUKI
+    );
+    if (!("player" in joined)) throw new Error(joined.error);
+    game.message(
+      joined.player,
+      { t: "guess", round: 0, pick: answerOfRound(game) },
+      startsAt + 1000
+    );
+    game.message(players[0], { t: "tick" }, game.live!.endsAt! + GRACE_MS);
+    game.leave(joined.player, game.live!.endsAt! + 10);
+
+    // On her phone: no token of the computer's, only the account.
+    const back = game.hello(
+      hello("token-phone", "Mutsuki"),
+      40_000,
+      false,
+      MUTSUKI
+    );
+    expect("player" in back && back.player).toMatchObject({
+      id: joined.player.id,
+      name: "Mutsuki",
+      score: 1,
+      token: "token-phone",
+    });
+    expect(game.everyone).toHaveLength(3);
+  });
+
+  it("moves a player to their newest device, telling the one before", () => {
+    const { game } = room({}, ["Kayoko"]);
+    const first = game.hello(hello("token-pc", "Mutsuki"), 5, false, MUTSUKI);
+    if (!("player" in first)) throw new Error(first.error);
+    const id = first.player.id;
+
+    const second = game.hello(
+      hello("token-phone", "Mutsuki"),
+      6,
+      false,
+      MUTSUKI
+    );
+    expect(second).toMatchObject({
+      player: { id, token: "token-phone" },
+      replaced: { id, token: "token-pc" },
+      elsewhere: true,
+    });
+    expect(game.players.map((p) => p.name)).toEqual([
+      "Aru",
+      "Kayoko",
+      "Mutsuki",
+    ]);
+    // The same tab coming back isn't "elsewhere": a reload or a drop.
+    const reload = game.hello(
+      hello("token-phone", "Mutsuki"),
+      7,
+      false,
+      MUTSUKI
+    );
+    expect(reload).not.toHaveProperty("elsewhere");
+  });
+
+  it("lets a signed-in player into a locked room from another device", () => {
+    const { game, players } = room({}, []);
+    const joined = game.hello(hello("token-pc", "Mutsuki"), 5, false, MUTSUKI);
+    if (!("player" in joined)) throw new Error(joined.error);
+    game.message(
+      players[0],
+      {
+        t: "settings",
+        settings: game.live!.settings,
+        access: { access: "locked" },
+      },
+      6
+    );
+    game.leave(joined.player, 7);
+
+    expect(
+      "player" in game.hello(hello("token-phone", "Mutsuki"), 8, false, MUTSUKI)
+    ).toBe(true);
+    // Her reload on the phone, by its token, now gets in too.
+    game.leave(game.players[1], 9);
+    expect(
+      "player" in game.hello(hello("token-phone", "Mutsuki"), 10, false)
+    ).toBe(true);
+    expect(game.hello(hello("token-h", "Haruka"), 11, false)).toEqual({
+      error: "locked",
+    });
+  });
+
+  it("shows a player from before passes with the default look", () => {
+    const { game } = room({}, ["Mutsuki"]);
+    delete game.players[1].look;
+    expect(viewOf(game, game.players[1].id).look).toEqual(DEFAULT_LOOK);
+  });
+
+  it("takes a pass only in its own shape", () => {
+    const pass = `${"a".repeat(200)}.${"b".repeat(43)}`;
+    const parse = (value: unknown) =>
+      parseMessage(
+        JSON.stringify({ ...hello("token-aru1", "Aru"), pass: value })
+      );
+    expect(parse(pass)).toMatchObject({ pass });
+    expect(parse("not a pass")).not.toHaveProperty("pass");
+    expect(parse(`${"a".repeat(600)}.b`)).not.toHaveProperty("pass");
+    expect(parse(7)).not.toHaveProperty("pass");
+  });
+
+  it("fits a connection's attachment (2 KB) at its fullest", () => {
+    // Eight signed-in players with the longest names and cosmetics, a lock
+    // keeping all of them, sixteen kicked, a vote, a password and every
+    // album picked: the most a room puts on one connection.
+    const longest = (list: { id: string }[]) =>
+      list.reduce((a, b) => (b.id.length > a.id.length ? b : a)).id;
+    const look = {
+      title: longest(cosmetics.titles),
+      banner: longest(cosmetics.banners),
+      frame: longest(cosmetics.frames),
+      background: longest(cosmetics.backgrounds),
+    };
+    const { game, players } = room(
+      { albums: badges.map(({ number }) => number), maxPlayers: 8 },
+      []
+    );
+    for (let i = 1; i < 8; i++) {
+      game.hello(
+        hello(`${"t".repeat(39)}${i}`, "W".repeat(20), {
+          back: `${"b".repeat(39)}${i}`,
+        }),
+        10 + i,
+        false,
+        {
+          publicId: `${"p".repeat(15)}${i}`,
+          name: "W".repeat(20),
+          student: 10004,
+          look,
+          expires: 1e13,
+        }
+      );
+    }
+    game.message(
+      players[0],
+      {
+        t: "settings",
+        settings: game.live!.settings,
+        access: { access: "locked" },
+      },
+      31
+    );
+    game.live!.kicked = Array.from(
+      { length: 16 },
+      (_, i) => `@${"k".repeat(14)}${String(i).padStart(2, "0")}`
+    );
+    game.live!.password = "P".repeat(16);
+    game.live!.vote = {
+      by: players[0].id,
+      yes: game.players.map((p) => p.id),
+      no: [],
+      until: Date.now(),
+    };
+    const attachment = {
+      code: "ABCD",
+      make: false,
+      flood: { since: Date.now(), count: 40 },
+      player: {
+        ...game.players[7],
+        guess: { round: 29, pick: "10004", ms: 39_999 },
+      },
+      live: { ...game.live!, stamp: 1e9, activeAt: Date.now() },
+    };
+    // The host's browser, then each other player's browser and account.
+    expect(game.live!.members).toHaveLength(15);
+    expect(JSON.stringify(attachment).length).toBeLessThan(1800);
   });
 });

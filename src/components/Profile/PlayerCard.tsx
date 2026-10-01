@@ -4,6 +4,7 @@ import {
   Banner,
   BACKGROUNDS,
   BANNERS,
+  CARD_TITLES,
   Frame,
   FRAMES,
   ProfileBackground,
@@ -12,6 +13,7 @@ import { backupUrlFor } from "../../helpers/audioUrl";
 import { cardTitle, pickedOf } from "../../helpers/cosmetics";
 import { getFavStudent, pictureName } from "../../helpers/playerName";
 import { useMediaQuery } from "../../hooks/useMediaQuery";
+import { RoomLook } from "../../types/room";
 import { Portrait, usePortraits } from "../Portrait";
 
 import { ProfileBanner, WorkerPicture } from "./ProfileBanner";
@@ -42,26 +44,32 @@ export function currentLook(): CardLook {
   };
 }
 
+/** A cosmetic by id, or its list's default if the game has no such one. */
+const byId = <T extends { id: string }>(list: T[], id: string | undefined) =>
+  list.find((item) => item.id === id) ?? list[0];
+
 /**
  * A player's card in a room, under the name and student they joined with.
- * Your own wears what you picked in Customize, read from this browser, so
- * nothing about it is sent. Everyone else's has the default title, banner,
- * frame and background: a room can check that a cosmetic exists but not
- * that its player unlocked it, so theirs wait for accounts.
+ * Your own wears what you picked in Customize, read from this browser.
+ * Everyone else's wears the cosmetics the room says they have: a signed-in
+ * player's from their room pass, only what their account has unlocked; a
+ * guest's as their page sent them (docs/accounts.md, section 7).
  */
 export function roomLook(
   name: string,
   student: number | null,
-  own: boolean
+  own: boolean,
+  look?: RoomLook
 ): CardLook {
   if (own) return { ...currentLook(), name, student };
+  const title = byId(CARD_TITLES, look?.title);
   return {
     name,
     student,
-    title: "Sensei",
-    banner: BANNERS[0],
-    frame: FRAMES[0],
-    background: BACKGROUNDS[0],
+    title: title.mission === undefined ? "Sensei" : title.name,
+    banner: byId(BANNERS, look?.banner),
+    frame: byId(FRAMES, look?.frame),
+    background: byId(BACKGROUNDS, look?.background),
   };
 }
 

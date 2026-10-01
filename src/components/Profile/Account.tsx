@@ -18,7 +18,8 @@ import {
   startSignIn,
   unlinkProvider,
 } from "../../helpers/accountClient";
-import { syncProfile } from "../../helpers/profileSync";
+import { forgetMissionsSent, syncProfile } from "../../helpers/profileSync";
+import { forgetRoomPass } from "../../helpers/roomPass";
 import {
   AccountView,
   AuthError,
@@ -105,6 +106,8 @@ export function AccountPanel() {
   const leave = (clear: boolean) =>
     act(async () => {
       forgetAccountProgress();
+      forgetMissionsSent();
+      forgetRoomPass();
       if (clear) clearLocalProgress();
       await signOut();
       setLeaving(null);

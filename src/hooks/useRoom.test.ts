@@ -5,7 +5,20 @@ import { createHarness } from "../test/harness";
 
 import { DEFAULT_ROOM_SETTINGS, RoomView, ServerMessage } from "../types/room";
 import { hasRoomToken, roomName } from "../helpers/roomClient";
+import { mayHavePass, roomPass } from "../helpers/roomPass";
 import { useRoom } from "./useRoom";
+
+// A guest unless a test signs in: then the pass comes from the account.
+vi.mock("../helpers/roomPass", () => ({
+  mayHavePass: vi.fn(() => false),
+  roomPass: vi.fn(async () => null),
+  ownLook: () => ({
+    title: "dependable",
+    banner: "schale",
+    frame: "gold",
+    background: "none",
+  }),
+}));
 
 /** Stands in for the browser's WebSocket; the test plays the room. */
 class FakeSocket {
@@ -75,6 +88,7 @@ const codeOf = (socket: FakeSocket) =>
   socket.url.split("/").pop()!.split("?")[0];
 
 beforeEach(() => {
+  vi.mocked(mayHavePass).mockReturnValue(false);
   vi.useFakeTimers();
   FakeSocket.all = [];
   vi.stubGlobal("WebSocket", FakeSocket);
@@ -197,6 +211,44 @@ describe("useRoom", () => {
     act(() => last().drop());
     expect(room.status).toBe("idle");
     expect(room.error).toBe("full");
+    act(() => vi.runOnlyPendingTimers());
+    expect(FakeSocket.all).toHaveLength(1);
+  });
+  it("sends the cosmetics picked here, and no pass, as a guest", () => {
+    act(() => room.join("ABCD", "Mutsuki", null));
+    act(() => last().open());
+    expect(last().hello()).toMatchObject({
+      look: { title: "dependable", frame: "gold" },
+    });
+    expect(last().hello()).not.toHaveProperty("pass");
+    expect(roomPass).not.toHaveBeenCalled();
+  });
+
+  it("waits for a signed-in player's pass, then sends it with each hello", async () => {
+    vi.mocked(mayHavePass).mockReturnValue(true);
+    vi.mocked(roomPass).mockResolvedValue("body.signature");
+    act(() => room.join("ABCD", "Mutsuki", null));
+    expect(room.status).toBe("connecting");
+    await act(async () => {});
+    act(() => last().open());
+    expect(last().hello()).toMatchObject({ pass: "body.signature" });
+
+    act(() => last().receive({ t: "room", view: viewOf("ABCD") }));
+    act(() => last().drop());
+    act(() => vi.advanceTimersByTime(1000));
+    act(() => last().open());
+    expect(FakeSocket.all).toHaveLength(2);
+    expect(last().hello()).toMatchObject({ pass: "body.signature" });
+  });
+
+  it("stops when the account plays on in another tab or device", () => {
+    act(() => room.join("ABCD", "Mutsuki", null));
+    act(() => last().open());
+    act(() => last().receive({ t: "room", view: viewOf("ABCD") }));
+    act(() => last().receive({ t: "error", code: "elsewhere" }));
+    act(() => last().drop());
+    expect(room.status).toBe("idle");
+    expect(room.error).toBe("elsewhere");
     act(() => vi.runOnlyPendingTimers());
     expect(FakeSocket.all).toHaveLength(1);
   });

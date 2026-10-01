@@ -8,7 +8,7 @@ import { Server } from "./server";
  * whenever a message changes, and a page on an older version is told to
  * reload.
  */
-export const PROTOCOL = 4;
+export const PROTOCOL = 5;
 
 /** The games a room can play: songs, students by voice, or by picture. */
 export type RoomGame = "ost" | "voice" | "picture";
@@ -183,12 +183,51 @@ export interface RoundMedia {
   cell?: number;
 }
 
+/**
+ * The cosmetics a player's card wears in a room, by id (cosmetics.json):
+ * a signed-in player's from their room pass, so only what their account
+ * has unlocked; a guest's as their page sent them, each checked to exist.
+ */
+export interface RoomLook {
+  title: string;
+  banner: string;
+  frame: string;
+  background: string;
+}
+
+/**
+ * How long a room pass lasts (docs/accounts.md, section 7): a day's
+ * playing; the page asks for a new one after.
+ */
+export const ROOM_PASS_MS = 12 * 60 * 60_000;
+
+/**
+ * A signed-in player in a room, as their room pass says: signed by the
+ * accounts Worker with the key it shares with the rooms (ROOM_PASS_KEY),
+ * and checked by the room with no call to the accounts. Who they are to
+ * other players, never who they are to Google or Discord.
+ */
+export interface RoomPass {
+  /** The account's public id: what kicks keep out and brings them back. */
+  publicId: string;
+  /** The profile's name, or "" for none. */
+  name: string;
+  /** The favourite student, or null for the name's letter. */
+  student: number | null;
+  /** The cosmetics picked, each only if the account has unlocked it. */
+  look: RoomLook;
+  /** When it stops being taken, in epoch milliseconds. */
+  expires: number;
+}
+
 export interface PlayerView {
   /** Given by the room, so a player's own token never reaches the others. */
   id: string;
   name: string;
   /** A student's id, their picture in the room, or null for their letter. */
   icon: number | null;
+  /** Their card's cosmetics. */
+  look: RoomLook;
   /** Rounds answered right. */
   score: number;
   /** Milliseconds taken over the right answers, to break a tie. */
@@ -284,8 +323,16 @@ export type RoomError =
   | "resting"
   /** The lobby closed after IDLE_MS with nothing happening. */
   | "idle"
-  /** The host took this player out of the room, and this browser with them. */
+  /**
+   * The host took this player out of the room: this browser, and their
+   * account if they were signed in.
+   */
   | "kicked"
+  /**
+   * The same account came into the room from another device or tab, and
+   * plays on there.
+   */
+  | "elsewhere"
   /** The host has locked the room to anyone new. */
   | "locked"
   /** The room has a password: none was sent, or the wrong one. */
@@ -313,6 +360,15 @@ export type ClientMessage =
       back?: string;
       name: string;
       icon: number | null;
+      /** The cosmetics the player picked; a pass's take their place. */
+      look?: RoomLook;
+      /**
+       * A signed-in player's room pass, as the accounts Worker signed it.
+       * Its name and cosmetics are the ones shown, and the room knows the
+       * account by it: a kick keeps the account out, and the player comes
+       * back as themselves from another device. Never sent on.
+       */
+      pass?: string;
       /** The room's password, for joining one that has one. */
       password?: string;
       /** Makes the room, with these settings, rather than joining one. */

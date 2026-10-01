@@ -69,7 +69,13 @@ README's Multiplayer and Multiplayer rooms sections have the rest.
      again by itself. A new room can have a password, not a lock. A **✕**
      on each other player's card kicks them, "Kick?" asking again: they're
      told "The host took you out of that room", and their browser can't
-     come back to it, from that tab or another.
+     come back to it, from that tab or another; a signed-in player's
+     account can't either, from any device.
+   - Every card wears its player's cosmetics: a guest's as their page
+     sent them (each checked to exist), a signed-in player's from their
+     room pass (docs/accounts.md, section 7). Signed in, joining from a
+     second device or tab moves the player there, score and all, and the
+     first says "You're in that room from another device or tab now".
    - While in a room, the logo and the game bar are dimmed; pressing one,
      or Back, stays on the page and says "You're in a room: press Leave
      to go." During a game the ☰ Jukebox waits ("opens again once the
@@ -175,10 +181,12 @@ page                          Worker / room (Durable Object)
  | WebSocket /room/ABCD?make=1 -> Worker: checks the origin, counts the
  |                                 address (6 rooms, 40 connections a
  |                                 minute), wakes the room       [1 W + 1 DO]
- | hello {name, icon, create, access?}
+ | hello {name, icon, look, pass?, create, access?}
  |                             -> makes the lobby, on the socket  [0 rows]
  |   (joining: hello {token, back?, password?}, back being a closed tab's
- |    token; a wrong password: error "password")
+ |    token; a wrong password: error "password"; look, the cosmetics;
+ |    pass, a signed-in player's room pass, checked by the Worker with
+ |    ROOM_PASS_KEY before the room reads it, no D1, no extra request)
  | <- room {view, endsIn}          (every change sends every player a view;
  |                                  in the lobby, endsIn is when it closes)
  | settings {…, access?} (host, on Save)

@@ -867,7 +867,11 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   only in dev and on the preview. Step 2, the profile in the account, on
   `feat/account-profile`, off `feat/accounts-worker`. Step 3, the
   progress in the account, on `feat/account-progress`, off
-  `feat/account-profile`. The next step waits for the user._
+  `feat/account-profile`. The mission toast fixed on
+  `fix/mission-toast-menu`, off it. Step 4, room passes, on
+  `feat/room-passes`, off `fix/mission-toast-menu`, guests wearing their
+  own cosmetics with it (decision 1, the user's go-ahead 2026-10-02).
+  The next step waits for the user._
 - **Room feedback** (2026-10-01): Skip back in a round (Pass, renamed);
   the host picks OST albums to deal from (any number) and title calls
   only for Voice (`PROTOCOL` 4, `BA2` preset codes); the Jukebox's own

@@ -124,6 +124,12 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   merged on a 409 with `mergeSaves`, both sides backed up before a merge,
   the browser's save changed only before the page draws (a signed-in page
   waits up to 5 s), sign-out asking to keep or clear this browser's copy.
+  Step 4 the room pass (`roomPass.ts`, both sides): `GET /room-pass`, the
+  public id, name, favourite student and the cosmetics the account's
+  missions (`missions_cleared`, sent with the profile) unlock, signed
+  with `ROOM_PASS_KEY` for 12 hours, checked by the rooms Worker with no
+  call to D1, kept in the page's memory only; kicks keep the account out
+  and it comes back from any device (`PROTOCOL` 5).
 - **Multiplayer rooms** on the one other Worker that runs code, `ba-heardle-rooms`
   (`rooms-worker/`, `VITE_ROOMS_URL`): a SQLite-backed Durable Object per
   room, over a hibernating WebSocket, on the free plan's daily limits
@@ -339,8 +345,10 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   tabs stay put over the scrolling page, the panel one height (`PopUp`'s
   `head` and `fixed`). A lazy chunk. The same card
   (`PlayerCard`) shows every player in a room: yours as you dressed it,
-  read in your browser; other players' with the defaults, as theirs, and
-  their profiles, wait for accounts.
+  read in your browser; other players' with what the room says they
+  wear: a guest's as their page sent it (each checked to exist), a
+  signed-in player's from their room pass. Tapping a card for their
+  profile waits for after the accounts release.
 - **What's new** pop-up after updates, the welcome/How to play pop-up, About
   with a privacy notice and a Ko-fi card.
 - **Keyboard play**: type anywhere to search, Space plays, Enter picks/submits,

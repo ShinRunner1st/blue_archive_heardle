@@ -20,6 +20,7 @@
  */
 import { DurableObject } from "cloudflare:workers";
 
+import { readRoomPass } from "../src/accounts/roomPass";
 import {
   countMessage,
   Flood,
@@ -29,13 +30,23 @@ import {
   Room,
   Saved,
 } from "../src/helpers/room";
-import { isRoomCode, RoomError, ServerMessage } from "../src/types/room";
+import {
+  isRoomCode,
+  RoomError,
+  RoomPass,
+  ServerMessage,
+} from "../src/types/room";
 
 interface Env {
   ROOMS: DurableObjectNamespace<GameRoom>;
   /** Rooms made, and connections opened, per address a minute. */
   MAKE_LIMIT?: RateLimit;
   JOIN_LIMIT?: RateLimit;
+  /**
+   * Checks signed-in players' room passes: the accounts Worker signs them
+   * with the same secret. Unset, every player is a guest.
+   */
+  ROOM_PASS_KEY?: string;
 }
 
 /**
@@ -268,26 +279,42 @@ export class GameRoom extends DurableObject<Env> {
     }
     const message = parseMessage(text);
     if (!message) return;
+    // A signed-in player's pass, checked here with the shared key and no
+    // call to the accounts, before the room is read: checking it waits on
+    // WebCrypto, and the room must be read after any wait.
+    let pass: RoomPass | null = null;
+    if (message.t === "hello" && message.pass && this.env.ROOM_PASS_KEY) {
+      pass = await readRoomPass(
+        message.pass,
+        this.env.ROOM_PASS_KEY,
+        Date.now()
+      ).catch(() => null);
+    }
     const now = Date.now();
     const { room, sockets } = this.load(attachment.code, now);
 
     if (message.t === "hello") {
       if (attachment.player) return;
-      const result = room.hello(message, now, attachment.make);
+      const result = room.hello(message, now, attachment.make, pass);
       if ("error" in result) {
         refuse(ws, result.error);
         return;
       }
       if (result.replaced) {
-        // The same player on a new connection: the old one is let go.
+        // The same player on a new connection: the old one is let go, and
+        // told why if it was another device or tab of their account's.
         const old = sockets.get(result.replaced.token);
         if (old && old !== ws) {
-          old.serializeAttachment({
-            code: room.code,
-            make: false,
-          } satisfies Attachment);
-          closeQuietly(old, 4001, "replaced");
+          if (result.elsewhere) refuse(old, "elsewhere");
+          else {
+            old.serializeAttachment({
+              code: room.code,
+              make: false,
+            } satisfies Attachment);
+            closeQuietly(old, 4001, "replaced");
+          }
         }
+        sockets.delete(result.replaced.token);
       }
       sockets.set(result.player.token, ws);
     } else {

@@ -56,6 +56,8 @@ import {
   REVEAL_MS,
   ROUND_RANGE,
   RoomError,
+  RoomLook,
+  RoomPass,
   RoomPhase,
   RoomSettings,
   RoomView,
@@ -65,6 +67,7 @@ import {
   VOTE_MS,
 } from "../types/room";
 import { isServer } from "../types/server";
+import { cleanLook, DEFAULT_LOOK } from "./roomLook";
 import { songFile, voiceFile } from "./audioFiles";
 import { makeChoices } from "./choices";
 import { answerOf, makePictureChoices, pictureAnswers } from "./pictureRounds";
@@ -84,11 +87,19 @@ export const EMPTY_MS = 30_000;
  */
 export const TIDY_MS = 30 * 60_000;
 /**
- * The browsers the host has taken out, the newest kept: on every
- * connection, whose attachment has little room, so a token's first part.
+ * The browsers and accounts the host has taken out, the newest kept: on
+ * every connection, whose attachment has little room (2 KB), so a token's
+ * first part, and an account's public id marked as one.
  */
 const MAX_KICKED = 16;
 const kickKey = (token: string) => token.slice(0, 16);
+const accountKey = (publicId: string) => `@${publicId}`;
+
+/** A player's keys for kicks and a locked room: their browser, and account. */
+const keysOf = (player: PlayerRecord) => [
+  kickKey(player.token),
+  ...(player.account ? [accountKey(player.account)] : []),
+];
 
 /** One round, as dealt when the game starts. */
 export interface RoundDeal {
@@ -125,11 +136,14 @@ export interface Live {
   password: string;
   /**
    * While it's locked: the browsers in the room then (kickKey), each on
-   * its latest tab's token, who may still come back to a lobby, which
-   * keeps no roster of who left.
+   * its latest tab's token, and their accounts (accountKey), who may still
+   * come back to a lobby, which keeps no roster of who left.
    */
   members: string[];
-  /** The browsers the host took out (kickKey), never let back in. */
+  /**
+   * The browsers and accounts the host took out (kickKey, accountKey),
+   * never let back in.
+   */
   kicked: string[];
   /**
    * The host's ask to end the game early: who asked, who said yes and no,
@@ -161,6 +175,13 @@ export interface PlayerRecord {
   id: string;
   name: string;
   icon: number | null;
+  /** Their card's cosmetics; absent in a record from before PROTOCOL 5. */
+  look?: RoomLook;
+  /**
+   * A signed-in player's account, by its public id, from their pass: only
+   * while the room is open, as everything here is. Never sent to a page.
+   */
+  account?: string;
   /** When they joined, which orders the list and picks the next host. */
   joined: number;
   score: number;
@@ -452,9 +473,18 @@ function isPick(value: unknown): value is Pick {
   return value === null || (typeof value === "string" && value.length <= 12);
 }
 
+/**
+ * The longest message taken: a hello with new settings, a password and a
+ * room pass is the longest, under 1.5 KB.
+ */
+const MAX_MESSAGE = 2048;
+/** A room pass as signed (crypto.ts): two base64url parts. */
+const PASS = /^[\w-]+\.[\w-]+$/;
+const MAX_PASS = 600;
+
 /** Checks a message from a page; anything else is dropped unread. */
 export function parseMessage(text: unknown): ClientMessage | null {
-  if (typeof text !== "string" || text.length > 1024) return null;
+  if (typeof text !== "string" || text.length > MAX_MESSAGE) return null;
   let data: unknown;
   try {
     data = JSON.parse(text);
@@ -475,6 +505,12 @@ export function parseMessage(text: unknown): ClientMessage | null {
             token: m.token,
             name: m.name,
             icon: cleanIcon(m.icon),
+            ...(m.look === undefined ? {} : { look: cleanLook(m.look) }),
+            ...(typeof m.pass === "string" &&
+            m.pass.length <= MAX_PASS &&
+            PASS.test(m.pass)
+              ? { pass: m.pass }
+              : {}),
             ...(cleanPassword(m.password)
               ? { password: cleanPassword(m.password) }
               : {}),
@@ -561,8 +597,13 @@ function playerId(random: Random): string {
     .padStart(6, "0");
 }
 
+/**
+ * A hello's answer: the player, and the one whose connection goes if they
+ * were already connected (by this tab's token; or by their account from
+ * another device or tab, `elsewhere`, which that one is told); or why not.
+ */
 export type Hello =
-  | { player: PlayerRecord; replaced?: PlayerRecord }
+  | { player: PlayerRecord; replaced?: PlayerRecord; elsewhere?: boolean }
   | { error: RoomError };
 
 const IN_GAME: RoomPhase[] = ["loading", "playing", "reveal"];
@@ -669,14 +710,21 @@ export class Room {
     message: Extract<ClientMessage, { t: "hello" }>,
     now: number,
     /** Whether this connection may make a room (the Worker counted it). */
-    mayMake: boolean
+    mayMake: boolean,
+    /**
+     * The hello's room pass, once the Worker has checked its signature and
+     * time; null for a guest, or a pass that didn't check out.
+     */
+    pass: RoomPass | null = null
   ): Hello {
     if (message.v !== PROTOCOL) return { error: "version" };
-    // Taken out by the host: not by this tab, nor another in the browser.
+    // Taken out by the host: not by this tab, nor another in the browser,
+    // nor the account from anywhere.
     const kicked = this.live?.kicked ?? [];
     if (
       kicked.includes(kickKey(message.token)) ||
-      (message.back !== undefined && kicked.includes(kickKey(message.back)))
+      (message.back !== undefined && kicked.includes(kickKey(message.back))) ||
+      (pass !== null && kicked.includes(accountKey(pass.publicId)))
     ) {
       return { error: "kicked" };
     }
@@ -686,17 +734,35 @@ export class Room {
     if (connected && this.live) {
       return { player: connected, replaced: connected };
     }
-    const name = cleanName(message.name);
-    // A player who dropped out, back: by this tab's token, or by the one
-    // the browser kept from a tab that closed. Never by name, which anyone
-    // could type to take their place and score.
+    // The same account, connected from another device or tab: it plays on
+    // here, and the other is told so and let go.
+    const mine = pass && this.players.find((p) => p.account === pass.publicId);
+    if (pass && mine && this.live) {
+      const replaced = { ...mine };
+      mine.token = message.token;
+      mine.icon = message.icon;
+      mine.look = pass.look;
+      this.touch(now);
+      return { player: mine, replaced, elsewhere: true };
+    }
+    const name = cleanName(pass ? pass.name : message.name);
+    const look = pass ? pass.look : message.look ?? DEFAULT_LOOK;
+    // A player who dropped out, back: by this tab's token, by the one the
+    // browser kept from a tab that closed, or, signed in, by their account
+    // from any device. Never by name, which anyone could type to take
+    // their place and score.
     const away = this.away.find(
-      (p) => p.token === message.token || p.token === message.back
+      (p) =>
+        p.token === message.token ||
+        p.token === message.back ||
+        (pass !== null && p.account === pass.publicId)
     );
     if (away && this.live) {
-      if (this.live.access === "locked") this.rejoinLocked(message);
+      if (this.live.access === "locked") this.rejoinLocked(message, pass);
       away.token = message.token;
       away.icon = message.icon;
+      away.look = look;
+      if (pass) away.account = pass.publicId;
       this.players = [...this.players, away];
       this.touch(now);
       return { player: away };
@@ -706,7 +772,7 @@ export class Room {
     if (this.live) {
       if (create && !message.rejoin) return { error: "taken" };
       const { access, password } = this.live;
-      if (access === "locked" && !this.rejoinLocked(message)) {
+      if (access === "locked" && !this.rejoinLocked(message, pass)) {
         return { error: "locked" };
       }
       if (
@@ -727,6 +793,8 @@ export class Room {
       id: playerId(this.random),
       name: this.uniqueName(name),
       icon: message.icon,
+      look,
+      ...(pass ? { account: pass.publicId } : {}),
       joined: now,
       score: 0,
       time: 0,
@@ -770,21 +838,26 @@ export class Room {
 
   /**
    * Whether a page may come back into the locked room: its browser was in
-   * it when it was locked. From now on, by this tab's token.
+   * it when it was locked, or its account. From now on, by this tab's
+   * token too.
    */
-  private rejoinLocked({
-    token,
-    back,
-  }: Extract<ClientMessage, { t: "hello" }>): boolean {
+  private rejoinLocked(
+    { token, back }: Extract<ClientMessage, { t: "hello" }>,
+    pass: RoomPass | null
+  ): boolean {
     const { members } = this.live!;
     const at = members.findIndex(
       (key) =>
         key === kickKey(token) || (back !== undefined && key === kickKey(back))
     );
-    if (at < 0) return false;
-    this.change({
-      members: members.map((key, i) => (i === at ? kickKey(token) : key)),
-    });
+    if (at >= 0) {
+      this.change({
+        members: members.map((key, i) => (i === at ? kickKey(token) : key)),
+      });
+      return true;
+    }
+    if (!pass || !members.includes(accountKey(pass.publicId))) return false;
+    this.change({ members: [...members, kickKey(token)] });
     return true;
   }
 
@@ -962,7 +1035,7 @@ export class Room {
           ? []
           : live.access === "locked"
           ? live.members
-          : this.everyone.map((p) => kickKey(p.token)),
+          : this.everyone.flatMap(keysOf),
     });
   }
 
@@ -975,9 +1048,11 @@ export class Room {
     if (!target || !this.live) return;
     this.players = this.players.filter((p) => p.token !== target.token);
     this.kicks.push(target.token);
+    // Their browser, and their account if signed in, from any device.
+    const keys = keysOf(target);
     this.change({
-      kicked: [...this.live.kicked, kickKey(target.token)].slice(-MAX_KICKED),
-      members: this.live.members.filter((key) => key !== kickKey(target.token)),
+      kicked: [...this.live.kicked, ...keys].slice(-MAX_KICKED),
+      members: this.live.members.filter((key) => !keys.includes(key)),
     });
     if (this.game) {
       this.game = {
@@ -1237,6 +1312,7 @@ export class Room {
         id: p.id,
         name: p.name,
         icon: p.icon,
+        look: p.look ?? DEFAULT_LOOK,
         score: p.score,
         time: p.time,
         here: here.has(p.token),
