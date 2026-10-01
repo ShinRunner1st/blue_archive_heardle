@@ -31,8 +31,16 @@
       "list": [
         "your email address, or your name, picture or friends on Google or Discord;",
         "passwords: there are none;",
-        "your IP address: Cloudflare sees it to deliver the site, and to stop anyone making rooms or signing in by the hundred, the site counts requests from each address for a minute, under a scrambled form of it;",
+        "your IP address, in our database, our logs (they're off) or the rooms;",
         "cookies, ads, analytics or tracking of any kind, signed in or not. The site loads no one else's scripts."
+      ]
+    },
+    {
+      "id": "addresses",
+      "title": "Your IP address",
+      "paragraphs": [
+        "Cloudflare, which runs the site, sees your IP address to send you its pages, as for any website.",
+        "To stop anyone making rooms or signing in by the hundred, the site counts requests from each address in one-minute windows, with Cloudflare's rate limiter. It hands the limiter a hashed form of your address (scrambled one way, not the address itself) and stores neither anywhere of its own. Cloudflare keeps that count for its limiter, under Cloudflare's own privacy policy; it doesn't publish how long."
       ]
     },
     {
@@ -54,7 +62,7 @@
       "title": "How long",
       "paragraphs": [
         "An account is kept until you delete it, or until it's gone unused for two years (no sign-in and no sync from any device), when it's deleted the same way. A device's sign-in ends after 90 days without use.",
-        "After an account is deleted, Cloudflare's history of the database keeps it for up to 7 days more, in case something goes wrong; then it's gone for good. A room's data lasts only while the room is open."
+        "After an account is deleted, the database's recovery history (Cloudflare D1's Time Travel, which is always on and can put the whole database back as it was at an earlier moment) can still bring it back for up to 7 days, on the free plan the site uses; Cloudflare's paid plan keeps 30 days, and this page will change first if the site ever moves to it. After that, it can't be brought back that way. A room's data lasts only while the room is open."
       ]
     },
     {

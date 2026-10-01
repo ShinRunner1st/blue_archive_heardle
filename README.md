@@ -1390,11 +1390,17 @@ Players see the same in About this game.
 Discord's user id; never an email, name or picture), the profile and its
 summary, the progress and its last backup, the missions cleared, when it
 was made and last used, and each session's SHA-256 and end. Nothing else,
-and no IP address (the rate limits count a SHA-256 of it for a minute).
+and no IP address: the rate limits hand Cloudflare's rate limiter a
+SHA-256 of it as their key, counting in one-minute windows, and nothing of
+it is stored by us; Cloudflare doesn't publish how long the limiter keeps
+a key.
 The player can download all of it (`GET /me/data`, opened into one JSON
 file by `src/helpers/accountData.ts`) or delete all of it in one D1 batch
 (`DELETE /me`, every table named and also cascading), from the Account
-tab; D1's Time Travel keeps the history 7 days more. A daily cron
+tab. D1's Time Travel (always on) can still restore the database to a
+moment before a deletion for 7 days on the Workers Free plan, 30 on Paid,
+as the policy says; it says nothing of after, so the policy doesn't
+either. A daily cron
 (`tidyAccounts`, `src/accounts/privacy.ts`) deletes accounts unused for
 two years (`seen_day`, marked by any call or sign-in, at most once a day)
 and the sessions and sign-in codes that ran out. Room passes carry only

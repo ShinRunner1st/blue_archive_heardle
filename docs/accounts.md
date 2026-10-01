@@ -459,16 +459,22 @@ the footer). In plain words:
   the email or name), the name and picture chosen, the cosmetics, the
   progress, the missions, and when the account was made and last used.
 - **What we don't keep:** email addresses, Google or Discord names and
-  pictures, passwords (there are none), IP addresses (Cloudflare sees them
-  to deliver the site; the rate limits keep a scrambled form for a
-  minute), and no cookies, ads, analytics or tracking.
+  pictures, passwords (there are none), IP addresses in our database or
+  logs, and no cookies, ads, analytics or tracking. Cloudflare sees
+  addresses to deliver the site, and the rate limits give Cloudflare's
+  rate limiter a hash of one as its key, counting in one-minute windows;
+  the policy says so under its own heading, not as something never kept,
+  as Cloudflare doesn't publish how long the limiter keeps a key.
 - **Who sees what:** other players in a room see the name, picture and
   cosmetics, and later the profile's summary. Nobody sees the progress.
 - **Where:** Cloudflare (D1 and Workers).
 - **How long:** until the account is deleted, or **after 2 years without
   being used** (no sign-in or sync), when it is deleted the same way.
-  Sessions end after 90 days unused. After a deletion, Cloudflare's Time Travel history keeps the
-  data for up to 7 days more, then it's gone.
+  Sessions end after 90 days unused. After a deletion, D1's Time Travel
+  (always on) can still restore the database to a moment before it for 7
+  days on the Workers Free plan (30 on Paid, which the policy would say
+  first); Cloudflare's docs say nothing of after that, so the policy only
+  says it can't be brought back that way.
 - **The player's rights:** download everything, delete everything, at any
   time, from the profile.
 - **Guests:** everything stays in the browser, as today.

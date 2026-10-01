@@ -30,9 +30,19 @@ describe("PrivacyPage", () => {
     expect(text()).toContain("not your email, name or picture");
     expect(text()).toContain("cookies, ads, analytics or tracking");
     expect(text()).toContain("unused for two years");
-    expect(text()).toContain("up to 7 days more");
+    expect(text()).toContain("can still bring it back for up to 7 days");
+    expect(text()).toContain("paid plan keeps 30 days");
     expect(text()).toContain("Download my data");
     expect(text()).toContain("Delete account");
+  });
+
+  it("never calls kept what's kept for a while", () => {
+    const never = privacy.sections.find(({ id }) => id === "never")!;
+    // The hashed address goes to Cloudflare's rate limiter: said under
+    // "Your IP address", not among what's never kept.
+    expect(JSON.stringify(never)).not.toMatch(/scrambled|hash|a minute/);
+    expect(text()).toContain("hashed form of your address");
+    expect(text()).toContain("doesn't publish how long");
   });
 
   it("gives the contact address as a link", () => {
