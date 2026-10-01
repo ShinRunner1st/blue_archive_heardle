@@ -17,6 +17,7 @@ import {
 
 import { isGamePage, Page } from "./constants/pages";
 import { useBirthdays } from "./hooks/useBirthdays";
+import { useMissionToasts } from "./hooks/useMissionToasts";
 import { guardHistory, unguardHistory, usePage } from "./hooks/usePage";
 import { useServer } from "./hooks/useServer";
 import { useGame } from "./hooks/useGame";
@@ -66,6 +67,8 @@ import {
   SongListPopUp,
   SettingsPopUp,
   BadgesPopUp,
+  MissionsPopUp,
+  MissionToast,
   WhatsNewPopUp,
   Jukebox,
 } from "./components";
@@ -427,6 +430,11 @@ function App() {
 
   const openBadges = React.useCallback(() => setIsBadgesOpen(true), []);
   const closeBadges = React.useCallback(() => setIsBadgesOpen(false), []);
+  const [isMissionsOpen, setIsMissionsOpen] = React.useState(false);
+  const openMissions = React.useCallback(() => setIsMissionsOpen(true), []);
+  const closeMissions = React.useCallback(() => setIsMissionsOpen(false), []);
+  const { toast: missionToast, dismiss: dismissMissionToast } =
+    useMissionToasts();
 
   const openWhatsNew = React.useCallback(() => setIsWhatsNewOpen(true), []);
   const closeWhatsNew = React.useCallback(() => {
@@ -608,6 +616,7 @@ function App() {
     isSongListOpen ||
     isSettingsOpen ||
     isBadgesOpen ||
+    isMissionsOpen ||
     isWhatsNewOpen ||
     isJukeboxOpen ||
     isCardOpen;
@@ -646,6 +655,7 @@ function App() {
         openInfoPopUp={openInfoPopUp}
         openStatsPopUp={openStatsPopUp}
         openBadgesPopUp={openBadges}
+        openMissionsPopUp={openMissions}
         openHowToPopUp={openHowToPopUp}
         openSettingsPopUp={openSettingsPopUp}
         openWhatsNewPopUp={openWhatsNew}
@@ -781,6 +791,14 @@ function App() {
         <SettingsPopUp onClose={closeSettingsPopUp} reset={reset} />
       )}
       {isBadgesOpen && <BadgesPopUp onClose={closeBadges} badges={badges} />}
+      {isMissionsOpen && <MissionsPopUp onClose={closeMissions} />}
+      {missionToast && (
+        <MissionToast
+          toast={missionToast}
+          onDismiss={dismissMissionToast}
+          onOpen={openMissions}
+        />
+      )}
       {isWhatsNewOpen && <WhatsNewPopUp onClose={closeWhatsNew} />}
       {isCardOpen && (
         <React.Suspense fallback={null}>
@@ -825,7 +843,11 @@ function App() {
       <Styled.PlayArea key={page}>
         <Styled.Container $top={isStudents}>
           {isHub ? (
-            <Hub onOpen={changePage} onSenseiCard={openCard} />
+            <Hub
+              onOpen={changePage}
+              onSenseiCard={openCard}
+              onMissions={openMissions}
+            />
           ) : isRooms ? (
             <React.Suspense fallback={null}>
               <Multiplayer

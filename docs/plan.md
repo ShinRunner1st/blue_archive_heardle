@@ -843,8 +843,19 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
 
 ## Next
 
-- **Missions** (the user's next, after the seasons): a short list of
-  one-off missions, like the game's achievements, kept in the browser.
+- **Missions** (agreed 2026-10-01, building on `feat/missions`, off
+  `feat/seasons-year`): about 25 one-off missions, like the game's
+  achievements, worked out from the saves, in their own ☰ Missions pop-up
+  (tabs by game, a progress bar each, a Cleared stamp; the OST badges stay
+  where they are), with a "Mission cleared!" toast and a count on the
+  record and Sensei card. Multiplayer has missions too: the browser counts
+  games finished and first places, a local key in the save file, nothing
+  sent anywhere. Clearing some unlocks cosmetics: Sensei card titles,
+  Sensei card frames and cursor effect colours (all drawn in code, picked
+  in Settings), then new characters beside the game, each from the game's
+  Spine files, a few at a time, as a second step. _The first step (27
+  missions, 7 titles, 4 frames, 5 cursor colours) is built on
+  `feat/missions`; the characters are still to do._
 - **Accounts** (decided 2026-10-01): the user chose real accounts, a
   login (such as Discord or Google) to keep a player's data online and to
   know who plays in multiplayer, over an anonymous sync code. To plan

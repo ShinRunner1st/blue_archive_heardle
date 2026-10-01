@@ -221,3 +221,23 @@ export const SITE_URL = "https://baheardle.com/";
  */
 export const LAST_UPDATED =
   typeof __BUILD_DATE__ === "string" ? __BUILD_DATE__ : "";
+
+/**
+ * localStorage key holding the ids of the missions cleared, as JSON. Kept
+ * apart from the rounds, so a reset of stats doesn't take one back, and
+ * carried in the save file.
+ */
+export const MISSIONS_KEY = "missions";
+
+/**
+ * localStorage key holding the multiplayer games this browser finished and
+ * won, for the missions: { games, wins }. Nothing about a room is kept
+ * anywhere else. Carried in the save file.
+ */
+export const ROOM_RECORD_KEY = "roomRecord";
+
+/** localStorage keys for what missions unlock: the card's title and frame,
+ * and the cursor effects' colour. Settings, so not in the save file. */
+export const CARD_TITLE_KEY = "cardTitle";
+export const CARD_FRAME_KEY = "cardFrame";
+export const CURSOR_COLOR_KEY = "cursorColor";

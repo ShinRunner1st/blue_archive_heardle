@@ -1,7 +1,10 @@
 import React from "react";
-import { IoIdCard } from "react-icons/io5";
+import { IoIdCard, IoRibbon } from "react-icons/io5";
 
+import { MISSIONS } from "../../constants/missions";
+import { loadClearedMissions } from "../../helpers/missions";
 import { senseiStats } from "../../helpers/senseiStats";
+import { useMissionsVersion } from "../../hooks/useMissions";
 import { useServer } from "../../hooks/useServer";
 
 import * as Styled from "./index.styled";
@@ -11,9 +14,18 @@ import * as Styled from "./index.styled";
  * shows, as on the Sensei card, which it opens. A new player has none, so
  * there is nothing to show them yet.
  */
-export function Record({ onSenseiCard }: { onSenseiCard: () => void }) {
+export function Record({
+  onSenseiCard,
+  onMissions,
+}: {
+  onSenseiCard: () => void;
+  onMissions: () => void;
+}) {
   const server = useServer();
   const stats = React.useMemo(() => senseiStats(undefined, server), [server]);
+  // Read again once a mission is cleared, so the count is right.
+  useMissionsVersion();
+  const missions = loadClearedMissions().length;
   if (stats.roundsPlayed === 0) return null;
 
   const tiles = [
@@ -33,10 +45,16 @@ export function Record({ onSenseiCard }: { onSenseiCard: () => void }) {
     <Styled.Panel $wide aria-labelledby="hub-record">
       <Styled.PanelHead>
         <Styled.PanelTitle id="hub-record">Your record</Styled.PanelTitle>
-        <Styled.PanelAction type="button" onClick={onSenseiCard}>
-          <IoIdCard aria-hidden="true" />
-          Sensei card
-        </Styled.PanelAction>
+        <Styled.PanelActions>
+          <Styled.PanelAction type="button" onClick={onMissions}>
+            <IoRibbon aria-hidden="true" />
+            Missions {missions}/{MISSIONS.length}
+          </Styled.PanelAction>
+          <Styled.PanelAction type="button" onClick={onSenseiCard}>
+            <IoIdCard aria-hidden="true" />
+            Sensei card
+          </Styled.PanelAction>
+        </Styled.PanelActions>
       </Styled.PanelHead>
       <Styled.Tiles>
         {tiles.map(({ value, label }) => (

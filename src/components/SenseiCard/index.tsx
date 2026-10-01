@@ -1,6 +1,13 @@
 import React from "react";
 
+import { CARD_FRAMES, CARD_TITLES } from "../../constants/cosmetics";
 import { students } from "../../constants/students";
+import {
+  cardFrame,
+  cardTitle,
+  setCardFrame,
+  setCardTitle,
+} from "../../helpers/cosmetics";
 import { downloadBlob } from "../../helpers/download";
 import {
   makeSenseiCard,
@@ -12,10 +19,12 @@ import { loadFavStudent, saveFavStudent } from "../../helpers/storage";
 import { studentById } from "../../helpers/studentRounds";
 import { SITE_URL } from "../../constants/game";
 import { useBackdropSrc } from "../../hooks/useBackdropSrc";
+import { useMissionsVersion } from "../../hooks/useMissions";
 import { usePictureName } from "../../hooks/usePlayerName";
 import logo from "../../image/BlueArchive-Heardle.png";
 
 import { Button } from "../Button";
+import { CosmeticChoices } from "../CosmeticChoices";
 import { PopUp, PopUpBody, PopUpGroupLabel } from "../PopUp";
 import { StudentIcon } from "../StudentIcon";
 import { StudentSearch } from "../StudentGame/StudentSearch";
@@ -46,6 +55,12 @@ export default function SenseiCard({ onClose, streak }: Props) {
   // Read once: nothing is played while the card is open.
   const stats = React.useMemo(() => senseiStats(), []);
   const student = favourite === null ? null : studentById.get(favourite);
+  // A title or frame picked, or unlocked while the card is open.
+  useMissionsVersion();
+  const title = cardTitle();
+  const frame = cardFrame();
+  const titleLabel = React.useId();
+  const frameLabel = React.useId();
 
   const pick = React.useCallback((id: number | null) => {
     setFavourite(id);
@@ -56,7 +71,14 @@ export default function SenseiCard({ onClose, streak }: Props) {
     let live = true;
     const timer = window.setTimeout(() => {
       makeSenseiCard(
-        { stats, name, favourite: student ?? null, issued: new Date() },
+        {
+          stats,
+          name,
+          favourite: student ?? null,
+          issued: new Date(),
+          title: title.id === "none" ? undefined : title.name,
+          frame,
+        },
         { backdrop, logo }
       )
         .then((blob) => {
@@ -73,7 +95,7 @@ export default function SenseiCard({ onClose, streak }: Props) {
       live = false;
       window.clearTimeout(timer);
     };
-  }, [stats, name, student, backdrop]);
+  }, [stats, name, student, backdrop, title, frame]);
 
   // The last picture's address is let go with the pop-up.
   const shown = React.useRef<string | undefined>(undefined);
@@ -151,6 +173,24 @@ export default function SenseiCard({ onClose, streak }: Props) {
             keyboardEnabled={false}
           />
         </Styled.Picker>
+
+        <PopUpGroupLabel id={titleLabel}>Title</PopUpGroupLabel>
+        <CosmeticChoices
+          labelledBy={titleLabel}
+          choices={CARD_TITLES}
+          selected={title.id}
+          onPick={setCardTitle}
+        />
+        <PopUpGroupLabel id={frameLabel}>Frame</PopUpGroupLabel>
+        <CosmeticChoices
+          labelledBy={frameLabel}
+          choices={CARD_FRAMES.map((choice) => ({
+            ...choice,
+            swatch: `linear-gradient(135deg, ${choice.band[0]}, ${choice.band[1]})`,
+          }))}
+          selected={frame.id}
+          onPick={setCardFrame}
+        />
 
         <Styled.Preview>
           {picture ? (

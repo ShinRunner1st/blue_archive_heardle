@@ -19,3 +19,5 @@ export { SettingsPopUp } from "./SettingsPopUp";
 export { BadgesPopUp } from "./BadgesPopUp";
 export { WhatsNewPopUp } from "./WhatsNewPopUp";
 export { Jukebox, JukeboxPopUp } from "./JukeboxPopUp";
+export { MissionsPopUp } from "./MissionsPopUp";
+export { MissionToast } from "./MissionToast";

@@ -19,6 +19,7 @@ import {
   IoMic,
   IoMusicalNotes,
   IoNavigate,
+  IoRibbon,
   IoSave,
   IoShieldCheckmark,
   IoSparkles,
@@ -47,6 +48,22 @@ export interface NewsUpdate {
  * from.
  */
 export const WHATS_NEW: NewsUpdate[] = [
+  {
+    id: "2026-10-missions",
+    name: "Missions",
+    items: [
+      {
+        icon: IoRibbon,
+        title: "Missions to clear",
+        text: "27 one-off missions across every game, in ☰ Missions: a full day of dailies, a song from its 1-second clip, a halo from its silhouette, a multiplayer win and more. Rounds you've already played count, and a mission stays cleared even after a reset.",
+      },
+      {
+        icon: IoGift,
+        title: "Things to unlock",
+        text: "Some missions unlock a title and new frames for your Sensei card, and new colours for the cursor's flash and trail, picked on the card and in Settings.",
+      },
+    ],
+  },
   {
     id: "2026-10-seasons",
     name: "Seasons all year",

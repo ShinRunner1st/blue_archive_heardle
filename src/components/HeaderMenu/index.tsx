@@ -9,6 +9,7 @@ import {
   IoMenu,
   IoMoon,
   IoMusicalNotes,
+  IoRibbon,
   IoSettings,
 } from "react-icons/io5";
 
@@ -26,6 +27,7 @@ interface Props {
   openWhatsNewPopUp: () => void;
   openJukeboxPopUp: () => void;
   openBadgesPopUp: () => void;
+  openMissionsPopUp: () => void;
   openSenseiCard: () => void;
 }
 
@@ -41,6 +43,7 @@ export function HeaderMenu({
   openWhatsNewPopUp,
   openJukeboxPopUp,
   openBadgesPopUp,
+  openMissionsPopUp,
   openSenseiCard,
 }: Props) {
   const [open, setOpen] = React.useState(false);
@@ -125,6 +128,10 @@ export function HeaderMenu({
           >
             <IoDisc aria-hidden="true" />
             OST badges
+          </Styled.Item>
+          <Styled.Item type="button" onClick={openPopUp(openMissionsPopUp)}>
+            <IoRibbon aria-hidden="true" />
+            Missions
           </Styled.Item>
           <Styled.Item type="button" onClick={openPopUp(openSenseiCard)}>
             <IoIdCard aria-hidden="true" />

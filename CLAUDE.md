@@ -286,6 +286,14 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   Streak places still win from 10 wins. `?season=<id>` previews one in dev.
 - **OST badges**: Vol.1-8, earned by guessing every song on an album. In the
   ☰ menu.
+- **Missions** (☰ Missions): 27 one-off missions, a tab per game, worked
+  out from the saves on both servers (`src/helpers/missions.ts`, list in
+  `src/constants/missions.ts`, ids never renamed), kept once cleared in
+  their own key and the save file; a toast after the round that clears
+  one. Multiplayer's from a local count of games finished and won. Some
+  unlock cosmetics (`src/constants/cosmetics.ts`, drawn in code): Sensei
+  card titles and frames (picked on the card) and cursor effect colours
+  (Settings). New characters to unlock are the next step.
 - **What's new** pop-up after updates, the welcome/How to play pop-up, About
   with a privacy notice and a Ko-fi card.
 - **Keyboard play**: type anywhere to search, Space plays, Enter picks/submits,

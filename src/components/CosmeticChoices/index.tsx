@@ -1,0 +1,79 @@
+import { IoLockClosed } from "react-icons/io5";
+
+import { MISSIONS } from "../../constants/missions";
+import { isUnlocked } from "../../helpers/cosmetics";
+import { loadClearedMissions } from "../../helpers/missions";
+import { useMissionsVersion } from "../../hooks/useMissions";
+
+import * as Styled from "./index.styled";
+
+interface Choice {
+  id: string;
+  name: string;
+  mission?: string;
+  /** A colour (or gradient) to show beside the name. */
+  swatch?: string;
+}
+
+interface Props {
+  /** Names the group for screen readers. */
+  labelledBy: string;
+  choices: Choice[];
+  selected: string;
+  onPick: (id: string) => void;
+}
+
+const missionTitle = (id: string | undefined) =>
+  MISSIONS.find((mission) => mission.id === id)?.title ?? "";
+
+/**
+ * What missions unlock, as a row of choices: the ones still locked show a
+ * lock and say which mission opens them.
+ */
+export function CosmeticChoices({
+  labelledBy,
+  choices,
+  selected,
+  onPick,
+}: Props) {
+  // Shows a choice unlocked the moment its mission is cleared.
+  useMissionsVersion();
+  const cleared = loadClearedMissions();
+
+  return (
+    <Styled.Choices role="radiogroup" aria-labelledby={labelledBy}>
+      {choices.map((choice) => {
+        const open = isUnlocked(choice, cleared);
+        return (
+          <Styled.Choice
+            key={choice.id}
+            type="button"
+            role="radio"
+            aria-checked={selected === choice.id}
+            aria-disabled={!open}
+            $active={selected === choice.id}
+            $locked={!open}
+            title={
+              open
+                ? choice.name
+                : `Clear "${missionTitle(choice.mission)}" to unlock`
+            }
+            onClick={() => open && onPick(choice.id)}
+          >
+            {open ? (
+              choice.swatch && (
+                <Styled.Swatch
+                  aria-hidden="true"
+                  style={{ background: choice.swatch }}
+                />
+              )
+            ) : (
+              <IoLockClosed aria-hidden="true" />
+            )}
+            {choice.name}
+          </Styled.Choice>
+        );
+      })}
+    </Styled.Choices>
+  );
+}

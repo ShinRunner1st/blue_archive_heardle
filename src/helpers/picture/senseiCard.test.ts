@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { students } from "../../constants/students";
 import { fakeContext } from "../../test/fakeCanvas";
+import { CARD_FRAMES } from "../../constants/cosmetics";
 import { SenseiStats } from "../senseiStats";
 import {
   drawSenseiCard,
@@ -21,6 +22,8 @@ const stats: SenseiStats = {
   studentsTotal: 262,
   roundsPlayed: 1,
   since: new Date(2026, 8, 27),
+  missionsCleared: 0,
+  missionsTotal: 27,
 };
 
 describe("senseiCardContent", () => {
@@ -85,5 +88,38 @@ describe("senseiCardContent", () => {
     expect(senseiCardName(new Date(2026, 8, 28))).toBe(
       "baheardle-sensei-card-2026-09-28.png"
     );
+  });
+});
+
+describe("the card's title, frame and missions", () => {
+  const input = {
+    stats,
+    name: "Arona Sensei",
+    favourite: null,
+    issued: new Date(2026, 9, 1),
+  };
+
+  it("is Schale's, with no title, by default", () => {
+    const content = senseiCardContent(input);
+    expect(content.frame.id).toBe("schale");
+    expect(content.title).toBeNull();
+  });
+
+  it("carries a title and a frame picked", () => {
+    const content = senseiCardContent({
+      ...input,
+      title: "Kivotos DJ",
+      frame: CARD_FRAMES.find(({ id }) => id === "gold"),
+    });
+    expect(content.title).toBe("Kivotos DJ");
+    expect(content.frame.id).toBe("gold");
+  });
+
+  it("counts the missions in the footer once one is cleared", () => {
+    const content = senseiCardContent({
+      ...input,
+      stats: { ...stats, roundsPlayed: 40, missionsCleared: 5 },
+    });
+    expect(content.footer).toBe("40 rounds played · 5/27 missions");
   });
 });

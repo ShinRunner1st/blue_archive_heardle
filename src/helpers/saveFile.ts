@@ -7,6 +7,15 @@ import { PICTURE_SLOTS, PictureRound, PictureSlot } from "../types/picture";
 import { dateStamp } from "./daily";
 import { downloadBlob } from "./download";
 import {
+  loadClearedMissions,
+  loadRoomRecord,
+  RoomRecord,
+  saveClearedMissions,
+  saveRoomRecord,
+  toClearedMissions,
+  toRoomRecord,
+} from "./missions";
+import {
   loadRounds,
   loadStudentRounds,
   loadVoiceRounds,
@@ -48,6 +57,9 @@ export interface SaveFile extends ServerSave {
   rounds: Record<GameMode, Round[]>;
   /** The JP server's; Global's are the fields above, as they always were. */
   jp: ServerSave;
+  /** The missions cleared, and the multiplayer games behind some of them. */
+  missions: string[];
+  roomRecord: RoomRecord;
 }
 
 function serverSave(server: Server): ServerSave {
@@ -113,6 +125,8 @@ export function buildSaveFile(now: Date = new Date()): string {
       rounds,
       ...serverSave("global"),
       jp: serverSave("jp"),
+      missions: loadClearedMissions(),
+      roomRecord: loadRoomRecord(),
     })
   );
 }
@@ -182,8 +196,33 @@ export function readSaveFile(text: string): SaveFileResult {
 
   return {
     ok: true,
-    save: { exported, rounds, ...global, jp },
+    save: {
+      exported,
+      rounds,
+      ...global,
+      jp,
+      // Files from before missions have neither: none cleared, no games.
+      missions: toClearedMissions(file.missions),
+      roomRecord: toRoomRecord(file.roomRecord),
+    },
   };
+}
+
+/**
+ * Brings a save file's missions in: a mission cleared on either device stays
+ * cleared, as missions are for good, and the multiplayer record keeps the
+ * larger count of each, so moving a save back and forth never adds a game
+ * twice.
+ */
+export function mergeMissions(save: SaveFile): void {
+  saveClearedMissions([
+    ...new Set([...loadClearedMissions(), ...save.missions]),
+  ]);
+  const here = loadRoomRecord();
+  saveRoomRecord({
+    games: Math.max(here.games, save.roomRecord.games),
+    wins: Math.max(here.wins, save.roomRecord.wins),
+  });
 }
 
 /** Downloads the save file. */

@@ -1,0 +1,407 @@
+import { songs } from "../constants";
+import { MISSIONS_KEY, ROOM_RECORD_KEY } from "../constants/game";
+import { Mission, MissionFact, MISSIONS } from "../constants/missions";
+import { students } from "../constants/students";
+import { GAME_MODES, GameMode } from "../types/mode";
+import { PICTURE_KINDS, PICTURE_SLOTS, PictureRound } from "../types/picture";
+import { Round } from "../types/stats";
+import { Server, SERVERS } from "../types/server";
+import { STUDENT_SLOTS, StudentRound, StudentSlot } from "../types/student";
+import { NamedRound, VOICE_MODES, VoiceMode, VoiceRound } from "../types/voice";
+import { badgeProgress, guessedThemes } from "./badges";
+import { dateOfDay, dayNumber } from "./daily";
+import {
+  loadPictureRounds,
+  loadRounds,
+  loadStudentRounds,
+  loadVoiceRounds,
+  notifySaved,
+} from "./storage";
+import { calStreaks } from "./streaks";
+import {
+  asRound as studentAsRound,
+  isOver as isStudentOver,
+  isWon as isStudentWon,
+} from "./studentRounds";
+import { timeAttackStats } from "./timeAttack";
+import {
+  asRound as namedAsRound,
+  isOver as isNamedOver,
+  isWon as isNamedWon,
+} from "./voiceRounds";
+import { bestWinStreak } from "./winStreak";
+
+export type MissionFacts = Record<MissionFact, number>;
+
+/** The multiplayer games this browser finished, and those it won. */
+export interface RoomRecord {
+  games: number;
+  wins: number;
+}
+
+function readJson(key: string): unknown {
+  try {
+    const text = localStorage.getItem(key);
+    return text === null ? null : JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
+function writeJson(key: string, value: unknown): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // Storage unavailable: the missions still show, just not remembered.
+  }
+}
+
+const count = (value: unknown) =>
+  typeof value === "number" && Number.isInteger(value) && value >= 0
+    ? value
+    : 0;
+
+/** Checked like the saves, so a bad value never breaks the page. */
+export function toRoomRecord(value: unknown): RoomRecord {
+  const record =
+    typeof value === "object" && value !== null
+      ? (value as Record<string, unknown>)
+      : {};
+  return { games: count(record.games), wins: count(record.wins) };
+}
+
+export function loadRoomRecord(): RoomRecord {
+  return toRoomRecord(readJson(ROOM_RECORD_KEY));
+}
+
+export function saveRoomRecord(record: RoomRecord): void {
+  writeJson(ROOM_RECORD_KEY, record);
+}
+
+/** Counts a multiplayer game this player saw to its standings. */
+export function recordRoomGame(won: boolean): void {
+  const { games, wins } = loadRoomRecord();
+  saveRoomRecord({ games: games + 1, wins: wins + (won ? 1 : 0) });
+  notifySaved();
+}
+
+/** The cleared missions' ids, checked: anything unknown is dropped. */
+export function toClearedMissions(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  const known = new Set(MISSIONS.map(({ id }) => id));
+  return [...new Set(value.filter((id) => known.has(id)))];
+}
+
+/** Null before the missions were first checked on this device. */
+function loadCleared(): string[] | null {
+  const value = readJson(MISSIONS_KEY);
+  return value === null ? null : toClearedMissions(value);
+}
+
+export function loadClearedMissions(): string[] {
+  return loadCleared() ?? [];
+}
+
+export function saveClearedMissions(ids: string[]): void {
+  writeJson(MISSIONS_KEY, ids);
+}
+
+/** One server's student game, Voice and picture rounds. */
+interface ServerRounds {
+  students: Record<StudentSlot, StudentRound[]>;
+  voices: Record<VoiceMode, VoiceRound[]>;
+  pictures: Record<string, PictureRound[]>;
+}
+
+function serverRounds(server: Server): ServerRounds {
+  return {
+    students: Object.fromEntries(
+      STUDENT_SLOTS.map((slot) => [slot, loadStudentRounds(slot, server)])
+    ) as ServerRounds["students"],
+    voices: Object.fromEntries(
+      VOICE_MODES.map((mode) => [mode, loadVoiceRounds(mode, server)])
+    ) as ServerRounds["voices"],
+    pictures: Object.fromEntries(
+      PICTURE_SLOTS.map((slot) => [slot, loadPictureRounds(slot, server)])
+    ),
+  };
+}
+
+/** The days of the daily puzzles won among `rounds`. */
+function wonDays<T extends { day?: number }>(
+  rounds: T[],
+  won: (round: T) => boolean
+): Set<number> {
+  return new Set(
+    rounds.flatMap((round) =>
+      won(round) && typeof round.day === "number" ? [round.day] : []
+    )
+  );
+}
+
+/** The most rounds won in one time attack run. */
+function bestRun(rounds: NamedRound[]): number {
+  const runs = new Map<number, number>();
+  for (const round of rounds) {
+    if (round.run === undefined || !isNamedWon(round)) continue;
+    runs.set(round.run, (runs.get(round.run) ?? 0) + 1);
+  }
+  return Math.max(0, ...runs.values());
+}
+
+const BIRTHDAYS = new Set(
+  students.flatMap(({ birthday }) =>
+    birthday ? [`${birthday[0]}-${birthday[1]}`] : []
+  )
+);
+
+function isBirthday(day: number): boolean {
+  const date = dateOfDay(day);
+  return BIRTHDAYS.has(`${date.getMonth() + 1}-${date.getDate()}`);
+}
+
+/**
+ * Everything the missions count, read from every save on both servers and
+ * the multiplayer record. Run when a save changes, not each frame: it reads
+ * and checks every key.
+ */
+export function missionFacts(today: number = dayNumber()): MissionFacts {
+  const ost = Object.fromEntries(
+    GAME_MODES.map((mode) => [mode, loadRounds(mode)])
+  ) as Record<GameMode, Round[]>;
+  const servers = SERVERS.map(serverRounds);
+  const room = loadRoomRecord();
+
+  const ostDailyDays = wonDays(ost.daily, (round) => round.didGuess);
+  const guessed = guessedThemes([...ost.daily, ...ost.endless]);
+  const timeAttack = timeAttackStats(ost.timeattack);
+
+  let dailiesWon = ostDailyDays.size;
+  let daySweep = 0;
+  let bothDailies = 0;
+  let birthdayDaily = [...ostDailyDays].some(isBirthday) ? 1 : 0;
+  const dailyStreaks = [calStreaks(ost.daily, today).max];
+  const winStreaks = [bestWinStreak(ost.endless), bestWinStreak(ost.choice)];
+
+  let voiceFirstTry = 0;
+  let voiceNoHintWins = 0;
+  let voiceTimeAttack = 0;
+  const voicesNamed = new Set<number>();
+  let haloShapes = 0;
+  let weaponShapes = 0;
+  const picturesNamed = new Set<string>();
+  let quickFinds = 0;
+  let minuteFinds = 0;
+  const studentsFound = new Set<number>();
+  let jpRounds = 0;
+
+  servers.forEach(({ students: bySlot, voices, pictures }, index) => {
+    const studentDays = {
+      gameplay: wonDays(bySlot["gameplay-daily"], isStudentWon),
+      lore: wonDays(bySlot["lore-daily"], isStudentWon),
+    };
+    const otherDays = [
+      wonDays(voices.daily, isNamedWon),
+      ...PICTURE_KINDS.map((kind) =>
+        wonDays(pictures[`${kind}-daily`], isNamedWon)
+      ),
+      studentDays.gameplay,
+      studentDays.lore,
+    ];
+    dailiesWon += otherDays.reduce((total, days) => total + days.size, 0);
+    const allDays = new Set(
+      [ostDailyDays, ...otherDays].flatMap((d) => [...d])
+    );
+    for (const day of allDays) {
+      const cleared = [ostDailyDays, ...otherDays].filter((days) =>
+        days.has(day)
+      ).length;
+      daySweep = Math.max(daySweep, cleared);
+      if (isBirthday(day)) birthdayDaily = 1;
+    }
+    bothDailies += [...studentDays.gameplay].filter((day) =>
+      studentDays.lore.has(day)
+    ).length;
+
+    dailyStreaks.push(
+      calStreaks(voices.daily.map(namedAsRound), today).max,
+      ...PICTURE_KINDS.map(
+        (kind) =>
+          calStreaks(pictures[`${kind}-daily`].map(namedAsRound), today).max
+      ),
+      calStreaks(bySlot["gameplay-daily"].map(studentAsRound), today).max,
+      calStreaks(bySlot["lore-daily"].map(studentAsRound), today).max
+    );
+
+    // Voice: a first-try find is in a round with tries (not 4-Choice's one).
+    for (const mode of ["daily", "endless", "nohint"] as const) {
+      voiceFirstTry += voices[mode].filter(
+        (round) => isNamedWon(round) && round.guesses.length === 1
+      ).length;
+    }
+    voiceNoHintWins += voices.nohint.filter(isNamedWon).length;
+    voiceTimeAttack = Math.max(voiceTimeAttack, bestRun(voices.timeattack));
+    VOICE_MODES.forEach((mode) =>
+      voices[mode]
+        .filter(isNamedWon)
+        .forEach(({ answer }) => voicesNamed.add(answer))
+    );
+    for (const mode of ["endless", "nohint", "choice"] as const) {
+      winStreaks.push(bestWinStreak(voices[mode].map(namedAsRound)));
+    }
+
+    // Picture: silhouettes are their own ways to play, or a run of them.
+    for (const kind of PICTURE_KINDS) {
+      const shapes = [
+        ...pictures[`${kind}-silhouette`],
+        ...pictures[`${kind}-silhouette-nohint`],
+        ...pictures[`${kind}-choice-silhouette`],
+        ...pictures[`${kind}-timeattack`].filter((round) => round.shape),
+      ].filter(isNamedWon).length;
+      if (kind === "halo") haloShapes += shapes;
+      else weaponShapes += shapes;
+    }
+    for (const slot of PICTURE_SLOTS) {
+      const rounds = pictures[slot];
+      // A picture named in two ways to play is still one picture.
+      const kind = slot.split("-")[0];
+      rounds
+        .filter(isNamedWon)
+        .forEach(({ answer }) => picturesNamed.add(`${kind}:${answer}`));
+      if (!slot.endsWith("-daily") && !slot.endsWith("-timeattack")) {
+        winStreaks.push(bestWinStreak(rounds.map(namedAsRound)));
+      }
+    }
+
+    const studentRounds = STUDENT_SLOTS.flatMap((slot) => bySlot[slot]);
+    const found = studentRounds.filter(isStudentWon);
+    quickFinds += found.filter(({ guesses }) => guesses.length <= 3).length;
+    minuteFinds += found.filter(
+      ({ time }) => time !== undefined && time < 60_000
+    ).length;
+    found.forEach(({ answer }) => studentsFound.add(answer));
+    winStreaks.push(
+      bestWinStreak(bySlot["gameplay-endless"].map(studentAsRound)),
+      bestWinStreak(bySlot["lore-endless"].map(studentAsRound))
+    );
+
+    if (SERVERS[index] === "jp") {
+      jpRounds =
+        studentRounds.filter(isStudentOver).length +
+        VOICE_MODES.flatMap((mode) => voices[mode]).filter(isNamedOver).length +
+        PICTURE_SLOTS.flatMap((slot) => pictures[slot]).filter(isNamedOver)
+          .length;
+    }
+  });
+
+  const bestDailyStreak = Math.max(...dailyStreaks);
+
+  return {
+    dailiesWon,
+    daySweep,
+    bestDailyStreak,
+    birthdayDaily,
+    ostFirstTry: [...ost.daily, ...ost.endless].filter(
+      (round) => round.didGuess && round.currentTry === 1
+    ).length,
+    songsGuessed: songs.filter((song) => guessed.has(song.themeNo)).length,
+    badgesEarned: badgeProgress(guessed).filter((badge) => badge.done).length,
+    ostTimeAttack: Math.max(timeAttack.best.typed, timeAttack.best.choice),
+    choiceStreak: bestWinStreak(ost.choice),
+    voiceFirstTry,
+    voiceNoHintWins,
+    voicesNamed: voicesNamed.size,
+    voiceTimeAttack,
+    haloShapes,
+    weaponShapes,
+    picturesNamed: picturesNamed.size,
+    quickFinds,
+    minuteFinds,
+    bothDailies,
+    studentsFound: studentsFound.size,
+    roomsPlayed: room.games,
+    roomsWon: room.wins,
+    jpRounds,
+    bestStreak: Math.max(bestDailyStreak, ...winStreaks),
+  };
+}
+
+export interface MissionProgress {
+  mission: Mission;
+  /** How far along, up to the goal. */
+  value: number;
+  goal: number;
+  done: boolean;
+}
+
+export function goalOf(mission: Mission): number {
+  return mission.goal === "all" ? songs.length : mission.goal;
+}
+
+/**
+ * Every mission's progress: done once its fact reaches the goal, or for
+ * good once it was cleared before, even if the rounds that cleared it have
+ * since been reset.
+ */
+export function missionProgress(
+  facts: MissionFacts,
+  cleared: Iterable<string> = loadClearedMissions()
+): MissionProgress[] {
+  const before = new Set(cleared);
+  return MISSIONS.map((mission) => {
+    const goal = goalOf(mission);
+    const reached = facts[mission.fact] >= goal;
+    const done = reached || before.has(mission.id);
+    return {
+      mission,
+      value: done ? goal : Math.min(facts[mission.fact], goal),
+      goal,
+      done,
+    };
+  });
+}
+
+export interface MissionCheck {
+  /** Missions cleared since the last check, in the list's order. */
+  cleared: Mission[];
+  /**
+   * The first check on this device: what was cleared already is news only
+   * as a count, not a toast each.
+   */
+  first: boolean;
+}
+
+/**
+ * Works the missions out from the saves and remembers any newly cleared.
+ * Tells the listeners (the Missions pop-up, the cosmetics' pickers) when one
+ * was.
+ */
+export function checkMissions(
+  facts: MissionFacts = missionFacts()
+): MissionCheck {
+  const stored = loadCleared();
+  const before = new Set(stored ?? []);
+  const cleared = missionProgress(facts, before)
+    .filter(({ done, mission }) => done && !before.has(mission.id))
+    .map(({ mission }) => mission);
+  if (cleared.length > 0 || stored === null) {
+    saveClearedMissions([...before, ...cleared.map(({ id }) => id)]);
+  }
+  if (cleared.length > 0) listeners.forEach((listener) => listener());
+  return { cleared, first: stored === null };
+}
+
+/** Whether a mission is cleared, as last checked. */
+export function isMissionCleared(id: string | undefined): boolean {
+  return id === undefined || loadClearedMissions().includes(id);
+}
+
+const listeners = new Set<() => void>();
+
+/** Hears when a mission is newly cleared, or the cleared ones replaced. */
+export function subscribeMissions(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}

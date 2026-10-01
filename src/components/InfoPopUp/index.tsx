@@ -252,8 +252,8 @@ export function InfoPopUp({
             <PopUpCardTitle>Your privacy</PopUpCardTitle>
             <PopUpCardText>
               No accounts, cookies, ads or analytics, and nothing is tracked.
-              Your score, streaks and settings are saved only in this browser
-              and never sent anywhere.
+              Your score, streaks, missions and settings are saved only in this
+              browser and never sent anywhere.
             </PopUpCardText>
             <PopUpCardText>
               In Multiplayer, the room gets the name you type, the student you

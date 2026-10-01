@@ -1,3 +1,4 @@
+import { CARD_FRAMES, CardFrame } from "../../constants/cosmetics";
 import { portraitFiles } from "../../constants/portraitFiles";
 import { Student } from "../../types/student";
 import { audioBaseUrl, backupUrlFor } from "../audioUrl";
@@ -29,10 +30,16 @@ export interface SenseiCardInput {
   name: string;
   favourite: Student | null;
   issued: Date;
+  /** A title a mission unlocked, or none. */
+  title?: string;
+  /** The card's colours; Schale's blue by default. */
+  frame?: CardFrame;
 }
 
 export interface SenseiCardContent {
   name: string;
+  title: string | null;
+  frame: CardFrame;
   favourite: string;
   issued: string;
   since: string | null;
@@ -68,12 +75,16 @@ export function senseiCardContent({
   name,
   favourite,
   issued,
+  title,
+  frame = CARD_FRAMES[0],
 }: SenseiCardInput): SenseiCardContent {
   // A card has a holder: plain "Sensei" when the player gave no name.
   const fullName = name.trim() || "Sensei";
 
   return {
     name: fullName,
+    title: title?.trim() || null,
+    frame,
     favourite: favourite?.name ?? "Not picked yet",
     issued: longDate(issued),
     since: stats.since ? longDate(stats.since) : null,
@@ -94,20 +105,31 @@ export function senseiCardContent({
       { label: "Best win streak", value: String(stats.bestWinStreak) },
       { label: "Time Attack best", value: String(stats.timeAttackBest) },
     ],
-    footer: `${stats.roundsPlayed} ${
-      stats.roundsPlayed === 1 ? "round" : "rounds"
-    } played`,
+    footer:
+      `${stats.roundsPlayed} ${
+        stats.roundsPlayed === 1 ? "round" : "rounds"
+      } played` +
+      (stats.missionsCleared > 0
+        ? ` · ${stats.missionsCleared}/${stats.missionsTotal} missions`
+        : ""),
     stripes: stripesFor(fullName),
   };
+}
+
+/** A #rrggbb colour at an opacity, for the frame's tints. */
+function tint(hex: string, alpha: number): string {
+  const n = parseInt(hex.slice(1), 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
 }
 
 function label(
   ctx: CanvasRenderingContext2D,
   text: string,
   x: number,
-  y: number
+  y: number,
+  color: string = COLORS.muted
 ) {
-  ctx.fillStyle = COLORS.muted;
+  ctx.fillStyle = color;
   ctx.font = `800 15px ${FONT}`;
   ctx.textAlign = "left";
   ctx.fillText(text.toUpperCase(), x, y);
@@ -171,16 +193,17 @@ export function drawSenseiCard(
 ): void {
   drawBackdrop(ctx, images.backdrop, CARD_WIDTH, CARD_HEIGHT);
   const { x, y, width, height } = CARD;
+  const { frame } = content;
   const right = x + width - 40;
 
-  // The card, pale blue towards the bottom.
+  // The card, in the frame's colours (Schale's: pale blue at the bottom).
   ctx.save();
   ctx.shadowColor = "rgba(0, 0, 0, 0.4)";
   ctx.shadowBlur = 34;
   ctx.shadowOffsetY = 12;
   const body = ctx.createLinearGradient(0, y, 0, y + height);
-  body.addColorStop(0, "#FFFFFF");
-  body.addColorStop(1, "#E6F0FB");
+  body.addColorStop(0, frame.body[0]);
+  body.addColorStop(1, frame.body[1]);
   ctx.fillStyle = body;
   roundedRect(ctx, x, y, width, height, 32);
   ctx.fill();
@@ -191,7 +214,7 @@ export function drawSenseiCard(
   ctx.clip();
 
   // A faint halo in the corner, like Schale's emblem.
-  ctx.strokeStyle = "rgba(18, 138, 250, 0.07)";
+  ctx.strokeStyle = tint(frame.accent, 0.07);
   for (const [radius, lineWidth] of [
     [230, 26],
     [150, 12],
@@ -202,10 +225,10 @@ export function drawSenseiCard(
     ctx.stroke();
   }
 
-  // The blue band across the top.
+  // The band across the top.
   const band = ctx.createLinearGradient(x, 0, x + width, 0);
-  band.addColorStop(0, COLORS.blue);
-  band.addColorStop(1, "#45B8FF");
+  band.addColorStop(0, frame.band[0]);
+  band.addColorStop(1, frame.band[1]);
   ctx.fillStyle = band;
   ctx.fillRect(x, y, width, BAND);
   ctx.restore();
@@ -233,8 +256,14 @@ export function drawSenseiCard(
   }
 
   drawPhoto(ctx, images.portrait);
-  label(ctx, "Favourite student", PHOTO.x, PHOTO.y + PHOTO.height + 40);
-  ctx.fillStyle = COLORS.navy;
+  label(
+    ctx,
+    "Favourite student",
+    PHOTO.x,
+    PHOTO.y + PHOTO.height + 40,
+    frame.muted
+  );
+  ctx.fillStyle = frame.ink;
   fitText(
     ctx,
     content.favourite,
@@ -245,9 +274,16 @@ export function drawSenseiCard(
     28
   );
 
-  // The holder: name, and when the card was made.
-  label(ctx, "Name", RIGHT_COLUMN, y + 168);
-  ctx.fillStyle = COLORS.navy;
+  // The holder: name, a title if they picked one, and when the card was made.
+  label(ctx, "Name", RIGHT_COLUMN, y + 168, frame.muted);
+  if (content.title) {
+    ctx.textAlign = "right";
+    ctx.fillStyle = frame.accent;
+    ctx.font = `900 19px ${FONT}`;
+    ctx.fillText(`★ ${content.title.toUpperCase()}`, right, y + 168);
+    ctx.textAlign = "left";
+  }
+  ctx.fillStyle = frame.ink;
   fitText(
     ctx,
     content.name,
@@ -258,13 +294,13 @@ export function drawSenseiCard(
     50
   );
 
-  label(ctx, "Issued", RIGHT_COLUMN, y + 262);
-  ctx.fillStyle = COLORS.navy;
+  label(ctx, "Issued", RIGHT_COLUMN, y + 262, frame.muted);
+  ctx.fillStyle = frame.ink;
   ctx.font = `700 24px ${FONT}`;
   ctx.fillText(content.issued, RIGHT_COLUMN, y + 292);
   if (content.since) {
-    label(ctx, "Sensei since", RIGHT_COLUMN + 240, y + 262);
-    ctx.fillStyle = COLORS.navy;
+    label(ctx, "Sensei since", RIGHT_COLUMN + 240, y + 262, frame.muted);
+    ctx.fillStyle = frame.ink;
     ctx.font = `700 24px ${FONT}`;
     ctx.fillText(content.since, RIGHT_COLUMN + 240, y + 292);
   }
@@ -275,31 +311,31 @@ export function drawSenseiCard(
   content.tiles.forEach((tile, index) => {
     const tileX = RIGHT_COLUMN + (index % 3) * (tileWidth + 12);
     const tileY = y + 322 + Math.floor(index / 3) * (tileHeight + 12);
-    ctx.fillStyle = "rgba(18, 138, 250, 0.09)";
+    ctx.fillStyle = tint(frame.accent, 0.09);
     roundedRect(ctx, tileX, tileY, tileWidth, tileHeight, 16);
     ctx.fill();
-    ctx.fillStyle = COLORS.navy;
+    ctx.fillStyle = frame.ink;
     ctx.textAlign = "left";
     fitText(ctx, tile.value, tileX + 18, tileY + 52, tileWidth - 36, "800", 38);
-    label(ctx, tile.label, tileX + 18, tileY + 82);
+    label(ctx, tile.label, tileX + 18, tileY + 82, frame.muted);
   });
 
   // Along the bottom: the code stripes, the rounds, the address.
   const bottom = y + height - 40;
   let stripeX = 100;
-  ctx.fillStyle = COLORS.navy;
+  ctx.fillStyle = frame.ink;
   content.stripes.forEach((stripe, index) => {
     if (index % 2 === 0) ctx.fillRect(stripeX, bottom - 34, stripe, 34);
     stripeX += stripe + 2;
   });
 
   ctx.textAlign = "left";
-  ctx.fillStyle = COLORS.muted;
+  ctx.fillStyle = frame.muted;
   ctx.font = `700 22px ${FONT}`;
   ctx.fillText(content.footer, RIGHT_COLUMN, bottom - 6);
 
   ctx.textAlign = "right";
-  ctx.fillStyle = COLORS.blue;
+  ctx.fillStyle = frame.accent;
   ctx.font = `800 26px ${FONT}`;
   ctx.fillText("baheardle.com", right, bottom - 6);
 }

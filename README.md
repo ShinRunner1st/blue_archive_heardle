@@ -360,6 +360,22 @@ they need no more height than the OST, and every game fits a 1080p window.
   badges shows each album's progress; the result screen says when a
   round adds to one. The albums' songs are in `src/constants/volumes.ts`, from their
   published tracklists.
+- **Missions** - 27 one-off missions in ☰ → Missions, a tab for each game
+  (Daily, OST, Voice, Picture, Students, Multiplayer, Kivotos), such as all
+  six dailies on one day, a song from its 1-second clip, a halo from its
+  silhouette or a multiplayer win. They're worked out from the saves on both
+  servers (`missionFacts` in `src/helpers/missions.ts`, the list in
+  `src/constants/missions.ts`), so rounds played before missions came
+  count; a "Mission cleared!" toast shows after the round that clears one
+  (the first check on a device shows one toast with the count). A cleared
+  mission is also kept in its own key and the save file, so a reset never
+  takes it back; ids are never renamed. Multiplayer's count the games this
+  browser saw to their standings and its first places, kept here only.
+  Some unlock a cosmetic (`src/constants/cosmetics.ts`, all drawn in code):
+  a title and a frame for the Sensei card, picked on the card, and a colour
+  for the cursor's flash and trail (pink, gold, green, violet or a
+  rainbow, each tap the next hue), picked in Settings. The hub's record and
+  the card's footer count them.
 - **Character** - on wide screens, Arona (light mode) or Plana (dark mode)
   stands beside the game and reacts to your guesses. Hold her to make her look
   at you, stroke her head, or tap her. ☰ → Settings swaps in Mari or turns
@@ -1224,7 +1240,9 @@ as their picture (both kept in this browser for next time, like a setting),
 and
 their answers, and shows them to the others in it; it keeps them only while
 it's open, deletes everything when it closes, and keeps no logs. The
-browser keeps the room settings a player saved as presets, and for a few
+browser counts the multiplayer games it finished and won, for the
+missions, and that count never leaves it. It keeps the room settings a
+player saved as presets, and for a few
 hours a random token for each room it was in, so a closed tab can go back
 in as the same player. A room's password stays in the room while it's
 open, and in the tab that typed or set it, for a reload, until it leaves. To stop

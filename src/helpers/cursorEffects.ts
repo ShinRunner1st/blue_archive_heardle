@@ -12,11 +12,18 @@
  * is slow enough to drop frames when taps pile up.
  */
 
+import { BLUE_PALETTE, CursorPalette, nextCursorPalette } from "./cosmetics";
+
 type Stop = readonly [at: number, value: number];
 /** A glow layer: extra width in px, and its opacity. */
 type Glow = readonly [extra: number, alpha: number];
 
-/** Every size (px), duration (s), speed (px/s) and colour, to tune here. */
+/**
+ * Every size (px), duration (s) and speed (px/s), to tune here. The colours
+ * are a palette (BLUE_PALETTE in cosmetics.ts is the game's own), taken by
+ * each tap and trail as it starts, so a colour picked in Settings, or the
+ * rainbow's next one, doesn't change those already on screen.
+ */
 export const CONFIG = {
   maxParticles: 300,
 
@@ -35,8 +42,7 @@ export const CONFIG = {
       [1, 1],
     ] as Stop[],
     colorStart: "#FFFFFF",
-    color: "#3D63FF",
-    /** Fully blue by this share of its life. */
+    /** Fully its colour by this share of its life. */
     colorBy: 0.08,
     /** Solid until this share of its life, then gone almost at once. */
     fadeFrom: 0.9,
@@ -86,7 +92,6 @@ export const CONFIG = {
       [6, 0.3],
     ] as Glow[],
     colorStart: "#FFFFFF",
-    color: "#4DA6FF",
     colorFrom: 0.11,
     colorBy: 0.5,
     /** How much whiter the ring's core stays than its tinted glow. */
@@ -103,7 +108,6 @@ export const CONFIG = {
       [1, 0.9],
     ] as Stop[],
     colorStart: "#FFFFFF",
-    color: "#5EC4FF",
     colorFrom: 0.4,
     /** Opacity over its life: steady, then one slow blink, then out. */
     opacity: [
@@ -148,17 +152,13 @@ export const CONFIG = {
       [10, 0.12],
       [4, 0.3],
     ] as Glow[],
-    /** The glow, along the line from head (0) to tail (1). */
-    colors: [
-      [0, "#0063FF"],
-      [0.42, "#001747"],
-      [1, "#000000"],
-    ] as const,
-    /** The bright core over the glow, and how far along it fades out. */
-    core: "#5EE4FF",
+    /** Where along the line, from head (0) to tail (1), the glow is the
+     * palette's middle colour; it is black at the tail. */
+    mid: 0.42,
+    /** How far along the bright core fades out. */
     coreLength: 0.7,
-    /** Soft halo round the head. */
-    halo: { radius: 26, color: "#0063FF", alpha: 0.35 },
+    /** Soft halo round the head, in the glow's colour. */
+    halo: { radius: 26, alpha: 0.35 },
   },
 };
 
@@ -196,8 +196,15 @@ export function mix(from: string, to: string, t: number): string {
 }
 
 /** The trail's glow at `p` along it, from the head (0) to the tail (1). */
-export function trailColor(p: number): string {
-  const { colors } = CONFIG.trail;
+export function trailColor(
+  p: number,
+  palette: CursorPalette = BLUE_PALETTE
+): string {
+  const colors = [
+    [0, palette.glow],
+    [CONFIG.trail.mid, palette.mid],
+    [1, "#000000"],
+  ] as const;
   for (let i = 1; i < colors.length; i++) {
     const [at, color] = colors[i];
     if (p <= at) {
@@ -227,6 +234,7 @@ interface Particle {
   flip: boolean;
   /** Shard: how early or late it blinks. */
   phase: number;
+  palette: CursorPalette;
 }
 
 interface Point {
@@ -236,6 +244,7 @@ interface Point {
 }
 
 interface Trail {
+  palette: CursorPalette;
   points: Point[];
   /** Distance dragged since the last shard. */
   sinceShard: number;
@@ -336,10 +345,12 @@ export function startCursorEffects(): () => void {
       size: readonly number[];
       speed: readonly number[];
       life: readonly number[];
-    }
+    },
+    palette: CursorPalette
   ) =>
     spawn({
       kind: "shard",
+      palette,
       x,
       y,
       angle,
@@ -350,8 +361,15 @@ export function startCursorEffects(): () => void {
       phase: (Math.random() * 2 - 1) * CONFIG.shard.phase,
     });
 
-  const tap = (x: number, y: number) => {
-    const blank = { angle: 0, speed: 0, size: 1, flip: false, phase: 0 };
+  const tap = (x: number, y: number, palette: CursorPalette) => {
+    const blank = {
+      angle: 0,
+      speed: 0,
+      size: 1,
+      flip: false,
+      phase: 0,
+      palette,
+    };
     spawn({ ...blank, kind: "flash", x, y, life: CONFIG.flash.life });
 
     const { ring } = CONFIG;
@@ -380,7 +398,8 @@ export function startCursorEffects(): () => void {
         x + Math.cos(angle) * r,
         y + Math.sin(angle) * r,
         angle,
-        burst
+        burst,
+        palette
       );
     }
   };
@@ -408,7 +427,8 @@ export function startCursorEffects(): () => void {
         x + Math.cos(angle) * r,
         y + Math.sin(angle) * r,
         angle,
-        scatter
+        scatter,
+        trail.palette
       );
     }
   };
@@ -416,7 +436,7 @@ export function startCursorEffects(): () => void {
   const drawFlash = (p: Particle, t: number) => {
     const { flash } = CONFIG;
     const radius = (flash.size / 2) * interpolate(flash.scale, t);
-    const color = mix(flash.colorStart, flash.color, t / flash.colorBy);
+    const color = mix(flash.colorStart, p.palette.flash, t / flash.colorBy);
     const alpha = fadeOut(t, flash.fadeFrom);
     // The glow is part of the same gradient: a shadow would paint a second
     // disc underneath, and added together the blue would wash out to cyan.
@@ -443,9 +463,13 @@ export function startCursorEffects(): () => void {
     // Ease-out: the speed falls steadily from `spin` to 0 over its life.
     const spun = ((ring.spin * Math.PI) / 180) * p.life * (t - (t * t) / 2);
     const shift = (t - ring.colorFrom) / (ring.colorBy - ring.colorFrom);
-    const tint = mix(ring.colorStart, ring.color, shift);
+    const tint = mix(ring.colorStart, p.palette.ring, shift);
     // The start colour is white, so a smaller shift is a whiter core.
-    const core = mix(ring.colorStart, ring.color, shift * (1 - ring.coreWhite));
+    const core = mix(
+      ring.colorStart,
+      p.palette.ring,
+      shift * (1 - ring.coreWhite)
+    );
     const alpha = fadeOut(t, ring.fadeFrom);
     const sweep = interpolate(ring.arc, t) * TAU;
     // The arc is centred on its angle, which turns anticlockwise.
@@ -486,7 +510,7 @@ export function startCursorEffects(): () => void {
     const size = p.size * interpolate(shard.scale, t);
     if (size <= 0 || alpha <= 0) return;
 
-    const color = t < shard.colorFrom ? shard.colorStart : shard.color;
+    const color = t < shard.colorFrom ? shard.colorStart : p.palette.shard;
     const travelled = p.speed * age;
     const x = p.x + Math.cos(p.angle) * travelled;
     const y = p.y + Math.sin(p.angle) * travelled;
@@ -564,7 +588,7 @@ export function startCursorEffects(): () => void {
     const fresh = 1 - (time - head.born) / style.life;
 
     const { halo } = style;
-    const haloColor = channels(halo.color).join(",");
+    const haloColor = channels(trail.palette.glow).join(",");
     const haze = ctx.createRadialGradient(
       head.x,
       head.y,
@@ -585,7 +609,7 @@ export function startCursorEffects(): () => void {
     // is coloured by where it sits along the line, however the line loops.
     // One filled outline instead would cancel out where it overlapped, and
     // a head-to-tail gradient would jump about as the ends came together.
-    const coreColor = channels(style.core).join(",");
+    const coreColor = channels(trail.palette.core).join(",");
     const coreAlpha = (share: number) =>
       Math.max(1 - share / style.coreLength, 0);
 
@@ -600,8 +624,8 @@ export function startCursorEffects(): () => void {
       const width = style.width * (1 - (from + to) / 2);
 
       const shade = ctx.createLinearGradient(x0, y0, x1, y1);
-      shade.addColorStop(0, `rgb(${trailColor(from)})`);
-      shade.addColorStop(1, `rgb(${trailColor(to)})`);
+      shade.addColorStop(0, `rgb(${trailColor(from, trail.palette)})`);
+      shade.addColorStop(1, `rgb(${trailColor(to, trail.palette)})`);
 
       ctx.beginPath();
       points.forEach(([x, y]) => ctx.lineTo(x, y));
@@ -690,9 +714,12 @@ export function startCursorEffects(): () => void {
   };
 
   const onDown = (e: PointerEvent) => {
-    tap(e.clientX, e.clientY);
+    // The tap and the drag that may follow it share their colours.
+    const palette = nextCursorPalette();
+    tap(e.clientX, e.clientY, palette);
     release(e.pointerId);
     active.set(e.pointerId, {
+      palette,
       points: [{ x: e.clientX, y: e.clientY, born: now() }],
       sinceShard: 0,
     });
@@ -720,8 +747,12 @@ export function startCursorEffects(): () => void {
     canvas.style.opacity = "0";
     const x = width / 2;
     const y = height / 2;
-    tap(x, y);
-    const trail: Trail = { points: [{ x, y, born: now() }], sinceShard: 0 };
+    tap(x, y, BLUE_PALETTE);
+    const trail: Trail = {
+      palette: BLUE_PALETTE,
+      points: [{ x, y, born: now() }],
+      sinceShard: 0,
+    };
     for (let i = 1; i <= 8; i++) drag(trail, x + i * 12, y + (i % 3) * 6);
     fading.push(trail);
     // Nothing else was running, so everything alive now is the warm-up's.

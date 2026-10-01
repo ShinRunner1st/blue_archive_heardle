@@ -101,6 +101,25 @@ function writeKey(key: string, value: string): void {
   }
 }
 
+const saveListeners = new Set<() => void>();
+
+/**
+ * Hears every save of a game's rounds, which is when a mission may have
+ * been cleared (see useMissionToasts). Called often, on every guess, so a
+ * listener should wait a moment before doing anything costly.
+ */
+export function subscribeSaved(listener: () => void): () => void {
+  saveListeners.add(listener);
+  return () => {
+    saveListeners.delete(listener);
+  };
+}
+
+/** Something the missions count was saved. */
+export function notifySaved(): void {
+  saveListeners.forEach((listener) => listener());
+}
+
 function removeKey(key: string): void {
   try {
     localStorage.removeItem(key);
@@ -252,6 +271,7 @@ export function toRounds(value: unknown): Round[] {
 
 export function saveRounds(rounds: Round[], mode: GameMode = "endless"): void {
   writeKey(keyFor(mode), obscure(JSON.stringify(rounds)));
+  notifySaved();
 }
 
 /**
@@ -401,6 +421,7 @@ export function saveStudentRounds(
     onServer(STUDENT_STORAGE_KEYS[slot], server),
     obscure(JSON.stringify(rounds))
   );
+  notifySaved();
 }
 
 export function clearStudentRounds(
@@ -520,6 +541,7 @@ export function saveVoiceRounds(
     onServer(VOICE_STORAGE_KEYS[mode], server),
     obscure(JSON.stringify(rounds))
   );
+  notifySaved();
 }
 
 export function clearVoiceRounds(
@@ -560,6 +582,7 @@ export function savePictureRounds(
   server: Server = getServer()
 ): void {
   writeKey(slotKey(slot, server), obscure(JSON.stringify(rounds)));
+  notifySaved();
 }
 
 export function clearPictureRounds(

@@ -7,6 +7,8 @@ import {
   roomInAddress,
   roomName,
 } from "../../helpers/roomClient";
+import { recordRoomGame } from "../../helpers/missions";
+import { places } from "../../helpers/roomView";
 import { useRoom } from "../../hooks/useRoom";
 import { isRoomCode, RoomHold, RoomNudge } from "../../types/room";
 
@@ -59,6 +61,27 @@ export default function Multiplayer({ keyboardEnabled, onHold, nudge }: Props) {
     window.addEventListener("beforeunload", ask);
     return () => window.removeEventListener("beforeunload", ask);
   }, [hold]);
+
+  // A game this page saw played, counted once at its standings for the
+  // missions; only in this browser. A reload on the standings doesn't
+  // count it again, as the page didn't see it played.
+  const playedHere = React.useRef(false);
+  React.useEffect(() => {
+    if (!view) return;
+    if (view.phase !== "lobby" && view.phase !== "over") {
+      playedHere.current = true;
+    } else if (view.phase === "over" && playedHere.current) {
+      playedHere.current = false;
+      const me = view.players.find((player) => player.id === view.you);
+      recordRoomGame(
+        view.players.length > 1 &&
+          (me?.score ?? 0) > 0 &&
+          places(view.players).get(view.you) === 1
+      );
+    } else if (view.phase === "lobby") {
+      playedHere.current = false;
+    }
+  }, [view]);
 
   const [shownNudge, setShownNudge] = React.useState<RoomNudge>();
   React.useEffect(() => {

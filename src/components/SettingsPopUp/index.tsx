@@ -1,7 +1,15 @@
 import React from "react";
-import { IoEarth, IoNavigate, IoPerson, IoSparkles } from "react-icons/io5";
+import {
+  IoColorPalette,
+  IoEarth,
+  IoNavigate,
+  IoPerson,
+  IoSparkles,
+} from "react-icons/io5";
 
+import { CURSOR_COLORS } from "../../constants/cosmetics";
 import { setCharacterChoice } from "../../helpers/characterChoice";
+import { getCursorColor, setCursorColor } from "../../helpers/cosmetics";
 import { setCustomCursor } from "../../helpers/customCursor";
 import {
   MAX_PLAYER_NAME,
@@ -11,11 +19,13 @@ import {
 import { usePlayerName, useSenseiTitle } from "../../hooks/usePlayerName";
 import { useCharacterChoice } from "../../hooks/useCharacterChoice";
 import { useCustomCursor } from "../../hooks/useCustomCursor";
+import { useMissionsVersion } from "../../hooks/useMissions";
 import { useServer } from "../../hooks/useServer";
 import { setServer } from "../../helpers/server";
 import { SERVER_NAMES, SERVERS } from "../../types/server";
 import { CharacterChoice } from "../../types/character";
 import { Button } from "../Button";
+import { CosmeticChoices } from "../CosmeticChoices";
 import {
   PopUp,
   PopUpBody,
@@ -52,6 +62,9 @@ export function SettingsPopUp({ onClose, reset }: Props) {
   const nameLabel = React.useId();
   const server = useServer();
   const serverLabel = React.useId();
+  const cursorColorLabel = React.useId();
+  useMissionsVersion();
+  const cursorColor = getCursorColor();
 
   return (
     <PopUp
@@ -114,6 +127,30 @@ export function SettingsPopUp({ onClose, reset }: Props) {
           </PopUpCardBody>
           <Switch $on={customCursor} aria-hidden="true" />
         </Styled.Setting>
+
+        {customCursor && (
+          <PopUpCard>
+            <PopUpCardIcon>
+              <IoColorPalette aria-hidden="true" />
+            </PopUpCardIcon>
+            <Styled.Stack>
+              <PopUpCardBody>
+                <PopUpCardTitle id={cursorColorLabel}>
+                  Cursor colour
+                </PopUpCardTitle>
+                <PopUpCardText>
+                  The colour of its flash and trail. Missions unlock more.
+                </PopUpCardText>
+              </PopUpCardBody>
+              <CosmeticChoices
+                labelledBy={cursorColorLabel}
+                choices={CURSOR_COLORS}
+                selected={cursorColor.id}
+                onPick={setCursorColor}
+              />
+            </Styled.Stack>
+          </PopUpCard>
+        )}
 
         <PopUpCard>
           <PopUpCardIcon>

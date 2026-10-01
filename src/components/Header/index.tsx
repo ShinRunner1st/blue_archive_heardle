@@ -14,6 +14,7 @@ interface Props {
   openInfoPopUp: () => void;
   openStatsPopUp: () => void;
   openBadgesPopUp: () => void;
+  openMissionsPopUp: () => void;
   openHowToPopUp: () => void;
   openSettingsPopUp: () => void;
   openWhatsNewPopUp: () => void;
@@ -53,6 +54,7 @@ export function Header({
   openInfoPopUp,
   openStatsPopUp,
   openBadgesPopUp,
+  openMissionsPopUp,
   openHowToPopUp,
   openSettingsPopUp,
   openWhatsNewPopUp,
@@ -155,6 +157,7 @@ export function Header({
             openWhatsNewPopUp={openWhatsNewPopUp}
             openJukeboxPopUp={openJukeboxPopUp}
             openBadgesPopUp={openBadgesPopUp}
+            openMissionsPopUp={openMissionsPopUp}
             openSenseiCard={openSenseiCard}
           />
         </Styled.Tools>

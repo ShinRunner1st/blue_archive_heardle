@@ -6,6 +6,7 @@ import {
   buildSaveFile,
   downloadText,
   MAX_SAVE_FILE_BYTES,
+  mergeMissions,
   readSaveFile,
   reloadPage,
   saveFileName,
@@ -121,6 +122,7 @@ export function SaveFile() {
       return;
     }
 
+    mergeMissions(pending);
     // A player bringing a save isn't new, so the welcome is skipped.
     markFirstRunDone();
     reloadPage();

@@ -347,6 +347,13 @@ export const PanelTitle = styled.h2`
   opacity: 0.75;
 `;
 
+export const PanelActions = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+`;
+
 export const PanelAction = styled.button`
   display: inline-flex;
   align-items: center;

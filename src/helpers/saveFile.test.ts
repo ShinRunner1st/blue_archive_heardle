@@ -4,7 +4,18 @@ import { DAILY_STORAGE_KEY, STORAGE_KEY } from "../constants/game";
 import { PICTURE_SLOTS } from "../types/picture";
 import { Song } from "../types/song";
 import { obscure } from "./obscure";
-import { buildSaveFile, readSaveFile, saveFileName } from "./saveFile";
+import {
+  loadClearedMissions,
+  loadRoomRecord,
+  saveClearedMissions,
+  saveRoomRecord,
+} from "./missions";
+import {
+  buildSaveFile,
+  mergeMissions,
+  readSaveFile,
+  saveFileName,
+} from "./saveFile";
 import {
   emptyGuesses,
   savePictureRounds,
@@ -79,6 +90,8 @@ describe("save files", () => {
         },
         ...NO_SERVER,
         jp: NO_SERVER,
+        missions: [],
+        roomRecord: { games: 0, wins: 0 },
       },
     });
   });
@@ -195,6 +208,8 @@ describe("save files", () => {
         },
         ...NO_SERVER,
         jp: NO_SERVER,
+        missions: [],
+        roomRecord: { games: 0, wins: 0 },
       },
     });
 
@@ -235,6 +250,34 @@ describe("save files", () => {
     const result = readSaveFile(file({ rounds: { endless: [round()] } }));
 
     expect(result.ok && result.save.jp).toEqual(NO_SERVER);
+  });
+
+  it("carries the missions cleared and the multiplayer record", () => {
+    saveRounds([round()], "endless");
+    saveClearedMissions(["jp", "room-first"]);
+    saveRoomRecord({ games: 3, wins: 1 });
+    const result = readSaveFile(buildSaveFile());
+    expect(result).toMatchObject({
+      ok: true,
+      save: {
+        missions: ["jp", "room-first"],
+        roomRecord: { games: 3, wins: 1 },
+      },
+    });
+  });
+
+  it("merges missions in, never adding a game twice", () => {
+    saveClearedMissions(["jp"]);
+    saveRoomRecord({ games: 5, wins: 0 });
+    saveRounds([round()], "endless");
+    const result = readSaveFile(buildSaveFile());
+    if (!result.ok) throw new Error(result.error);
+
+    saveClearedMissions(["birthday"]);
+    saveRoomRecord({ games: 2, wins: 1 });
+    mergeMissions(result.save);
+    expect(loadClearedMissions().sort()).toEqual(["birthday", "jp"]);
+    expect(loadRoomRecord()).toEqual({ games: 5, wins: 1 });
   });
 
   it("exports nothing it wasn't given", () => {
