@@ -1,11 +1,11 @@
 import React from "react";
 
-import { CARD_FRAMES, CARD_TITLES } from "../../constants/cosmetics";
+import { CARD_COLORS, CARD_TITLES } from "../../constants/cosmetics";
 import { students } from "../../constants/students";
 import {
-  cardFrame,
+  cardColors,
   cardTitle,
-  setCardFrame,
+  setCardColors,
   setCardTitle,
 } from "../../helpers/cosmetics";
 import { downloadBlob } from "../../helpers/download";
@@ -55,10 +55,10 @@ export default function SenseiCard({ onClose, streak }: Props) {
   // Read once: nothing is played while the card is open.
   const stats = React.useMemo(() => senseiStats(), []);
   const student = favourite === null ? null : studentById.get(favourite);
-  // A title or frame picked, or unlocked while the card is open.
+  // A title or colours picked, or unlocked while the card is open.
   useMissionsVersion();
   const title = cardTitle();
-  const frame = cardFrame();
+  const frame = cardColors();
   const titleLabel = React.useId();
   const frameLabel = React.useId();
 
@@ -181,15 +181,15 @@ export default function SenseiCard({ onClose, streak }: Props) {
           selected={title.id}
           onPick={setCardTitle}
         />
-        <PopUpGroupLabel id={frameLabel}>Frame</PopUpGroupLabel>
+        <PopUpGroupLabel id={frameLabel}>Colours</PopUpGroupLabel>
         <CosmeticChoices
           labelledBy={frameLabel}
-          choices={CARD_FRAMES.map((choice) => ({
+          choices={CARD_COLORS.map((choice) => ({
             ...choice,
             swatch: `linear-gradient(135deg, ${choice.band[0]}, ${choice.band[1]})`,
           }))}
           selected={frame.id}
-          onPick={setCardFrame}
+          onPick={setCardColors}
         />
 
         <Styled.Preview>

@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 
 import { songs } from "../constants";
 import { spineCharacters } from "../constants/characters";
-import { BORDER_KINDS } from "../constants/cosmetics";
+import { FRAME_KINDS } from "../constants/cosmetics";
 import { ICONS } from "../constants/icons";
 import { MISSION_FACTS } from "../constants/missions";
 import { pictureFiles } from "../constants/pictureFiles";
@@ -116,10 +116,10 @@ describe("missions.json", () => {
 describe("cosmetics.json", () => {
   const lists = {
     titles: cosmetics.titles,
-    frames: cosmetics.frames,
+    cardColors: cosmetics.cardColors,
     cursorColors: cosmetics.cursorColors,
     banners: cosmetics.banners,
-    borders: cosmetics.borders,
+    frames: cosmetics.frames,
     backgrounds: cosmetics.backgrounds,
   };
 
@@ -147,7 +147,7 @@ describe("cosmetics.json", () => {
 
   it("gives frames and colours real colours", () => {
     const hex = /^#[0-9a-fA-F]{6}$/;
-    for (const frame of cosmetics.frames) {
+    for (const frame of cosmetics.cardColors) {
       for (const color of [
         ...frame.band,
         ...frame.body,
@@ -196,14 +196,14 @@ describe("cosmetics.json profile", () => {
     }
   });
 
-  it("draws each border with a kind the code knows", () => {
-    for (const border of cosmetics.borders) {
+  it("draws each frame with a kind the code knows", () => {
+    for (const frame of cosmetics.frames) {
       expect(
-        (BORDER_KINDS as readonly string[]).includes(border.kind),
-        `border ${border.id}: kind ${border.kind}`
+        (FRAME_KINDS as readonly string[]).includes(frame.kind),
+        `frame ${frame.id}: kind ${frame.kind}`
       ).toBe(true);
-      expect(border.colors.length, `border ${border.id}`).toBeGreaterThan(0);
-      for (const color of border.colors) expect(color).toMatch(hex);
+      expect(frame.colors.length, `frame ${frame.id}`).toBeGreaterThan(0);
+      for (const color of frame.colors) expect(color).toMatch(hex);
     }
   });
 

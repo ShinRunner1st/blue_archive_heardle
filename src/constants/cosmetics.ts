@@ -3,9 +3,9 @@ import type { CharacterChoice } from "../types/character";
 
 /**
  * What missions unlock, from src/content/cosmetics.json, each a setting the
- * player picks once it's theirs: a title and a frame for the Sensei card, a
+ * player picks once it's theirs: a title and colours for the Sensei card, a
  * colour for the cursor's effects, a character, and the profile's banner,
- * border and background. Drawn in code, or pictures already on the Worker,
+ * frame and background. Drawn in code, or pictures already on the Worker,
  * so none adds a file to host. An entry with no mission is everyone's from
  * the start.
  */
@@ -22,7 +22,7 @@ export type CardTitle = Cosmetic;
 export const CARD_TITLES = cosmeticData.titles as CardTitle[];
 
 /** The Sensei card's colours. */
-export interface CardFrame extends Cosmetic {
+export interface CardColors extends Cosmetic {
   /** The band across the top, left to right. */
   band: [string, string];
   /** The card itself, top to bottom. */
@@ -35,7 +35,7 @@ export interface CardFrame extends Cosmetic {
   accent: string;
 }
 
-export const CARD_FRAMES = cosmeticData.frames as CardFrame[];
+export const CARD_COLORS = cosmeticData.cardColors as CardColors[];
 
 /**
  * A colour for the cursor's tap and drag effects: its hue, or the game's
@@ -82,11 +82,11 @@ export interface Banner extends Cosmetic {
 export const BANNERS = cosmeticData.banners as Banner[];
 
 /**
- * How a border is drawn, each in code (ProfileFrame): a line; filigree,
+ * How a frame is drawn, each in code (ProfileFrame): a line; filigree,
  * petals or a halo on the corners; a neon glow; a prism of colours. A new
- * one needs drawing there; a new border of a kind there is only an entry.
+ * one needs drawing there; a new frame of a kind there is only an entry.
  */
-export const BORDER_KINDS = [
+export const FRAME_KINDS = [
   "line",
   "filigree",
   "petals",
@@ -94,15 +94,15 @@ export const BORDER_KINDS = [
   "neon",
   "prism",
 ] as const;
-export type BorderKind = (typeof BORDER_KINDS)[number];
+export type FrameKind = (typeof FRAME_KINDS)[number];
 
-export interface Border extends Cosmetic {
-  kind: BorderKind;
+export interface Frame extends Cosmetic {
+  kind: FrameKind;
   /** The kind's colours: the line first, then its ornaments or glow. */
   colors: string[];
 }
 
-export const BORDERS = cosmeticData.borders as Border[];
+export const FRAMES = cosmeticData.frames as Frame[];
 
 /** A scene behind the profile and its card: a picture on the Worker. */
 export interface ProfileBackground extends Cosmetic {

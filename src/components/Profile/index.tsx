@@ -7,11 +7,11 @@ import { formatClock } from "../../helpers/timeAttack";
 import { useMissionsVersion } from "../../hooks/useMissions";
 import { useServer } from "../../hooks/useServer";
 
-import { Button } from "../Button";
 import { PopUp } from "../PopUp";
 
 import { CustomizePopUp } from "./Customize";
-import { currentLook, ProfileCard } from "./ProfileCard";
+import { currentLook, ProfileHero } from "./ProfileCard";
+import { ProfileFrame } from "./ProfileFrame";
 import * as Styled from "./index.styled";
 
 type Tab = "overview" | "ost" | "voice" | "picture" | "students" | "room";
@@ -66,31 +66,40 @@ export default function ProfilePopUp({ onClose, onSenseiCard }: Props) {
   return (
     <PopUp
       wide
+      bleed
       title="Profile"
-      subtitle="Your record in this browser, on every game"
       onClose={onClose}
-      actions={
-        <>
-          <Button stroke onClick={onSenseiCard}>
-            Sensei card
-          </Button>
-          <Button stroke variant="green" onClick={() => setCustomizing(true)}>
-            Customize
-          </Button>
-        </>
-      }
+      frame={(panel) => (
+        <ProfileFrame frame={look.frame} popUp>
+          {panel}
+        </ProfileFrame>
+      )}
     >
+      <ProfileHero
+        look={look}
+        actions={
+          <>
+            <Styled.HeroAction type="button" onClick={onSenseiCard}>
+              Sensei card
+            </Styled.HeroAction>
+            <Styled.HeroAction
+              type="button"
+              onClick={() => setCustomizing(true)}
+            >
+              Customize
+            </Styled.HeroAction>
+          </>
+        }
+      >
+        <Styled.Meta>
+          {since ? `Playing since ${since}` : "New to Schale"}
+          {` · ${stats.daysPlayed} ${
+            stats.daysPlayed === 1 ? "day" : "days"
+          } played`}
+          {` · ${SERVER_NAMES[server]}`}
+        </Styled.Meta>
+      </ProfileHero>
       <Styled.Body>
-        <ProfileCard look={look} size="large">
-          <Styled.Meta>
-            {since ? `Playing since ${since}` : "New to Schale"}
-            {` · ${stats.daysPlayed} ${
-              stats.daysPlayed === 1 ? "day" : "days"
-            } played`}
-            {` · ${SERVER_NAMES[server]}`}
-          </Styled.Meta>
-        </ProfileCard>
-
         <Styled.Tabs role="tablist" aria-label="Profile">
           {TABS.map(({ id, label }) => (
             <Styled.Tab

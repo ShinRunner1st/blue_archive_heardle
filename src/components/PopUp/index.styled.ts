@@ -42,7 +42,7 @@ export const Overlay = styled.div`
   }
 `;
 
-export const Panel = styled.div<{ $wide?: boolean }>`
+export const Panel = styled.div<{ $wide?: boolean; $framed?: boolean }>`
   animation: popup 0.22s cubic-bezier(0.2, 0.9, 0.3, 1);
 
   @keyframes popup {
@@ -73,9 +73,12 @@ export const Panel = styled.div<{ $wide?: boolean }>`
   color: ${({ theme }) => theme.text};
   background-color: ${({ theme }) => theme.background100};
 
-  border: 1px solid rgba(241, 247, 237, 0.16);
-  border-radius: 16px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  /* Framed, the frame round it is its edge. */
+  border: ${({ $framed }) =>
+    $framed ? "none" : "1px solid rgba(241, 247, 237, 0.16)"};
+  border-radius: ${({ $framed }) => ($framed ? "13px" : "16px")};
+  box-shadow: ${({ $framed }) =>
+    $framed ? "none" : "0 20px 50px rgba(0, 0, 0, 0.45)"};
 
   &:focus {
     outline: none;
@@ -122,10 +125,11 @@ export const Head = styled.div`
   }
 `;
 
-export const Close = styled.button`
+export const Close = styled.button<{ $over?: boolean }>`
   position: absolute;
   top: 12px;
   right: 12px;
+  z-index: 3;
 
   display: flex;
   align-items: center;
@@ -137,7 +141,8 @@ export const Close = styled.button`
 
   font-size: 20px;
   color: ${({ theme }) => theme.text};
-  background: rgba(241, 247, 237, 0.08);
+  background: ${({ $over }) =>
+    $over ? "rgba(14, 12, 30, 0.7)" : "rgba(241, 247, 237, 0.08)"};
   border: none;
   border-radius: 50%;
   cursor: pointer;
@@ -158,7 +163,7 @@ export const Close = styled.button`
 `;
 
 /** The body: the one part that scrolls when the content is taller than the screen. */
-export const Scroll = styled.div`
+export const Scroll = styled.div<{ $bleed?: boolean }>`
   /* Its top padding stands in for the head divider's lower margin, so the
      content disappears right at the line as it scrolls. */
   flex: 1 1 auto;
@@ -175,8 +180,8 @@ export const Scroll = styled.div`
   /* Room for the scrollbar on both sides, so the content stays centred and
      doesn't shift when a bar appears. Where bars overlay the content instead,
      the gutter is empty and the padding alone applies. */
-  padding: 18px 12px 20px;
-  scrollbar-gutter: stable both-edges;
+  padding: ${({ $bleed }) => ($bleed ? "0 0 20px" : "18px 12px 20px")};
+  scrollbar-gutter: ${({ $bleed }) => ($bleed ? "auto" : "stable both-edges")};
 
   /* The body scrolls rather than squashing what is in it. */
   & > * {
@@ -184,7 +189,7 @@ export const Scroll = styled.div`
   }
 
   @media (max-width: 480px) {
-    padding: 18px 18px 18px;
+    padding: ${({ $bleed }) => ($bleed ? "0 0 18px" : "18px")};
     scrollbar-gutter: auto;
 
     /* A sheet without actions ends here, so this keeps clear of the home
@@ -377,4 +382,15 @@ export const Section = styled.div`
     gap: 6px;
     font-size: 0.9rem;
   }
+`;
+
+/** A title for screen readers alone, where the pop-up opens on a picture. */
+export const HiddenTitle = styled.h2`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 `;

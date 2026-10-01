@@ -376,21 +376,21 @@ they need no more height than the OST, and every game fits a 1080p window.
   takes it back; ids are never renamed. Multiplayer's count the games this
   browser saw to their standings and its first places, kept here only.
   Some unlock a cosmetic (`src/constants/cosmetics.ts`, all drawn in code):
-  a title and a frame for the Sensei card, picked on the card, and a colour
+  a title and colours for the Sensei card, picked on the card, and a colour
   for the cursor's flash and trail (pink, gold, green, violet or a
   rainbow, each tap the next hue), picked in Settings, a student beside the
-  game, and the profile's banner, border and background. The hub's record
+  game, and the profile's banner, frame and background. The hub's record
   and the card's footer count them.
 - **Profile** - ☰ → Profile (or Profile on the hub's record): the player's
   card at its head (their favourite student, name, title on its banner,
-  border and background scene), then their record from this browser's
+  frame and background scene), then their record from this browser's
   saves: totals (rounds, days played, dailies won, streaks, songs and
   students found, missions, badges, room games) and a table by game, and a
   tab per game with each way to play (played, won, best run), the daily
   puzzles' spread by tries (guesses in bands for Students), average tries,
   the best Time Attack or the fastest and average find
   (`src/helpers/profileStats.ts`). **Customize** picks the title, banner,
-  border and background, the locked ones naming their mission; banners
+  frame and background, the locked ones naming their mission; banners
   and backgrounds are pictures already on the Worker, fetched only when
   shown. Others see a profile in rooms once accounts arrive.
 - **Character** - on wide screens, Arona (light mode) or Plana (dark mode)

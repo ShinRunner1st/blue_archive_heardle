@@ -76,7 +76,7 @@ player opens the page: they get a toast for it.
 Lists, each starting with the default everyone has (no `mission`):
 
 - `titles`: a title on the Sensei card. `{ "id", "name", "mission" }`.
-- `frames`: the Sensei card's colours, as `#rrggbb`: `band` (left to right),
+- `cardColors`: the Sensei card's colours, as `#rrggbb`: `band` (left to right),
   `body` (top to bottom), `ink` (names and numbers), `muted` (labels),
   `accent` (the address, title and tiles).
 - `cursorColors`: the cursor's flash and trail. `hue` is 0-359 (the game's
@@ -91,7 +91,7 @@ Lists, each starting with the default everyone has (no `mission`):
   `ink` is the title's colour, `accent` the emblem's ring, the stripes and
   the line along its foot, and `emblem` an icon from
   `src/constants/icons.ts`.
-- `borders`: the line round the card. `kind` is how it's drawn: `line`,
+- `frames`: the frame round the profile's card. `kind` is how it's drawn: `line`,
   `filigree`, `petals`, `halo` (ornaments on the corners), `neon` (a glow
   of its colours) or `prism` (a ring of them); `colors` the line first,
   then the ornaments or glow. A new kind needs drawing in

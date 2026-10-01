@@ -1,4 +1,4 @@
-import { CARD_FRAMES, CardFrame } from "../../constants/cosmetics";
+import { CARD_COLORS, CardColors } from "../../constants/cosmetics";
 import { portraitFiles } from "../../constants/portraitFiles";
 import { Student } from "../../types/student";
 import { audioBaseUrl, backupUrlFor } from "../audioUrl";
@@ -33,13 +33,13 @@ export interface SenseiCardInput {
   /** A title a mission unlocked, or none. */
   title?: string;
   /** The card's colours; Schale's blue by default. */
-  frame?: CardFrame;
+  frame?: CardColors;
 }
 
 export interface SenseiCardContent {
   name: string;
   title: string | null;
-  frame: CardFrame;
+  frame: CardColors;
   favourite: string;
   issued: string;
   since: string | null;
@@ -76,7 +76,7 @@ export function senseiCardContent({
   favourite,
   issued,
   title,
-  frame = CARD_FRAMES[0],
+  frame = CARD_COLORS[0],
 }: SenseiCardInput): SenseiCardContent {
   // A card has a holder: plain "Sensei" when the player gave no name.
   const fullName = name.trim() || "Sensei";

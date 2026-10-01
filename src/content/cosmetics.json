@@ -40,7 +40,7 @@
       "mission": "room-win"
     }
   ],
-  "frames": [
+  "cardColors": [
     {
       "id": "schale",
       "name": "Schale",
@@ -241,7 +241,7 @@
       "emblem": "IoTrophy"
     }
   ],
-  "borders": [
+  "frames": [
     {
       "id": "schale",
       "name": "Schale",

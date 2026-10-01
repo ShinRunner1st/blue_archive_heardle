@@ -1,17 +1,17 @@
 import React from "react";
 
-import { Border } from "../../constants/cosmetics";
+import { Frame } from "../../constants/cosmetics";
 
 import * as Styled from "./index.styled";
 
 type Corner = "tl" | "tr" | "bl" | "br";
 const CORNERS: Corner[] = ["tl", "tr", "bl", "br"];
 
-/** A corner's ornament, drawn for its border's kind; none for the others. */
-function Ornament({ border, corner }: { border: Border; corner: Corner }) {
-  const [line, accent = line] = border.colors;
+/** A corner's ornament, drawn for its frame's kind; none for the others. */
+function Ornament({ frame, corner }: { frame: Frame; corner: Corner }) {
+  const [line, accent = line] = frame.colors;
   let shape: React.ReactNode = null;
-  switch (border.kind) {
+  switch (frame.kind) {
     case "filigree":
       shape = (
         <>
@@ -86,22 +86,30 @@ function Ornament({ border, corner }: { border: Border; corner: Corner }) {
 }
 
 /**
- * A profile's border around its card: a line, or one drawn with ornaments
- * on the corners, a glow or a gradient, as its kind says (BORDER_KINDS).
+ * A profile's frame around its card, or round the whole profile pop-up: a
+ * line, or one drawn with ornaments on the corners, a glow or a gradient,
+ * as its kind says (FRAME_KINDS).
  */
 export function ProfileFrame({
-  border,
+  frame,
+  popUp = false,
   children,
 }: {
-  border: Border;
+  frame: Frame;
+  /** Round a pop-up: as wide as it, a sheet's shape on a phone. */
+  popUp?: boolean;
   children: React.ReactNode;
 }) {
   return (
-    <Styled.Frame>
+    <Styled.Frame $popUp={popUp}>
       {CORNERS.map((corner) => (
-        <Ornament key={corner} border={border} corner={corner} />
+        <Ornament key={corner} frame={frame} corner={corner} />
       ))}
-      <Styled.FrameInner $kind={border.kind} $colors={border.colors}>
+      <Styled.FrameInner
+        $kind={frame.kind}
+        $colors={frame.colors}
+        $popUp={popUp}
+      >
         {children}
       </Styled.FrameInner>
     </Styled.Frame>

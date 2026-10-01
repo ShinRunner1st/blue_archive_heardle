@@ -3,7 +3,7 @@ import { IoLockClosed } from "react-icons/io5";
 
 import {
   Banner,
-  Border,
+  Frame,
   Cosmetic,
   ProfileBackground,
 } from "../../constants/cosmetics";
@@ -26,7 +26,7 @@ import { ProfileFrame } from "./ProfileFrame";
 import * as Styled from "./index.styled";
 
 /** The kinds Customize offers, in order. Another is an entry here. */
-const SECTIONS = ["title", "banner", "border", "background"] as const;
+const SECTIONS = ["title", "banner", "frame", "background"] as const;
 type Section = (typeof SECTIONS)[number];
 
 /**
@@ -44,21 +44,21 @@ function Swatch({
 }) {
   switch (kind) {
     case "title":
+      // Plain words: the banner it sits on is picked apart, below.
       return (
-        <ProfileBanner
-          banner={look.banner}
-          title={item.mission === undefined ? "Sensei" : item.name}
-        />
+        <Styled.TitleChip>
+          {item.mission === undefined ? "Sensei" : item.name}
+        </Styled.TitleChip>
       );
     case "banner":
       return <ProfileBanner banner={item as Banner} title={look.title} />;
-    case "border":
+    case "frame":
       return (
-        <Styled.BorderSwatch>
-          <ProfileFrame border={item as Border}>
-            <Styled.BorderFill />
+        <Styled.FrameSwatch>
+          <ProfileFrame frame={item as Frame}>
+            <Styled.FrameFill />
           </ProfileFrame>
-        </Styled.BorderSwatch>
+        </Styled.FrameSwatch>
       );
     case "background": {
       const { picture } = item as ProfileBackground;
@@ -75,7 +75,7 @@ const missionTitle = (id: string | undefined) =>
   MISSIONS.find((mission) => mission.id === id)?.title ?? "";
 
 /**
- * Picks the profile's title, banner, border and background, each unlocked
+ * Picks the profile's title, banner, frame and background, each unlocked
  * by a mission (the locked ones say which), with the card previewed as it
  * will look. Nothing changes until Save.
  */
@@ -84,7 +84,7 @@ export function CustomizePopUp({ onClose }: { onClose: () => void }) {
   const [draft, setDraft] = React.useState<Record<Section, string>>(() => ({
     title: pickedOf("title").id,
     banner: pickedOf("banner").id,
-    border: pickedOf("border").id,
+    frame: pickedOf("frame").id,
     background: pickedOf("background").id,
   }));
   const find = <K extends CosmeticKind>(kind: K, id: string) =>
@@ -96,7 +96,7 @@ export function CustomizePopUp({ onClose }: { onClose: () => void }) {
     ...base,
     title: !title || title.mission === undefined ? "Sensei" : title.name,
     banner: find("banner", draft.banner) as Banner,
-    border: find("border", draft.border) as Border,
+    frame: find("frame", draft.frame) as Frame,
     background: find("background", draft.background) as ProfileBackground,
   };
 
@@ -167,20 +167,27 @@ export function CustomizePopUp({ onClose }: { onClose: () => void }) {
                         setDraft((current) => ({ ...current, [kind]: item.id }))
                       }
                     >
-                      <Styled.OptionLook>
+                      <Styled.OptionLook
+                        $locked={kind === "title" && !unlocked}
+                      >
                         <Swatch kind={kind} item={item} look={look} />
-                        {!unlocked && (
+                        {!unlocked && kind !== "title" && (
                           <Styled.Lock>
                             <IoLockClosed aria-hidden="true" />
                             <span>{missionTitle(item.mission)}</span>
                           </Styled.Lock>
                         )}
                       </Styled.OptionLook>
-                      <Styled.OptionName>
-                        {kind === "title" && item.mission === undefined
-                          ? "None"
-                          : item.name}
-                      </Styled.OptionName>
+                      {kind === "title" ? (
+                        !unlocked && (
+                          <Styled.OptionName>
+                            <IoLockClosed aria-hidden="true" />{" "}
+                            {missionTitle(item.mission)}
+                          </Styled.OptionName>
+                        )
+                      ) : (
+                        <Styled.OptionName>{item.name}</Styled.OptionName>
+                      )}
                     </Styled.Option>
                   );
                 })}

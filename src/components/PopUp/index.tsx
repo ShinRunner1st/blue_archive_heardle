@@ -16,6 +16,14 @@ interface Props {
   actions?: React.ReactNode;
   /** As wide as a laptop's screen allows, for the profile and its like. */
   wide?: boolean;
+  /**
+   * The body runs to the panel's edges, with the title kept for screen
+   * readers only and the close button over the top of it: for a pop-up
+   * that opens on a picture, as the profile does.
+   */
+  bleed?: boolean;
+  /** Draws something round the panel, as the profile's frame. */
+  frame?: (panel: React.ReactElement) => React.ReactNode;
   children?: React.ReactNode;
 }
 
@@ -38,6 +46,8 @@ export function PopUp({
   onClose,
   actions,
   wide = false,
+  bleed = false,
+  frame,
   children,
 }: Props) {
   const panelRef = React.useRef<HTMLDivElement>(null);
@@ -104,21 +114,29 @@ export function PopUp({
     };
   }, []);
 
-  return (
-    <Styled.Overlay
-      // Clicking the backdrop dismisses; clicks inside the panel must not.
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose();
-      }}
+  const panel = (
+    <Styled.Panel
+      ref={panelRef}
+      $wide={wide}
+      $framed={frame !== undefined}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={titleId}
+      tabIndex={-1}
     >
-      <Styled.Panel
-        ref={panelRef}
-        $wide={wide}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        tabIndex={-1}
-      >
+      {bleed ? (
+        <>
+          <Styled.HiddenTitle id={titleId}>{title}</Styled.HiddenTitle>
+          <Styled.Close
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            $over
+          >
+            <IoClose aria-hidden="true" />
+          </Styled.Close>
+        </>
+      ) : (
         <Styled.Head>
           <Styled.Title id={titleId}>{title}</Styled.Title>
           {subtitle && <Styled.Subtitle>{subtitle}</Styled.Subtitle>}
@@ -127,9 +145,20 @@ export function PopUp({
           </Styled.Close>
           <Styled.Divider />
         </Styled.Head>
-        <Styled.Scroll>{children}</Styled.Scroll>
-        {actions && <Styled.Actions>{actions}</Styled.Actions>}
-      </Styled.Panel>
+      )}
+      <Styled.Scroll $bleed={bleed}>{children}</Styled.Scroll>
+      {actions && <Styled.Actions>{actions}</Styled.Actions>}
+    </Styled.Panel>
+  );
+
+  return (
+    <Styled.Overlay
+      // Clicking the backdrop dismisses; clicks inside the panel must not.
+      onMouseDown={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      {frame ? frame(panel) : panel}
     </Styled.Overlay>
   );
 }

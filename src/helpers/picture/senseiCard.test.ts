@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { students } from "../../constants/students";
 import { fakeContext } from "../../test/fakeCanvas";
-import { CARD_FRAMES } from "../../constants/cosmetics";
+import { CARD_COLORS } from "../../constants/cosmetics";
 import { SenseiStats } from "../senseiStats";
 import {
   drawSenseiCard,
@@ -109,7 +109,7 @@ describe("the card's title, frame and missions", () => {
     const content = senseiCardContent({
       ...input,
       title: "Kivotos DJ",
-      frame: CARD_FRAMES.find(({ id }) => id === "gold"),
+      frame: CARD_COLORS.find(({ id }) => id === "gold"),
     });
     expect(content.title).toBe("Kivotos DJ");
     expect(content.frame.id).toBe("gold");

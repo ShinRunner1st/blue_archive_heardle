@@ -1,7 +1,7 @@
 import styled, { css } from "styled-components";
 import "@fontsource-variable/nunito-sans";
 
-import { BorderKind } from "../../constants/cosmetics";
+import { FrameKind } from "../../constants/cosmetics";
 
 const shadowText = css`
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
@@ -9,8 +9,19 @@ const shadowText = css`
 
 /* ---------- The frame: a border drawn for its kind ---------- */
 
-export const Frame = styled.div`
+export const Frame = styled.div<{ $popUp?: boolean }>`
   position: relative;
+
+  ${({ $popUp }) =>
+    $popUp &&
+    css`
+      width: 100%;
+      max-width: 960px;
+
+      @media (max-width: 480px) {
+        max-width: none;
+      }
+    `}
 `;
 
 const CORNER_PLACE = {
@@ -35,11 +46,31 @@ const alpha = (color: string, amount: number) =>
     .toString(16)
     .padStart(2, "0")}`;
 
-export const FrameInner = styled.div<{ $kind: BorderKind; $colors: string[] }>`
+export const FrameInner = styled.div<{
+  $kind: FrameKind;
+  $colors: string[];
+  $popUp?: boolean;
+}>`
   position: relative;
   overflow: hidden;
   border-radius: 16px;
   box-sizing: border-box;
+
+  ${({ $popUp }) =>
+    $popUp &&
+    css`
+      display: flex;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+
+      & > * {
+        flex: 1 1 auto;
+      }
+
+      @media (max-width: 480px) {
+        border-bottom: none !important;
+        border-radius: 18px 18px 0 0;
+      }
+    `}
 
   ${({ $kind, $colors, theme }) => {
     const [line, accent = line] = $colors;
@@ -477,9 +508,9 @@ export const SectionCount = styled.span`
 
 /** How wide each kind's choices are: a banner needs its title's room. */
 const OPTION_WIDTH: Record<string, string> = {
-  title: "236px",
+  title: "140px",
   banner: "236px",
-  border: "130px",
+  frame: "130px",
 };
 
 export const Options = styled.div<{ $kind: string }>`
@@ -518,8 +549,10 @@ export const Option = styled.button<{ $active: boolean }>`
   }
 `;
 
-export const OptionLook = styled.div`
+/** A locked title shows dimmed, its mission named under it. */
+export const OptionLook = styled.div<{ $locked?: boolean }>`
   position: relative;
+  opacity: ${({ $locked }) => ($locked ? 0.45 : 1)};
 `;
 
 export const OptionName = styled.span`
@@ -549,11 +582,11 @@ export const Lock = styled.span`
   border-radius: 8px;
 `;
 
-export const BorderSwatch = styled.div`
+export const FrameSwatch = styled.div`
   padding: 6px;
 `;
 
-export const BorderFill = styled.div`
+export const FrameFill = styled.div`
   height: 56px;
 `;
 
@@ -575,5 +608,154 @@ export const SceneSwatch = styled.div`
 export const Body = styled.div`
   box-sizing: border-box;
   width: 100%;
-  padding: 0 12px;
+  padding: 0 28px;
+
+  @media (max-width: 480px) {
+    padding: 0 18px;
+  }
+`;
+
+/** A title as a choice: its words alone. */
+export const TitleChip = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: 38px;
+  padding: 6px 12px;
+
+  font-size: 0.85rem;
+  font-weight: 800;
+  text-align: center;
+
+  background-color: rgba(255, 255, 255, 0.07);
+  border-radius: 999px;
+`;
+
+/* ---------- The profile's head ---------- */
+
+export const Hero = styled.div`
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  width: 100%;
+  font-family: "Nunito Sans Variable";
+`;
+
+/** The background scene across the top, fading into the panel. */
+export const HeroScene = styled.div`
+  position: relative;
+  isolation: isolate;
+  height: 170px;
+  overflow: hidden;
+
+  background: linear-gradient(
+    135deg,
+    ${({ theme }) => theme.background1},
+    ${({ theme }) => theme.background100}
+  );
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      rgba(0, 0, 0, 0) 30%,
+      ${({ theme }) => theme.background100}
+    );
+  }
+
+  img {
+    z-index: -1;
+  }
+
+  @media (max-width: 480px) {
+    height: 130px;
+  }
+`;
+
+/** Customize and the Sensei card, over the scene by the close button. */
+export const HeroActions = styled.div`
+  position: absolute;
+  top: 12px;
+  right: 56px;
+  z-index: 2;
+  display: flex;
+  gap: 8px;
+`;
+
+export const HeroAction = styled.button`
+  height: 32px;
+  padding: 0 14px;
+
+  font-family: "Nunito Sans Variable";
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #ffffff;
+
+  background: rgba(14, 12, 30, 0.7);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(14, 12, 30, 0.88);
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: 2px;
+  }
+`;
+
+/** The picture over the scene's foot, and the name, banner and line. */
+export const HeroBody = styled.div`
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+
+  margin-top: -66px;
+  padding: 0 28px;
+
+  @media (max-width: 480px) {
+    margin-top: -52px;
+    padding: 0 18px;
+    gap: 12px;
+  }
+`;
+
+export const HeroFace = styled.div`
+  flex-shrink: 0;
+  padding: 4px;
+  background-color: ${({ theme }) => theme.background100};
+  border-radius: 50%;
+`;
+
+export const HeroText = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  padding-bottom: 6px;
+`;
+
+export const HeroName = styled.h2`
+  margin: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  font-size: 1.9rem;
+  font-weight: 900;
+  line-height: 1.05;
+  ${shadowText}
+
+  @media (max-width: 480px) {
+    font-size: 1.4rem;
+  }
 `;

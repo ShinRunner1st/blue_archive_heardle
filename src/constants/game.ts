@@ -246,9 +246,10 @@ export const ROOM_RECORD_KEY = "roomRecord";
 /** localStorage keys for what missions unlock: the card's title and frame,
  * and the cursor effects' colour. Settings, so not in the save file. */
 export const CARD_TITLE_KEY = "cardTitle";
-export const CARD_FRAME_KEY = "cardFrame";
+/** Named for the card's "frames", as the colours were first called. */
+export const CARD_COLORS_KEY = "cardFrame";
 export const CURSOR_COLOR_KEY = "cursorColor";
-/** The profile's banner, border and background, as picked in Customize. */
+/** The profile's banner, frame and background, as picked in Customize. */
 export const PROFILE_BANNER_KEY = "profileBanner";
-export const PROFILE_BORDER_KEY = "profileBorder";
+export const PROFILE_FRAME_KEY = "profileFrame";
 export const PROFILE_BACKGROUND_KEY = "profileBackground";

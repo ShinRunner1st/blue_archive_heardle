@@ -1,23 +1,23 @@
 import {
   BACKGROUNDS,
   BANNERS,
-  BORDERS,
-  CARD_FRAMES,
+  FRAMES,
+  CARD_COLORS,
   CARD_TITLES,
   CHARACTER_CHOICES,
-  CardFrame,
+  CardColors,
   CardTitle,
   Cosmetic,
   CURSOR_COLORS,
   CursorColor,
 } from "../constants/cosmetics";
 import {
-  CARD_FRAME_KEY,
+  CARD_COLORS_KEY,
   CARD_TITLE_KEY,
   CURSOR_COLOR_KEY,
   PROFILE_BACKGROUND_KEY,
   PROFILE_BANNER_KEY,
-  PROFILE_BORDER_KEY,
+  PROFILE_FRAME_KEY,
 } from "../constants/game";
 import { isMissionCleared, loadClearedMissions } from "./missions";
 
@@ -88,14 +88,18 @@ function pick<T extends { id: string; mission?: string }>(
  */
 export const COSMETIC_KINDS = {
   title: { label: "Card title", list: CARD_TITLES, key: CARD_TITLE_KEY },
-  frame: { label: "Card frame", list: CARD_FRAMES, key: CARD_FRAME_KEY },
+  cardColors: {
+    label: "Sensei card colours",
+    list: CARD_COLORS,
+    key: CARD_COLORS_KEY,
+  },
   cursor: {
     label: "Cursor colour",
     list: CURSOR_COLORS,
     key: CURSOR_COLOR_KEY,
   },
   banner: { label: "Banner", list: BANNERS, key: PROFILE_BANNER_KEY },
-  border: { label: "Border", list: BORDERS, key: PROFILE_BORDER_KEY },
+  frame: { label: "Frame", list: FRAMES, key: PROFILE_FRAME_KEY },
   background: {
     label: "Background",
     list: BACKGROUNDS,
@@ -120,12 +124,13 @@ export function setPicked(kind: CosmeticKind, id: string): void {
 }
 
 export const cardTitle = (): CardTitle => picked(CARD_TITLES, CARD_TITLE_KEY);
-export const cardFrame = (): CardFrame => picked(CARD_FRAMES, CARD_FRAME_KEY);
+export const cardColors = (): CardColors =>
+  picked(CARD_COLORS, CARD_COLORS_KEY);
 
 export const setCardTitle = (id: string) =>
   pick(CARD_TITLES, CARD_TITLE_KEY, id);
-export const setCardFrame = (id: string) =>
-  pick(CARD_FRAMES, CARD_FRAME_KEY, id);
+export const setCardColors = (id: string) =>
+  pick(CARD_COLORS, CARD_COLORS_KEY, id);
 export const setCursorColor = (id: string) =>
   pick(CURSOR_COLORS, CURSOR_COLOR_KEY, id);
 

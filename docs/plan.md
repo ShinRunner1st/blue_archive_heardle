@@ -870,16 +870,16 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   favourite student, days played, totals, a row per game (rounds, won,
   best streak, average tries, best Time Attack or fastest find), the
   OST's daily guess spread, badges and missions; and **Customize**, to
-  pick the banner, border and background unlocked, with the card's
+  pick the banner, frame and background unlocked, with the card's
   preview. The user approved the card, banner (with "some element on
-  it": an emblem, stripes and a line), borders and Customize, and asked
+  it": an emblem, stripes and a line), frames and Customize, and asked
   for more stats and room for more kinds of cosmetic later. _Built on
   `feat/profile`, off `feat/lobby-redesign`, with 12 more missions (39)
   to unlock them._
 - **Cosmetics** (asked for 2026-10-01), unlocked by missions and shown on
   the player's own profile first: a **banner**, the title on a slanted
   strip with a picture or a foil behind it (not only a coloured pill); a
-  **card border** drawn in code with ornaments on the corners, glows or
+  **card frame** (first called a border; the user renamed it on 2026-10-01, and the Sensei card's frames became its colours) drawn in code with ornaments on the corners, glows or
   gradients (gold filigree, sakura, arcade neon, halo, prism), not only
   a colour; a **card background**, a Kivotos scene (small pictures on the
   Worker and R2 like the hub's, fetched only when a card shows one).
@@ -891,7 +891,7 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   can check an item exists but not that its player unlocked it, and a
   profile's numbers come from the player's own browser.
 - **Missions for the new rewards**: more missions, so each banner,
-  background and border has one to unlock it, in `missions.json` and
+  background and frame has one to unlock it, in `missions.json` and
   `cosmetics.json` as now; ids never renamed. With the cosmetics above.
 
 ## Future
