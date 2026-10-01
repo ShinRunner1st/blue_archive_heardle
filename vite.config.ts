@@ -9,6 +9,7 @@ import {
   PAGES,
   pageOfPath,
   pageUrl,
+  SITE_ORIGIN,
   type Page,
 } from "./src/constants/pages";
 
@@ -60,7 +61,9 @@ export function fillPage(html: string, page: Page): string {
   const filled = html
     .replaceAll("{{page.title}}", escape(info.title))
     .replaceAll("{{page.description}}", escape(info.description))
-    .replaceAll("{{page.url}}", pageUrl(page));
+    .replaceAll("{{page.url}}", pageUrl(page))
+    .replaceAll("{{page.preview}}", SITE_ORIGIN + info.preview)
+    .replaceAll("{{page.previewAlt}}", escape(info.previewAlt));
   const left = filled.match(/{{page\.\w+}}/);
   if (left) throw new Error(`index.html has an unknown field: ${left[0]}`);
   return filled;

@@ -1,28 +1,44 @@
-# Blue Archive Heardle
+<h1 align="center">
+  <a href="https://baheardle.com/">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/logo-dark.png">
+      <img src="src/image/BlueArchive-Heardle.png" alt="Blue Archive Heardle" width="420">
+    </picture>
+  </a>
+</h1>
 
-A Heardle-style game: guess the Blue Archive OST from a few seconds of music.
-Or switch games and name a Blue Archive student from their voice, their halo
-or weapon, or how each guess compares.
+<p align="center">
+  Guessing games for Blue Archive Sensei: name the OST from a few seconds of
+  music, or a student from their voice, their halo or weapon, or a few clues.
+  Alone or with friends, free, with no ads or sign-up.
+</p>
 
-**Play it at [baheardle.com](https://baheardle.com/)**
+<p align="center">
+  <a href="https://baheardle.com/"><img src="https://img.shields.io/badge/Play-baheardle.com-128AFA?style=for-the-badge" alt="Play at baheardle.com"></a>
+  <a href="https://ko-fi.com/shinrunner1st"><img src="https://img.shields.io/badge/Support-Ko--fi-FF5E5B?style=for-the-badge&logo=ko-fi&logoColor=white" alt="Support on Ko-fi"></a>
+</p>
+
+<p align="center">
+  <img src="docs/screenshot-hub.webp" alt="The home page in dark mode: a card for each game with today's daily puzzles, Multiplayer, and Now in Global" width="24%">
+  <img src="docs/screenshot-game.webp" alt="An OST round: one skip, and the clip player" width="24%">
+  <img src="docs/screenshot-picture.webp" alt="Picture: name the student from their halo, with hints after each miss" width="24%">
+  <img src="docs/screenshot-multiplayer.webp" alt="Multiplayer: a name, a picture, and a room to make or join" width="24%">
+</p>
 
 The home page has a card for each game, with how today's daily puzzles went
 and a button to carry on with the game played last. Each game has its own
 page: [/ost](https://baheardle.com/ost), [/voice](https://baheardle.com/voice),
+[/picture](https://baheardle.com/picture),
 [/students](https://baheardle.com/students) and
-[/picture](https://baheardle.com/picture). The bar under the header moves
-between them without reloading, and the logo goes back home.
+[/multiplayer](https://baheardle.com/multiplayer), for private rooms with
+friends. The bar under the header moves between them without reloading, and
+the logo goes back home.
 
 Below the cards, the hub has **Your record** across every game (for anyone
 who has played; its button opens the Sensei card), **Now in Global** (the
 pickup students, the event and the raids on the Global server, each with
 when it ends) and **Birthdays this week**, with the students' portraits.
 Each card shows one of the game's scenes behind it.
-
-<p>
-  <img src="docs/screenshot-game.webp" alt="A round in progress: one wrong guess, one skip, and the clip player" width="49%">
-  <img src="docs/screenshot-result.webp" alt="The result screen in dark mode, playing the answer" width="49%">
-</p>
 
 ## How to play
 
@@ -1025,8 +1041,10 @@ To add a character, export her from the game (Spine 4.2 `.skel`, `.atlas` and
 
 ### Link preview and icons
 
-`public/preview.jpg` (1200×630, the picture X, Discord and LINE show when a
-link is shared) and the icons (`favicon.ico` with 16, 32 and 48 pixel
+The link previews (1200×630, the picture X, Discord and LINE show when a
+link is shared: `public/preview.jpg` for the hub, and `public/previews/` for
+each other page, set by `preview` in `src/constants/pages.ts`, so a link to
+`/voice` shows the Voice game and its ways to play) and the icons (`favicon.ico` with 16, 32 and 48 pixel
 PNGs, `logo192.png` and `logo512.png` for the manifest, and
 `apple-touch-icon.png`, square, since iOS rounds it itself) are drawn by
 `node scripts/make-preview.mjs`. It serves the pages in `scripts/preview/`
@@ -1035,9 +1053,13 @@ another), so both use the site's own font, logo and Mari (Idol), whose
 dress sets the colours. The icon is her face, flustered (expression 11),
 drawn once at 512 pixels and scaled down by ffmpeg; the three larger PNGs
 take a 256-colour palette, a third of the bytes. The preview gives no counts of
-songs or students, which would soon be out of date. After drawing a new
-one, bump the `?v=` on `og:image` and `twitter:image` in `index.html`:
-those sites keep a copy of the picture per address. Give it a
+songs or students, which would soon be out of date. After drawing new
+ones, bump `PREVIEW_VERSION` in `src/constants/pages.ts`: those sites keep
+a copy of the picture per address. The words and cards on each are in
+`scripts/preview/preview.ts`. Only those sites fetch them, never a player,
+about 140 KB each. The script draws the icons again too, a few bytes
+different each time; put them back with `git checkout` unless they were
+meant to change. Give it a
 folder (`node scripts/make-preview.mjs <folder>`) to try a change without
 touching `public/`. The pages are never part of the site's build.
 

@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <!--
-  The link preview, public/preview.jpg: drawn by scripts/make-preview.mjs,
-  which serves this page with Vite and screenshots it at 1200x630. Never
-  part of the site's build. No counts of songs or students: they grow, and
-  a picture that sites keep a copy of would soon be out of date.
+  The link previews, public/preview.jpg for the hub and public/previews/
+  for each other page: drawn by scripts/make-preview.mjs, which serves this
+  page with Vite at ?page=<page> and screenshots it at 1200x630. preview.ts
+  fills in the page's words and cards. Never part of the site's build. No
+  counts of songs or students: they grow, and a picture that sites keep a
+  copy of would soon be out of date.
 -->
 <html lang="en">
   <head>
@@ -18,36 +20,14 @@
 
       <section class="text">
         <img class="logo" src="/src/image/BlueArchive-Heardle.png" alt="" />
-        <p class="tagline">
-          Guess the OST, and students by voice, halo, weapon or clues.
-        </p>
-        <ul class="games">
-          <li>
-            <span class="icon" data-icon="music"></span>
-            <b>OST</b><span>Name the song from a clip</span>
-          </li>
-          <li>
-            <span class="icon" data-icon="mic"></span>
-            <b>Voice</b><span>Who is speaking?</span>
-          </li>
-          <li>
-            <span class="icon" data-icon="people"></span>
-            <b>Students</b><span>Find them from clues</span>
-          </li>
-          <li>
-            <span class="icon" data-icon="sparkles"></span>
-            <b>Halo &amp; Weapon</b><span>Whose is it?</span>
-          </li>
-        </ul>
-        <p class="footer">
-          <span>Daily puzzle</span><span>Endless</span><span>Time Attack</span>
-          <span>Free, no ads</span>
-        </p>
+        <p class="tagline"></p>
+        <ul class="games"></ul>
+        <p class="footer"></p>
       </section>
 
       <div class="sparks"></div>
       <div class="character"><canvas></canvas></div>
-      <p class="site">baheardle.com</p>
+      <p class="site"></p>
     </main>
     <script type="module" src="./preview.ts"></script>
   </body>

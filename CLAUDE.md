@@ -288,11 +288,12 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   Shift+Enter skips, Esc closes.
 - The answer is hidden from the page source and saves are scrambled.
 - SEO: a canonical, title, description and Open Graph/Twitter card on each
-  page (`public/preview.jpg`, 1200×630), `robots.txt`, `sitemap.xml` (the
-  six pages). The preview (Mari (Idol) and the four
-  games, no counts, in her dress's colours) and the icons (her flustered
-  face on charcoal) are drawn by `scripts/make-preview.mjs` from the pages in
-  `scripts/preview/`.
+  page, `robots.txt`, `sitemap.xml` (the six pages). Each page has its own
+  link preview (1200×630, `public/preview.jpg` for the hub with the five
+  games, `public/previews/<page>.jpg` with that game's ways to play;
+  `preview` in `pages.ts`; Mari (Idol), no counts, in her dress's
+  colours). They and the icons (her flustered face on charcoal) are drawn
+  by `scripts/make-preview.mjs` from the pages in `scripts/preview/`.
 
 ## What has been done (history)
 

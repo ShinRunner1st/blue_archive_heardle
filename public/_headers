@@ -29,6 +29,8 @@
   Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
 /preview.jpg
   Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
+/previews/*
+  Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
 /spine/*
   Cache-Control: public, max-age=604800, stale-while-revalidate=2592000
 /cursor/*

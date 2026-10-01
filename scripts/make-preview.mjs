@@ -1,8 +1,9 @@
 /**
- * Draws the link preview (public/preview.jpg, 1200x630) and the site's icons
- * (favicon.ico, logo192.png, logo512.png, apple-touch-icon.png) from the
- * pages in scripts/preview/, by serving them with Vite and screenshotting
- * them in headless Chrome.
+ * Draws the link previews (1200x630: public/preview.jpg for the hub, and
+ * public/previews/<page>.jpg for each other page, as PAGES names them) and
+ * the site's icons (favicon.ico, logo192.png, logo512.png,
+ * apple-touch-icon.png) from the pages in scripts/preview/, by serving them
+ * with Vite and screenshotting them in headless Chrome.
  *
  *   node scripts/make-preview.mjs [output folder, public/ by default]
  *
@@ -11,6 +12,7 @@
 import { spawn, execFile } from "node:child_process";
 import {
   existsSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
@@ -83,6 +85,9 @@ async function openPage() {
   return { send, close: () => socket.close() };
 }
 
+/** The pages with a preview of their own; the one at "/" is the hub's. */
+const PAGES = ["hub", "ost", "voice", "picture", "students", "multiplayer"];
+
 /** Screenshots a page once it sets `window.previewReady`, as PNG bytes. */
 async function screenshot(page, path, width, height) {
   await page.send("Emulation.setDeviceMetricsOverride", {
@@ -154,12 +159,18 @@ try {
     color: { r: 0, g: 0, b: 0, a: 0 },
   });
 
-  const png = join(profile, "preview.png");
-  writeFileSync(png, await screenshot(page, "preview.html", 1200, 630));
-  await run("ffmpeg", [
-    ...["-v", "error", "-y", "-i", png],
-    ...["-q:v", String(JPEG_QUALITY), join(OUT, "preview.jpg")],
-  ]);
+  mkdirSync(join(OUT, "previews"), { recursive: true });
+  for (const name of PAGES) {
+    const png = join(profile, `preview-${name}.png`);
+    const shot = await screenshot(page, `preview.html?page=${name}`, 1200, 630);
+    writeFileSync(png, shot);
+    const jpg =
+      name === "hub" ? "preview.jpg" : join("previews", `${name}.jpg`);
+    await run("ffmpeg", [
+      ...["-v", "error", "-y", "-i", png],
+      ...["-q:v", String(JPEG_QUALITY), join(OUT, jpg)],
+    ]);
+  }
 
   // Mari is drawn once at full size and scaled down: the Spine runtime
   // drawing her 16 pixels wide would alias.
@@ -198,7 +209,7 @@ try {
   );
 
   page.close();
-  console.log(`Drew the preview and icons into ${OUT}/`);
+  console.log(`Drew the previews and icons into ${OUT}/`);
 } finally {
   browser.kill();
   await server.close();

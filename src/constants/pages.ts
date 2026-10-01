@@ -22,7 +22,21 @@ export interface PageInfo {
    * so Google doesn't cut it short.
    */
   description: string;
+  /**
+   * The link preview's picture, from the site's root (drawn by
+   * scripts/make-preview.mjs), and what it shows, for screen readers.
+   */
+  preview: string;
+  previewAlt: string;
 }
+
+/**
+ * Bumped with every new drawing of the previews: X, Discord and the like
+ * keep a copy of a picture per address.
+ */
+const PREVIEW_VERSION = 3;
+
+const previewOf = (file: string) => `/${file}.jpg?v=${PREVIEW_VERSION}`;
 
 export const SITE_ORIGIN = "https://baheardle.com";
 
@@ -33,6 +47,9 @@ export const PAGES: Record<Page, PageInfo> = {
     title: "Blue Archive Heardle - Guess the OST, Voices, Halos and Students",
     description:
       "Daily Blue Archive guessing games: name the OST from a short clip, or a student from a voice line, halo, weapon or clues. Free, with no ads or sign-up.",
+    preview: previewOf("preview"),
+    previewAlt:
+      "Blue Archive Heardle: Mari beside the OST, Voice, Halo and Weapon, Students and Multiplayer games",
   },
   ost: {
     path: "/ost",
@@ -40,6 +57,9 @@ export const PAGES: Record<Page, PageInfo> = {
     title: "Guess the Blue Archive OST - Blue Archive Heardle",
     description:
       "Hear a short clip of a Blue Archive song and name it in six tries; each miss plays more. A daily puzzle, endless play, 4-Choice and Time Attack.",
+    preview: previewOf("previews/ost"),
+    previewAlt:
+      "Guess the Blue Archive OST: Mari beside Daily, Classic, 4-Choice and Time Attack",
   },
   voice: {
     path: "/voice",
@@ -47,6 +67,9 @@ export const PAGES: Record<Page, PageInfo> = {
     title: "Guess the Blue Archive Student by Voice - Blue Archive Heardle",
     description:
       "Hear a student's title call or lobby line and name them, with a hint after each miss: school, club, silhouette. Daily, endless, 4-Choice and Time Attack.",
+    preview: previewOf("previews/voice"),
+    previewAlt:
+      "Guess the student by voice: Mari beside Daily, Classic, 4-Choice and Time Attack",
   },
   students: {
     path: "/students",
@@ -54,6 +77,9 @@ export const PAGES: Record<Page, PageInfo> = {
     title: "Guess the Blue Archive Student from Clues - Blue Archive Heardle",
     description:
       "Name the Blue Archive student: each guess shows how their school, role, weapon, birthday and more compare. Gameplay or Lore, daily and endless.",
+    preview: previewOf("previews/students"),
+    previewAlt:
+      "Guess the student from clues: Mari beside Daily, Endless, Gameplay and Lore",
   },
   picture: {
     path: "/picture",
@@ -62,6 +88,9 @@ export const PAGES: Record<Page, PageInfo> = {
       "Guess the Blue Archive Student by Halo or Weapon - Blue Archive Heardle",
     description:
       "Name the Blue Archive student from their halo or weapon, or only its silhouette. A daily puzzle, endless play, 4-Choice and Time Attack.",
+    preview: previewOf("previews/picture"),
+    previewAlt:
+      "Guess the student by halo or weapon: Mari beside Daily, Classic, 4-Choice and Time Attack",
   },
   multiplayer: {
     path: "/multiplayer",
@@ -70,6 +99,9 @@ export const PAGES: Record<Page, PageInfo> = {
       "Blue Archive Music and Student Quiz with Friends - Blue Archive Heardle",
     description:
       "Make a private room and guess Blue Archive songs, voices, halos or weapons with up to 8 friends, everyone hearing the same song at once. Free, no sign-up.",
+    preview: previewOf("previews/multiplayer"),
+    previewAlt:
+      "Blue Archive Heardle with friends: Mari beside private rooms for 2 to 8 players, no sign-up",
   },
 };
 
