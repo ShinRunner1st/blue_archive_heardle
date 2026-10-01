@@ -1072,14 +1072,25 @@ Her expressions for each moment of a round are chosen in
 `src/constants/characters.ts`. She pauses while the colour scheme switches and
 draws at most 60 frames a second.
 
+Arona, Plana and Mari are everyone's; Shiroko, Hoshino, Hina and Aris (the
+students' own `_spr` sprites, tap only, 0.7-0.9 MB each) are unlocked by a
+mission each, listed with the others in `src/content/cosmetics.json`.
+
 To add a character, export her from the game (Spine 4.2 `.skel`, `.atlas` and
-`.png`), then:
+`.png`; a student's `<DevName>_spr` is in `.cache/game/sprites/` once the
+game's files have been fetched), then:
 
 1. Run `python scripts/build-spine.py <path to .skel> <id>` (needs Python 3
    and Pillow). It copies her into `public/spine/<id>/` with the texture as
    WebP.
-2. Add her to `src/constants/characters.ts`: the part of her to frame, her
-   touch bones if she has them, and which expression fits each moment.
+2. Add her to `src/constants/characters.ts` and `CharacterId`: her eye
+   height (`eyes`, so her face sits where everyone's does: compare a
+   screenshot of her with Arona's), her touch bones if she has them, and
+   which expression fits each moment (render each of her animations to
+   choose; a student's sprite has `00` to about `30`, `99`, `Idle_01` and
+   `Eye_Close_01`, and its blink suits only the face it was drawn on).
+3. List her in `characters` in `src/content/cosmetics.json`, with the
+   mission that unlocks her, or none.
 
 ### Link preview and icons
 

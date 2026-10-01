@@ -131,5 +131,35 @@
       "mission": "room-10",
       "swatch": "linear-gradient(90deg, #ff4d4d, #ffd24d, #4dff88, #4dc3ff, #b84dff)"
     }
+  ],
+  "characters": [
+    {
+      "id": "auto",
+      "name": "Arona & Plana"
+    },
+    {
+      "id": "mari",
+      "name": "Mari"
+    },
+    {
+      "id": "shiroko",
+      "name": "Shiroko",
+      "mission": "daily-7"
+    },
+    {
+      "id": "hoshino",
+      "name": "Hoshino",
+      "mission": "ost-100"
+    },
+    {
+      "id": "hina",
+      "name": "Hina",
+      "mission": "students-100"
+    },
+    {
+      "id": "aris",
+      "name": "Aris",
+      "mission": "room-first"
+    }
   ]
 }

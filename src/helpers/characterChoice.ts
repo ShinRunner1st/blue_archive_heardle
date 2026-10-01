@@ -1,18 +1,32 @@
+import { CHARACTER_CHOICES } from "../constants/cosmetics";
 import { CharacterChoice } from "../types/character";
+import { isMissionCleared } from "./missions";
 import { loadCharacterChoice, saveCharacterChoice } from "./storage";
+
+/**
+ * Whether the player may have her: off and the free ones always, the others
+ * once their mission is cleared. A save file from before it can take one
+ * away again.
+ */
+export function isCharacterUnlocked(choice: CharacterChoice): boolean {
+  if (choice === "off") return true;
+  const option = CHARACTER_CHOICES.find(({ id }) => id === choice);
+  return option !== undefined && isMissionCleared(option.mission);
+}
 
 /** The player's pick, read from storage lazily. */
 let choice: CharacterChoice | null = null;
 
 const listeners = new Set<() => void>();
 
+/** The pick, or Arona and Plana while it isn't unlocked. */
 export function getCharacterChoice(): CharacterChoice {
   if (choice === null) choice = loadCharacterChoice();
-  return choice;
+  return isCharacterUnlocked(choice) ? choice : "auto";
 }
 
 export function setCharacterChoice(next: CharacterChoice): void {
-  if (next === getCharacterChoice()) return;
+  if (next === getCharacterChoice() || !isCharacterUnlocked(next)) return;
   choice = next;
   saveCharacterChoice(next);
   listeners.forEach((listener) => listener());

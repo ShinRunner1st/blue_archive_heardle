@@ -855,7 +855,13 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   in Settings), then new characters beside the game, each from the game's
   Spine files, a few at a time, as a second step. _The first step (27
   missions, 7 titles, 4 frames, 5 cursor colours) is built on
-  `feat/missions`; the characters are still to do._
+  `feat/missions`. The characters, picked by popularity (2026-10-01, the
+  user's call to make): Shiroko, Hoshino, Hina and Aris, on
+  `feat/characters` off `feat/content-data`._
+- **Content files** (asked for on 2026-10-01): seasons, missions, what they
+  unlock, OST badges and What's new are JSON in `src/content/`, so adding
+  or removing one never touches a component, checked by a content test.
+  _Built on `feat/content-data`, off `feat/missions`._
 - **Accounts** (decided 2026-10-01): the user chose real accounts, a
   login (such as Discord or Google) to keep a player's data online and to
   know who plays in multiplayer, over an anonymous sync code. To plan

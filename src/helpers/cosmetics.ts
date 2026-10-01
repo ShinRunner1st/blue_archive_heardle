@@ -1,6 +1,7 @@
 import {
   CARD_FRAMES,
   CARD_TITLES,
+  CHARACTER_CHOICES,
   CardFrame,
   CardTitle,
   CURSOR_COLORS,
@@ -180,6 +181,9 @@ export function unlocksOf(missionId: string): string[] {
     ),
     ...CURSOR_COLORS.filter(({ mission }) => mission === missionId).map(
       ({ name }) => `Cursor colour: ${name}`
+    ),
+    ...CHARACTER_CHOICES.filter(({ mission }) => mission === missionId).map(
+      ({ name }) => `Character: ${name}`
     ),
   ];
 }

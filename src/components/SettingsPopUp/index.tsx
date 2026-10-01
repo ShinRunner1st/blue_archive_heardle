@@ -7,7 +7,7 @@ import {
   IoSparkles,
 } from "react-icons/io5";
 
-import { CURSOR_COLORS } from "../../constants/cosmetics";
+import { CHARACTER_CHOICES, CURSOR_COLORS } from "../../constants/cosmetics";
 import { setCharacterChoice } from "../../helpers/characterChoice";
 import { getCursorColor, setCursorColor } from "../../helpers/cosmetics";
 import { setCustomCursor } from "../../helpers/customCursor";
@@ -47,11 +47,8 @@ interface Props {
   reset?: ResetTarget;
 }
 
-const CHARACTERS: Array<{ value: CharacterChoice; label: string }> = [
-  { value: "auto", label: "Arona & Plana" },
-  { value: "mari", label: "Mari" },
-  { value: "off", label: "Off" },
-];
+/** The characters as Settings lists them, with a way to have nobody. */
+const CHARACTERS = [...CHARACTER_CHOICES, { id: "off", name: "Off" }];
 
 export function SettingsPopUp({ onClose, reset }: Props) {
   const customCursor = useCustomCursor();
@@ -161,24 +158,18 @@ export function SettingsPopUp({ onClose, reset }: Props) {
               <PopUpCardTitle id={characterLabel}>Character</PopUpCardTitle>
               <PopUpCardText>
                 Stands beside the game on wide screens and reacts to your
-                guesses. Hold her to make her look at you, stroke her head, or
-                tap her. Arona keeps you company in light mode, Plana in dark.
+                guesses; tap her for another face. Arona keeps you company in
+                light mode, Plana in dark, and you can hold them to make them
+                look at you or stroke their heads. Missions unlock more
+                students.
               </PopUpCardText>
             </PopUpCardBody>
-            <Styled.Choices role="radiogroup" aria-labelledby={characterLabel}>
-              {CHARACTERS.map(({ value, label }) => (
-                <Styled.Choice
-                  key={value}
-                  type="button"
-                  role="radio"
-                  aria-checked={character === value}
-                  $active={character === value}
-                  onClick={() => setCharacterChoice(value)}
-                >
-                  {label}
-                </Styled.Choice>
-              ))}
-            </Styled.Choices>
+            <CosmeticChoices
+              labelledBy={characterLabel}
+              choices={CHARACTERS}
+              selected={character}
+              onPick={(id) => setCharacterChoice(id as CharacterChoice)}
+            />
           </Styled.Stack>
         </PopUpCard>
 

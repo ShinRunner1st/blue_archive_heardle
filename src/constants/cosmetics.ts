@@ -1,4 +1,5 @@
 import cosmeticData from "../content/cosmetics.json";
+import type { CharacterChoice } from "../types/character";
 
 /**
  * What missions unlock, from src/content/cosmetics.json, each a setting the player picks once it's theirs:
@@ -46,3 +47,14 @@ export interface CursorColor extends Cosmetic {
 }
 
 export const CURSOR_COLORS = cosmeticData.cursorColors as CursorColor[];
+
+/**
+ * The characters to pick in Settings, besides turning her off: Arona and
+ * Plana together ("auto") and Mari for everyone, the others unlocked. Each
+ * also needs her sprite and set-up in src/constants/characters.ts.
+ */
+export interface CharacterOption extends Cosmetic {
+  id: Exclude<CharacterChoice, "off">;
+}
+
+export const CHARACTER_CHOICES = cosmeticData.characters as CharacterOption[];

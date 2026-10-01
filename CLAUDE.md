@@ -273,8 +273,10 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
 - **Save file**: export all modes to one scrambled file and import it on
   another device (`src/helpers/saveFile.ts`); checked like the saves, asks
   before replacing, then reloads the page.
-- **Characters**: Arona (light) / Plana (dark) / Mari, drawn with Spine,
-  react to guesses and can be held, stroked and tapped. Wide screens only.
+- **Characters**: Arona (light) / Plana (dark) / Mari, and Shiroko,
+  Hoshino, Hina and Aris unlocked by missions (`cosmetics.json`), drawn
+  with Spine, react to guesses; Arona and Plana can be held and stroked,
+  all tapped. Wide screens only.
 - **Streak places**: every 10 wins in a row moves the background somewhere new
   in Kivotos, up to the sky at 100; a loss sends it back to the Trinity library.
 - **Seasons**: through the year the home background becomes the time of
@@ -293,7 +295,7 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   one. Multiplayer's from a local count of games finished and won. Some
   unlock cosmetics (`src/constants/cosmetics.ts`, drawn in code): Sensei
   card titles and frames (picked on the card) and cursor effect colours
-  (Settings). New characters to unlock are the next step.
+  (Settings), and characters beside the game.
 - **What's new** pop-up after updates, the welcome/How to play pop-up, About
   with a privacy notice and a Ko-fi card.
 - **Keyboard play**: type anywhere to search, Space plays, Enter picks/submits,

@@ -32,7 +32,7 @@ interface Props {
 
 /**
  * The character beside the play area: Arona in light mode and Plana in dark,
- * or Mari if the player picked her. She reacts to the round, and to being
+ * or the student the player picked (Mari, or one a mission unlocked). She reacts to the round, and to being
  * held, patted and tapped. Narrow screens and players who turned her off
  * never render her, so never download her or the Spine runtime.
  */
@@ -47,8 +47,8 @@ export function Character(props: Props) {
   if (!shown || choice === "off") return null;
 
   const character =
-    choice === "mari"
-      ? spineCharacters.mari
+    choice !== "auto"
+      ? spineCharacters[choice]
       : scheme === "dark"
       ? spineCharacters.plana
       : spineCharacters.arona;

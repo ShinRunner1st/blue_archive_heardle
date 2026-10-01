@@ -12,6 +12,11 @@
         "icon": "IoGift",
         "title": "Things to unlock",
         "text": "Some missions unlock a title and new frames for your Sensei card, and new colours for the cursor's flash and trail, picked on the card and in Settings."
+      },
+      {
+        "icon": "IoPeople",
+        "title": "New students beside the game",
+        "text": "Shiroko, Hoshino, Hina and Aris can now stand beside the game on wide screens, each unlocked by a mission. Pick one in Settings."
       }
     ]
   },

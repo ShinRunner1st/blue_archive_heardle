@@ -25,8 +25,18 @@ export interface Touch {
   stroke: { loop: string[]; end: string[] };
 }
 
+/** Every character with a sprite in public/spine/. */
+export type CharacterId =
+  | "arona"
+  | "plana"
+  | "mari"
+  | "shiroko"
+  | "hoshino"
+  | "hina"
+  | "aris";
+
 export interface SpineCharacter {
-  id: "arona" | "plana" | "mari";
+  id: CharacterId;
   name: string;
   /** Under public/spine/, made by scripts/build-spine.py. */
   skel: string;
@@ -210,6 +220,95 @@ export const spineCharacters: Record<SpineCharacter["id"], SpineCharacter> = {
       won: ["10", "03", "03", "13", "13", "01"],
       lost: "09",
       tapped: ["00", "03", "10", "11", "12", "13"],
+    },
+  },
+  shiroko: {
+    id: "shiroko",
+    name: "Shiroko",
+    skel: "shiroko/shiroko_spr.skel",
+    atlas: "shiroko/shiroko_spr.atlas",
+    centerX: 0,
+    eyes: 1000,
+    idle: "Idle_01",
+    blink: "Eye_Close_01",
+    // Calm as she is in the game: her faces change a little, so a win is her rare smile (08).
+    blinkable: ["00"],
+    touch: null,
+    moods: {
+      idle: "00",
+      listening: "99",
+      wrong: "06",
+      nervous: ["05", "01", "13", "16", "17"],
+      won: ["08", "12", "04", "12", "09", "00"],
+      lost: "15",
+      tapped: ["02", "04", "08", "10", "12", "14"],
+    },
+  },
+  hoshino: {
+    id: "hoshino",
+    name: "Hoshino",
+    skel: "hoshino/hoshino_spr.skel",
+    atlas: "hoshino/hoshino_spr.atlas",
+    centerX: 0,
+    eyes: 920,
+    idle: "Idle_01",
+    blink: "Eye_Close_01",
+    // At rest her calm face (01), the one her blink suits; her sleepy wink
+    // (00) is for taps, and she dozes while the clip plays (99).
+    blinkable: ["01"],
+    touch: null,
+    moods: {
+      idle: "01",
+      listening: "99",
+      wrong: "04",
+      nervous: ["05", "13", "16", "06", "17"],
+      won: ["03", "02", "08", "07", "14", "15"],
+      lost: "12",
+      tapped: ["00", "02", "07", "09", "10", "11", "14"],
+    },
+  },
+  hina: {
+    id: "hina",
+    name: "Hina",
+    skel: "hina/hina_spr.skel",
+    atlas: "hina/hina_spr.atlas",
+    centerX: 0,
+    eyes: 929,
+    idle: "Idle_01",
+    blink: "Eye_Close_01",
+    // The prefect: stern at rest, a sweat drop as the tries go, her rare smile (08) for a quick win and the gloom (15) for a loss.
+    blinkable: ["00"],
+    touch: null,
+    moods: {
+      idle: "00",
+      listening: "99",
+      wrong: "06",
+      nervous: ["04", "12", "05", "20", "13"],
+      won: ["08", "16", "17", "18", "02", "01"],
+      lost: "15",
+      tapped: ["07", "09", "10", "11", "17", "18", "25"],
+    },
+  },
+  aris: {
+    id: "aris",
+    name: "Aris",
+    skel: "aris/aris_spr.skel",
+    atlas: "aris/aris_spr.atlas",
+    centerX: 0,
+    eyes: 968,
+    idle: "Idle_01",
+    blink: "Eye_Close_01",
+    // Only Aris's own faces: the pink-eyed ones (12, 14-19) are Kei's.
+    blinkable: ["00"],
+    touch: null,
+    moods: {
+      idle: "00",
+      listening: "99",
+      wrong: "03",
+      nervous: ["01", "02", "05", "06", "09"],
+      won: ["07", "08", "00", "010", "11", "00"],
+      lost: "10",
+      tapped: ["00", "04", "07", "08", "010", "11"],
     },
   },
 };

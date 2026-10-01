@@ -6,6 +6,7 @@ import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import { songs } from "../constants";
+import { spineCharacters } from "../constants/characters";
 import { ICONS } from "../constants/icons";
 import { MISSION_FACTS } from "../constants/missions";
 import { pictureFiles } from "../constants/pictureFiles";
@@ -157,6 +158,30 @@ describe("cosmetics.json", () => {
       const { hue } = color as { hue?: number };
       if (hue !== undefined) {
         expect(hue >= 0 && hue < 360, `cursor ${color.id}: hue`).toBe(true);
+      }
+    }
+  });
+});
+
+describe("cosmetics.json characters", () => {
+  it("lists characters that have a sprite, unlocked by real missions", () => {
+    unique(
+      cosmetics.characters.map(({ id }) => id),
+      "character"
+    );
+    expect(cosmetics.characters[0].id).toBe("auto");
+    for (const character of cosmetics.characters.slice(1)) {
+      expect(
+        character.id in spineCharacters &&
+          character.id !== "arona" &&
+          character.id !== "plana",
+        `${character.id}: needs an entry in src/constants/characters.ts`
+      ).toBe(true);
+      const { mission } = character as { mission?: string };
+      if (mission !== undefined) {
+        expect(missionIds.has(mission), `${character.id}: ${mission}`).toBe(
+          true
+        );
       }
     }
   });
