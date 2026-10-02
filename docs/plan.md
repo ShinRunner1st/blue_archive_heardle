@@ -947,6 +947,16 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   gradients (gold filigree, sakura, arcade neon, halo, prism), not only
   a colour; a **card background**, a Kivotos scene (small pictures on the
   Worker and R2 like the hub's, fetched only when a card shows one).
+- **Verified stats** (direction approved 2026-10-02): a record the server
+  keeps itself, apart from the local save, which stays personal. Phase 1
+  only: verified dailies for every game and server, verified streaks,
+  room results from receipts the room signs, and a Verified section on
+  the player's own profile; Endless, Time Attack, missions and cosmetics
+  stay personal, verified achievements are Phase 2, leaderboards later.
+  Verified stops made-up, imported and replayed history; it doesn't stop
+  a modified page looking answers up. The design is
+  `docs/verified-stats.md`; nothing is built until the user approves it.
+  _Drafted on `docs/verified-stats`, off `main`._
 - **Levels, with accounts** (asked for 2026-10-01): an account level
   from the rounds and missions it has played, shown on the card.
 - **Other players' profiles and cosmetics in rooms, with accounts**:
