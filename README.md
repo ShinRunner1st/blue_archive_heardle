@@ -412,7 +412,11 @@ they need no more height than the OST, and every game fits a 1080p window.
   daily played verified, its streak and spread, the fastest verified find,
   and room games by place, with what verified does and doesn't mean. A
   line under each signed-in daily's result says whether it was verified,
-  or why not (`src/components/VerifiedNote/`).
+  or why not (`src/components/VerifiedNote/`). In a room's lobby and
+  standings, a signed-in player's card opens their profile, laid out as
+  your own (`src/components/Multiplayer/RoomProfile.tsx`): their look,
+  a Verified tab with their totals, and Their saves, marked not
+  verified. The Account tab's "Your profile in rooms" hides yours.
 - **Character** - on wide screens, Arona (light mode) or Plana (dark mode)
   stands beside the game and reacts to your guesses. Hold her to make her look
   at you, stroke her head, or tap her. ☰ → Settings swaps in Mari or turns
@@ -1454,13 +1458,27 @@ the rooms sign (game, typed or 4-Choice, rounds, players, place, score,
 when it ended). They're kept as long as the account, are in Download my
 data (`verified` in the file), and go with Delete account and the
 two-year cleanup (the four `verified_*` tables are in `ACCOUNT_TABLES`).
-Nobody else sees them: no leaderboards, no public profile. The browser
+No leaderboards, no public profile; players in a room can see their
+totals from a card (below). The browser
 keeps only a note of dailies under way and receipts not yet taken (the
 `verified` key), cleared when the session changes, never in a save file.
 Verified means the server issued, judged and timed it, not that nobody
 cheated: answers can be looked up, a changed page can play differently,
 and accounts are free, as the policy and About say. A daily played as a
 guest, offline or before signing in is never made verified.
+
+**Profiles from a card** (`docs/room-profiles.md`): in a room, anyone,
+guests too, can tap a signed-in player's card for their profile: their
+verified totals (`readVerifiedTotals`: per daily played, won, best
+streak, fastest find; rooms by place; since when) and their profile's
+summary, shown as from their own saves, not verified. The room signs a
+`profile-view` ticket (5 minutes, `ROOM_PASS_KEY`) for the asker alone,
+so pages never get public ids, and `POST /profile-view` needs no session;
+never the Google or Discord id, time zone, single dailies or guesses, and
+no lookup outside a room. On by default; the account keeps a switch
+(`accounts.profile_shown`, migration 0006, in Download my data), "Your
+profile in rooms" on the Account tab, which the room pass carries and the
+accounts Worker checks again on each view.
 
 ## Support
 

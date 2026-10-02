@@ -196,6 +196,15 @@ Each step only once the user approves it, on its own stacked branch:
    guests, the page a guest): only the three shown cards open, the
    profile shows both records, the page's only account requests were
    the view and its preflight, and opening it again asked nothing._
-4. **Privacy**: the policy, About, the README, What's new.
+4. **Privacy**: the policy, About, the README, What's new. _Built on
+   `docs/profile-privacy`: the policy's "Who sees what" now says players
+   in a room, guests too, can see the verified totals and the summary of
+   one's own saves (named field by field, the summary as unverified), only
+   while in the same room, by a ticket of a few minutes, never the
+   account's id, Google or Discord account, time zone, single dailies or
+   guesses, nor any lookup outside a room, and how to hide it; the
+   account's list gains the switch, Verified results says others in a
+   room see its totals, and Your choices gains hiding it. About, the
+   README (Privacy and Profile) and a What's new entry say the same._
 5. **Measured on the preview**, with the preview accounts stack
    (`chore/accounts-preview`), before any release.

@@ -1,5 +1,21 @@
 [
   {
+    "id": "2026-10-room-profiles",
+    "name": "Profiles in rooms",
+    "items": [
+      {
+        "icon": "IoPeople",
+        "title": "Tap a card",
+        "text": "In a room, tap a signed-in player's card, in the lobby or on the standings, to see their profile: their look, their verified record, and their own record from their saves, marked as not verified. It works for guests too."
+      },
+      {
+        "icon": "IoShieldCheckmark",
+        "title": "Yours, your call",
+        "text": "Signed in, players in a room with you can see your profile the same way. Hide it whenever you like: ☰ Profile, Account, Your profile in rooms. What they see, and what they never do, is on the Privacy page."
+      }
+    ]
+  },
+  {
     "id": "2026-10-verified",
     "name": "Verified record",
     "items": [
@@ -11,7 +27,7 @@
       {
         "icon": "IoTrophy",
         "title": "The Verified tab",
-        "text": "☰ Profile, Verified shows your verified dailies, streaks and room games, just to you. Verified means the server started and judged it, not that nobody cheated. What's kept is on the Privacy page, and in Download my data."
+        "text": "☰ Profile, Verified shows your verified dailies, streaks and room games. Verified means the server started and judged it, not that nobody cheated. What's kept is on the Privacy page, and in Download my data."
       }
     ]
   },

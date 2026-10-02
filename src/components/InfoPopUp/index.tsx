@@ -268,12 +268,20 @@ export function InfoPopUp({
               server notes each daily as it starts, then judges your guesses
               itself and keeps the result, guesses and time, with your daily
               time zone (such as Asia/Bangkok) to know which day is yours, and
-              your results from finished room games. Only you see them, on your
+              your results from finished room games. You see them on your
               profile. Verified means the server started and judged it, not that
               nobody cheated: answers can still be looked up. Dailies played as
               a guest or offline stay in this browser, and are never made
               verified. They&apos;re kept with your account, in Download my
               data, and go with Delete account.
+            </PopUpCardText>
+            <PopUpCardText>
+              Signed in, players in a room with you, guests too, can tap your
+              card to see your profile: your verified totals, and the summary of
+              your own saves, marked as unverified. Only while you&apos;re in
+              the same room, never your Google or Discord account, time zone or
+              guesses, and nobody can look you up anywhere else. Hide it on the
+              Account tab, Your profile in rooms.
             </PopUpCardText>
             <PopUpCardText>
               In Multiplayer, the room gets the name and picture from your

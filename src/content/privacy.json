@@ -23,6 +23,7 @@
         "your progress: your rounds in every game and mode, your multiplayer games and the missions you've cleared, as a copy of your save, and the copy from before the last time two devices' progress was joined;",
         "a summary of your record (rounds played, wins, best streaks and the like), worked out from your progress;",
         "your verified results, and your daily time zone: see Verified results below;",
+        "whether players in a room with you can see your profile from your card: on, unless you turn it off (see Who sees what);",
         "when the account was made and last used, and for each device you're signed in on, a scrambled form of its sign-in key and when it runs out."
       ]
     },
@@ -33,7 +34,7 @@
         "Signed in, each daily you play is also kept as a verified result, apart from your progress. As the daily starts (its first clip, line or picture, or your first guess), our server notes which daily, which day and when. When it ends, your browser sends your guesses in order (with your skips, and whether you gave up); the server judges them itself with the game's own rules and keeps the result (won, lost, or not finished in time), the tries, the guesses, when it finished, and whether its time counted. The time is the server's own clock, from start to finish.",
         "From a multiplayer game played to its end while signed in, the room signs a short receipt of your result: the game, typed or 4-Choice, the rounds, how many played, your place and score, and when it ended. Your browser brings it to your account, which counts each game once.",
         "To know which day's puzzle is yours, your account keeps your daily time zone: its name, such as Asia/Bangkok, as your device sets it, the first time you play a verified daily (and again if you change it). It says roughly where you are; it's never looked up from your address, and it's used for nothing else.",
-        "Why: so your account has a record the server saw and judged itself, apart from your own browser's record, which can be changed or imported, and verified streaks that can't be made up or replayed. Only you see it, on your profile's Verified tab: there are no leaderboards, and nobody else's page shows it.",
+        "Why: so your account has a record the server saw and judged itself, apart from your own browser's record, which can be changed or imported, and verified streaks that can't be made up or replayed. You see it on your profile's Verified tab, and players in a room with you can see its totals from your card, unless you hide your profile (see Who sees what). There are no leaderboards, and no list or search of players.",
         "What it doesn't promise: verified means our server started, judged and timed it. It doesn't mean nobody cheated. The answers are in the game's own files, so they can be looked up, a changed page can play differently, and anyone can make more than one account. Verified results stop made-up, imported and replayed results; they aren't cheat-proof.",
         "Dailies played as a guest, offline or before you signed in stay only in your browser, and are never made verified later; nothing from your saves or a save file is ever counted as verified. Your browser keeps a note of verified dailies under way and receipts not yet taken, until your account has them, and clears it when you sign out.",
         "Your verified results and daily time zone are kept as long as your account. They're in Download my data, and Delete account removes them with everything else."
@@ -61,7 +62,10 @@
       "id": "who",
       "title": "Who sees what",
       "paragraphs": [
-        "Other players in a room see your name, picture, title, banner, frame and background while you're in it. Nobody else sees your progress, your verified results or your Google or Discord account. If others can ever see more, such as your profile's record, this page will say so first."
+        "Other players in a room see your name, picture, title, banner, frame and background while you're in it.",
+        "Signed in, players in a room with you, guests too, can also tap your card to see your profile: the totals of your verified results (for each daily played, how many and how many won, your best streak and fastest verified find; your room games and places; since when) and the summary of your own saves (rounds and days played, dailies won, best streaks, songs guessed, students found, missions, OST badges, room games), shown as from your own saves, not verified. Only while they're in the same room as you: the room hands their page a ticket for your profile that works for a few minutes, and never your account's id.",
+        "They never see your Google or Discord account, your time zone, your dailies one by one or your guesses, and nobody can look you up outside a room. To hide your profile: ☰ Profile, Account, Your profile in rooms; it takes effect at once.",
+        "Nobody else sees your progress. If others can ever see more, this page will say so first."
       ]
     },
     {
@@ -85,6 +89,7 @@
       "list": [
         "Download everything kept for your account, at any time, your verified results and daily time zone included: ☰ Profile, Account, Download my data.",
         "Delete your account and everything kept for it, at any time, your verified results and daily time zone included: ☰ Profile, Account, Delete account. You choose whether this browser keeps your progress as a guest.",
+        "Hide your profile from players in rooms, or show it again: ☰ Profile, Account, Your profile in rooms. Your card in a room still shows your name, picture and cosmetics.",
         "Sign out: this browser keeps your progress, unless you choose to clear it.",
         "Remove the site from your Google account under Security, Your connections to third-party apps and services, or from Discord under User Settings, Authorized Apps. Neither gave us anything to take back, so this only tidies their list."
       ]

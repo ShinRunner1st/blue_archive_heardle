@@ -995,7 +995,9 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   `feat/profile-rooms`, off `feat/profile-view`. Step 3, the page
   (tappable cards in the lobby and standings, the profile pop-up, the
   Account tab's switch), on `feat/profile-page`, off
-  `feat/profile-rooms`._
+  `feat/profile-rooms`. Step 4, privacy (the policy first, About, the
+  README, What's new), on `docs/profile-privacy`, off
+  `feat/profile-page`._
 - **Missions for the new rewards**: more missions, so each banner,
   background and frame has one to unlock it, in `missions.json` and
   `cosmetics.json` as now; ids never renamed. With the cosmetics above.
