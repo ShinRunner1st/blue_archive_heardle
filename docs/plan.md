@@ -973,7 +973,9 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   the Cloudflare preview with its own accounts Worker and database (their
   config on `chore/accounts-preview`, not released), the figures on
   `docs/verified-measured`, off `docs/verified-privacy`. Approved for
-  release 2026-10-02; the release docs on `docs/verified-release`._
+  release 2026-10-02; the release docs on `docs/verified-release`.
+  Released 2026-10-02 (fast-forward of `docs/verified-release`, main
+  ff43d5d)._
 - **Levels, with accounts** (asked for 2026-10-01): an account level
   from the rounds and missions it has played, shown on the card.
 - **Other players' profiles and cosmetics in rooms, with accounts**:

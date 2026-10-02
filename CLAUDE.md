@@ -508,6 +508,19 @@ songs` put the new files on the Worker and R2 first. About 0.3 KB gzipped
   sitemap sent again, once `/privacy` is live. The same day,
   `fix/account-tab-reads`: the Account tab stays once opened, so
   switching the profile's tabs reads the account once, not every visit.
+- **2 Oct 2026, verified stats released** (fast-forward of
+  `docs/verified-release`, main ff43d5d, stacked since 898ac8a): verified
+  dailies for all 11 dailies, verified streaks, room receipts
+  (`PROTOCOL` 5 to 6), the profile's Verified tab, and the policy, About,
+  README and What's new to match. CI took D1's Time Travel bookmark,
+  applied migration 0005 (four `verified_*` tables), then deployed the
+  accounts (7911ced9), rooms (de1692da) and site (fbaa6a73); rollback
+  points accounts efba5689, rooms bdd22dbf, site f22bc2d3, main 898ac8a.
+  Measured first on the Cloudflare preview with its own accounts Worker
+  and D1 (`ba-heardle-accounts-preview`, config kept on the unreleased
+  `chore/accounts-preview`). About 2.5 KB gzipped more on the first
+  load, still five files; 103 files on the site Worker (two lazy
+  chunks); no new files on R2.
 
 ## Content files
 
