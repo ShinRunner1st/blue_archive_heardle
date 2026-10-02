@@ -80,6 +80,15 @@ export function PictureMaker({
 
   const take = (file: File | undefined) => {
     if (!file) return;
+    // A drop skips the input's accept list, so it's checked here too.
+    if (!/^image\/(png|jpeg|webp|gif|avif)$/.test(file.type)) {
+      setError(
+        file.type === "image/svg+xml"
+          ? "An SVG isn't a picture here: it goes in a frame's ornament (Rewards → Frames → Your SVG file)."
+          : "That isn't a picture this takes: PNG, JPEG, WebP, GIF or AVIF."
+      );
+      return;
+    }
     if (file.size > MAX_UPLOAD) {
       setError("That picture is over 18 MB.");
       return;

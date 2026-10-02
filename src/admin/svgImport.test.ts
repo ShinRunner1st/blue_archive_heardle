@@ -1,98 +1,139 @@
 import { describe, expect, it } from "vitest";
 
 import { frameProblems } from "../content/validate";
-import { rescalePath, shapesFromSvg } from "./svgImport";
+import { parseTransform, shapesFromSvg, transformPath } from "./svgImport";
 
-describe("rescalePath", () => {
-  const fit = { x0: 100, y0: 100, scale: 0.1 };
+const move = (d: string, m = parseTransform("")) => transformPath(d, m).d;
 
-  it("moves absolute points, scales relative ones", () => {
-    expect(rescalePath("M100 100L200 100l0 50H50V0z", fit)).toBe(
-      "M0 0L10 0l0 5H-5V-10z"
+describe("transformPath", () => {
+  it("writes every command absolute, H and V as lines", () => {
+    expect(move("M10 10l5 0h5v5H0V0z")).toBe(
+      "M10 10L15 10L20 10L20 15L0 15L0 0Z"
     );
   });
 
-  it("writes a moveto's further pairs as linetos, with their letter", () => {
-    expect(rescalePath("M0 0 100 100", fit)).toBe("M-10 -10L0 0");
-    expect(rescalePath("m0,0 10,10", fit)).toBe("m0 0l1 1");
+  it("keeps a moveto's further pairs as lines, and z back to its start", () => {
+    expect(move("m1 1 2 2z l1 1")).toBe("M1 1L3 3ZL2 2");
   });
 
-  it("scales an arc's radii and keeps its flags, run together or not", () => {
-    expect(rescalePath("M100 100a50 50 0 011 1", fit)).toBe(
-      "M0 0a5 5 0 0 1 0.1 0.1"
-    );
-    expect(rescalePath("M100 100A50 50 30 1 0 200 100", fit)).toBe(
-      "M0 0A5 5 30 1 0 10 0"
+  it("moves, sizes and turns points, curves and arcs", () => {
+    const m = parseTransform("translate(10 0) rotate(90) scale(2)");
+    expect(move("M1 0C1 1 2 2 3 3", m)).toBe("M10 2C8 2 6 4 4 6");
+    expect(move("M0 0a1 2 0 011 1", m)).toBe("M10 0A2 4 90 0 1 8 2");
+    // A mirror turns an arc's sweep the other way.
+    expect(move("M0 0A1 1 0 0 1 2 0", parseTransform("scale(-1 1)"))).toBe(
+      "M0 0A1 1 180 0 0 -2 0"
     );
   });
 
   it("reads numbers written close: .5.5 and 1e2", () => {
-    expect(rescalePath("M.5.5L1e2-1e1", { x0: 0, y0: 0, scale: 1 })).toBe(
-      "M0.5 0.5L100 -10"
-    );
+    expect(move("M.5.5L1e2-1e1")).toBe("M0.5 0.5L100 -10");
   });
 
   it("stops on what isn't a path", () => {
-    expect(() => rescalePath("M0 0X1 1", fit)).toThrow();
-    expect(() => rescalePath("M0", fit)).toThrow();
-    expect(() => rescalePath("1 1", fit)).toThrow();
+    expect(() => move("M0 0X1 1")).toThrow();
+    expect(() => move("M0")).toThrow();
+    expect(() => move("1 1")).toThrow();
+  });
+
+  it("measures an arc's bulge, not only its ends", () => {
+    const { points } = transformPath("M0 0A5 5 0 0 1 10 0", parseTransform(""));
+    expect(Math.min(...points.map(([, y]) => y))).toBeCloseTo(-5);
   });
 });
 
+const fitted = (svg: string, palette = ["#FFFFFF", "#FF0000"]) =>
+  shapesFromSvg(svg, palette);
+
 describe("shapesFromSvg", () => {
-  it("fits any size round its middle, 12 units across, at the box's middle", () => {
-    const made = shapesFromSvg(
-      `<svg viewBox="0 0 512 512"><circle cx="256" cy="256" r="256"/></svg>`,
-      ["#FFFFFF", "#FF0000"]
+  it("fits the drawing, not its page, 12 units across at the box's middle", () => {
+    // A small circle on a big page, as Inkscape's A4 page has it.
+    const made = fitted(
+      `<svg viewBox="0 0 210 297"><circle cx="105" cy="148" r="20" stroke="#000" stroke-width="0.26"/></svg>`
     );
     expect(made.shapes).toEqual([
-      { shape: "circle", cx: 0, cy: 0, r: 6, fill: 1, at: [12, 12, 0, 1] },
+      {
+        shape: "circle",
+        cx: 0,
+        cy: 0,
+        r: 6,
+        fill: 1,
+        stroke: 2,
+        strokeWidth: 0.1,
+        at: [12, 12, 0, 1],
+      },
     ]);
+  });
+
+  it("follows the groups' moves and turns", () => {
+    const made = fitted(
+      `<svg viewBox="0 0 100 100"><g transform="translate(50 0)"><rect x="0" y="0" width="10" height="20" transform="rotate(90)"/></g><circle cx="0" cy="0" r="1"/></svg>`
+    );
+    // The rectangle, turned, runs left of x 50; the dot sits at 0.
+    expect(made.shapes[0].d).toBe("M6 -1.06L6 1.29L1.29 1.29L1.29 -1.06Z");
     expect(made.notes).toEqual([]);
   });
 
-  it("takes colours from groups, currentColor and the palette", () => {
-    const made = shapesFromSvg(
+  it("reads colours from groups, style sheets, rgb() and currentColor", () => {
+    const made = fitted(
       `<svg viewBox="0 0 24 24" fill="#0f0">
-        <g stroke="currentColor" stroke-width="2">
-          <path d="M0 0h24" fill="none"/>
-        </g>
-        <rect x="0" y="0" width="12" height="12" style="fill:#FFFFFF"/>
+        <style>.pink { fill: rgb(255, 107, 168); } /* Illustrator's way */</style>
+        <g stroke="currentColor" stroke-width="2"><path d="M0 0h24" fill="none"/></g>
+        <rect class="pink" x="0" y="0" width="12" height="12"/>
         <polygon points="0,0 24,0 12,24" fill-rule="evenodd"/>
         <path d="M0 0" fill="none"/>
         <defs><path d="M0 0h1"/></defs>
-      </svg>`,
-      ["#FFFFFF", "#FF0000"]
+      </svg>`
     );
-    expect(made.colors).toEqual(["#FFFFFF", "#FF0000", "#00FF00"]);
-    expect(made.shapes).toEqual([
-      {
-        shape: "path",
-        d: "M-6 -6h12",
-        stroke: 1,
-        strokeWidth: 1,
-        at: [12, 12, 0, 1],
-      },
-      { shape: "path", d: "M-6 -6H0V0H-6Z", fill: 0, at: [12, 12, 0, 1] },
-      {
-        shape: "path",
-        d: "M-6 -6L6 -6L0 6Z",
-        fill: 2,
-        evenOdd: true,
-        at: [12, 12, 0, 1],
-      },
+    expect(made.colors).toEqual(["#FFFFFF", "#FF0000", "#FF6BA8", "#00FF00"]);
+    expect(
+      made.shapes.map(({ fill, stroke, evenOdd }) => ({
+        fill,
+        stroke,
+        evenOdd,
+      }))
+    ).toEqual([
+      { fill: undefined, stroke: 1, evenOdd: undefined },
+      { fill: 2, stroke: undefined, evenOdd: undefined },
+      { fill: 3, stroke: undefined, evenOdd: true },
     ]);
     expect(made.notes).toEqual([
       "1 shape(s) with no fill or outline were left out.",
     ]);
   });
 
-  it("makes shapes the content check takes", () => {
-    const made = shapesFromSvg(
-      `<svg width="100" height="50"><ellipse cx="50" cy="25" rx="50" ry="25" stroke="#123456" stroke-width="4"/><line x1="0" y1="0" x2="100" y2="50" stroke="#000"/></svg>`,
+  it("leaves out what it can't draw, with a note, never half-made", () => {
+    const made = fitted(
+      `<svg width="100%"><circle cx="50%" cy="50" r="4"/><circle cx="5" cy="5" r="4"/><text>Hi</text></svg>`
+    );
+    expect(made.shapes).toHaveLength(1);
+    expect(made.notes).toHaveLength(2);
+    expect(fitted("not svg").notes).toEqual(["That isn't an SVG."]);
+  });
+
+  it("refuses more shapes than the ornament has room for", () => {
+    const dots = Array.from(
+      { length: 41 },
+      (_, i) => `<circle cx="${i * 3}" cy="0" r="1"/>`
+    ).join("");
+    const made = fitted(`<svg>${dots}</svg>`);
+    expect(made.shapes).toEqual([]);
+    expect(made.colors).toEqual(["#FFFFFF", "#FF0000"]);
+    expect(made.notes[0]).toMatch(/41 shapes/);
+  });
+
+  it("makes shapes the content check takes, from every kind there is", () => {
+    const made = fitted(
+      `<svg width="100" height="50" transform="scale(3)">
+        <ellipse cx="50" cy="25" rx="50" ry="25" stroke="#123456" stroke-width="40"/>
+        <g transform="skewX(20)"><ellipse cx="10" cy="10" rx="5" ry="3"/></g>
+        <line x1="0" y1="0" x2="100" y2="50" stroke="#000"/>
+        <polyline points="0 0 10 10 20 0" stroke="#000"/>
+        <path d="M0 0a10 10 0 1 0 20 0" transform="rotate(30 5 5)"/>
+      </svg>`,
       ["#FFFFFF"]
     );
-    expect(made.shapes).toHaveLength(2);
+    expect(made.shapes).toHaveLength(5);
     expect(
       frameProblems({
         id: "test",
@@ -102,15 +143,5 @@ describe("shapesFromSvg", () => {
         ornament: { corners: ["tl"], shapes: made.shapes },
       })
     ).toEqual([]);
-  });
-
-  it("says what it couldn't keep", () => {
-    const made = shapesFromSvg(
-      `<svg viewBox="0 0 24 24"><g transform="rotate(4)"><circle r="3" fill="red"/></g></svg>`,
-      ["#FFFFFF"]
-    );
-    expect(made.shapes).toHaveLength(1);
-    expect(made.notes).toHaveLength(2);
-    expect(shapesFromSvg("not svg", []).notes).toEqual(["That isn't an SVG."]);
   });
 });

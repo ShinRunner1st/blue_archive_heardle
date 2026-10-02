@@ -501,10 +501,10 @@ export function FrameFields({
   /** An SVG's shapes added (or put in place of the rest), then picked. */
   const addSvg = (text: string, replace = false) => {
     if (!ornament) return;
-    const made = shapesFromSvg(text, colors);
+    const kept = replace ? [] : ornament.shapes;
+    const made = shapesFromSvg(text, colors, { room: 40 - kept.length });
     setPasteNotes(made.notes);
     if (made.shapes.length === 0) return;
-    const kept = replace ? [] : ornament.shapes;
     onChange({
       colors: made.colors,
       ornament: { ...ornament, shapes: [...kept, ...made.shapes] },
