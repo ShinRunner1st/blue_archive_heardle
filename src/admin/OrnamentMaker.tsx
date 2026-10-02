@@ -156,6 +156,7 @@ export function OrnamentMaker({
   picked,
   onPick,
   onChange,
+  extra,
 }: {
   ornament: FrameOrnament;
   colors: string[];
@@ -163,6 +164,8 @@ export function OrnamentMaker({
   picked: number[];
   onPick: (picked: number[]) => void;
   onChange: (shapes: OrnamentShape[]) => void;
+  /** More in the library's grid: a tile to open a file. */
+  extra?: React.ReactNode;
 }) {
   const board = React.useRef<SVGSVGElement>(null);
   const drag = React.useRef<{
@@ -257,6 +260,7 @@ export function OrnamentMaker({
               {item.name}
             </LibraryButton>
           ))}
+          {extra}
         </LibraryGrid>
       </Field>
 

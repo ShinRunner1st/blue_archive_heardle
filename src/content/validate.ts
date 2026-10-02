@@ -67,7 +67,7 @@ function shapeProblems(
   if (shape.shape === "path") {
     need(
       typeof shape.d === "string" &&
-        shape.d.length <= 2000 &&
+        shape.d.length <= 6000 &&
         PATH.test(shape.d),
       "a path needs its d, of path commands and numbers"
     );
@@ -94,6 +94,10 @@ function shapeProblems(
       "an outline needs its width, 0.1-12"
     );
   }
+  need(
+    shape.evenOdd === undefined || typeof shape.evenOdd === "boolean",
+    "evenOdd is true or false"
+  );
   if (shape.at !== undefined) {
     need(
       Array.isArray(shape.at) &&

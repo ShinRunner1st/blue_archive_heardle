@@ -168,6 +168,8 @@ export interface OrnamentShape {
   fill?: FrameColor;
   stroke?: FrameColor;
   strokeWidth?: number;
+  /** Fills by the even-odd rule, so a shape inside another cuts a hole. */
+  evenOdd?: boolean;
   at?: [number, number, number] | [number, number, number, number];
 }
 

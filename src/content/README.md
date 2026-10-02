@@ -119,10 +119,12 @@ Lists, each starting with the default everyone has (no `mission`):
     `bl`), drawn for the top left in a 24×24 box, its top left 6.5 units
     out from the card's corner, and turned for the others. Each shape is a
     `path` (`d`), `circle` (`cx`, `cy`, `r`) or `ellipse` (`cx`, `cy`,
-    `rx`, `ry`), with a `fill`, a `stroke` and `strokeWidth`, or both, and
+    `rx`, `ry`), with a `fill`, a `stroke` and `strokeWidth`, or both,
+    `evenOdd` to cut holes as an icon's inner shapes do, and
     `at`, [x, y, degrees] or [x, y, degrees, size], to move, turn and
     size it. In the admin tool they're picked from a library of ready-made
-    shapes and dragged into place, or taken from a pasted SVG.
+    shapes and dragged into place, or taken from an SVG of any size (a
+    file, or its code pasted), fitted to the corner.
 - `backgrounds`: the scene behind the profile's card, a `picture` on the
   Worker as banners name theirs. Pictures already there cost nothing more;
   a new one goes in `pictures/` and up with `npm run songs`.

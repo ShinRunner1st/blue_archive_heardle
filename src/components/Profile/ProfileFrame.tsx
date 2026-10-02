@@ -19,6 +19,7 @@ export function OrnamentShapeView({
 }) {
   const paint = {
     fill: shape.fill === undefined ? "none" : colors[shape.fill],
+    fillRule: shape.evenOdd ? ("evenodd" as const) : undefined,
     stroke: shape.stroke === undefined ? undefined : colors[shape.stroke],
     strokeWidth: shape.stroke === undefined ? undefined : shape.strokeWidth,
     transform: shape.at

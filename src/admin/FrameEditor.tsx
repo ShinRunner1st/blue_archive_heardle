@@ -21,6 +21,7 @@ import {
 import { ORNAMENT_LIBRARY, placed } from "./ornamentLibrary";
 import { OrnamentMaker } from "./OrnamentMaker";
 import { ColorField } from "./pickers";
+import { shapesFromSvg } from "./svgImport";
 import {
   Button,
   Card,
@@ -213,107 +214,71 @@ const Fields = styled(Row)`
   gap: 12px;
 `;
 
-/* ---------- Pasting an SVG ---------- */
+/* ---------- An SVG file ---------- */
 
-/** #abc or #aabbcc, as #AABBCC; anything else (a name, "none"), null. */
-function hexOf(value: string | null): string | null {
-  const color = value?.trim() ?? "";
-  if (/^#[0-9a-f]{6}$/i.test(color)) return color.toUpperCase();
-  if (/^#[0-9a-f]{3}$/i.test(color)) {
-    return `#${[...color.slice(1)].map((c) => c + c).join("")}`.toUpperCase();
-  }
-  return null;
-}
+/** The largest SVG file taken: an ornament is a few small shapes. */
+const SVG_FILE_LIMIT = 200 * 1024;
 
-/** An attribute, or the same property in its style. */
-function read(element: Element, name: string): string | null {
-  const style = element.getAttribute("style") ?? "";
-  const inStyle = new RegExp(`(?:^|;)\\s*${name}\\s*:\\s*([^;]+)`).exec(style);
-  return inStyle?.[1]?.trim() ?? element.getAttribute(name);
-}
+const FileTile = styled.label`
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 2px;
+  padding: 6px 2px 4px;
+  border-radius: 8px;
+  border: 1px dashed rgba(255, 255, 255, 0.35);
+  font-size: 11px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
 
-export interface PastedShapes {
-  shapes: OrnamentShape[];
-  colors: string[];
-  notes: string[];
-}
+  &:hover,
+  &:focus-within {
+    background: rgba(255, 255, 255, 0.1);
+  }
 
-/**
- * An SVG's paths, circles and ellipses as an ornament's shapes, their
- * colours found in the palette or added to it. Nothing else of the SVG is
- * kept, so its notes say what was left out.
- */
-export function shapesFromSvg(text: string, palette: string[]): PastedShapes {
-  const colors = [...palette];
-  const notes: string[] = [];
-  const svg = new DOMParser().parseFromString(text, "image/svg+xml");
-  if (svg.querySelector("parsererror") || !svg.querySelector("svg")) {
-    return { shapes: [], colors, notes: ["That isn't an SVG."] };
+  span:first-child {
+    font-size: 20px;
+    line-height: 1;
   }
-  const box = svg.querySelector("svg")?.getAttribute("viewBox")?.trim();
-  if (
-    box &&
-    box
-      .split(/[\s,]+/)
-      .map(Number)
-      .join(" ") !== "0 0 24 24"
-  ) {
-    notes.push(
-      `Its box is ${box}; shapes are placed as if it were 0 0 24 24, so draw it in a 24×24 box.`
-    );
+
+  input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
   }
-  const colorOf = (value: string | null): FrameColor | undefined | null => {
-    if (value === null || value.trim() === "none") return undefined;
-    const hex = hexOf(value);
-    if (!hex) return null;
-    const found = colors.indexOf(hex);
-    if (found >= 0) return found;
-    colors.push(hex);
-    return colors.length - 1;
-  };
-  const number = (element: Element, name: string) => {
-    const value = element.getAttribute(name);
-    return value === null ? undefined : Number(value);
-  };
-  const shapes: OrnamentShape[] = [];
-  let unreadColor = false;
-  let moved = false;
-  for (const element of svg.querySelectorAll("path, circle, ellipse")) {
-    const kind = element.tagName.toLowerCase() as OrnamentShapeKind;
-    if (element.closest("[transform]")) moved = true;
-    let fill = colorOf(read(element, "fill"));
-    const stroke = colorOf(read(element, "stroke"));
-    if (fill === null || stroke === null) unreadColor = true;
-    // No fill or outline said: SVG fills it, here with the first colour.
-    if (read(element, "fill") === null && stroke === undefined) fill = 0;
-    const shape: OrnamentShape = { shape: kind };
-    if (kind === "path") shape.d = element.getAttribute("d") ?? "";
-    if (kind === "circle") shape.r = number(element, "r");
-    if (kind === "ellipse") {
-      shape.rx = number(element, "rx");
-      shape.ry = number(element, "ry");
-    }
-    if (kind !== "path") {
-      shape.cx = number(element, "cx");
-      shape.cy = number(element, "cy");
-    }
-    if (fill !== null && fill !== undefined) shape.fill = fill;
-    if (stroke !== null && stroke !== undefined) {
-      shape.stroke = stroke;
-      shape.strokeWidth = Number(read(element, "stroke-width") ?? 1);
-    }
-    shapes.push(shape);
-  }
-  if (shapes.length === 0) notes.push("It has no path, circle or ellipse.");
-  if (unreadColor) {
-    notes.push("Some colours weren't #rrggbb, so those shapes lost them.");
-  }
-  if (moved) {
-    notes.push(
-      "Some shapes had a transform, which isn't kept: set Moved and turned."
-    );
-  }
-  return { shapes, colors, notes };
+`;
+
+/** A tile in the shape library that opens an .svg file and adds it. */
+function SvgFileTile({
+  onOpen,
+  onProblem,
+}: {
+  onOpen: (text: string) => void;
+  onProblem: (problem: string) => void;
+}) {
+  return (
+    <FileTile>
+      <span aria-hidden="true">⤒</span>
+      <span>Your SVG file</span>
+      <input
+        type="file"
+        name="frame-svg-file"
+        accept=".svg,image/svg+xml"
+        onChange={(event) => {
+          const file = event.target.files?.[0];
+          event.target.value = "";
+          if (!file) return;
+          if (file.size > SVG_FILE_LIMIT) {
+            onProblem("That file is over 200 KB: too big for an ornament.");
+            return;
+          }
+          file.text().then(onOpen, () => onProblem("Couldn't read that file."));
+        }}
+      />
+    </FileTile>
+  );
 }
 
 /* ---------- One shape ---------- */
@@ -532,6 +497,21 @@ export function FrameFields({
     });
   const setShapes = (shapes: OrnamentShape[]) =>
     ornament && onChange({ ornament: { ...ornament, shapes } });
+
+  /** An SVG's shapes added (or put in place of the rest), then picked. */
+  const addSvg = (text: string, replace = false) => {
+    if (!ornament) return;
+    const made = shapesFromSvg(text, colors);
+    setPasteNotes(made.notes);
+    if (made.shapes.length === 0) return;
+    const kept = replace ? [] : ornament.shapes;
+    onChange({
+      colors: made.colors,
+      ornament: { ...ornament, shapes: [...kept, ...made.shapes] },
+    });
+    setPicked(made.shapes.map((_, i) => kept.length + i));
+    setPasted("");
+  };
   const gradient =
     border.gradient ?? (border.colors.length > 1 ? "linear" : "");
 
@@ -845,7 +825,18 @@ export function FrameFields({
             picked={picked}
             onPick={setPicked}
             onChange={setShapes}
+            extra={
+              <SvgFileTile
+                onOpen={(text) => addSvg(text)}
+                onProblem={(problem) => setPasteNotes([problem])}
+              />
+            }
           />
+          {pasteNotes.map((note) => (
+            <Note key={note} $tone="warn">
+              {note}
+            </Note>
+          ))}
           <Details>
             <summary>Exact numbers, shape by shape</summary>
             {ornament.shapes.map((shape, i) => (
@@ -902,54 +893,32 @@ export function FrameFields({
             </Row>
           </Details>
           <Details>
-            <summary>Paste an SVG drawn elsewhere</summary>
+            <summary>Paste an SVG&apos;s code</summary>
             <Field
-              label="An SVG"
-              hint="Its paths, circles and ellipses become shapes, its colours added to the palette. Draw it in a 24×24 box."
+              label="SVG code"
+              hint="From a drawing app's Copy as SVG, or an .svg file opened in Notepad. Any size: it's fitted to the corner."
             >
               <TextArea
                 name="frame-svg"
                 data-own-undo
                 value={pasted}
                 spellCheck={false}
-                placeholder='<svg viewBox="0 0 24 24">…</svg>'
+                placeholder='<svg viewBox="0 0 512 512">…</svg>'
                 style={{ fontFamily: "monospace" }}
                 onChange={(event) => setPasted(event.target.value)}
               />
             </Field>
             <Row style={{ marginBottom: 12 }}>
-              {(["Add its shapes", "Replace the shapes"] as const).map(
-                (label) => (
-                  <Button
-                    key={label}
-                    disabled={!pasted.trim()}
-                    onClick={() => {
-                      const made = shapesFromSvg(pasted, colors);
-                      setPasteNotes(made.notes);
-                      if (made.shapes.length === 0) return;
-                      onChange({
-                        colors: made.colors,
-                        ornament: {
-                          ...ornament,
-                          shapes:
-                            label === "Add its shapes"
-                              ? [...ornament.shapes, ...made.shapes]
-                              : made.shapes,
-                        },
-                      });
-                      setPasted("");
-                    }}
-                  >
-                    {label}
-                  </Button>
-                )
-              )}
+              <Button disabled={!pasted.trim()} onClick={() => addSvg(pasted)}>
+                Add its shapes
+              </Button>
+              <Button
+                disabled={!pasted.trim()}
+                onClick={() => addSvg(pasted, true)}
+              >
+                Replace the shapes
+              </Button>
             </Row>
-            {pasteNotes.map((note) => (
-              <Note key={note} $tone="warn">
-                {note}
-              </Note>
-            ))}
           </Details>
         </>
       )}

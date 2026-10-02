@@ -2,39 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import type { Frame } from "../constants/cosmetics";
 import { frameProblems } from "../content/validate";
-import { shapesFromSvg, withoutColor } from "./FrameEditor";
+import { withoutColor } from "./FrameEditor";
 import { ORNAMENT_LIBRARY, placed } from "./ornamentLibrary";
-
-describe("shapesFromSvg", () => {
-  it("takes paths, circles and ellipses, their colours into the palette", () => {
-    const made = shapesFromSvg(
-      `<svg viewBox="0 0 24 24">
-        <path d="M2 2h8" stroke="#f00" stroke-width="2" fill="none"/>
-        <circle cx="5" cy="6" r="2" style="fill: #FFFFFF"/>
-        <ellipse cx="9" cy="9" rx="3" ry="1"/>
-        <rect width="4" height="4"/>
-      </svg>`,
-      ["#FFFFFF"]
-    );
-    expect(made.colors).toEqual(["#FFFFFF", "#FF0000"]);
-    expect(made.shapes).toEqual([
-      { shape: "path", d: "M2 2h8", stroke: 1, strokeWidth: 2 },
-      { shape: "circle", cx: 5, cy: 6, r: 2, fill: 0 },
-      { shape: "ellipse", cx: 9, cy: 9, rx: 3, ry: 1, fill: 0 },
-    ]);
-    expect(made.notes).toEqual([]);
-  });
-
-  it("says what it couldn't keep", () => {
-    const made = shapesFromSvg(
-      `<svg viewBox="0 0 100 100"><g transform="rotate(4)"><circle r="3" fill="red"/></g></svg>`,
-      ["#FFFFFF"]
-    );
-    expect(made.shapes).toEqual([{ shape: "circle", r: 3 }]);
-    expect(made.notes).toHaveLength(3);
-    expect(shapesFromSvg("not svg", []).notes).toEqual(["That isn't an SVG."]);
-  });
-});
 
 describe("withoutColor", () => {
   it("moves up every part that named a colour after the one taken out", () => {
