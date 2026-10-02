@@ -627,7 +627,7 @@ describe("the profile", () => {
     expect(await get(token)).toMatchObject({
       name: "Arona Sensei of Scha",
       student: null,
-      banner: "schale",
+      banner: "none",
       frame: "schale",
     });
     const row = db.sqlite.prepare("SELECT summary FROM profiles").get() as {
@@ -918,10 +918,11 @@ describe("missions and room passes", () => {
       publicId: account.publicId,
       name: "Shin",
       student: 10004,
-      // Sakura banner and the gold frame need missions not cleared.
+      // Sakura banner and the gold frame need missions not cleared: the
+      // banner falls back to none, the default.
       look: {
         title: "dependable",
-        banner: "schale",
+        banner: "none",
         frame: "schale",
         background: "cherry",
       },

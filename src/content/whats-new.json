@@ -1,7 +1,7 @@
 [
   {
     "id": "2026-10-room-profiles",
-    "name": "Profiles in rooms",
+    "name": "Profiles and cards",
     "items": [
       {
         "icon": "IoPeople",
@@ -12,6 +12,11 @@
         "icon": "IoShieldCheckmark",
         "title": "Yours, your call",
         "text": "Signed in, players in a room with you can see your profile the same way. Hide it whenever you like: ☰ Profile, Account, Your profile in rooms. What they see, and what they never do, is on the Privacy page."
+      },
+      {
+        "icon": "IoIdCard",
+        "title": "A clean card",
+        "text": "A card now starts with just your name. Pick a title and a banner whenever you like in ☰ Profile, Customize; Schale's banner is everyone's to pick."
       }
     ]
   },

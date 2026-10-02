@@ -61,7 +61,8 @@
     "halloween",
     "autumn",
     "snow",
-    "gold"
+    "gold",
+    "none"
   ],
   "frames": ["schale", "sakura", "halo", "silver", "gold", "neon", "prism"],
   "backgrounds": [

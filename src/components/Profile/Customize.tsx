@@ -6,6 +6,7 @@ import {
   Frame,
   Cosmetic,
   ProfileBackground,
+  titleText,
 } from "../../constants/cosmetics";
 import { MISSIONS } from "../../constants/missions";
 import { students } from "../../constants/students";
@@ -57,7 +58,11 @@ function Swatch({ kind, item }: { kind: Section; item: Cosmetic }) {
       return null;
     case "banner":
       // Its own name on it: the title picked would repeat down the list.
-      return <ProfileBanner banner={item as Banner} title={item.name} />;
+      return item.blank ? (
+        <Styled.BlankBanner>{item.name}</Styled.BlankBanner>
+      ) : (
+        <ProfileBanner banner={item as Banner} title={item.name} />
+      );
     case "frame":
       return (
         <Styled.FrameSwatch>
@@ -118,7 +123,7 @@ export function CustomizePopUp({ onClose }: { onClose: () => void }) {
     ...base,
     name: pictureName(who.name, who.title) || "Sensei",
     student: who.student,
-    title: !title || title.mission === undefined ? "Sensei" : title.name,
+    title: title ? titleText(title) : "",
     banner: find("banner", draft.banner) as Banner,
     frame: find("frame", draft.frame) as Frame,
     background: find("background", draft.background) as ProfileBackground,
@@ -407,9 +412,7 @@ function TitleList({
             onClick={() => unlocked && onPick(item.id)}
           >
             <Styled.Radio $active={active} aria-hidden="true" />
-            <Styled.TitleName $locked={!unlocked}>
-              {item.mission === undefined ? "Sensei" : item.name}
-            </Styled.TitleName>
+            <Styled.TitleName $locked={!unlocked}>{item.name}</Styled.TitleName>
             {!unlocked && (
               <Styled.TitleLock>
                 <IoLockClosed aria-hidden="true" />

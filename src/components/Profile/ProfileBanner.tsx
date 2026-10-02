@@ -21,6 +21,12 @@ export function ProfileBanner({
   title: string;
   size?: "small" | "large";
 }) {
+  // No banner: the title alone, as a line of words, or nothing.
+  if (banner.blank) {
+    return title ? (
+      <Styled.PlainTitle $size={size}>{title}</Styled.PlainTitle>
+    ) : null;
+  }
   const Emblem = iconNamed(banner.emblem);
   return (
     <Styled.Banner

@@ -249,6 +249,12 @@ export function checkContent(
             `${name}: the first, the default, has a mission`
           );
           report(!retired, `${name}: the default is retired`);
+        } else if (item.free) {
+          // Everyone's, said so: a reward with no mission by mistake isn't.
+          report(
+            mission === undefined,
+            `${name}: ${item.id} is free, so it has no mission`
+          );
         } else if (name !== "characters" || mission !== undefined) {
           report(
             mission !== undefined && missionIds.has(mission),
@@ -293,6 +299,8 @@ export function checkContent(
       }
     }
     for (const banner of cosmetics.banners) {
+      // The blank banner draws nothing, so has no look to check.
+      if (banner.blank) continue;
       if (banner.picture) {
         report(
           env.pictureFiles[banner.picture],

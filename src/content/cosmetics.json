@@ -2,7 +2,8 @@
   "titles": [
     {
       "id": "none",
-      "name": "No title"
+      "name": "No title",
+      "blank": true
     },
     {
       "id": "dependable",
@@ -165,8 +166,14 @@
   ],
   "banners": [
     {
+      "id": "none",
+      "name": "No banner",
+      "blank": true
+    },
+    {
       "id": "schale",
       "name": "Schale",
+      "free": true,
       "fill": ["#22305A", "#2E4A8C"],
       "ink": "#FFFFFF",
       "accent": "#7FB0FF",

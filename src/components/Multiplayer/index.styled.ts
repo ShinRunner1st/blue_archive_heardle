@@ -1,6 +1,8 @@
 import styled, { css, keyframes } from "styled-components";
 import "@fontsource-variable/nunito-sans";
 
+import { FoldingRow } from "../FoldingRow";
+
 export {
   Buttons,
   Card,
@@ -724,6 +726,13 @@ export const Chips = styled.div`
   gap: 6px;
 
   /* A little narrower than the lists' chips: two fit a column's width. */
+  & > button {
+    padding: 0 9px;
+  }
+`;
+
+/** The albums, which grow with the OST: two rows, then Show more. */
+export const AlbumChips = styled(FoldingRow)`
   & > button {
     padding: 0 9px;
   }

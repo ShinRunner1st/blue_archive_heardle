@@ -371,7 +371,7 @@ function Albums({
           ? "Every song; or pick OST albums, as many as you like"
           : `${count} songs${count < rounds ? `, so a game of ${count}` : ""}`}
       </Styled.FieldHint>
-      <Styled.Chips role="group" aria-label="Albums">
+      <Styled.AlbumChips role="group" aria-label="Albums">
         <Chip
           type="button"
           $active={value.length === 0}
@@ -392,7 +392,7 @@ function Albums({
             Vol.{number}
           </Chip>
         ))}
-      </Styled.Chips>
+      </Styled.AlbumChips>
     </Styled.Field>
   );
 }

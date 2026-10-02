@@ -91,7 +91,7 @@ describe("checkContent", () => {
 
   it("keeps cosmetics to missions there are, and retired with them", () => {
     const content = copy();
-    const banner = content.cosmetics.banners[1];
+    const banner = content.cosmetics.banners.find(({ id }) => id === "sakura")!;
     banner.mission = "no-such-mission";
     const frame = content.cosmetics.frames[1];
     frame.retired = true;
@@ -101,11 +101,23 @@ describe("checkContent", () => {
     ]);
   });
 
+  it("lets a reward be everyone's only when it says so", () => {
+    const content = copy();
+    const sakura = content.cosmetics.banners.find(({ id }) => id === "sakura")!;
+    delete sakura.mission;
+    const schale = content.cosmetics.banners.find(({ id }) => id === "schale")!;
+    schale.mission = "first-daily";
+    expect(messages(content, "cosmetics")).toEqual([
+      "banners: schale is free, so it has no mission",
+      "banners: sakura needs a mission in missions.json",
+    ]);
+  });
+
   it("checks colours, kinds, emblems and pictures", () => {
     const content = copy();
     const frame = content.cosmetics.frames[1];
     Object.assign(frame, { kind: "zigzag", colors: ["red"] });
-    const banner = content.cosmetics.banners[0];
+    const banner = content.cosmetics.banners.find(({ id }) => id === "schale")!;
     Object.assign(banner, { emblem: "IoNothing", picture: "nowhere" });
     expect(messages(content, "cosmetics")).toEqual(
       expect.arrayContaining([

@@ -24,7 +24,17 @@ export interface Cosmetic {
    * listed, by whoever has it (docs/accounts.md, section 4).
    */
   retired?: boolean;
+  /** Everyone's from the start, though not the default: no mission. */
+  free?: boolean;
+  /**
+   * Shows nothing: the default title and banner, so a card starts with
+   * the name alone.
+   */
+  blank?: boolean;
 }
+
+/** A title's words on a card: none for the blank one. */
+export const titleText = (title: Cosmetic) => (title.blank ? "" : title.name);
 
 /** A title under the name on the Sensei card. */
 export type CardTitle = Cosmetic;
@@ -91,7 +101,8 @@ export interface Banner extends Cosmetic {
   emblem: string;
 }
 
-export const BANNERS = cosmeticData.banners as Banner[];
+/** A blank banner has no look of its own: ProfileBanner draws none. */
+export const BANNERS = cosmeticData.banners as unknown as Banner[];
 
 /**
  * How a frame is drawn, each in code (ProfileFrame): a line; filigree,

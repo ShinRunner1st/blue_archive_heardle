@@ -94,7 +94,7 @@ describe("syncProfile", () => {
     expect(getPlayerName()).toBe("Shin");
     // Not unlocked here yet: kept, and shown as the default until it is.
     expect(localStorage.getItem(PROFILE_BANNER_KEY)).toBe("sakura");
-    expect(pickedOf("banner").id).toBe("schale");
+    expect(pickedOf("banner").id).toBe("none");
     // Taking it in isn't a change made here.
     expect(profileEditedAt()).toBe(5000);
   });

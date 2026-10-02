@@ -3,12 +3,8 @@ import styled from "styled-components";
 const GOLD = "#f5c542";
 
 /** The games as tabs, wrapping onto a second row on a phone. */
+/** Holds the tabs, a FoldingRow, as they grow past two rows. */
 export const Tabs = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
-
   width: 100%;
   margin-bottom: 10px;
 `;

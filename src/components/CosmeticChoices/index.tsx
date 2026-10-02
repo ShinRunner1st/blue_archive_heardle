@@ -5,6 +5,8 @@ import { isUnlocked, offered } from "../../helpers/cosmetics";
 import { loadClearedMissions } from "../../helpers/missions";
 import { useMissionsVersion } from "../../hooks/useMissions";
 
+import { FoldingRow } from "../FoldingRow";
+
 import * as Styled from "./index.styled";
 
 interface Choice {
@@ -47,7 +49,7 @@ export function CosmeticChoices({
   const cleared = given ?? loadClearedMissions();
 
   return (
-    <Styled.Choices role="radiogroup" aria-labelledby={labelledBy}>
+    <FoldingRow role="radiogroup" aria-labelledby={labelledBy}>
       {offered(choices, cleared).map((choice) => {
         const open = isUnlocked(choice, cleared);
         return (
@@ -80,6 +82,6 @@ export function CosmeticChoices({
           </Styled.Choice>
         );
       })}
-    </Styled.Choices>
+    </FoldingRow>
   );
 }

@@ -163,6 +163,40 @@ export const Banner = styled.div<{
   }
 `;
 
+/** A title with no banner: its words alone, where the banner would be. */
+export const PlainTitle = styled.span<{ $size: "small" | "large" }>`
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  font-family: "Nunito Sans Variable";
+  font-size: ${({ $size }) => ($size === "large" ? "0.95rem" : "0.8rem")};
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  opacity: 0.85;
+`;
+
+/** The blank banner in Customize: where a banner would be, dashed. */
+export const BlankBanner = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 220px;
+  max-width: 100%;
+  height: 30px;
+
+  font-family: "Nunito Sans Variable";
+  font-size: 0.8rem;
+  font-weight: 800;
+  opacity: 0.75;
+
+  border: 1.5px dashed currentColor;
+  border-radius: 999px;
+`;
+
 /** A picture filling its box, as a banner's or a card's scene. */
 export const Cover = styled.img`
   position: absolute;

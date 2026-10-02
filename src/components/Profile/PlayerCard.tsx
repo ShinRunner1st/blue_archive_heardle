@@ -8,6 +8,7 @@ import {
   Frame,
   FRAMES,
   ProfileBackground,
+  titleText,
 } from "../../constants/cosmetics";
 import { backupUrlFor } from "../../helpers/audioUrl";
 import { cardTitle, pickedOf } from "../../helpers/cosmetics";
@@ -37,7 +38,7 @@ export function currentLook(): CardLook {
   return {
     name: pictureName() || "Sensei",
     student: getFavStudent(),
-    title: title.mission === undefined ? "Sensei" : title.name,
+    title: titleText(title),
     banner: pickedOf("banner"),
     frame: pickedOf("frame"),
     background: pickedOf("background"),
@@ -66,7 +67,7 @@ export function roomLook(
   return {
     name,
     student,
-    title: title.mission === undefined ? "Sensei" : title.name,
+    title: titleText(title),
     banner: byId(BANNERS, look?.banner),
     frame: byId(FRAMES, look?.frame),
     background: byId(BACKGROUNDS, look?.background),

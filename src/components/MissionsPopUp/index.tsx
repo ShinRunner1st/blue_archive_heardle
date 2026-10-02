@@ -6,6 +6,7 @@ import { unlocksOf } from "../../helpers/cosmetics";
 import { MissionProgress } from "../../helpers/missions";
 import { useMissionProgress } from "../../hooks/useMissions";
 import { Button } from "../Button";
+import { FoldingRow } from "../FoldingRow";
 import { PopUp, PopUpMeta } from "../PopUp";
 
 import * as Styled from "./index.styled";
@@ -81,26 +82,32 @@ export function MissionsView({
         </Button>
       }
     >
-      <Styled.Tabs role="tablist" aria-label="Missions by game">
-        {groups.map(({ id, name }) => {
-          const own = progress.filter(({ mission }) => mission.group === id);
-          const done = own.filter((item) => item.done).length;
-          return (
-            <Styled.Tab
-              key={id}
-              type="button"
-              role="tab"
-              aria-selected={group === id}
-              $active={group === id}
-              onClick={() => setGroup(id)}
-            >
-              {name}
-              <Styled.TabCount $all={done === own.length}>
-                {done}/{own.length}
-              </Styled.TabCount>
-            </Styled.Tab>
-          );
-        })}
+      <Styled.Tabs>
+        <FoldingRow
+          role="tablist"
+          aria-label="Missions by game"
+          justify="center"
+        >
+          {groups.map(({ id, name }) => {
+            const own = progress.filter(({ mission }) => mission.group === id);
+            const done = own.filter((item) => item.done).length;
+            return (
+              <Styled.Tab
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={group === id}
+                $active={group === id}
+                onClick={() => setGroup(id)}
+              >
+                {name}
+                <Styled.TabCount $all={done === own.length}>
+                  {done}/{own.length}
+                </Styled.TabCount>
+              </Styled.Tab>
+            );
+          })}
+        </FoldingRow>
       </Styled.Tabs>
 
       <Styled.List role="tabpanel">

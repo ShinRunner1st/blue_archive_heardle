@@ -1,13 +1,5 @@
 import styled from "styled-components";
 
-export const Choices = styled.div`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-
-  width: 100%;
-`;
-
 export const Choice = styled.button<{ $active: boolean; $locked: boolean }>`
   display: inline-flex;
   align-items: center;

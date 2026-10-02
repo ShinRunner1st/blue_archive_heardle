@@ -112,7 +112,12 @@ Lists, each starting with the default everyone has (no `mission`):
   Worker as banners name theirs. Pictures already there cost nothing more;
   a new one goes in `pictures/` and up with `npm run songs`.
 
-`mission` is the id of the mission that unlocks it. `formerMissions` lists
+`mission` is the id of the mission that unlocks it. `"free": true` makes one
+everyone's from the start without being the default (Schale's banner); any
+other reward needs a mission, so one can't be left free by mistake.
+`"blank": true` marks the default title and banner, which show nothing: a
+new card is the name alone, and a title picked with no banner shows as
+words. `formerMissions` lists
 retired missions that unlocked it before, so whoever cleared one keeps it
 when a new mission takes over. `retired: true` stops offering it: nobody
 new can get it (its mission must be retired too), and whoever has it still

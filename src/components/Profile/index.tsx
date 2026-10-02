@@ -74,6 +74,11 @@ interface Props {
   customize?: boolean;
   /** The tab to open on: Account, when a sign-in has just come back. */
   startTab?: ProfileTab;
+  /**
+   * The OST badges to show in place of the saves' own: the admin tool's
+   * preview of albums still being made.
+   */
+  badges?: BadgeProgress[];
 }
 
 /**
@@ -88,10 +93,12 @@ export default function ProfilePopUp({
   onSenseiCard,
   customize = false,
   startTab = "overview",
+  badges,
 }: Props) {
   useMissionsVersion();
   const server = useServer();
-  const stats = React.useMemo(() => profileStats(undefined, server), [server]);
+  const saved = React.useMemo(() => profileStats(undefined, server), [server]);
+  const stats = badges ? { ...saved, badges } : saved;
   const [tab, setTab] = React.useState<Tab>(
     TABS.some(({ id }) => id === startTab) ? startTab : "overview"
   );
@@ -247,7 +254,7 @@ function Tile({
  * The OST badges, an album each: its cover (grey until earned) and how
  * many of its songs have been guessed, as the badges pop-up shows them.
  */
-export function Badges({
+function Badges({
   badges,
   narrow = false,
 }: {

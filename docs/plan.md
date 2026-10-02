@@ -1060,13 +1060,21 @@ admin`, on their PC only, nothing deployed or in the site's build),
      moment, blinks and touch; new ones from the 268 sprites in
      `.cache/game/sprites/` (previewed first) or dropped-in files, through
      `build-spine.py`. Tried with Hinata, then taken out._
-  6. Frame styles from parts (a line, a glow, corner ornaments as SVG
-     shapes in the content), so a new style needs no code; the six there
-     redrawn from parts, checked pixel for pixel against today's.
-  7. Mission counts from rules (a game, mode, server, result, tries,
-     clip or time, counted, counted once each, or as a streak or a best
-     run), so a new kind of count needs no code; the 24 counts there stay
-     as they are. Progress previewed from an imported save file.
+
+  After step 5, the user asked (2026-10-02), built on the same branch:
+  pill rows that grow with content (the Missions tabs, the choice rows,
+  a room's albums) show two rows and "Show n more" (`FoldingRow`); pictures
+  are compressed by themselves, at the lowest WebP quality that still looks
+  the same by SSIM (0.985 for covers, 0.95 and at most 72 for scenes), the
+  tool saying "3.4 MB → 52 KB"; the badges previewed in the game's own
+  profile; and **a blank title and banner by default** (the user's pick of
+  three): a new card is the name alone, Schale's banner stays as a free
+  pick (`"free": true`), and the rooms and accounts fall back to blank. 6. Frame styles from parts (a line, a glow, corner ornaments as SVG
+  shapes in the content), so a new style needs no code; the six there
+  redrawn from parts, checked pixel for pixel against today's. 7. Mission counts from rules (a game, mode, server, result, tries,
+  clip or time, counted, counted once each, or as a streak or a best
+  run), so a new kind of count needs no code; the 24 counts there stay
+  as they are. Progress previewed from an imported save file.
 
   The user's rule (2026-10-02): **everything expandable**, each new thing
   added and previewed in the tool, as long as nothing breaks. Deleting a

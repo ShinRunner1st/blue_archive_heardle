@@ -94,7 +94,7 @@ describe("ownLook", () => {
   it("wears what's picked and unlocked here, the defaults otherwise", () => {
     expect(ownLook()).toEqual({
       title: "none",
-      banner: "schale",
+      banner: "none",
       frame: "schale",
       background: "none",
     });
