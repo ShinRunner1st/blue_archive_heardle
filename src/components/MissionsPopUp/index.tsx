@@ -57,6 +57,10 @@ interface ViewProps extends Props {
   accountOnly?: number;
 }
 
+/** Where a mission sits in its tab: to do, cleared, then retired. */
+const placeOf = ({ mission, done }: MissionProgress) =>
+  mission.retired ? 2 : done ? 1 : 0;
+
 /**
  * The pop-up itself, drawn from what it's given: the game's missions, or
  * the admin tool's draft of them in its preview.
@@ -130,9 +134,8 @@ export function MissionsView({
       <Styled.List role="tabpanel">
         {all
           .filter(({ mission }) => mission.group === group)
-          .sort(
-            (a, b) => Number(!!a.mission.retired) - Number(!!b.mission.retired)
-          )
+          // What's left to do first, then what's cleared, then the retired.
+          .sort((a, b) => placeOf(a) - placeOf(b))
           .map(({ mission, value, goal, done }, i, shown) => {
             const unlocks = unlocksOf(mission.id);
             const firstRetired =
