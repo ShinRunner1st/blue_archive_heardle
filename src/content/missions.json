@@ -40,28 +40,12 @@
       "goal": 1
     },
     {
-      "id": "daily-sweep",
-      "group": "daily",
-      "title": "Full schedule",
-      "text": "Clear all six daily puzzles on one day: OST, Voice, Halo, Weapon, Gameplay and Lore.",
-      "fact": "daySweep",
-      "goal": 6
-    },
-    {
       "id": "daily-7",
       "group": "daily",
       "title": "A week on duty",
       "text": "Clear a daily puzzle 7 days in a row, in one game.",
       "fact": "bestDailyStreak",
       "goal": 7
-    },
-    {
-      "id": "daily-30",
-      "group": "daily",
-      "title": "A month on duty",
-      "text": "Clear a daily puzzle 30 days in a row, in one game.",
-      "fact": "bestDailyStreak",
-      "goal": 30
     },
     {
       "id": "birthday",
@@ -72,20 +56,60 @@
       "goal": 1
     },
     {
-      "id": "daily-14",
-      "group": "daily",
-      "title": "Two weeks on duty",
-      "text": "Win a daily puzzle 14 days in a row, in one game.",
-      "fact": "bestDailyStreak",
-      "goal": 14
-    },
-    {
       "id": "dailies-50",
       "group": "daily",
-      "title": "Schale regular",
-      "text": "Win 50 daily puzzles, in any game.",
+      "title": "Daily routine",
+      "text": "Clear 50 daily puzzles, in any games.",
       "fact": "dailiesWon",
       "goal": 50
+    },
+    {
+      "id": "daily-sweep",
+      "group": "daily",
+      "title": "Full schedule",
+      "text": "Clear all six daily puzzles on one day: OST, Voice, Halo, Weapon, Gameplay and Lore.",
+      "fact": "daySweep",
+      "goal": 6
+    },
+    {
+      "id": "daily-30",
+      "group": "daily",
+      "title": "A month on duty",
+      "text": "Clear a daily puzzle 30 days in a row, in one game.",
+      "fact": "bestDailyStreak",
+      "goal": 30
+    },
+    {
+      "id": "dailies-150",
+      "group": "daily",
+      "title": "Office hours",
+      "text": "Clear 150 daily puzzles, in any games.",
+      "fact": "dailiesWon",
+      "goal": 150
+    },
+    {
+      "id": "daily-60",
+      "group": "daily",
+      "title": "Two months on duty",
+      "text": "Clear a daily puzzle 60 days in a row, in one game.",
+      "fact": "bestDailyStreak",
+      "goal": 60
+    },
+    {
+      "id": "daily-100",
+      "group": "daily",
+      "title": "A hundred days",
+      "text": "Clear a daily puzzle 100 days in a row, in one game.",
+      "fact": "bestDailyStreak",
+      "goal": 100
+    },
+    {
+      "id": "dailies-500",
+      "group": "daily",
+      "title": "Pillar of Schale",
+      "text": "Clear 500 daily puzzles, in any games.",
+      "fact": "dailiesWon",
+      "goal": 500
     },
     {
       "id": "ost-first-try",
@@ -97,36 +121,12 @@
       "goal": 1
     },
     {
-      "id": "ost-100",
+      "id": "ost-50",
       "group": "ost",
       "title": "Record collector",
-      "text": "Guess 100 different songs, in Daily or Classic.",
+      "text": "Guess 50 different songs, in Daily or Classic.",
       "fact": "songsGuessed",
-      "goal": 100
-    },
-    {
-      "id": "ost-all",
-      "group": "ost",
-      "title": "Complete discography",
-      "text": "Guess every song, in Daily or Classic.",
-      "fact": "songsGuessed",
-      "goal": "all"
-    },
-    {
-      "id": "ost-badges",
-      "group": "ost",
-      "title": "Full shelf",
-      "text": "Earn every OST badge.",
-      "fact": "badgesEarned",
-      "goal": "all"
-    },
-    {
-      "id": "ost-timeattack",
-      "group": "ost",
-      "title": "Speed listener",
-      "text": "Name 20 songs in one OST Time Attack run.",
-      "fact": "ostTimeAttack",
-      "goal": 20
+      "goal": 50
     },
     {
       "id": "ost-choice",
@@ -137,12 +137,57 @@
       "goal": 10
     },
     {
-      "id": "ost-200",
+      "id": "ost-timeattack",
+      "group": "ost",
+      "title": "Speed listener",
+      "text": "Name 20 songs in one OST Time Attack run.",
+      "fact": "ostTimeAttack",
+      "goal": 20
+    },
+    {
+      "id": "ost-150",
       "group": "ost",
       "title": "Crate digger",
-      "text": "Guess 200 different songs in Daily or Classic.",
+      "text": "Guess 150 different songs, in Daily or Classic.",
       "fact": "songsGuessed",
-      "goal": 200
+      "goal": 150
+    },
+    {
+      "id": "ost-1s-25",
+      "group": "ost",
+      "title": "Absolute pitch",
+      "text": "Name 25 songs from their 1-second clip, in Daily or Classic.",
+      "rule": {
+        "count": "rounds",
+        "games": ["ost"],
+        "modes": ["daily", "classic"],
+        "tries": 1
+      },
+      "goal": 25
+    },
+    {
+      "id": "ost-badges",
+      "group": "ost",
+      "title": "Full shelf",
+      "text": "Earn every OST badge.",
+      "fact": "badgesEarned",
+      "goal": "all"
+    },
+    {
+      "id": "ost-timeattack-35",
+      "group": "ost",
+      "title": "Rapid fire",
+      "text": "Name 35 songs in one OST Time Attack run.",
+      "fact": "ostTimeAttack",
+      "goal": 35
+    },
+    {
+      "id": "ost-all",
+      "group": "ost",
+      "title": "Complete discography",
+      "text": "Guess every song, in Daily or Classic.",
+      "fact": "songsGuessed",
+      "goal": "all"
     },
     {
       "id": "voice-first-try",
@@ -162,14 +207,6 @@
       "goal": 10
     },
     {
-      "id": "voice-50",
-      "group": "voice",
-      "title": "Voice archive",
-      "text": "Name 50 different students by voice.",
-      "fact": "voicesNamed",
-      "goal": 50
-    },
-    {
       "id": "voice-timeattack",
       "group": "voice",
       "title": "Roll call",
@@ -178,20 +215,49 @@
       "goal": 15
     },
     {
-      "id": "voice-100",
+      "id": "voice-50",
       "group": "voice",
-      "title": "Voice library",
-      "text": "Name 100 different students by their voice.",
+      "title": "Voice archive",
+      "text": "Name 50 different students by voice.",
       "fact": "voicesNamed",
-      "goal": 100
+      "goal": 50
     },
     {
-      "id": "voice-timeattack-25",
+      "id": "voice-streak-10",
+      "group": "voice",
+      "title": "Every word counts",
+      "text": "Name 10 voices in a row before any hint, in one of Daily, Classic or No hints.",
+      "rule": {
+        "count": "streak",
+        "games": ["voice"],
+        "modes": ["daily", "classic", "nohint"],
+        "tries": 1
+      },
+      "goal": 10
+    },
+    {
+      "id": "voice-150",
+      "group": "voice",
+      "title": "Voice library",
+      "text": "Name 150 different students by their voice.",
+      "fact": "voicesNamed",
+      "goal": 150
+    },
+    {
+      "id": "voice-timeattack-30",
       "group": "voice",
       "title": "Full attendance",
-      "text": "Name 25 voices in one Voice Time Attack run.",
+      "text": "Name 30 voices in one Voice Time Attack run.",
       "fact": "voiceTimeAttack",
-      "goal": 25
+      "goal": 30
+    },
+    {
+      "id": "voice-250",
+      "group": "voice",
+      "title": "Every voice in Kivotos",
+      "text": "Name 250 different students by their voice.",
+      "fact": "voicesNamed",
+      "goal": 250
     },
     {
       "id": "halo-shape",
@@ -220,12 +286,56 @@
       "goal": 50
     },
     {
-      "id": "picture-100",
+      "id": "picture-timeattack",
+      "group": "picture",
+      "title": "Snapshot",
+      "text": "Name 15 pictures in one Picture Time Attack run.",
+      "rule": {
+        "count": "run",
+        "games": ["halo", "weapon"]
+      },
+      "goal": 15
+    },
+    {
+      "id": "shapes-50",
+      "group": "picture",
+      "title": "Shadow reader",
+      "text": "Name 50 halos or weapons from their silhouette.",
+      "rule": {
+        "count": "rounds",
+        "games": ["halo", "weapon"],
+        "silhouette": true
+      },
+      "goal": 50
+    },
+    {
+      "id": "picture-streak-10",
+      "group": "picture",
+      "title": "Eagle eye",
+      "text": "Name 10 halos or weapons in a row before any hint, in Classic.",
+      "rule": {
+        "count": "streak",
+        "games": ["halo", "weapon"],
+        "modes": ["classic", "nohint"],
+        "tries": 1
+      },
+      "goal": 10
+    },
+    {
+      "id": "picture-150",
       "group": "picture",
       "title": "Picture archive",
-      "text": "Name 100 different halos and weapons.",
+      "text": "Name 150 different halos and weapons.",
       "fact": "picturesNamed",
-      "goal": 100
+      "goal": 150
+    },
+    {
+      "id": "picture-250",
+      "group": "picture",
+      "title": "Every halo, every gun",
+      "text": "Name 250 different halos and weapons.",
+      "fact": "picturesNamed",
+      "goal": 250
     },
     {
       "id": "students-quick",
@@ -253,28 +363,48 @@
       "goal": 1
     },
     {
-      "id": "students-100",
+      "id": "students-50",
       "group": "students",
       "title": "Homeroom",
-      "text": "Find 100 different students.",
+      "text": "Find 50 different students.",
       "fact": "studentsFound",
-      "goal": 100
+      "goal": 50
     },
     {
-      "id": "students-quick-10",
+      "id": "students-quick-25",
       "group": "students",
-      "title": "Detective",
-      "text": "Find 10 students in 3 guesses or fewer.",
+      "title": "Detective work",
+      "text": "Find 25 students in 3 guesses or fewer.",
       "fact": "quickFinds",
+      "goal": 25
+    },
+    {
+      "id": "students-30s",
+      "group": "students",
+      "title": "Sharp eyes",
+      "text": "Find 10 students in under 30 seconds on the clock.",
+      "rule": {
+        "count": "rounds",
+        "games": ["gameplay", "lore"],
+        "seconds": 30
+      },
       "goal": 10
     },
     {
-      "id": "students-200",
+      "id": "students-150",
       "group": "students",
       "title": "Student council",
-      "text": "Find 200 different students in the student game.",
+      "text": "Find 150 different students.",
       "fact": "studentsFound",
-      "goal": 200
+      "goal": 150
+    },
+    {
+      "id": "students-250",
+      "group": "students",
+      "title": "Everyone's Sensei",
+      "text": "Find 250 different students.",
+      "fact": "studentsFound",
+      "goal": 250
     },
     {
       "id": "room-first",
@@ -313,8 +443,27 @@
       "id": "room-25",
       "group": "multiplayer",
       "title": "Arcade regular",
-      "text": "Play 25 multiplayer games to the standings.",
+      "text": "Finish 25 multiplayer games.",
       "fact": "roomsPlayed",
+      "goal": 25
+    },
+    {
+      "id": "room-streak-3",
+      "group": "multiplayer",
+      "title": "Winning streak",
+      "text": "Finish first in 3 multiplayer games in a row.",
+      "rule": {
+        "count": "streak",
+        "games": ["multiplayer"]
+      },
+      "goal": 3
+    },
+    {
+      "id": "room-win-25",
+      "group": "multiplayer",
+      "title": "Undefeated",
+      "text": "Finish first in 25 multiplayer games.",
+      "fact": "roomsWon",
       "goal": 25
     },
     {
@@ -327,18 +476,21 @@
       "goal": 1
     },
     {
-      "id": "streak-100",
+      "id": "rounds-500",
       "group": "kivotos",
-      "title": "Above Kivotos",
-      "text": "Win 100 in a row, in any mode, and reach the sky.",
-      "fact": "bestStreak",
-      "goal": 100
+      "title": "Busy Sensei",
+      "text": "Play 500 rounds, in any game.",
+      "rule": {
+        "count": "rounds",
+        "result": "played"
+      },
+      "goal": 500
     },
     {
       "id": "streak-30",
       "group": "kivotos",
       "title": "On a roll",
-      "text": "Win 30 in a row in any mode.",
+      "text": "Win 30 in a row, in any mode.",
       "fact": "bestStreak",
       "goal": 30
     },
@@ -349,6 +501,55 @@
       "text": "Play 100 rounds on the JP server.",
       "fact": "jpRounds",
       "goal": 100
+    },
+    {
+      "id": "rounds-2000",
+      "group": "kivotos",
+      "title": "Overtime",
+      "text": "Play 2,000 rounds, in any game.",
+      "rule": {
+        "count": "rounds",
+        "result": "played"
+      },
+      "goal": 2000
+    },
+    {
+      "id": "streak-50",
+      "group": "kivotos",
+      "title": "Unstoppable",
+      "text": "Win 50 in a row, in any mode.",
+      "fact": "bestStreak",
+      "goal": 50
+    },
+    {
+      "id": "rounds-5000",
+      "group": "kivotos",
+      "title": "Veteran of Kivotos",
+      "text": "Play 5,000 rounds, in any game.",
+      "rule": {
+        "count": "rounds",
+        "result": "played"
+      },
+      "goal": 5000
+    },
+    {
+      "id": "streak-100",
+      "group": "kivotos",
+      "title": "Above Kivotos",
+      "text": "Win 100 in a row in any mode, and reach the sky.",
+      "fact": "bestStreak",
+      "goal": 100
+    },
+    {
+      "id": "rounds-10000",
+      "group": "kivotos",
+      "title": "Living legend",
+      "text": "Play 10,000 rounds, in any game.",
+      "rule": {
+        "count": "rounds",
+        "result": "played"
+      },
+      "goal": 10000
     }
   ]
 }

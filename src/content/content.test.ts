@@ -59,11 +59,11 @@ describe("checkContent", () => {
   it("keeps every shipped id: retire one, never remove it", () => {
     const content = copy();
     content.missions.missions = content.missions.missions.filter(
-      ({ id }) => id !== "ost-100"
+      ({ id }) => id !== "ost-150"
     );
     content.cosmetics.titles.pop();
     expect(messages(content, "idsLock")).toContain(
-      'missions: "ost-100" was shipped; mark it "retired": true instead'
+      'missions: "ost-150" was shipped; mark it "retired": true instead'
     );
     expect(messages(content, "idsLock")).toHaveLength(2);
   });
@@ -73,7 +73,7 @@ describe("checkContent", () => {
     content.cosmetics.titles.push({
       id: "new-title",
       name: "New",
-      mission: "ost-100",
+      mission: "ost-150",
     });
     expect(messages(content)).toEqual([
       'titles: add "new-title" to src/content/ids.lock.json',
@@ -116,10 +116,15 @@ describe("checkContent", () => {
     const [first] = content.missions.missions;
     Object.assign(first, { guests: false });
     const aris = content.cosmetics.characters.find(({ id }) => id === "aris")!;
-    aris.formerMissions = ["room-10", "nowhere", "room-first", "room-first"];
+    aris.formerMissions = [
+      "room-win-25",
+      "nowhere",
+      "room-first",
+      "room-first",
+    ];
     expect(messages(content)).toEqual([
       `${first.id}: guests is true, or left out`,
-      `characters: aris: "room-10" isn't another mission in missions.json`,
+      `characters: aris: "room-win-25" isn't another mission in missions.json`,
       `characters: aris: "nowhere" isn't another mission in missions.json`,
       `characters: aris's former mission "room-first" twice`,
     ]);

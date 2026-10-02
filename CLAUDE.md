@@ -353,7 +353,8 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   Streak places still win from 10 wins. `?season=<id>` previews one in dev.
 - **OST badges**: Vol.1-8, earned by guessing every song on an album. On
   the profile (beside its table by game, and on its OST tab).
-- **Missions** (☰ Missions): 39 one-off missions, a tab per game, worked
+- **Missions** (☰ Missions): 59 one-off missions, a tab per game, each
+  unlocking one reward, a ladder in every tab from starter to months, worked
   out from the saves on both servers (`src/helpers/missions.ts`, list in
   `src/constants/missions.ts`, ids never renamed), each counting one of
   the game's own counts or a rule made of games, ways to play, server,
@@ -544,7 +545,10 @@ checks them all. Add one there, never in a component. A new season: its
 entry, then `npm run seasons` (makes missing pictures from the backgrounds
 it names) and `npm run songs`. Never rename or remove a mission or
 cosmetic id (saves and accounts keep them): mark it `"retired": true`, and
-add every new id to `ids.lock.json`, which the content test holds them to.
+add every new id to `ids.lock.json`, which the content test holds them to. (Paused while
+only the user plays, their word on 2026-10-03: released ones may be
+removed or renamed, `ids.lock.json` with them, until they say players have
+come or the accounts show others.)
 
 ## Commands
 

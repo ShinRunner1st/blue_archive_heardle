@@ -898,11 +898,11 @@ describe("missions and room passes", () => {
     await put(token, { ...profile(), missions: ["first-daily", "daily-7"] });
     expect(missionsOf()).toEqual(["daily-7", "first-daily"]);
     expect(missionWrites()).toBe(0);
-    await put(token, { ...profile(), missions: ["daily-14"] });
-    expect(missionsOf()).toEqual(["daily-14", "daily-7", "first-daily"]);
+    await put(token, { ...profile(), missions: ["daily-60"] });
+    expect(missionsOf()).toEqual(["daily-60", "daily-7", "first-daily"]);
     expect(missionWrites()).toBe(1);
     await put(token, profile());
-    expect(missionsOf()).toEqual(["daily-14", "daily-7", "first-daily"]);
+    expect(missionsOf()).toEqual(["daily-60", "daily-7", "first-daily"]);
   });
 
   it("gives a signed pass with only the cosmetics the account unlocked", async () => {

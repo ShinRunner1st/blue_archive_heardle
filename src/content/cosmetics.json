@@ -18,12 +18,12 @@
     {
       "id": "dj",
       "name": "Kivotos DJ",
-      "mission": "ost-all"
+      "mission": "ost-timeattack-35"
     },
     {
       "id": "voice",
       "name": "Voice Archivist",
-      "mission": "voice-50"
+      "mission": "voice-150"
     },
     {
       "id": "halo",
@@ -39,6 +39,51 @@
       "id": "champion",
       "name": "Room Champion",
       "mission": "room-win"
+    },
+    {
+      "id": "quick-ears",
+      "name": "Quick Ears",
+      "mission": "ost-timeattack"
+    },
+    {
+      "id": "absolute",
+      "name": "Absolute Pitch",
+      "mission": "ost-1s-25"
+    },
+    {
+      "id": "listener",
+      "name": "Good Listener",
+      "mission": "voice-nohint"
+    },
+    {
+      "id": "armory",
+      "name": "Armory Clerk",
+      "mission": "weapon-shape"
+    },
+    {
+      "id": "eagle",
+      "name": "Eagle Eye",
+      "mission": "picture-streak-10"
+    },
+    {
+      "id": "double",
+      "name": "Double Duty",
+      "mission": "students-both"
+    },
+    {
+      "id": "sharp",
+      "name": "Sharp Eyes",
+      "mission": "students-30s"
+    },
+    {
+      "id": "regular",
+      "name": "Schale Regular",
+      "mission": "rounds-500"
+    },
+    {
+      "id": "veteran",
+      "name": "Kivotos Veteran",
+      "mission": "rounds-5000"
     }
   ],
   "cardColors": [
@@ -84,12 +129,22 @@
     {
       "id": "sky",
       "name": "Sky",
-      "mission": "streak-100",
+      "mission": "streak-50",
       "band": ["#1FA2E0", "#9BE3FF"],
       "body": ["#FFFFFF", "#D6F1FF"],
       "ink": "#0E3352",
       "muted": "#5C86A3",
       "accent": "#1B8FD0"
+    },
+    {
+      "id": "echo",
+      "name": "Echo",
+      "band": ["#5B3FD1", "#3FC8D9"],
+      "body": ["#FFFFFF", "#EEF0FF"],
+      "ink": "#1E1A4A",
+      "muted": "#6E6A9A",
+      "accent": "#5B3FD1",
+      "mission": "voice-250"
     }
   ],
   "cursorColors": [
@@ -101,21 +156,21 @@
     {
       "id": "pink",
       "name": "Pink",
-      "mission": "birthday",
+      "mission": "dailies-50",
       "hue": 330,
       "swatch": "#FF4DA0"
     },
     {
       "id": "gold",
       "name": "Gold",
-      "mission": "ost-100",
+      "mission": "ost-50",
       "hue": 42,
       "swatch": "#FFB31A"
     },
     {
       "id": "green",
       "name": "Green",
-      "mission": "students-100",
+      "mission": "students-minute",
       "hue": 145,
       "swatch": "#2BD46F"
     },
@@ -124,13 +179,19 @@
       "name": "Violet",
       "mission": "voice-first-try",
       "hue": 268,
-      "swatch": "#9B5CFF",
-      "formerMissions": ["room-first"]
+      "swatch": "#9B5CFF"
+    },
+    {
+      "id": "red",
+      "name": "Red",
+      "hue": 355,
+      "swatch": "#FF4D5A",
+      "mission": "picture-timeattack"
     },
     {
       "id": "rainbow",
       "name": "Rainbow",
-      "mission": "room-10",
+      "mission": "room-25",
       "rainbow": true,
       "swatch": "linear-gradient(90deg, #ff4d4d, #ffd24d, #4dff88, #4dc3ff, #b84dff)"
     }
@@ -147,23 +208,22 @@
     {
       "id": "shiroko",
       "name": "Shiroko",
-      "mission": "daily-7"
+      "mission": "daily-100"
     },
     {
       "id": "hoshino",
       "name": "Hoshino",
-      "mission": "ost-100"
+      "mission": "ost-all"
     },
     {
       "id": "hina",
       "name": "Hina",
-      "mission": "students-100"
+      "mission": "students-250"
     },
     {
       "id": "aris",
       "name": "Aris",
-      "mission": "room-10",
-      "formerMissions": ["room-first"]
+      "mission": "room-win-25"
     }
   ],
   "banners": [
@@ -184,7 +244,7 @@
     {
       "id": "sakura",
       "name": "Cherry blossom",
-      "mission": "daily-14",
+      "mission": "dailies-150",
       "picture": "scenes/banner-cherry-blossom",
       "tint": "#781E46",
       "ink": "#FFFFFF",
@@ -194,7 +254,7 @@
     {
       "id": "beach",
       "name": "Beach",
-      "mission": "ost-200",
+      "mission": "ost-150",
       "picture": "scenes/banner-beach",
       "tint": "#0A3C6E",
       "ink": "#FFFFFF",
@@ -204,7 +264,7 @@
     {
       "id": "festival",
       "name": "Summer festival",
-      "mission": "room-25",
+      "mission": "voice-streak-10",
       "picture": "scenes/banner-summer-festival",
       "tint": "#28145A",
       "ink": "#F2C14E",
@@ -214,7 +274,7 @@
     {
       "id": "halloween",
       "name": "Night carnival",
-      "mission": "picture-100",
+      "mission": "shapes-50",
       "picture": "scenes/banner-night-carnival",
       "tint": "#3C0F3C",
       "ink": "#FFB86B",
@@ -224,7 +284,7 @@
     {
       "id": "autumn",
       "name": "Autumn",
-      "mission": "students-quick-10",
+      "mission": "students-quick-25",
       "picture": "scenes/banner-autumn",
       "tint": "#5A280A",
       "ink": "#FFE3B8",
@@ -234,7 +294,7 @@
     {
       "id": "snow",
       "name": "Winter lodge",
-      "mission": "dailies-50",
+      "mission": "rounds-2000",
       "picture": "scenes/banner-winter-lodge",
       "tint": "#0E2A4A",
       "ink": "#E8F4FF",
@@ -242,13 +302,31 @@
       "emblem": "IoSnow"
     },
     {
+      "id": "silver",
+      "name": "Silver foil",
+      "fill": ["#7D8796", "#E9EEF5", "#98A2B2", "#D3DAE6"],
+      "ink": "#1C222D",
+      "accent": "#FFFFFF",
+      "emblem": "IoCamera",
+      "mission": "picture-150"
+    },
+    {
       "id": "gold",
       "name": "Gold foil",
-      "mission": "room-win-5",
+      "mission": "room-streak-3",
       "fill": ["#B8892B", "#F7DC8B", "#C9972F", "#F2C14E"],
       "ink": "#3A2A05",
       "accent": "#FFF3C4",
       "emblem": "IoTrophy"
+    },
+    {
+      "id": "prism",
+      "name": "Prism foil",
+      "fill": ["#FF9ACB", "#9AD0FF", "#A8F0B8", "#FFE58F"],
+      "ink": "#2B2147",
+      "accent": "#FFFFFF",
+      "emblem": "IoSparkles",
+      "mission": "rounds-10000"
     }
   ],
   "frames": [
@@ -264,7 +342,7 @@
     {
       "id": "sakura",
       "name": "Sakura",
-      "mission": "daily-sweep",
+      "mission": "daily-60",
       "colors": ["#F7A8C8", "#FBC3DA", "#FFE27A"],
       "border": {
         "width": 2,
@@ -363,7 +441,7 @@
     {
       "id": "halo",
       "name": "Halo",
-      "mission": "picture-50",
+      "mission": "picture-250",
       "colors": ["#7FD3FF", "#9BE0FF"],
       "border": {
         "width": 2,
@@ -401,7 +479,7 @@
     {
       "id": "silver",
       "name": "Silver filigree",
-      "mission": "voice-100",
+      "mission": "voice-timeattack-30",
       "colors": ["#C9D3E0", "#E9EEF5"],
       "border": {
         "width": 2,
@@ -441,7 +519,7 @@
     {
       "id": "gold",
       "name": "Gold filigree",
-      "mission": "daily-30",
+      "mission": "dailies-500",
       "colors": ["#F2C14E", "#F7DC8B"],
       "border": {
         "width": 2,
@@ -481,7 +559,7 @@
     {
       "id": "neon",
       "name": "Arcade neon",
-      "mission": "room-win",
+      "mission": "room-win-5",
       "colors": ["#00E5FF", "#B04CFF", "#FF4FA3"],
       "border": {
         "width": 2,
@@ -507,7 +585,7 @@
     {
       "id": "prism",
       "name": "Prism",
-      "mission": "streak-30",
+      "mission": "streak-100",
       "colors": [
         "#FF6B6B",
         "#FFD93D",
@@ -554,7 +632,7 @@
     {
       "id": "beach",
       "name": "Beach",
-      "mission": "ost-100",
+      "mission": "ost-choice",
       "picture": "seasons/beach-day"
     },
     {
@@ -572,13 +650,13 @@
     {
       "id": "autumn",
       "name": "Autumn road",
-      "mission": "students-100",
+      "mission": "students-50",
       "picture": "seasons/autumn-day"
     },
     {
       "id": "lodge",
       "name": "Winter lodge",
-      "mission": "daily-7",
+      "mission": "streak-30",
       "picture": "seasons/christmas-night"
     },
     {
@@ -608,13 +686,13 @@
     {
       "id": "students-200",
       "name": "Student council",
-      "mission": "students-200",
+      "mission": "students-150",
       "picture": "hub/students"
     },
     {
       "id": "roll-call",
       "name": "Roll call",
-      "mission": "voice-timeattack-25",
+      "mission": "voice-timeattack",
       "picture": "hub/voice"
     }
   ]

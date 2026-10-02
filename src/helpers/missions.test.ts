@@ -3,8 +3,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { songs } from "../constants";
 import {
   BACKGROUNDS,
+  CARD_TITLES,
   CHARACTER_CHOICES,
-  CURSOR_COLORS,
 } from "../constants/cosmetics";
 import { ACCOUNT_SESSION_KEY } from "../constants/game";
 import { GUEST_MISSION_IDS, MISSIONS } from "../constants/missions";
@@ -203,19 +203,21 @@ describe("a guest", () => {
 
   it("wears only what a starter mission gives now, whatever was cleared", () => {
     saveClearedMissions(["room-first", "daily-7", "voice-50"]);
-    const aris = CHARACTER_CHOICES.find(({ id }) => id === "aris")!;
-    const violet = CURSOR_COLORS.find(({ id }) => id === "violet")!;
+    const shiroko = CHARACTER_CHOICES.find(({ id }) => id === "shiroko")!;
+    const dependable = CARD_TITLES.find(({ id }) => id === "dependable")!;
     const arcade = BACKGROUNDS.find(({ id }) => id === "arcade")!;
-    // Aris and the violet cursor moved off Finish a multiplayer game.
-    expect(aris.formerMissions).toEqual(["room-first"]);
-    expect(unlockedHere(aris)).toBe(false);
-    expect(unlockedHere(violet)).toBe(false);
+    // A reward moved off Finish a multiplayer game to another mission.
+    const moved = { mission: "room-win-25", formerMissions: ["room-first"] };
+    expect(unlockedHere(moved)).toBe(false);
+    expect(unlockedHere(dependable)).toBe(false);
+    expect(unlockedHere(shiroko)).toBe(false);
     expect(unlockedHere(arcade)).toBe(true);
     expect(activeClearedCount()).toBe(1);
 
     setGuestView(false);
-    expect(unlockedHere(aris)).toBe(true);
-    expect(unlockedHere(violet)).toBe(true);
+    expect(unlockedHere(moved)).toBe(true);
+    expect(unlockedHere(dependable)).toBe(true);
+    expect(unlockedHere(shiroko)).toBe(false);
     expect(activeClearedCount()).toBe(3);
   });
 });

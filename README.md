@@ -373,7 +373,7 @@ they need no more height than the OST, and every game fits a 1080p window.
   profile shows each album's progress (its overview and OST tab); the result screen says when a
   round adds to one. The albums' songs are in `src/constants/volumes.ts`, from their
   published tracklists.
-- **Missions** - 39 one-off missions in ☰ → Missions, a tab for each game
+- **Missions** - 59 one-off missions in ☰ → Missions, a tab for each game
   (Daily, OST, Voice, Picture, Students, Multiplayer, Kivotos), such as all
   six dailies on one day, a song from its 1-second clip, a halo from its
   silhouette or a multiplayer win. They're worked out from the saves on both

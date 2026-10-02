@@ -1119,6 +1119,15 @@ admin`, on their PC only, nothing deployed or in the site's build),
   banners, frames...) still needs its place on screen drawn in code.
   Then **missions for the new rewards**, made with the tool: more
   missions, so each banner, background and frame has one to unlock it.
+  _Built on `feat/guest-limits` (2026-10-03), the user leaving the design
+  to Claude, with a high ceiling, and taking back anything released (only
+  the user plays yet: one account, theirs): 59 missions, each unlocking
+  exactly one reward, a ladder in every tab (starter, a few days or weeks,
+  a month or more, months), the rarest rewards at the top (characters:
+  Shiroko a 100-day streak, Hoshino every song, Hina 250 students, Aris 25
+  room wins; frames for the long ones). 13 new rewards: 9 titles, Echo
+  card colours, a red cursor, silver and prism foil banners. Eleven
+  missions use rules. `ids.lock.json` was rewritten to match._
 
 - **Guest limits** (decided 2026-10-03, reversing "guests never feel
   second-class"): an account is what keeps progress, so guests get less.

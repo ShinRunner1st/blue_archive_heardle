@@ -20,6 +20,8 @@ import {
   setCursorColor,
   unlocksOf,
 } from "./cosmetics";
+import cosmeticData from "../content/cosmetics.json";
+import type { CosmeticsFile } from "../content/types";
 import { saveClearedMissions, setGuestView } from "./missions";
 
 // A signed-in player, who can unlock everything; guests are in missions.test.
@@ -54,7 +56,7 @@ describe("cosmetics", () => {
   });
 
   it("picks one once its mission is cleared", () => {
-    saveClearedMissions(["ost-all", "daily-30", "room-10"]);
+    saveClearedMissions(["ost-timeattack-35", "daily-30", "room-25"]);
     setCardTitle("dj");
     setCardColors("gold");
     setCursorColor("rainbow");
@@ -79,15 +81,29 @@ describe("cosmetics", () => {
 });
 
 describe("what a mission unlocks", () => {
-  it("names what a live mission gives now, not what moved off it", () => {
+  /** The game's rewards with Aris moved from one mission to another. */
+  function moved(): CosmeticsFile {
+    const draft = structuredClone(cosmeticData) as unknown as CosmeticsFile;
+    const aris = draft.characters.find(({ id }) => id === "aris")!;
+    Object.assign(aris, {
+      mission: "room-win-25",
+      formerMissions: ["room-first"],
+    });
+    return draft;
+  }
+
+  it("names one reward a mission gives", () => {
     expect(unlocksOf("room-first")).toEqual(["Background: Arcade"]);
     expect(unlocksOf("voice-first-try")).toEqual(["Cursor colour: Violet"]);
-    expect(unlocksOf("room-10")).toContain("Character: Aris");
+  });
+
+  it("names what a live mission gives now, not what moved off it", () => {
+    expect(unlocksOf("room-first", moved())).toEqual(["Background: Arcade"]);
+    expect(unlocksOf("room-win-25", moved())).toEqual(["Character: Aris"]);
   });
 
   it("names everything a retired one gave", () => {
-    expect(unlocksOf("room-first", undefined, true)).toEqual([
-      "Cursor colour: Violet",
+    expect(unlocksOf("room-first", moved(), true)).toEqual([
       "Background: Arcade",
       "Character: Aris",
     ]);
