@@ -104,12 +104,12 @@
       "goal": 100
     },
     {
-      "id": "dailies-500",
+      "id": "dailies-300",
       "group": "daily",
       "title": "Pillar of Schale",
-      "text": "Clear 500 daily puzzles, in any games.",
+      "text": "Clear 300 daily puzzles, in any games.",
       "fact": "dailiesWon",
-      "goal": 500
+      "goal": 300
     },
     {
       "id": "ost-first-try",
@@ -476,15 +476,15 @@
       "goal": 1
     },
     {
-      "id": "rounds-500",
+      "id": "rounds-300",
       "group": "kivotos",
       "title": "Busy Sensei",
-      "text": "Play 500 rounds, in any game.",
+      "text": "Play 300 rounds, in any game.",
       "rule": {
         "count": "rounds",
         "result": "played"
       },
-      "goal": 500
+      "goal": 300
     },
     {
       "id": "streak-30",
@@ -503,15 +503,15 @@
       "goal": 100
     },
     {
-      "id": "rounds-2000",
+      "id": "rounds-1000",
       "group": "kivotos",
       "title": "Overtime",
-      "text": "Play 2,000 rounds, in any game.",
+      "text": "Play 1,000 rounds, in any game.",
       "rule": {
         "count": "rounds",
         "result": "played"
       },
-      "goal": 2000
+      "goal": 1000
     },
     {
       "id": "streak-50",
@@ -522,15 +522,15 @@
       "goal": 50
     },
     {
-      "id": "rounds-5000",
+      "id": "rounds-2500",
       "group": "kivotos",
       "title": "Veteran of Kivotos",
-      "text": "Play 5,000 rounds, in any game.",
+      "text": "Play 2,500 rounds, in any game.",
       "rule": {
         "count": "rounds",
         "result": "played"
       },
-      "goal": 5000
+      "goal": 2500
     },
     {
       "id": "streak-100",
@@ -541,15 +541,15 @@
       "goal": 100
     },
     {
-      "id": "rounds-10000",
+      "id": "rounds-5000",
       "group": "kivotos",
       "title": "Living legend",
-      "text": "Play 10,000 rounds, in any game.",
+      "text": "Play 5,000 rounds, in any game.",
       "rule": {
         "count": "rounds",
         "result": "played"
       },
-      "goal": 10000
+      "goal": 5000
     }
   ]
 }

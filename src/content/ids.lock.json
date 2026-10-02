@@ -9,7 +9,7 @@
     "dailies-150",
     "daily-60",
     "daily-100",
-    "dailies-500",
+    "dailies-300",
     "ost-first-try",
     "ost-50",
     "ost-choice",
@@ -51,14 +51,14 @@
     "room-streak-3",
     "room-win-25",
     "jp",
-    "rounds-500",
+    "rounds-300",
     "streak-30",
     "jp-100",
-    "rounds-2000",
+    "rounds-1000",
     "streak-50",
-    "rounds-5000",
+    "rounds-2500",
     "streak-100",
-    "rounds-10000"
+    "rounds-5000"
   ],
   "titles": [
     "none",
