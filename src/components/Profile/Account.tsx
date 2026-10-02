@@ -125,8 +125,15 @@ export function AccountPanel() {
 
   /** Signs in, after saying a guest's progress here goes, if there is any. */
   const signIn = (provider: Provider) => {
-    if (joining === null && hasLocalProgress()) setJoining(provider);
-    else void act(() => startSignIn(provider));
+    if (joining === null && hasLocalProgress()) {
+      setJoining(provider);
+      return;
+    }
+    // A session that ended by itself (expired, or deleted elsewhere) left
+    // this browser joined with that account: the next one starts fresh
+    // too, never taking the last one's progress in.
+    forgetAccountProgress();
+    void act(() => startSignIn(provider));
   };
 
   /**
