@@ -977,7 +977,9 @@ favourite student, title, banner, frame, background, expiry}` with
    deployed Worker takes only `SITE_ORIGINS` (localhost only with `npm run
 accounts`), its workers.dev address is off, and Discord's sign-in is
    off (its client id emptied) until the release puts it back, as
-   Discord's apps have no testing mode. The release waits for the user._
+   Discord's apps have no testing mode. Released on 2026-10-02
+   (fast-forward of `feat/preview-measure`), with Discord's client id
+   back; Google's app is published once /privacy is live._
 
 ## Decisions (settled 2026-10-02)
 

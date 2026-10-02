@@ -124,7 +124,7 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   workers.dev address) and the dev server (`npm run accounts`, with
   stand-in sign-in pages). Deployed, it takes only the site's own pages
   (`SITE_ORIGINS`); localhost only with `npm run accounts` (`LOCAL_DEV`).
-  Discord's sign-in is off (empty `DISCORD_CLIENT_ID`) until the release. CI deploys it from
+  An empty `DISCORD_CLIENT_ID` or `GOOGLE_CLIENT_ID` turns that sign-in off. CI deploys it from
   `main` before the rooms and the site (`npm run deploy:accounts`: Time
   Travel bookmark, migrations, Worker); `npm run accounts:measure` and
   `scripts/measure-accounts.mjs` measure what each request costs D1.
@@ -473,6 +473,19 @@ songs` put the new files on the Worker and R2 first. About 0.3 KB gzipped
   Their three pictures were already on the Worker and R2. Five preview
   pictures more on the site Worker (78 files), fetched only by link-preview
   sites; no new files on R2, and about the same first load.
+- **2 Oct 2026, accounts released** (fast-forward of `feat/preview-measure`,
+  with everything stacked since 4a460a1): seasons all year, missions and
+  cosmetics, content files, Shiroko, Hoshino, Hina and Aris, the room
+  feedback, the ticket lobby and room cards, the profile and Customize,
+  save format 2, and accounts (Google and Discord sign-in, the profile and
+  progress in the account, room passes, `/privacy`, download and delete),
+  measured on the preview first (`docs/accounts.md` section 6). Rooms
+  went from `PROTOCOL` 3 to 5, with one new `ROOM_PASS_KEY` on the
+  accounts and rooms Workers. The season pictures were already on the
+  Worker and R2. About 22 KB gzipped more on the first load, still six
+  files; 101 files on the site Worker (a `/privacy` page and lazy
+  chunks); no new files on R2. Google's app is published, and the
+  sitemap sent again, once `/privacy` is live.
 
 ## Content files
 

@@ -927,6 +927,8 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   _Built on `feat/profile-identity`, off `feat/room-cards`._
 - **No release before accounts** (the user, 2026-10-02): everything
   stacked since 4a460a1 waits on `main` until accounts are built.
+  _Released together on 2026-10-02 (fast-forward of
+  `feat/preview-measure`), with the user's approval._
 - **A profile in normal mode** (asked for 2026-10-01): the player's own,
   from the saves, as no one else's numbers are involved: name, banner,
   favourite student, days played, totals, a row per game (rounds, won,
