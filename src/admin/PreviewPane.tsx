@@ -5,9 +5,13 @@ import type { ColorScheme } from "../constants/theme";
 import type { PreviewMessage, PreviewView } from "./messages";
 import { Heading, Row, Tab } from "./ui";
 
-/** The windows previews are checked at: the shortest desktop, and a phone. */
+/**
+ * The windows previews are checked at: the shortest desktop (a 1080p
+ * screen less the browser's bars), a full 1080p one, and a phone.
+ */
 const DEVICES = {
   desktop: { width: 1920, height: 911, label: "1920×911" },
+  full: { width: 1920, height: 1080, label: "1920×1080" },
   phone: { width: 390, height: 844, label: "Phone" },
 } as const;
 type Device = keyof typeof DEVICES;
@@ -88,7 +92,7 @@ export function PreviewPane({
   const [device, setDevice] = useRemembered<Device>(
     "admin-preview-device",
     "desktop",
-    ["desktop", "phone"]
+    Object.keys(DEVICES) as Device[]
   );
   const [scheme, setScheme] = useRemembered<ColorScheme>(
     "admin-preview-scheme",

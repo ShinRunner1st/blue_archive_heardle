@@ -1022,7 +1022,7 @@ admin`, on their PC only, nothing deployed or in the site's build),
      `src/content/` and `ids.lock.json`), with Missions (their tabs too)
      and What's new.
      _Built on `feat/admin-tool`: `src/admin/`, `vite.admin.config.ts`;
-     previews in a frame (1920×911 or a phone, day or night, fitted or
+     previews in a frame (1920×911, 1920×1080 or a phone, day or night, fitted or
      100%) from the game's own `MissionsView`, `MissionToast` and
      `WhatsNewPopUp`, which now take a draft; mission tabs are data. An
      id is fixed once it's in the lock on `main`; saves are checked again
