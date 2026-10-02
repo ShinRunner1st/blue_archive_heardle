@@ -1083,7 +1083,11 @@ admin`, on their PC only, nothing deployed or in the site's build),
      out identical to the pixel, day and night, at 1× and 2×, on the card
      and the pop-up. The tool edits every part, starts from another
      frame, shows the ornament up close over the card's corner, and takes
-     shapes from a pasted SVG._
+     shapes from a pasted SVG. After trying it (2026-10-03), the user found
+     typing shapes too hard: ornaments are now made from a library of
+     ready-made shapes dragged into place, sized and turned; and the whole
+     tool has undo and redo (Ctrl+Z, Ctrl+Y), a drag or a word typed one
+     step._
   7. Mission counts from rules (a game, mode, server, result, tries,
      clip or time, counted, counted once each, or as a streak or a best
      run), so a new kind of count needs no code; the 24 counts there stay

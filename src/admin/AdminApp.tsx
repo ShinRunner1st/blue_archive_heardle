@@ -5,6 +5,13 @@ import { CONTENT_FILE_PATHS, type ContentFiles } from "../content/types";
 import { checkContent } from "../content/validate";
 import { type ContentState, loadContent, saveContent } from "./api";
 import { changedFiles } from "./draft";
+import {
+  type History,
+  type HistoryAction,
+  historyReducer,
+  startHistory,
+  undoKey,
+} from "./history";
 import { nextLock } from "./lock";
 import type { PictureEntry } from "./pictureRules";
 import { MissionsTab } from "./MissionsTab";
@@ -63,7 +70,17 @@ function store(storage: Storage, key: string, value: unknown): void {
  */
 export function AdminApp() {
   const [state, setState] = React.useState<ContentState | null>(null);
-  const [draft, setDraft] = React.useState<ContentFiles | null>(null);
+  const [history, dispatch] = React.useReducer(
+    historyReducer as (
+      history: History<ContentFiles | null>,
+      action: HistoryAction<ContentFiles | null>
+    ) => History<ContentFiles | null>,
+    null,
+    () => startHistory<ContentFiles | null>(null)
+  );
+  const draft = history.present;
+  /** The draft set as a step of its own, to undo back from. */
+  const setDraft = (next: ContentFiles) => dispatch({ type: "step", next });
   const [error, setError] = React.useState("");
   const [tab, setTab] = React.useState<TabId>(
     () => readStored<TabId>(localStorage, "admin-tab") ?? "missions"
@@ -82,7 +99,7 @@ export function AdminApp() {
     loadContent()
       .then((loaded) => {
         setState(loaded);
-        setDraft(loaded.files);
+        dispatch({ type: "reset", next: loaded.files });
         setPictures(loaded.pictures);
         const kept = readStored<StoredDraft>(localStorage, DRAFT_KEY);
         if (
@@ -92,8 +109,9 @@ export function AdminApp() {
           // The same files on disk as when the draft began, as after a
           // picture made here reloads the page: carry on with it. Changed
           // on disk since: ask.
-          if (kept.disk === JSON.stringify(loaded.files)) setDraft(kept.files);
-          else setRestore(kept);
+          if (kept.disk === JSON.stringify(loaded.files)) {
+            dispatch({ type: "reset", next: kept.files });
+          } else setRestore(kept);
         }
       })
       .catch((reason: unknown) => setError(String(reason)));
@@ -130,9 +148,29 @@ export function AdminApp() {
 
   const update = React.useCallback(
     (change: (files: ContentFiles) => ContentFiles) =>
-      setDraft((files) => (files ? change(files) : files)),
+      dispatch({
+        type: "edit",
+        change: (files) => (files ? change(files) : files),
+        at: Date.now(),
+      }),
     []
   );
+
+  // Ctrl+Z and Ctrl+Y (or Ctrl+Shift+Z) anywhere, text boxes too: what's
+  // typed in one is the draft's, so the draft's history undoes it. A box
+  // that isn't the draft's says so with data-own-undo.
+  React.useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      const way = undoKey(event);
+      if (!way) return;
+      const target = event.target as Element | null;
+      if (target?.closest?.("[data-own-undo]")) return;
+      event.preventDefault();
+      dispatch({ type: way });
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   if (error) {
     return (
@@ -199,6 +237,22 @@ export function AdminApp() {
           ))}
         </Tabs>
         <Row>
+          <Button
+            disabled={history.past.length === 0}
+            title="Undo (Ctrl+Z)"
+            aria-label="Undo"
+            onClick={() => dispatch({ type: "undo" })}
+          >
+            ↶ Undo
+          </Button>
+          <Button
+            disabled={history.future.length === 0}
+            title="Redo (Ctrl+Y or Ctrl+Shift+Z)"
+            aria-label="Redo"
+            onClick={() => dispatch({ type: "redo" })}
+          >
+            ↷ Redo
+          </Button>
           {changed.length > 0 && (
             <small>
               Changed:{" "}
@@ -208,7 +262,11 @@ export function AdminApp() {
           <Button
             disabled={changed.length === 0 || saving}
             onClick={() => {
-              if (window.confirm("Throw away every unsaved change?")) {
+              if (
+                window.confirm(
+                  "Throw away every unsaved change? (Undo brings them back.)"
+                )
+              ) {
                 setDraft(state.files);
               }
             }}

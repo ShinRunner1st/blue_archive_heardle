@@ -909,6 +909,7 @@ export function FrameFields({
             >
               <TextArea
                 name="frame-svg"
+                data-own-undo
                 value={pasted}
                 spellCheck={false}
                 placeholder='<svg viewBox="0 0 24 24">…</svg>'
