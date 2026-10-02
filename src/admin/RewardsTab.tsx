@@ -122,6 +122,9 @@ export function RewardsTab({ draft, update, shipped, problems }: TabProps) {
   const [list, setList] = React.useState<ListName>("titles");
   const [index, setIndex] = React.useState(0);
   const [unlocked, setUnlocked] = React.useState(true);
+  const [screen, setScreen] = React.useState<
+    "own" | "lobby" | "round" | "standings"
+  >("own");
   const items = draft.cosmetics[list] as Reward[];
   const item = items[index] as Reward | undefined;
   const missions = draft.missions.missions;
@@ -173,6 +176,7 @@ export function RewardsTab({ draft, update, shipped, problems }: TabProps) {
     missions,
     index,
     unlocked,
+    screen,
   };
 
   const own = item
@@ -294,15 +298,38 @@ export function RewardsTab({ draft, update, shipped, problems }: TabProps) {
       <PreviewPane
         view={view}
         extra={
-          <Check style={{ margin: "0 0 4px" }}>
-            <input
-              type="checkbox"
-              name="preview-unlocked"
-              checked={unlocked}
-              onChange={(event) => setUnlocked(event.target.checked)}
-            />
-            As a player who has unlocked everything (off: a new player)
-          </Check>
+          <>
+            {["titles", "banners", "frames", "backgrounds"].includes(list) && (
+              <Row style={{ marginBottom: 6 }}>
+                <Hint>Where:</Hint>
+                {(
+                  [
+                    ["own", list === "titles" ? "Sensei card" : "Profile"],
+                    ["lobby", "Room lobby"],
+                    ["round", "A round"],
+                    ["standings", "Standings"],
+                  ] as const
+                ).map(([id, label]) => (
+                  <Button
+                    key={id}
+                    $variant={screen === id ? "primary" : "plain"}
+                    onClick={() => setScreen(id)}
+                  >
+                    {label}
+                  </Button>
+                ))}
+              </Row>
+            )}
+            <Check style={{ margin: "0 0 4px" }}>
+              <input
+                type="checkbox"
+                name="preview-unlocked"
+                checked={unlocked}
+                onChange={(event) => setUnlocked(event.target.checked)}
+              />
+              As a player who has unlocked everything (off: a new player)
+            </Check>
+          </>
         }
       />
     </>

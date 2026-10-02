@@ -32,6 +32,7 @@ import { makeSenseiCard } from "../helpers/picture/senseiCard";
 import { studentById } from "../helpers/studentRounds";
 import logo from "../image/BlueArchive-Heardle.png";
 import type { PreviewView } from "./messages";
+import { RoomPreview, SHOWN_IN_ROOMS } from "./RoomPreview";
 
 type RewardsView = Extract<PreviewView, { kind: "rewards" }>;
 
@@ -58,8 +59,17 @@ const CardPicture = styled.img`
   border-radius: 12px;
 `;
 
-export function RewardsPreview({ view }: { view: RewardsView }) {
+export function RewardsPreview({
+  view,
+  night,
+}: {
+  view: RewardsView;
+  night: boolean;
+}) {
   const { cosmetics, list, index, unlocked, missions } = view;
+  if (view.screen && view.screen !== "own" && SHOWN_IN_ROOMS.has(list)) {
+    return <RoomPreview view={view} screen={view.screen} night={night} />;
+  }
   const titleOf = (id: string | undefined) =>
     missions.find((mission) => mission.id === id)?.title ?? "";
   // Everything cleared, or nothing: a player with all of it, or a new one.

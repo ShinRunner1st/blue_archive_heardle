@@ -58,7 +58,9 @@ function View({ view, night }: { view: PreviewView; night: boolean }) {
     );
   }
 
-  if (view.kind === "rewards") return <RewardsPreview view={view} />;
+  if (view.kind === "rewards") {
+    return <RewardsPreview view={view} night={night} />;
+  }
   return <MissionsPreview view={view} />;
 }
 

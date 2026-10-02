@@ -35,6 +35,8 @@ export type PreviewView =
       index: number;
       /** Drawn as a player who has cleared every mission, or none. */
       unlocked: boolean;
+      /** Where it's shown: its own screen, or a room's (lobby, round...). */
+      screen?: "own" | "lobby" | "round" | "standings";
     }
   /** A picture on the Worker by its key, or none picked. */
   | { kind: "picture"; key: string }

@@ -192,6 +192,9 @@ writes the files as Prettier would, so the diff is only what changed.
   frame and the cards rooms show, cursor colours in Settings with the
   effects running, characters in Settings. "As a player who has unlocked
   everything", or off, as a new player, with the locks and their missions.
+  Titles, banners, frames and backgrounds can also be seen in a room: the
+  game's own lobby, a round's reveal and the standings, with eight made-up
+  players, you wearing the one edited and the others a mix.
   A released reward keeps its mission while that mission is live; once it's
   retired, a new one can take over and the old is kept as a former one.
 - **Pictures** for banners and backgrounds go in `pictures/scenes/`, made
