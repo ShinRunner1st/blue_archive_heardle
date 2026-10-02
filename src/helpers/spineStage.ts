@@ -156,13 +156,16 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
   };
 
   const skeletonData = (character: SpineCharacter) => {
-    let data = skeletons.get(character.id);
+    // By her files, not her id: the admin tool previews one sprite after
+    // another under one id, and each must be read from its own.
+    const key = `${character.skel}|${character.atlas}`;
+    let data = skeletons.get(key);
     if (!data) {
       const atlas = assets.require(character.atlas) as spine.TextureAtlas;
       data = new spine.SkeletonBinary(
         new spine.AtlasAttachmentLoader(atlas)
       ).readSkeletonData(assets.require(character.skel));
-      skeletons.set(character.id, data);
+      skeletons.set(key, data);
     }
     return data;
   };
