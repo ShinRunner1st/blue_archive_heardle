@@ -8,7 +8,7 @@ import { Server } from "./server";
  * whenever a message changes, and a page on an older version is told to
  * reload.
  */
-export const PROTOCOL = 6;
+export const PROTOCOL = 7;
 
 /** The games a room can play: songs, students by voice, or by picture. */
 export type RoomGame = "ost" | "voice" | "picture";
@@ -256,6 +256,12 @@ export interface PlayerView {
   returned: boolean;
   /** In a reveal: their answer, whether it was right, and how fast. */
   last?: { pick: Pick; right: boolean; ms: number | null };
+  /**
+   * A signed-in player whose profile can be seen from their card
+   * (docs/room-profiles.md): tapping it asks the room for a ticket.
+   * Absent for a guest, or a player who hid theirs.
+   */
+  profile?: true;
 }
 
 /** A round once revealed, for the standings at the end. */
@@ -411,7 +417,12 @@ export type ClientMessage =
   /** Someone is still there: the lobby's idle clock starts again. */
   | { t: "stay" }
   /** The host takes a player out of the room, by their id. */
-  | { t: "kick"; id: string };
+  | { t: "kick"; id: string }
+  /**
+   * A card tapped, by its player's id: a ticket for their profile
+   * (docs/room-profiles.md). Anyone in the room may ask, guests too.
+   */
+  | { t: "profile"; id: string };
 
 /**
  * Whether the page holds a player in a room, so a slip can't take them
@@ -437,4 +448,11 @@ export type ServerMessage =
    * again if they come back to the standings. Their page takes it to the
    * accounts Worker (docs/verified-stats.md, section 8). Guests get none.
    */
-  | { t: "receipt"; receipt: string };
+  | { t: "receipt"; receipt: string }
+  /**
+   * A ticket for the profile of the player with this id, signed by the
+   * room for the accounts Worker (src/accounts/profileTicket.ts), sent
+   * only to the page that asked; good for a few minutes. The page brings
+   * it to `POST /profile-view` (docs/room-profiles.md).
+   */
+  | { t: "profile"; id: string; ticket: string };

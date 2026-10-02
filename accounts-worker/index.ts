@@ -10,7 +10,7 @@
 import { AccountsEnv, handle } from "../src/accounts/api";
 import { measured, Tally } from "../src/accounts/measure";
 import { tidyAccounts } from "../src/accounts/privacy";
-import { makeProfileTicket } from "../src/accounts/profileView";
+import { makeProfileTicket } from "../src/accounts/profileTicket";
 import { makeRoomReceipt, newRoomGameId } from "../src/accounts/roomReceipt";
 import {
   isDay,

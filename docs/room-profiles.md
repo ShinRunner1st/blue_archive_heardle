@@ -165,7 +165,18 @@ Each step only once the user approves it, on its own stacked branch:
    account with five verified summaries; at most 14), a hidden one 1 and
    0, the switch 3 and 1. Signing in and the room pass cost as before._
 2. **The rooms**: `PlayerView.profile`, the `profile` message and its
-   ticket on the asker's connection only, `PROTOCOL` 7; tests.
+   ticket on the asker's connection only, `PROTOCOL` 7; tests. _Built on
+   `feat/profile-rooms`: the ticket's format moved to
+   `src/accounts/profileTicket.ts` (no D1), which the rooms Worker signs
+   with; `PlayerView.profile` is `true` only on a signed-in player's card
+   their latest pass doesn't hide (absent otherwise); `{ t: "profile", id }`
+   from anyone, one a second, for a player here or away in the game's
+   roster, never one's own; the ticket goes on the asker's connection
+   alone. The page ignores the message until step 3. Checked across the
+   local rooms and accounts Workers: the marks, the ticket to the asker
+   only, the view with no session, none for a guest's card, a profile
+   hidden since answering nothing at once, and a newer pass unmarking the
+   card. The room writes nothing for it._
 3. **The page**: tappable cards for signed-in players, the read-only
    profile pop-up (from the profile's own parts, the summary labelled),
    kept for the room; the Account tab's switch; tests; screenshots at

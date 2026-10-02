@@ -24,6 +24,7 @@
 import { DurableObject } from "cloudflare:workers";
 
 import { readRoomPass } from "../src/accounts/roomPass";
+import { makeProfileTicket } from "../src/accounts/profileTicket";
 import { makeRoomReceipt } from "../src/accounts/roomReceipt";
 import {
   countMessage,
@@ -276,6 +277,17 @@ export class GameRoom extends DurableObject<Env> {
       if (!ws) continue;
       const signed = await makeRoomReceipt(receipt, key).catch(() => null);
       if (signed) send(ws, { t: "receipt", receipt: signed });
+    }
+    // Profiles' tickets for cards tapped (docs/room-profiles.md), each only
+    // to the page that asked: signed under their own kind, read by the
+    // accounts Worker, so the public id never reaches a page.
+    for (const { token, id, publicId } of room.profileTickets) {
+      const ws = sockets.get(token);
+      if (!ws) continue;
+      const ticket = await makeProfileTicket(publicId, key, now).catch(
+        () => null
+      );
+      if (ticket) send(ws, { t: "profile", id, ticket });
     }
   }
 

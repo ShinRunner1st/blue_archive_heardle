@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
 
+import {
+  makeProfileTicket,
+  readProfileTicket,
+} from "../accounts/profileTicket";
 import { makeRoomReceipt, readRoomReceipt } from "../accounts/roomReceipt";
 import { audioClips } from "../constants/audioClips";
 import { voiceLines } from "../constants/voiceLines";
@@ -2031,5 +2035,131 @@ describe("receipts for signed-in players (verified stats)", () => {
     const views = JSON.stringify(players.map((p) => game.viewFor(p, end)));
     expect(views).not.toContain(game.game!.id!);
     expect(views).not.toContain(MUTSUKI.publicId);
+  });
+});
+
+describe("profiles from a card (docs/room-profiles.md)", () => {
+  const KEY = "test-pass-key";
+  const passFor = (
+    publicId: string,
+    name: string,
+    hidden = false
+  ): RoomPass => ({
+    publicId,
+    name,
+    student: null,
+    look: DEFAULT_LOOK,
+    expires: 1e13,
+    ...(hidden ? { hidden: true as const } : {}),
+  });
+  const MUTSUKI = passFor("mutsukimutsuki22", "Mutsuki");
+  const HARUKA = passFor("harukaharukahar2", "Haruka", true);
+
+  /** Aru (a guest) makes the room; Mutsuki (shown) and Haruka (hidden) join. */
+  function cards() {
+    const { game, players } = room({ maxPlayers: 4 }, []);
+    const join = (token: string, name: string, pass: RoomPass, at: number) => {
+      const joined = game.hello(hello(token, name), at, false, pass);
+      if (!("player" in joined)) throw new Error(joined.error);
+      return joined.player;
+    };
+    const mutsuki = join("token-mutsuki", "Mutsuki", MUTSUKI, 5);
+    const haruka = join("token-haruka", "Haruka", HARUKA, 6);
+    return { game, aru: players[0], mutsuki, haruka };
+  }
+
+  const markOf = (game: Room, id: string, now = 50) =>
+    game.viewFor(game.players[0], now).players.find((p) => p.id === id)!
+      .profile;
+
+  it("marks the cards of signed-in players who show theirs, nobody else's", () => {
+    const { game, aru, mutsuki, haruka } = cards();
+    expect(markOf(game, mutsuki.id)).toBe(true);
+    expect(markOf(game, haruka.id)).toBeUndefined();
+    expect(markOf(game, aru.id)).toBeUndefined();
+  });
+
+  it("gives the asker, a guest too, a ticket for that player's account, and nobody else", () => {
+    const { game, aru, mutsuki } = cards();
+    game.message(aru, { t: "profile", id: mutsuki.id }, 100);
+    expect(game.profileTickets).toEqual([
+      { token: aru.token, id: mutsuki.id, publicId: MUTSUKI.publicId },
+    ]);
+  });
+
+  it("gives none for a guest's card, a hidden one, one not in the room, or one's own", () => {
+    const { game, aru, mutsuki, haruka } = cards();
+    game.message(mutsuki, { t: "profile", id: aru.id }, 100);
+    game.message(mutsuki, { t: "profile", id: haruka.id }, 2000);
+    game.message(mutsuki, { t: "profile", id: "zzzzzz" }, 4000);
+    game.message(mutsuki, { t: "profile", id: mutsuki.id }, 6000);
+    expect(game.profileTickets).toEqual([]);
+  });
+
+  it("takes one a second from a page", () => {
+    const { game, aru, mutsuki } = cards();
+    game.message(aru, { t: "profile", id: mutsuki.id }, 1000);
+    game.message(aru, { t: "profile", id: mutsuki.id }, 1500);
+    expect(game.profileTickets).toHaveLength(1);
+    game.message(aru, { t: "profile", id: mutsuki.id }, 2000);
+    expect(game.profileTickets).toHaveLength(2);
+  });
+
+  it("gives one for a player away from the game, not for one kicked", () => {
+    const { game, aru, mutsuki, haruka } = cards();
+    // Haruka shows hers again, so both of the others are tappable.
+    game.hello(hello("token-haruka", "Haruka"), 7, false, {
+      ...HARUKA,
+      hidden: undefined,
+    });
+    game.message(aru, { t: "start" }, 100);
+    // Mutsuki drops out mid-game: away, in the game's roster.
+    game.leave(mutsuki, 200);
+    game.message(aru, { t: "profile", id: mutsuki.id }, 300);
+    expect(game.profileTickets.map(({ id }) => id)).toEqual([mutsuki.id]);
+
+    game.message(aru, { t: "kick", id: haruka.id }, 400);
+    game.profileTickets = [];
+    game.message(aru, { t: "profile", id: haruka.id }, 2000);
+    expect(game.profileTickets).toEqual([]);
+  });
+
+  it("follows the latest pass a player came with", () => {
+    const { game, haruka } = cards();
+    expect(markOf(game, haruka.id)).toBeUndefined();
+    // Her page again, with a pass made since she showed it.
+    game.hello(hello("token-haruka", "Haruka"), 20, false, {
+      ...HARUKA,
+      hidden: undefined,
+    });
+    expect(markOf(game, haruka.id, 30)).toBe(true);
+  });
+
+  it("takes the message only in its own shape", () => {
+    const parse = (value: unknown) =>
+      parseMessage(JSON.stringify({ t: "profile", id: value }));
+    expect(parse("abc123")).toEqual({ t: "profile", id: "abc123" });
+    for (const bad of ["ABC123", "abc12", "abc1234", 7, null, undefined]) {
+      expect(parse(bad)).toBeNull();
+    }
+  });
+
+  it("never puts a public id in a page's view, marks and all", () => {
+    const { game } = cards();
+    const views = JSON.stringify(
+      game.players.map((player) => game.viewFor(player, 50))
+    );
+    expect(views).not.toContain(MUTSUKI.publicId);
+    expect(views).not.toContain(HARUKA.publicId);
+  });
+
+  it("is signed as a ticket the accounts Worker reads back", async () => {
+    const { game, aru, mutsuki } = cards();
+    game.message(aru, { t: "profile", id: mutsuki.id }, 100);
+    const [{ publicId }] = game.profileTickets;
+    const ticket = await makeProfileTicket(publicId, KEY, 1_000_000);
+    expect(await readProfileTicket(ticket, KEY, 1_000_000)).toBe(
+      MUTSUKI.publicId
+    );
   });
 });

@@ -239,6 +239,9 @@ export function useRoom(): RoomConnection {
         if (typeof message.receipt === "string") keepReceipt(message.receipt);
         return;
       }
+      // A profile's ticket (docs/room-profiles.md): not a refusal. Nothing
+      // asks for one yet.
+      if (message.t === "profile") return;
 
       refused = true;
       if (message.code === "missing" && target.rejoin && !target.recreate) {

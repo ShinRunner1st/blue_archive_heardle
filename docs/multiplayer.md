@@ -221,6 +221,10 @@ page                          Worker / room (Durable Object)
  |                                 as it came with their pass; again if
  |                                 they come back; none for a guest or a
  |                                 game a vote ended)            [free]
+ | profile {id}   (a signed-in player's card tapped, anyone, one a second)
+ | <- profile {id, ticket}     (the asker's connection only; none for a
+ |                                 guest's card or a hidden one; the page
+ |                                 takes it to POST /profile-view) [0 rows]
  | again          (each player's Back to the lobby)
  | tick (30 s) or the last again -> back to the lobby; deletes the game
  |                                 and the alarm                 [~2 rows]

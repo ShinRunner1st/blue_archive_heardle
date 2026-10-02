@@ -25,11 +25,8 @@ import {
 import { MAX_VERIFIED_BODY } from "../types/verified";
 import { readRoomReceipt } from "./roomReceipt";
 import { makeRoomPass } from "./roomPass";
-import {
-  readProfileTicket,
-  readProfileView,
-  setProfileShown,
-} from "./profileView";
+import { readProfileTicket } from "./profileTicket";
+import { readProfileView, setProfileShown } from "./profileView";
 import {
   accountView,
   createAccount,

@@ -88,6 +88,8 @@ export const EMPTY_MS = 30_000;
  * a new version of the Worker restarts it and nobody comes back.
  */
 export const TIDY_MS = 30 * 60_000;
+/** The least time between two profile tickets a page asks for. */
+export const PROFILE_GAP_MS = 1000;
 /**
  * The browsers and accounts the host has taken out, the newest kept: on
  * every connection, whose attachment has little room (2 KB), so a token's
@@ -175,6 +177,16 @@ export interface Ended {
   finishers: Finisher[];
 }
 
+/**
+ * A profile's ticket for the Worker to sign and send on the asker's
+ * connection only: whose profile (by room id and public id), and to whom.
+ */
+export interface ProfileTicketToSend {
+  token: string;
+  id: string;
+  publicId: string;
+}
+
 /** A result for the Worker to sign and send on one connection. */
 export interface ReceiptToSend {
   token: string;
@@ -231,6 +243,14 @@ export interface PlayerRecord {
    * it) but gets no receipt.
    */
   passed?: true;
+  /**
+   * Their pass says they hid their profile from rooms
+   * (docs/room-profiles.md): their card isn't marked, and no ticket is
+   * signed for it. The latest pass they came with decides.
+   */
+  hidden?: true;
+  /** When they last asked for a profile's ticket, to take one a second. */
+  profileAt?: number;
   /** When they joined, which orders the list and picks the next host. */
   joined: number;
   score: number;
@@ -600,6 +620,10 @@ export function parseMessage(text: unknown): ClientMessage | null {
       return typeof m.id === "string" && /^[0-9a-z]{6}$/.test(m.id)
         ? { t: "kick", id: m.id }
         : null;
+    case "profile":
+      return typeof m.id === "string" && /^[0-9a-z]{6}$/.test(m.id)
+        ? { t: "profile", id: m.id }
+        : null;
     case "vote":
       return typeof m.yes === "boolean" ? { t: "vote", yes: m.yes } : null;
     default:
@@ -678,6 +702,11 @@ export class Room {
    * connection, once the room's state is stored.
    */
   receipts: ReceiptToSend[] = [];
+  /**
+   * Profiles' tickets to sign and send, each only to the page that asked
+   * (docs/room-profiles.md).
+   */
+  profileTickets: ProfileTicketToSend[] = [];
 
   constructor(
     public readonly code: string,
@@ -777,6 +806,9 @@ export class Room {
       // Whichever way they came in, this connection's own pass decides.
       if (pass !== null && pass.publicId === player.account) {
         player.passed = true;
+        // Hidden or shown as their account says now.
+        if (pass.hidden) player.hidden = true;
+        else delete player.hidden;
       } else delete player.passed;
       // Back at the standings of a game they played: their receipt again.
       this.giveReceipt(player);
@@ -1088,6 +1120,9 @@ export class Room {
       case "kick":
         if (isHost && message.id !== player.id) this.kick(message.id, now);
         return;
+      case "profile":
+        this.askProfile(player, message.id, now);
+        return;
       default:
         return;
     }
@@ -1142,6 +1177,32 @@ export class Room {
     if (this.live.phase === "playing") this.settleIfAllAnswered(now);
     this.touch(now);
     this.advance(now);
+  }
+
+  /**
+   * A card tapped (docs/room-profiles.md): a ticket for that player's
+   * profile, for the Worker to sign and send to the asker alone. Only for
+   * a signed-in player in this room (here, or away in the game's roster)
+   * who hasn't hidden theirs, never one's own (the page has it), and one a
+   * second from a page. Anyone may ask, guests too: being in the room is
+   * what lets them see the card.
+   */
+  private askProfile(asker: PlayerRecord, id: string, now: number) {
+    if (
+      asker.profileAt !== undefined &&
+      now - asker.profileAt < PROFILE_GAP_MS
+    ) {
+      return;
+    }
+    asker.profileAt = now;
+    if (id === asker.id) return;
+    const target = this.everyone.find((p) => p.id === id);
+    if (!target?.account || target.hidden) return;
+    this.profileTickets.push({
+      token: asker.token,
+      id: target.id,
+      publicId: target.account,
+    });
   }
 
   /**
@@ -1463,6 +1524,7 @@ export class Room {
         answered: answering && guess !== null,
         ...(phase === "playing" && guess ? { sent: guess.ms } : {}),
         returned: phase === "over" && p.returned,
+        ...(p.account && !p.hidden ? { profile: true as const } : {}),
         ...(revealing && answer !== undefined
           ? {
               last: {

@@ -10,7 +10,7 @@ import {
 } from "../types/account";
 import { AccountsEnv, handle } from "./api";
 import { signValue } from "./crypto";
-import { makeProfileTicket, readProfileTicket } from "./profileView";
+import { makeProfileTicket, readProfileTicket } from "./profileTicket";
 import { makeRoomReceipt, newRoomGameId } from "./roomReceipt";
 import { readRoomPass } from "./roomPass";
 import { dayInZone } from "./verified";

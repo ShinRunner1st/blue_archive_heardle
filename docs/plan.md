@@ -990,7 +990,9 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   signs, so pages never get public ids. Nothing is built until the user
   approves it. _Drafted on `docs/room-profiles`, off `main`. Step 1, the
   accounts Worker (migration 0006, the ticket, `POST /profile-view`, the
-  switch), on `feat/profile-view`, off `docs/room-profiles`._
+  switch), on `feat/profile-view`, off `docs/room-profiles`. Step 2, the
+  rooms (cards marked, the ticket to the asker only, `PROTOCOL` 7), on
+  `feat/profile-rooms`, off `feat/profile-view`._
 - **Missions for the new rewards**: more missions, so each banner,
   background and frame has one to unlock it, in `missions.json` and
   `cosmetics.json` as now; ids never renamed. With the cosmetics above.
