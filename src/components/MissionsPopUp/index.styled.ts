@@ -155,3 +155,25 @@ export const Retired = styled.li`
   color: ${({ theme }) => theme.text};
   opacity: 0.6;
 `;
+
+/** Under a guest's starter missions: what an account adds. */
+export const AccountNote = styled.li`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 9px 12px;
+
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: ${({ theme }) => theme.text};
+  border: 1px dashed rgba(241, 247, 237, 0.25);
+  border-radius: 11px;
+
+  svg {
+    flex: none;
+    font-size: 1.05rem;
+    opacity: 0.75;
+  }
+`;

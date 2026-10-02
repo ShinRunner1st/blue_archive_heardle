@@ -122,9 +122,10 @@
     {
       "id": "violet",
       "name": "Violet",
-      "mission": "room-first",
+      "mission": "voice-first-try",
       "hue": 268,
-      "swatch": "#9B5CFF"
+      "swatch": "#9B5CFF",
+      "formerMissions": ["room-first"]
     },
     {
       "id": "rainbow",
@@ -161,7 +162,8 @@
     {
       "id": "aris",
       "name": "Aris",
-      "mission": "room-first"
+      "mission": "room-10",
+      "formerMissions": ["room-first"]
     }
   ],
   "banners": [

@@ -1,5 +1,4 @@
 import { songs } from "../constants";
-import { ACTIVE_MISSIONS } from "../constants/missions";
 
 import { BADGE_MODES, ROUND_MODES } from "../types/mode";
 import { Server } from "../types/server";
@@ -15,7 +14,7 @@ import {
   loadStudentRounds,
   loadVoiceRounds,
 } from "./storage";
-import { activeClearedCount } from "./missions";
+import { activeClearedCount, activeMissionTotal } from "./missions";
 import { calStreaks } from "./streaks";
 import { asRound, isOver, isWon, onServer } from "./studentRounds";
 import { timeAttackStats } from "./timeAttack";
@@ -131,6 +130,6 @@ export function senseiStats(
       pictureRounds.filter(isVoiceOver).length,
     since: days.length > 0 ? dateOfDay(Math.min(...days)) : null,
     missionsCleared: activeClearedCount(),
-    missionsTotal: ACTIVE_MISSIONS.length,
+    missionsTotal: activeMissionTotal(),
   };
 }

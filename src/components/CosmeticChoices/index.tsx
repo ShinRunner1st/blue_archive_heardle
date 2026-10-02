@@ -2,7 +2,7 @@ import { IoLockClosed } from "react-icons/io5";
 
 import { MISSIONS } from "../../constants/missions";
 import { isUnlocked, offered } from "../../helpers/cosmetics";
-import { loadClearedMissions } from "../../helpers/missions";
+import { loadClearedMissions, needsAccount } from "../../helpers/missions";
 import { useMissionsVersion } from "../../hooks/useMissions";
 
 import { FoldingRow } from "../FoldingRow";
@@ -29,8 +29,14 @@ interface Props {
   titleOf?: (missionId: string | undefined) => string;
 }
 
-const missionTitle = (id: string | undefined) =>
-  MISSIONS.find((mission) => mission.id === id)?.title ?? "";
+/**
+ * The mission that unlocks a reward, by its title: for a guest, one that
+ * needs an account says so first.
+ */
+const missionTitle = (id: string | undefined) => {
+  const title = MISSIONS.find((mission) => mission.id === id)?.title ?? "";
+  return needsAccount(id) ? `Sign in · ${title}` : title;
+};
 
 /**
  * What missions unlock, as a row of choices: the ones still locked show a

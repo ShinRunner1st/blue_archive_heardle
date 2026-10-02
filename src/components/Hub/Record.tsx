@@ -1,8 +1,7 @@
 import React from "react";
 import { IoPerson, IoRibbon } from "react-icons/io5";
 
-import { ACTIVE_MISSIONS } from "../../constants/missions";
-import { activeClearedCount } from "../../helpers/missions";
+import { activeClearedCount, activeMissionTotal } from "../../helpers/missions";
 import { senseiStats } from "../../helpers/senseiStats";
 import { useMissionsVersion } from "../../hooks/useMissions";
 import { useServer } from "../../hooks/useServer";
@@ -52,7 +51,7 @@ export function Record({
           </Styled.PanelAction>
           <Styled.PanelAction type="button" onClick={onMissions}>
             <IoRibbon aria-hidden="true" />
-            Missions {missions}/{ACTIVE_MISSIONS.length}
+            Missions {missions}/{activeMissionTotal()}
           </Styled.PanelAction>
         </Styled.PanelActions>
       </Styled.PanelHead>

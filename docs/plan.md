@@ -1143,7 +1143,15 @@ admin`, on their PC only, nothing deployed or in the site's build),
     Built on `feat/guest-limits`, off `feat/admin-tool`, a step at a time:
   1. the decision and the policy, About and README;
   2. guest missions (the flag, the tool's switch, the pop-up and rewards
-     for guests, the rewards arranged again);
+     for guests, the rewards arranged again); _built: eight starter
+     missions (Clear a daily, Perfect pitch, a voice before any hint, a
+     halo's and a weapon's silhouette, a find in 3 guesses, Finish a
+     multiplayer game, a round on JP); the Violet cursor moved to the
+     voice mission and Aris to Finish 10 multiplayer games, each keeping
+     Finish a multiplayer game as a former mission (`formerMissions` now
+     takes any other mission, not only retired ones, so the tool can move
+     a released reward); a live mission names only what it gives now; the
+     tool's preview shows a guest's pop-up_;
   3. accounts (sign-in replaces, sign-out clears);
   4. the save file out of Settings, the tool's preview from Download my
      data;

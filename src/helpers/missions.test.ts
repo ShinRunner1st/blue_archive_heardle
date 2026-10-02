@@ -1,11 +1,24 @@
 import { beforeEach, describe, expect, it } from "vitest";
 
 import { songs } from "../constants";
-import { MISSIONS } from "../constants/missions";
+import {
+  BACKGROUNDS,
+  CHARACTER_CHOICES,
+  CURSOR_COLORS,
+} from "../constants/cosmetics";
+import { ACCOUNT_SESSION_KEY } from "../constants/game";
+import { GUEST_MISSION_IDS, MISSIONS } from "../constants/missions";
 import { students } from "../constants/students";
 import { Round } from "../types/stats";
 import {
+  activeClearedCount,
+  activeMissionTotal,
   checkMissions,
+  isGuest,
+  needsAccount,
+  saveClearedMissions,
+  setGuestView,
+  unlockedHere,
   loadClearedMissions,
   loadRoomRecord,
   missionFacts,
@@ -22,7 +35,11 @@ import {
   saveVoiceRounds,
 } from "./storage";
 
-beforeEach(() => localStorage.clear());
+// A signed-in player, who sees every mission; guests have their own tests.
+beforeEach(() => {
+  localStorage.clear();
+  setGuestView(false);
+});
 
 const [a, b, c, d] = students.map(({ id }) => id);
 
@@ -151,5 +168,54 @@ describe("checking what's stored", () => {
       wins: 0,
     });
     expect(toRoomRecord(null)).toEqual({ games: 0, wins: 0 });
+  });
+});
+
+describe("a guest", () => {
+  beforeEach(() => setGuestView(null));
+
+  it("is anyone without a session", () => {
+    expect(isGuest()).toBe(true);
+    localStorage.setItem(ACCOUNT_SESSION_KEY, "token");
+    expect(isGuest()).toBe(false);
+  });
+
+  it("sees the starter missions only, one or more in every tab", () => {
+    const shown = missionProgress(missionFacts(10)).map(
+      ({ mission }) => mission
+    );
+    expect(shown.every(({ guests }) => guests)).toBe(true);
+    expect(shown).toHaveLength(GUEST_MISSION_IDS.size);
+    expect(activeMissionTotal()).toBe(GUEST_MISSION_IDS.size);
+    expect(new Set(shown.map(({ group }) => group)).size).toBe(7);
+    expect(needsAccount("room-win")).toBe(true);
+    expect(needsAccount("room-first")).toBe(false);
+  });
+
+  it("clears only starter missions, where an account would clear more", () => {
+    recordRoomGame(true);
+    expect(checkMissions().cleared.map(({ id }) => id)).toEqual(["room-first"]);
+    expect(loadClearedMissions()).not.toContain("room-win");
+
+    setGuestView(false);
+    expect(checkMissions().cleared.map(({ id }) => id)).toContain("room-win");
+  });
+
+  it("wears only what a starter mission gives now, whatever was cleared", () => {
+    saveClearedMissions(["room-first", "daily-7", "voice-50"]);
+    const aris = CHARACTER_CHOICES.find(({ id }) => id === "aris")!;
+    const violet = CURSOR_COLORS.find(({ id }) => id === "violet")!;
+    const arcade = BACKGROUNDS.find(({ id }) => id === "arcade")!;
+    // Aris and the violet cursor moved off Finish a multiplayer game.
+    expect(aris.formerMissions).toEqual(["room-first"]);
+    expect(unlockedHere(aris)).toBe(false);
+    expect(unlockedHere(violet)).toBe(false);
+    expect(unlockedHere(arcade)).toBe(true);
+    expect(activeClearedCount()).toBe(1);
+
+    setGuestView(false);
+    expect(unlockedHere(aris)).toBe(true);
+    expect(unlockedHere(violet)).toBe(true);
+    expect(activeClearedCount()).toBe(3);
   });
 });

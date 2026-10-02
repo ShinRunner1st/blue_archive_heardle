@@ -103,6 +103,10 @@ from `pictures/seasons/` unless another season shares them.
 
 - `goal`: the count that clears it, or `"all"` for every song or every
   badge (it grows with the game); a rule's is a number.
+- `guests`: `true` for a starter mission, one or two easy ones a tab. A
+  guest (not signed in) sees and clears only these, and wears only what
+  they unlock, so what a starter mission unlocks is a starter reward;
+  everything else needs an account.
 
 Rounds already played count, so a new mission can be cleared the moment a
 player opens the page: they get a toast for it.
@@ -159,8 +163,9 @@ other reward needs a mission, so one can't be left free by mistake.
 `"blank": true` marks the default title and banner, which show nothing: a
 new card is the name alone, and a title picked with no banner shows as
 words. `formerMissions` lists
-retired missions that unlocked it before, so whoever cleared one keeps it
-when a new mission takes over. `retired: true` stops offering it: nobody
+the missions that unlocked it before (retired, or ones it moved off), so
+an account that cleared one keeps it when another mission takes over; a
+guest never does, and has only what a starter mission unlocks now. `retired: true` stops offering it: nobody
 new can get it (its mission must be retired too), and whoever has it still
 wears it and sees it in the list. A default is never retired. A new kind of cosmetic
 is its list here, an entry in `COSMETIC_KINDS` (`src/helpers/cosmetics.ts`)

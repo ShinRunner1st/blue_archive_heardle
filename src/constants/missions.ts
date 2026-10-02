@@ -129,6 +129,11 @@ export interface Mission {
    */
   goal: number | "all";
   /**
+   * A starter mission, one guests can clear too (docs/plan.md, Guest
+   * limits): a guest sees only these, and wears only what they unlock.
+   */
+  guests?: boolean;
+  /**
    * No longer one to clear (docs/accounts.md, section 4): a mission whose
    * ask changed gets a new id, and the old one is retired, never removed.
    * Whoever cleared it sees it under Retired and keeps what it unlocked.
@@ -146,3 +151,8 @@ export const MISSIONS = missionData.missions as Mission[];
 
 /** The missions there are to clear: every one but the retired. */
 export const ACTIVE_MISSIONS = MISSIONS.filter(({ retired }) => !retired);
+
+/** The starter missions, which guests can clear. */
+export const GUEST_MISSION_IDS = new Set(
+  MISSIONS.filter(({ guests }) => guests).map(({ id }) => id)
+);

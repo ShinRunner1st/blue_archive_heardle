@@ -359,20 +359,20 @@ function RewardForm({
   onDelete: () => void;
 }) {
   const mission = missions.find(({ id }) => id === item.mission);
-  // A released reward keeps the mission it has while that mission is
-  // live: whoever cleared it would lose the reward if another took over.
-  // Once its mission is retired, a new one can, the old kept as former.
-  const missionFixed = released && !!mission && !mission.retired;
+  // A released reward can move to another mission: the old one is kept
+  // as former, so an account that cleared it keeps the reward (a guest
+  // has only what a starter mission gives now).
   const formerMissions = (item.formerMissions as string[] | undefined) ?? [];
 
   /** "" is no mission yet; FREE is everyone's, on purpose. */
   const pickMission = (id: string) => {
     const old = item.mission as string | undefined;
     const mission = id === FREE ? "" : id;
-    const former =
+    const former = (
       released && old && old !== mission && !formerMissions.includes(old)
         ? [...formerMissions, old]
-        : formerMissions;
+        : formerMissions
+    ).filter((id) => id !== mission);
     onChange({
       mission: mission || undefined,
       free: id === FREE || undefined,
@@ -448,11 +448,17 @@ function RewardForm({
           <Field
             label="Mission"
             hint={
-              missionFixed
-                ? `Whoever cleared “${mission?.title}” has this: to change it, retire that mission first (Missions tab), and it's kept as a former one.`
-                : list === "characters"
-                ? "Or none: everyone has this character."
-                : "Clearing it unlocks this, for good."
+              <>
+                {released && mission
+                  ? `Moving it keeps it for every account that cleared “${mission.title}”, as a former mission.`
+                  : list === "characters"
+                  ? "Or none: everyone has this character."
+                  : "Clearing it unlocks this, for good."}{" "}
+                {mission &&
+                  (mission.guests
+                    ? "A starter mission: guests can unlock this too."
+                    : "Guests can't unlock this: its mission needs an account.")}
+              </>
             }
           >
             <Select
@@ -460,7 +466,6 @@ function RewardForm({
               value={
                 item.free ? FREE : (item.mission as string | undefined) ?? ""
               }
-              disabled={missionFixed}
               onChange={(event) => pickMission(event.target.value)}
             >
               <option value="">
@@ -480,15 +485,13 @@ function RewardForm({
               ))}
             </Select>
           </Field>
-          {!missionFixed && (
-            <Row style={{ marginBottom: 12 }}>
-              <Button onClick={newMission}>+ New mission for this</Button>
-              <Hint>Made in the Missions tab, to fill in there.</Hint>
-            </Row>
-          )}
+          <Row style={{ marginBottom: 12 }}>
+            <Button onClick={newMission}>+ New mission for this</Button>
+            <Hint>Made in the Missions tab, to fill in there.</Hint>
+          </Row>
           {formerMissions.length > 0 && (
             <Note>
-              Also kept by whoever cleared:{" "}
+              Also kept by every account that cleared:{" "}
               {formerMissions
                 .map((id) => missions.find((m) => m.id === id)?.title ?? id)
                 .join(", ")}

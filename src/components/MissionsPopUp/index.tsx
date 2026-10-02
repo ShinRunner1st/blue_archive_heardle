@@ -1,9 +1,18 @@
 import React from "react";
-import { IoCheckmarkCircle, IoGift } from "react-icons/io5";
+import { IoCheckmarkCircle, IoGift, IoLockClosed } from "react-icons/io5";
 
-import { MISSION_GROUPS, MissionGroup } from "../../constants/missions";
+import {
+  ACTIVE_MISSIONS,
+  MISSION_GROUPS,
+  MissionGroup,
+} from "../../constants/missions";
+import { accountsEnabled } from "../../helpers/accountFlag";
 import { unlocksOf } from "../../helpers/cosmetics";
-import { MissionProgress } from "../../helpers/missions";
+import {
+  activeMissionTotal,
+  isGuest,
+  MissionProgress,
+} from "../../helpers/missions";
 import { useMissionProgress } from "../../hooks/useMissions";
 import { Button } from "../Button";
 import { FoldingRow } from "../FoldingRow";
@@ -26,6 +35,11 @@ export function MissionsPopUp({ onClose }: Props) {
       all={useMissionProgress()}
       groups={MISSION_GROUPS}
       unlocks={unlocksOf}
+      accountOnly={
+        isGuest() && accountsEnabled()
+          ? ACTIVE_MISSIONS.length - activeMissionTotal(true)
+          : 0
+      }
       onClose={onClose}
     />
   );
@@ -39,6 +53,8 @@ interface ViewProps extends Props {
   unlocks: (missionId: string) => string[];
   /** The tab to open on, in place of the first with something left. */
   group?: MissionGroup;
+  /** For a guest: how many more missions an account has. */
+  accountOnly?: number;
 }
 
 /**
@@ -50,6 +66,7 @@ export function MissionsView({
   groups,
   unlocks: unlocksOf,
   group: openOn,
+  accountOnly = 0,
   onClose,
 }: ViewProps) {
   // The missions there are to clear; the retired ones cleared come last,
@@ -158,6 +175,13 @@ export function MissionsView({
               </React.Fragment>
             );
           })}
+        {accountOnly > 0 && (
+          <Styled.AccountNote>
+            <IoLockClosed aria-hidden="true" />
+            Sign in for {accountOnly} more missions, and every reward: ☰
+            Profile, Account.
+          </Styled.AccountNote>
+        )}
       </Styled.List>
 
       <PopUpMeta>

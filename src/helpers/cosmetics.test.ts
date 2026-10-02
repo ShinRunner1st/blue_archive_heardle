@@ -18,12 +18,15 @@ import {
   setCardColors,
   setCardTitle,
   setCursorColor,
+  unlocksOf,
 } from "./cosmetics";
-import { saveClearedMissions } from "./missions";
+import { saveClearedMissions, setGuestView } from "./missions";
 
+// A signed-in player, who can unlock everything; guests are in missions.test.
 beforeEach(() => {
   localStorage.clear();
   resetCursorColor();
+  setGuestView(false);
 });
 
 describe("cosmetics", () => {
@@ -72,5 +75,21 @@ describe("cosmetics", () => {
     expect(pink.flash).toMatch(/^#[0-9a-f]{6}$/);
     expect(pink.mid).not.toBe(pink.glow);
     expect(paletteOfHue(0).glow).toBe("#ff0000");
+  });
+});
+
+describe("what a mission unlocks", () => {
+  it("names what a live mission gives now, not what moved off it", () => {
+    expect(unlocksOf("room-first")).toEqual(["Background: Arcade"]);
+    expect(unlocksOf("voice-first-try")).toEqual(["Cursor colour: Violet"]);
+    expect(unlocksOf("room-10")).toContain("Character: Aris");
+  });
+
+  it("names everything a retired one gave", () => {
+    expect(unlocksOf("room-first", undefined, true)).toEqual([
+      "Cursor colour: Violet",
+      "Background: Arcade",
+      "Character: Aris",
+    ]);
   });
 });

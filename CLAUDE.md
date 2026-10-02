@@ -360,6 +360,10 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   card titles and colours (picked on the card) and cursor effect colours
   (Settings), characters beside the game, and the profile's banners,
   frames and backgrounds (Customize). `COSMETIC_KINDS` lists every kind.
+  A guest (no session, `isGuest`) sees and clears only the starter
+  missions (`"guests": true`, one or two a tab) and wears only what they
+  unlock now (`unlockedHere`: no former missions), with a note of what an
+  account adds; whatever they cleared before outside them is locked.
 - **Profile** (☰ Profile, and on the hub's record): the player's card
   (`src/components/Profile/`: their favourite student, title on a banner
   with a picture or foil and an emblem, a frame drawn from the parts

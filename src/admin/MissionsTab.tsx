@@ -116,6 +116,7 @@ export function MissionsTab({ draft, update, shipped, problems }: TabProps) {
   const [selected, setSelected] = React.useState<number | null>(null);
   const [value, setValue] = React.useState(0);
   const [toast, setToast] = React.useState(false);
+  const [asGuest, setAsGuest] = React.useState(false);
   const [save, setSave] = React.useState<{ name: string; save: SaveFile }>();
   const [saveError, setSaveError] = React.useState("");
 
@@ -241,6 +242,7 @@ export function MissionsTab({ draft, update, shipped, problems }: TabProps) {
     value,
     toast,
     ...(counted && { save: counted }),
+    guest: asGuest,
   };
   const goal = mission ? goalOf(mission) : 0;
   const shown = missions.filter(
@@ -326,6 +328,7 @@ export function MissionsTab({ draft, update, shipped, problems }: TabProps) {
               {!isShipped(shipped, "missions", item.id) && (
                 <Badge $tone="new">New</Badge>
               )}
+              {item.guests && <Badge $tone="kept">Starter</Badge>}
               {item.retired && <Badge $tone="retired">Retired</Badge>}
               <IconButton
                 aria-label={`Move ${item.title} up`}
@@ -510,6 +513,15 @@ export function MissionsTab({ draft, update, shipped, problems }: TabProps) {
                 </Check>
               </Row>
             )}
+            <Check style={{ margin: "0 0 4px" }}>
+              <input
+                type="checkbox"
+                name="preview-guest"
+                checked={asGuest}
+                onChange={(event) => setAsGuest(event.target.checked)}
+              />
+              As a guest: the starter missions only
+            </Check>
           </>
         }
       />
@@ -534,7 +546,7 @@ function MissionForm({
   onChange: (patch: Partial<Mission>) => void;
   onDelete: () => void;
 }) {
-  const unlocks = unlocksOf(mission.id, cosmetics);
+  const unlocks = unlocksOf(mission.id, cosmetics, !!mission.retired);
   const hasAll = !!mission.fact && mission.fact in FACT_TOTALS;
   const { rule } = mission;
 
@@ -579,6 +591,27 @@ function MissionForm({
           ))}
         </Select>
       </Field>
+      <Check style={{ marginBottom: 4 }}>
+        <input
+          type="checkbox"
+          name="guests"
+          checked={!!mission.guests}
+          onChange={(event) =>
+            onChange({ guests: event.target.checked || undefined })
+          }
+        />
+        Guests can clear this: a starter mission
+      </Check>
+      <Hint style={{ marginBottom: 12 }}>
+        Guests see only the starter missions, one or two easy ones a tab, and
+        wear only what those unlock; everything else needs an account.
+        {!mission.guests &&
+          unlocks.length > 0 &&
+          " Its rewards are for accounts."}
+        {mission.guests &&
+          unlocks.length > 0 &&
+          " Its rewards are starter ones."}
+      </Hint>
       <Field
         label="What it counts"
         hint="Worked out from the player's saves, so rounds already played count."

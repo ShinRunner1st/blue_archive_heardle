@@ -32,6 +32,8 @@ export type PreviewView =
        * the missions it had cleared, in place of the progress picked.
        */
       save?: { values: Record<string, number>; cleared: string[] };
+      /** Drawn as a guest sees them: the starter missions only. */
+      guest?: boolean;
     }
   | { kind: "whatsNew"; updates: NewsEntry[] }
   | {

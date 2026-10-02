@@ -1,11 +1,19 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { MISSIONS } from "../constants/missions";
 import { BANNERS } from "../constants/cosmetics";
 import { offered } from "./cosmetics";
-import { activeClearedCount, missionFacts, missionProgress } from "./missions";
+import {
+  activeClearedCount,
+  missionFacts,
+  missionProgress,
+  setGuestView,
+} from "./missions";
 import { unlockedLook } from "./roomLook";
 import { isOffered, unlockedBy, unlockedWith } from "./unlocks";
+
+// A signed-in player; guests are in missions.test.
+beforeEach(() => setGuestView(false));
 
 describe("unlocks", () => {
   const banner = {

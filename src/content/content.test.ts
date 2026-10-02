@@ -111,6 +111,20 @@ describe("checkContent", () => {
     ]);
   });
 
+  it("keeps guests to true, and former missions to other missions", () => {
+    const content = copy();
+    const [first] = content.missions.missions;
+    Object.assign(first, { guests: false });
+    const aris = content.cosmetics.characters.find(({ id }) => id === "aris")!;
+    aris.formerMissions = ["room-10", "nowhere", "room-first", "room-first"];
+    expect(messages(content)).toEqual([
+      `${first.id}: guests is true, or left out`,
+      `characters: aris: "room-10" isn't another mission in missions.json`,
+      `characters: aris: "nowhere" isn't another mission in missions.json`,
+      `characters: aris's former mission "room-first" twice`,
+    ]);
+  });
+
   it("keeps cosmetics to missions there are, and retired with them", () => {
     const content = copy();
     const banner = content.cosmetics.banners.find(({ id }) => id === "sakura")!;

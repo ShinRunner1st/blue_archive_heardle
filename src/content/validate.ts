@@ -460,6 +460,10 @@ export function checkContent(
         );
       }
       report(mission.title, `${mission.id}: title is empty`);
+      report(
+        mission.guests === undefined || mission.guests === true,
+        `${mission.id}: guests is true, or left out`
+      );
       report(mission.text, `${mission.id}: text is empty`);
       const goal: unknown = mission.goal;
       if (goal === "all") {
@@ -533,12 +537,14 @@ export function checkContent(
             `${name}: ${item.id} is retired, its mission isn't`
           );
         }
+        // A mission that gave it before: retired, or one it moved off.
         for (const former of formerMissions) {
           report(
-            retiredMissions.has(former),
-            `${name}: ${item.id}: "${former}" isn't a retired mission`
+            missionIds.has(former) && former !== mission,
+            `${name}: ${item.id}: "${former}" isn't another mission in missions.json`
           );
         }
+        unique(report, formerMissions, `${name}: ${item.id}'s former mission`);
       });
     }
 

@@ -5,7 +5,13 @@ import {
   ROOM_GAMES_KEY,
   ROOM_RECORD_KEY,
 } from "../constants/game";
-import { Mission, MissionFact, MISSIONS } from "../constants/missions";
+import {
+  GUEST_MISSION_IDS,
+  Mission,
+  MissionFact,
+  MISSIONS,
+} from "../constants/missions";
+import { hasSession } from "./accountFlag";
 import { students } from "../constants/students";
 import { VOLUMES } from "../constants/volumes";
 import { GAME_MODES } from "../types/mode";
@@ -16,6 +22,7 @@ import { NamedRound, VOICE_MODES } from "../types/voice";
 import { badgeProgress, guessedThemes } from "./badges";
 import { dateOfDay, dayNumber } from "./daily";
 import { MissionSave, ruleValues } from "./missionRules";
+import { Unlockable, unlockedBy } from "./unlocks";
 import {
   loadPictureRounds,
   loadRounds,
@@ -142,6 +149,48 @@ export function recordRoomGame(won: boolean, now: number = Date.now()): void {
   notifySaved();
 }
 
+/** What the admin tool's preview shows: a guest, or a signed-in player. */
+let guestView: boolean | null = null;
+
+export function setGuestView(guest: boolean | null): void {
+  guestView = guest;
+}
+
+/**
+ * A player who isn't signed in (docs/plan.md, Guest limits): they see and
+ * clear only the starter missions, and wear only what those unlock.
+ */
+export const isGuest = (): boolean => guestView ?? !hasSession();
+
+/** A mission a guest can't clear: it needs an account first. */
+export const needsAccount = (
+  missionId: string | undefined,
+  guest: boolean = isGuest()
+): boolean =>
+  guest && missionId !== undefined && !GUEST_MISSION_IDS.has(missionId);
+
+/** The missions there are to clear for this player: a guest's are fewer. */
+export const activeMissionTotal = (guest: boolean = isGuest()): number =>
+  MISSIONS.filter(({ id, retired }) => !retired && !needsAccount(id, guest))
+    .length;
+
+/**
+ * Whether this player has a reward: the default, or one its mission
+ * unlocks. Signed in, a mission that gave it before counts too; a guest
+ * has only what a starter mission gives now, whatever they cleared before.
+ */
+export function unlockedHere(
+  item: Unlockable,
+  cleared: Iterable<string> = loadClearedMissions(),
+  guest: boolean = isGuest()
+): boolean {
+  if (!guest) return unlockedBy(item, cleared);
+  if (item.mission === undefined) return true;
+  return (
+    !needsAccount(item.mission, true) && new Set(cleared).has(item.mission)
+  );
+}
+
 /** The cleared missions' ids, checked: anything unknown is dropped. */
 export function toClearedMissions(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
@@ -164,10 +213,13 @@ export function loadClearedMissions(): string[] {
  * stays cleared, but isn't counted against today's total.
  */
 export function activeClearedCount(
-  cleared: Iterable<string> = loadClearedMissions()
+  cleared: Iterable<string> = loadClearedMissions(),
+  guest: boolean = isGuest()
 ): number {
   const done = new Set(cleared);
-  return MISSIONS.filter(({ id, retired }) => !retired && done.has(id)).length;
+  return MISSIONS.filter(
+    ({ id, retired }) => !retired && done.has(id) && !needsAccount(id, guest)
+  ).length;
 }
 
 export function saveClearedMissions(ids: string[]): void {
@@ -453,11 +505,15 @@ export function missionValue(
 export function missionProgress(
   facts: MissionFacts,
   cleared: Iterable<string> = loadClearedMissions(),
-  ruled: Record<string, number> = {}
+  ruled: Record<string, number> = {},
+  guest: boolean = isGuest()
 ): MissionProgress[] {
   const before = new Set(cleared);
+  // A guest sees the starter missions only: the rest, cleared before or
+  // not, wait for an account.
   const shown = MISSIONS.filter(
-    ({ id, retired }) => !retired || before.has(id)
+    ({ id, retired }) =>
+      (!retired || before.has(id)) && !needsAccount(id, guest)
   );
   return shown.map((mission) => {
     const goal = goalOf(mission);

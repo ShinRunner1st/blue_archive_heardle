@@ -19,7 +19,7 @@ import {
   setPicked,
 } from "../../helpers/cosmetics";
 import { requestProfileSync } from "../../helpers/accountFlag";
-import { loadClearedMissions } from "../../helpers/missions";
+import { loadClearedMissions, needsAccount } from "../../helpers/missions";
 import {
   getFavStudent,
   getPlayerName,
@@ -82,8 +82,14 @@ function Swatch({ kind, item }: { kind: Section; item: Cosmetic }) {
   }
 }
 
-const missionTitle = (id: string | undefined) =>
-  MISSIONS.find((mission) => mission.id === id)?.title ?? "";
+/**
+ * The mission that unlocks a reward, by its title: for a guest, one that
+ * needs an account says so first.
+ */
+const missionTitle = (id: string | undefined) => {
+  const title = MISSIONS.find((mission) => mission.id === id)?.title ?? "";
+  return needsAccount(id) ? `Sign in · ${title}` : title;
+};
 
 /** Who the player is: their name, and the student on their card. */
 interface Who {

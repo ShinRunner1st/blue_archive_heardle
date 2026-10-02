@@ -11,6 +11,7 @@ import {
   CURSOR_COLORS,
   CursorColor,
 } from "../constants/cosmetics";
+import { MISSIONS } from "../constants/missions";
 import {
   CARD_COLORS_KEY,
   CARD_TITLE_KEY,
@@ -19,17 +20,20 @@ import {
   PROFILE_BANNER_KEY,
   PROFILE_FRAME_KEY,
 } from "../constants/game";
-import { loadClearedMissions } from "./missions";
+import { loadClearedMissions, unlockedHere } from "./missions";
 import { markProfileEdited } from "./profileEdit";
-import { isOffered, Unlockable, unlockedBy, unlockedWith } from "./unlocks";
+import { Unlockable, unlockedWith } from "./unlocks";
 import type { CosmeticsFile } from "../content/types";
 
-/** Whether the player may use it: the default, or its mission cleared. */
+/**
+ * Whether the player may use it: the default, or its mission cleared (a
+ * starter mission's, for a guest).
+ */
 export function isUnlocked(
   cosmetic: Unlockable,
   cleared: Iterable<string> = loadClearedMissions()
 ): boolean {
-  return unlockedBy(cosmetic, cleared);
+  return unlockedHere(cosmetic, cleared);
 }
 
 /**
@@ -41,7 +45,7 @@ export function offered<T extends Unlockable>(
   cleared: Iterable<string> = loadClearedMissions()
 ): T[] {
   const done = [...cleared];
-  return list.filter((item) => isOffered(item, done));
+  return list.filter((item) => !item.retired || isUnlocked(item, done));
 }
 
 function read(key: string): string | null {
@@ -284,14 +288,19 @@ const KIND_LISTS: Record<
 };
 
 /**
- * What clearing a mission unlocks, as the pop-up and the toast name it: a
- * retired mission's too, as whoever cleared it keeps them. From the game's
+ * What clearing a mission unlocks, as the pop-up and the toast name it.
+ * A live mission names what it gives now, not what moved off it to another
+ * (its accounts keep those, but nobody new gets them); a retired one names
+ * everything it gave, as whoever cleared it keeps it all. From the game's
  * cosmetics, or a draft of them in the admin tool.
  */
 export function unlocksOf(
   missionId: string,
-  cosmetics?: CosmeticsFile
+  cosmetics?: CosmeticsFile,
+  retired: boolean = !!MISSIONS.find(({ id }) => id === missionId)?.retired
 ): string[] {
+  const gives = (item: Unlockable) =>
+    retired ? unlockedWith(item, missionId) : item.mission === missionId;
   const kinds = Object.entries(COSMETIC_KINDS) as Array<
     [CosmeticKind, (typeof COSMETIC_KINDS)[CosmeticKind]]
   >;
@@ -299,11 +308,9 @@ export function unlocksOf(
   return [
     ...kinds.flatMap(([kind, { label, list }]) =>
       ((cosmetics?.[KIND_LISTS[kind]] ?? list) as Cosmetic[])
-        .filter((item) => unlockedWith(item, missionId))
+        .filter(gives)
         .map(({ name }) => `${label}: ${name}`)
     ),
-    ...characters
-      .filter((item) => unlockedWith(item, missionId))
-      .map(({ name }) => `Character: ${name}`),
+    ...characters.filter(gives).map(({ name }) => `Character: ${name}`),
   ];
 }

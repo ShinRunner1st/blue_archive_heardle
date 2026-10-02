@@ -15,7 +15,7 @@ import { iconNamed } from "../constants/icons";
 import { themes } from "../constants/theme";
 import { applyColorSchemeToDocument } from "../helpers/colorScheme";
 import { unlocksOf } from "../helpers/cosmetics";
-import { goalOf } from "../helpers/missions";
+import { goalOf, setGuestView } from "../helpers/missions";
 import type { PreviewMessage, PreviewView } from "./messages";
 import { CharacterPreview } from "./CharacterPreview";
 import { PagePreview } from "./PagePreview";
@@ -79,7 +79,20 @@ function MissionsPreview({
       ?.scrollIntoView({ block: "center" });
   }, [view.selected, view.group]);
 
-  const unlocks = (id: string) => unlocksOf(id, view.cosmetics);
+  const unlocks = (id: string) =>
+    unlocksOf(
+      id,
+      view.cosmetics,
+      !!view.missions.find((mission) => mission.id === id)?.retired
+    );
+  // A guest sees the starter missions, and a note of how many more an
+  // account has.
+  const missions = view.guest
+    ? view.missions.filter(({ guests }) => guests)
+    : view.missions;
+  const accountOnly = view.guest
+    ? view.missions.filter(({ guests, retired }) => !guests && !retired).length
+    : 0;
   const selected = view.missions.find(({ id }) => id === view.selected);
   if (view.toast && selected) {
     return (
@@ -95,7 +108,7 @@ function MissionsPreview({
   if (save) {
     // As the save's player sees them, as missionProgress has it.
     const cleared = new Set(save.cleared);
-    const all = view.missions
+    const all = missions
       .filter(({ id, retired }) => !retired || cleared.has(id))
       .map((mission) => {
         const goal = goalOf(mission);
@@ -111,6 +124,7 @@ function MissionsPreview({
       });
     return (
       <MissionsView
+        accountOnly={accountOnly}
         key={view.group}
         all={all}
         groups={view.groups}
@@ -122,7 +136,7 @@ function MissionsPreview({
   }
   // As a player sees them: the edited mission at the progress picked, the
   // rest not started; a retired one only shows to whoever cleared it.
-  const all = view.missions
+  const all = missions
     .filter((mission) => !mission.retired || mission === selected)
     .map((mission) => {
       const goal = goalOf(mission);
@@ -136,6 +150,7 @@ function MissionsPreview({
     });
   return (
     <MissionsView
+      accountOnly={accountOnly}
       key={view.group}
       all={all}
       groups={view.groups}
@@ -166,6 +181,11 @@ function Preview() {
     return () => window.removeEventListener("message", take);
   }, []);
 
+  // A signed-in player, unless the view asks for a guest: the frame has
+  // no session of its own.
+  setGuestView(
+    message?.view.kind === "missions" ? message.view.guest ?? false : false
+  );
   const scheme = message?.scheme ?? "light";
   React.useLayoutEffect(() => applyColorSchemeToDocument(scheme), [scheme]);
 

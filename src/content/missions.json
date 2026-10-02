@@ -35,6 +35,7 @@
       "group": "daily",
       "title": "First day at Schale",
       "text": "Clear a daily puzzle in any game.",
+      "guests": true,
       "fact": "dailiesWon",
       "goal": 1
     },
@@ -91,6 +92,7 @@
       "group": "ost",
       "title": "Perfect pitch",
       "text": "Name a song from its 1-second clip, in Daily or Classic.",
+      "guests": true,
       "fact": "ostFirstTry",
       "goal": 1
     },
@@ -147,6 +149,7 @@
       "group": "voice",
       "title": "I know that voice",
       "text": "Name a student by voice before any hint, in Daily or Classic.",
+      "guests": true,
       "fact": "voiceFirstTry",
       "goal": 1
     },
@@ -195,6 +198,7 @@
       "group": "picture",
       "title": "Shape of a halo",
       "text": "Name a student from their halo's silhouette.",
+      "guests": true,
       "fact": "haloShapes",
       "goal": 1
     },
@@ -203,6 +207,7 @@
       "group": "picture",
       "title": "Know your arms",
       "text": "Name a student from their weapon's silhouette.",
+      "guests": true,
       "fact": "weaponShapes",
       "goal": 1
     },
@@ -227,6 +232,7 @@
       "group": "students",
       "title": "Sharp deduction",
       "text": "Find a student in 3 guesses or fewer.",
+      "guests": true,
       "fact": "quickFinds",
       "goal": 1
     },
@@ -275,6 +281,7 @@
       "group": "multiplayer",
       "title": "Party time",
       "text": "Finish a multiplayer game.",
+      "guests": true,
       "fact": "roomsPlayed",
       "goal": 1
     },
@@ -315,6 +322,7 @@
       "group": "kivotos",
       "title": "Ahead of time",
       "text": "Play a round of Students, Voice or Picture on the JP server.",
+      "guests": true,
       "fact": "jpRounds",
       "goal": 1
     },
