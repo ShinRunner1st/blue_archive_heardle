@@ -78,8 +78,10 @@ as it may have changed since the pass was made. A ticket handed on works
 only for those 5 minutes, and only shows what anyone in that room could
 see.
 
-**The answer**: `{ name, sensei, student, look, summary, verified }`,
-with `verified` as the profile tab's `GET /verified` has it, less the
+**The answer**: `{ summary, verified }`. The card itself (name, picture,
+cosmetics) comes from the room's view, as the room already shows it, so
+it isn't read or sent again. `verified` is as the profile tab's
+`GET /verified` has it, less the
 time zone, today and the current streaks (each would read the player's
 recent dailies, up to about 50 rows a game). No public id, no account
 id, no dates but "since".
@@ -154,7 +156,14 @@ Each step only once the user approves it, on its own stacked branch:
 1. **The accounts Worker**: migration 0006, the `profile-view` ticket's
    format and checks (`src/accounts/profileView.ts`), `POST
 /profile-view`, `PUT /me/profile-shown`, the pass's new field, the
-   download's; tests; `accounts:measure`.
+   download's; tests; `accounts:measure`. _Built on `feat/profile-view`:
+   `profileView.ts` (the ticket, the view, the switch), the verified
+   totals read from the summary rows alone (`readVerifiedTotals`, which
+   the record now builds on), the pass's `h`, `GET /me`'s `profileShown`
+   and the download's `profileShownInRooms`. Measured with
+   `accounts:measure`: a view 9 rows read and 0 written in 3 queries (an
+   account with five verified summaries; at most 14), a hidden one 1 and
+   0, the switch 3 and 1. Signing in and the room pass cost as before._
 2. **The rooms**: `PlayerView.profile`, the `profile` message and its
    ticket on the asker's connection only, `PROTOCOL` 7; tests.
 3. **The page**: tappable cards for signed-in players, the read-only

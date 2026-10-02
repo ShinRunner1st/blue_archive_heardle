@@ -12,6 +12,7 @@ import {
   RoomAnswer,
   StartAnswer,
   VerifiedDailyStats,
+  VerifiedTotals,
   VerifiedOutcome,
   VerifiedView,
 } from "../types/verified";
@@ -591,6 +592,31 @@ export async function readVerified(
     await closeLate(db, account, await latestDay(db, account), today, now);
   }
 
+  const totals = await readVerifiedTotals(db, account);
+  const outcome = today === null ? null : history(db, account, today);
+  const dailies: Record<string, VerifiedDailyStats> = {};
+  for (const [daily, stats] of Object.entries(totals.dailies)) {
+    dailies[daily] = {
+      ...stats,
+      streak:
+        outcome && today !== null
+          ? await currentStreak(outcome, daily as VerifiedDaily, today)
+          : 0,
+    };
+  }
+  return { zone: clock?.zone ?? null, today, ...totals, dailies };
+}
+
+/**
+ * The account's verified totals, from its summary rows alone (one per
+ * daily, and the rooms'): no current streaks, which read the dailies
+ * themselves, and nothing closed or written. What another player's view of
+ * the profile shows (docs/room-profiles.md), and the base of the record.
+ */
+export async function readVerifiedTotals(
+  db: Db,
+  account: string
+): Promise<VerifiedTotals> {
   const { results } = await db
     .prepare(
       `SELECT game, played, won, abandoned, spread, best_streak, best_time, first_day
@@ -599,8 +625,7 @@ export async function readVerified(
     .bind(account)
     .all<SummaryRow>();
 
-  const outcome = today === null ? null : history(db, account, today);
-  const dailies: Record<string, VerifiedDailyStats> = {};
+  const dailies: VerifiedTotals["dailies"] = {};
   for (const daily of VERIFIED_DAILIES) {
     const row = results.find(({ game }) => game === daily);
     if (!row) continue;
@@ -610,10 +635,6 @@ export async function readVerified(
       lost: row.played - row.won - row.abandoned,
       abandoned: row.abandoned,
       spread: spreadOf(row.spread),
-      streak:
-        outcome && today !== null
-          ? await currentStreak(outcome, daily, today)
-          : 0,
       bestStreak: row.best_streak,
       bestTime: row.best_time,
       firstDay: row.first_day,
@@ -622,8 +643,6 @@ export async function readVerified(
 
   const rooms = results.find(({ game }) => game === "rooms");
   return {
-    zone: clock?.zone ?? null,
-    today,
     since: results.length
       ? Math.min(...results.map(({ first_day }) => first_day))
       : null,

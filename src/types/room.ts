@@ -218,6 +218,11 @@ export interface RoomPass {
   look: RoomLook;
   /** When it stops being taken, in epoch milliseconds. */
   expires: number;
+  /**
+   * Its player hid their profile from rooms (docs/room-profiles.md):
+   * their card isn't tappable and the room signs no ticket for it.
+   */
+  hidden?: true;
 }
 
 export interface PlayerView {

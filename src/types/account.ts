@@ -1,3 +1,5 @@
+import type { VerifiedTotals } from "./verified";
+
 /**
  * Accounts (docs/accounts.md): what the accounts Worker and the page agree
  * on. Shared, so the two can't drift apart.
@@ -28,6 +30,11 @@ export interface AccountView {
   publicId: string;
   createdAt: number;
   identities: IdentityView[];
+  /**
+   * Whether players in a room may see this account's profile from its
+   * card (docs/room-profiles.md); on unless turned off.
+   */
+  profileShown: boolean;
 }
 
 /**
@@ -98,6 +105,20 @@ export type ProfileSummary = Record<(typeof SUMMARY_FIELDS)[number], number> & {
   /** The server the student games' totals are from. */
   server: "global" | "jp";
 };
+
+/**
+ * `POST /profile-view`: another player's profile, as tapping their card in
+ * a room shows it (docs/room-profiles.md). Their card itself comes from the
+ * room. `summary` is from their own saves, unverified, and shown as such;
+ * null before they've synced one. `verified` is the server's.
+ */
+export interface ProfileViewAnswer {
+  summary: ProfileSummary | null;
+  verified: VerifiedTotals;
+}
+
+/** How long a room's profile ticket is taken after it's signed. */
+export const PROFILE_TICKET_MS = 5 * 60_000;
 
 /** How long the one-time sign-in code in the address lasts. */
 export const SIGN_IN_CODE_MS = 60_000;

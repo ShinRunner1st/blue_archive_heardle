@@ -28,6 +28,7 @@ describe("downloadAccountData", () => {
         publicId: "abcdefghijklmnop",
         createdAt: "2026-10-01T00:00:00.000Z",
         lastUsed: "2026-10-02",
+        profileShownInRooms: true,
       },
       identities: [
         { provider: "google", id: "123", linkedAt: "2026-10-01T00:00:00.000Z" },

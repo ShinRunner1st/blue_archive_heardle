@@ -26,6 +26,11 @@ import { MAX_VERIFIED_BODY } from "../types/verified";
 import { readRoomReceipt } from "./roomReceipt";
 import { makeRoomPass } from "./roomPass";
 import {
+  readProfileTicket,
+  readProfileView,
+  setProfileShown,
+} from "./profileView";
+import {
   accountView,
   createAccount,
   createSession,
@@ -80,6 +85,10 @@ import {
  *   or "finish" for a verified daily, or "room" for a room's receipt, and
  *   `GET` for the account's verified record. One address for all, so a
  *   page's preflight is asked once.
+ * - `POST /profile-view` `{ ticket }` (docs/room-profiles.md): another
+ *   player's profile, from a ticket their room signed; no session, as
+ *   guests in the room may look. `PUT /me/profile-shown` `{ shown }` is
+ *   the Account tab's switch that hides it.
  *
  * The token is a credential: it only ever travels in that header, and
  * nothing here logs a header, a body, a token or a code (docs/accounts.md,
@@ -161,6 +170,9 @@ export function pageToReturnTo(
 const NONCE = /^[a-z0-9]{16,64}$/i;
 /** A token or code: 256 bits as base32. */
 const SECRET = /^[a-z2-7]{52}$/;
+
+/** The most `POST /profile-view` takes: a ticket is about 120 characters. */
+const MAX_TICKET_BODY = 1024;
 
 /** The provider's address for its answer: this Worker's callback. */
 const callbackOf = (request: Request, provider: Provider) =>
@@ -294,6 +306,30 @@ export async function handle(
   if (!(await allowed(env.apiLimit, env.limitKey))) {
     return json(origin, 429, { error: "slow" });
   }
+
+  // Another player's profile, from a room's ticket (docs/room-profiles.md):
+  // no session, as guests in the room may look too.
+  if (path === "/profile-view" && request.method === "POST") {
+    if (!env.roomPassKey) return json(origin, 503, { error: "unavailable" });
+    const bytes = await request.arrayBuffer();
+    if (bytes.byteLength > MAX_TICKET_BODY) {
+      return json(origin, 413, { error: "tooBig" });
+    }
+    let ticket: unknown;
+    try {
+      ticket = (
+        JSON.parse(new TextDecoder().decode(bytes)) as { ticket?: unknown }
+      )?.ticket;
+    } catch {
+      ticket = undefined;
+    }
+    const publicId = await readProfileTicket(ticket, env.roomPassKey, now);
+    const view = publicId ? await readProfileView(env.db, publicId) : null;
+    return view
+      ? json(origin, 200, view)
+      : json(origin, 404, { error: "notFound" });
+  }
+
   const token = bearer(request);
   const account = token ? await sessionAccount(env.db, token, now) : null;
   if (!token || !account) return json(origin, 401, { error: "signedOut" });
@@ -378,6 +414,14 @@ export async function handle(
     );
     return json(origin, 200, { profile: kept });
   }
+  if (path === "/me/profile-shown" && request.method === "PUT") {
+    const body = await readJson(request);
+    if (typeof body?.shown !== "boolean") {
+      return json(origin, 400, { error: "bad" });
+    }
+    await setProfileShown(env.db, account, body.shown);
+    return json(origin, 200, { shown: body.shown });
+  }
   if (path === "/room-pass" && request.method === "GET") {
     if (!env.roomPassKey) return json(origin, 503, { error: "unavailable" });
     const made = await makeRoomPass(env.db, account, env.roomPassKey, now);
@@ -422,6 +466,8 @@ const isApiPath = (path: string) =>
   path === "/me/progress" ||
   path === "/room-pass" ||
   path === "/verified" ||
+  path === "/profile-view" ||
+  path === "/me/profile-shown" ||
   /^\/me\/identities\/\w+$/.test(path);
 
 /** `POST /verified`: a daily started or finished, or a room's receipt. */

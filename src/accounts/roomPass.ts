@@ -32,9 +32,9 @@ export async function makeRoomPass(
   now: number
 ): Promise<{ pass: string; expires: number } | null> {
   const row = await db
-    .prepare("SELECT public_id FROM accounts WHERE id = ?")
+    .prepare("SELECT public_id, profile_shown FROM accounts WHERE id = ?")
     .bind(account)
-    .first<{ public_id: string }>();
+    .first<{ public_id: string; profile_shown: number }>();
   if (!row) return null;
   const profile = await readProfile(db, account);
   const { results } = await db
@@ -54,6 +54,9 @@ export async function makeRoomPass(
       s: profile?.student ?? null,
       l: [look.title, look.banner, look.frame, look.background],
       e: expires,
+      // Its profile hidden from the room (docs/room-profiles.md): the room
+      // neither marks its card nor signs a ticket for it.
+      ...(row.profile_shown === 1 ? {} : { h: 1 }),
     },
     key
   );
@@ -72,7 +75,7 @@ export async function readRoomPass(
 ): Promise<RoomPass | null> {
   const value = await readSigned(KIND, text, key);
   if (!value) return null;
-  const { p, n, s, l, e } = value;
+  const { p, n, s, l, e, h } = value;
   if (
     typeof p !== "string" ||
     !PUBLIC_ID.test(p) ||
@@ -81,7 +84,8 @@ export async function readRoomPass(
     !Array.isArray(l) ||
     l.length !== 4 ||
     typeof e !== "number" ||
-    e < now
+    e < now ||
+    (h !== undefined && h !== 1)
   ) {
     return null;
   }
@@ -92,5 +96,6 @@ export async function readRoomPass(
     student: s,
     look: cleanLook({ title, banner, frame, background }),
     expires: e,
+    ...(h === 1 ? { hidden: true as const } : {}),
   };
 }

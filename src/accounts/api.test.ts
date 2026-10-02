@@ -115,6 +115,8 @@ describe("signing in", () => {
       publicId: expect.stringMatching(/^[a-z2-7]{16}$/),
       createdAt: now,
       identities: [{ provider: "google", linkedAt: now }],
+      // Shown in rooms by default (docs/room-profiles.md).
+      profileShown: true,
     });
 
     const again = await me(await signIn("alice"));

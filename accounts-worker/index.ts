@@ -10,6 +10,7 @@
 import { AccountsEnv, handle } from "../src/accounts/api";
 import { measured, Tally } from "../src/accounts/measure";
 import { tidyAccounts } from "../src/accounts/privacy";
+import { makeProfileTicket } from "../src/accounts/profileView";
 import { makeRoomReceipt, newRoomGameId } from "../src/accounts/roomReceipt";
 import {
   isDay,
@@ -47,7 +48,9 @@ interface Env {
    * With it, and only with it, a request may set the clock
    * (`X-Measure-Now`), `/__measure/answer` gives a daily's answer to win
    * with and `/__measure/receipt` signs a room's receipt, to
-   * measure verified stats (docs/verified-stats.md, section 12).
+   * measure verified stats (docs/verified-stats.md, section 12);
+   * `/__measure/profile-ticket` signs a room's profile ticket
+   * (docs/room-profiles.md).
    */
   MEASURE?: string;
   /** Sign-ins, and the rest, per address a minute. */
@@ -147,6 +150,20 @@ export default {
         env.ROOM_PASS_KEY ?? ""
       );
       return new Response(receipt);
+    }
+    if (
+      measuring &&
+      new URL(request.url).pathname === "/__measure/profile-ticket"
+    ) {
+      // As a room signs one for a card tapped (docs/room-profiles.md).
+      const publicId = new URL(request.url).searchParams.get("public") ?? "";
+      return new Response(
+        await makeProfileTicket(
+          publicId,
+          env.ROOM_PASS_KEY ?? "",
+          now ? now() : Date.now()
+        )
+      );
     }
     const accounts: AccountsEnv = {
       db,

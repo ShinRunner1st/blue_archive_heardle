@@ -111,10 +111,15 @@ interface ProgressRow {
 export async function exportAccount(db: Db, account: string) {
   const row = await db
     .prepare(
-      "SELECT public_id, created_at, seen_day FROM accounts WHERE id = ?"
+      "SELECT public_id, created_at, seen_day, profile_shown FROM accounts WHERE id = ?"
     )
     .bind(account)
-    .first<{ public_id: string; created_at: number; seen_day: number }>();
+    .first<{
+      public_id: string;
+      created_at: number;
+      seen_day: number;
+      profile_shown: number;
+    }>();
   if (!row) return null;
   const all = <T>(sql: string) =>
     db
@@ -177,6 +182,8 @@ export async function exportAccount(db: Db, account: string) {
       publicId: row.public_id,
       createdAt: iso(row.created_at),
       lastUsed: isoDay(row.seen_day),
+      // Whether players in a room may see the profile (docs/room-profiles.md).
+      profileShownInRooms: row.profile_shown === 1,
     },
     identities: identities.map(({ provider, subject, linked_at }) => ({
       provider,

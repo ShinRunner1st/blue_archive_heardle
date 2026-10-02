@@ -291,6 +291,32 @@ await verified("Verified: another's receipt (403)", 6, {
   receipt: theirs,
 });
 
+// Profiles from a card (docs/room-profiles.md): a room's ticket brought by
+// another player's page, a guest's, so no session; then the switch.
+const profileTicket = async () =>
+  (
+    await fetch(`${WORKER}/__measure/profile-ticket?public=${publicId}`, {
+      headers: at(6),
+    })
+  ).text();
+const viewProfile = async (what) =>
+  call(what, "POST", "/profile-view", {
+    body: { ticket: await profileTicket() },
+    extra: at(6),
+  });
+await viewProfile("Profile from a card (a guest's)");
+await call("Profile: switched off", "PUT", "/me/profile-shown", {
+  token,
+  body: { shown: false },
+  extra: at(6),
+});
+await viewProfile("Profile from a card, hidden (404)");
+await call("Profile: switched on", "PUT", "/me/profile-shown", {
+  token,
+  body: { shown: true },
+  extra: at(6),
+});
+
 // A 30-day streak, then what its last win and the record cost.
 const quiet = rows.length;
 const counted = requests;

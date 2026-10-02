@@ -988,7 +988,9 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   card, the verified record and the summary labelled unverified; shown by
   default with a switch; guests can look; found by a ticket the room
   signs, so pages never get public ids. Nothing is built until the user
-  approves it. _Drafted on `docs/room-profiles`, off `main`._
+  approves it. _Drafted on `docs/room-profiles`, off `main`. Step 1, the
+  accounts Worker (migration 0006, the ticket, `POST /profile-view`, the
+  switch), on `feat/profile-view`, off `docs/room-profiles`._
 - **Missions for the new rewards**: more missions, so each banner,
   background and frame has one to unlock it, in `missions.json` and
   `cosmetics.json` as now; ids never renamed. With the cosmetics above.

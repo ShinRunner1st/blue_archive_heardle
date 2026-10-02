@@ -55,6 +55,7 @@ beforeEach(() => {
     publicId: "p1",
     createdAt: Date.UTC(2026, 9, 2),
     identities: [{ provider: "discord", linkedAt: Date.UTC(2026, 9, 2) }],
+    profileShown: true,
   });
   harness = createHarness();
 });

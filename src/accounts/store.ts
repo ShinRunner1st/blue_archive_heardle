@@ -241,9 +241,11 @@ export async function accountView(
   account: string
 ): Promise<AccountView | null> {
   const row = await db
-    .prepare("SELECT public_id, created_at FROM accounts WHERE id = ?")
+    .prepare(
+      "SELECT public_id, created_at, profile_shown FROM accounts WHERE id = ?"
+    )
     .bind(account)
-    .first<{ public_id: string; created_at: number }>();
+    .first<{ public_id: string; created_at: number; profile_shown: number }>();
   if (!row) return null;
   const { results } = await db
     .prepare(
@@ -257,5 +259,6 @@ export async function accountView(
     identities: results.flatMap(({ provider, linked_at }) =>
       isProvider(provider) ? [{ provider, linkedAt: linked_at }] : []
     ),
+    profileShown: row.profile_shown === 1,
   };
 }

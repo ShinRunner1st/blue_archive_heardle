@@ -70,6 +70,17 @@ export interface VerifiedRoomStats {
   firstDay: number;
 }
 
+/**
+ * The verified record's totals, from its summary rows alone: what another
+ * player's view of a profile shows (docs/room-profiles.md), without the
+ * current streaks, the time zone or today.
+ */
+export interface VerifiedTotals {
+  since: number | null;
+  dailies: Record<string, Omit<VerifiedDailyStats, "streak">>;
+  rooms: VerifiedRoomStats | null;
+}
+
 /** `GET /verified`. */
 export interface VerifiedView {
   /** The account's daily time zone, once it has one. */
