@@ -1000,9 +1000,33 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   `chore/accounts-preview`), the figures on `docs/profile-measured`, off
   `docs/profile-privacy`. The release waits for the user (not yet, they
   said on 2026-10-02)._
-- **Missions for the new rewards**: more missions, so each banner,
-  background and frame has one to unlock it, in `missions.json` and
-  `cosmetics.json` as now; ids never renamed. With the cosmetics above.
+- **An admin tool** (decided 2026-10-02): the user wants a tool to add,
+  edit and retire missions and rewards (and seasons, badges and What's
+  new) rather than editing the JSON. Every change needs a build and a
+  deploy anyway (the content is in the bundle, pictures go up with
+  `npm run songs`), so a tool only makes the files; the check, merge and
+  deploy stay as now. The user chose a **local tool** first (`npm run
+admin`, on their PC only, nothing deployed or in the site's build),
+  over an online admin page or an off-the-shelf CMS, and staff may use
+  it later, so it is built to move online then: forms, previews and
+  checks shared, only the save step swapped for opening a pull request.
+  Proposed steps, nothing built until the user approves them:
+
+  1. The content test's checks moved into one validator
+     (`src/content/validate.ts`) that the test and the tool both use.
+  2. The tool's shell (its own Vite config, localhost only, writing
+     `src/content/` and `ids.lock.json`), with Missions and What's new.
+  3. Rewards (titles, card and cursor colours, banners, frames,
+     backgrounds) with live previews from the game's own components;
+     characters shown read-only (they need Spine files and code).
+  4. Pictures (drop one in, made the right size as WebP,
+     `build:pictures` run), Seasons and OST badges.
+
+  Deleting a mission or reward is retiring it (ids are kept); seasons,
+  badges and What's new entries can go. A new mission `fact`, cosmetic
+  kind or frame kind is still code. Then **missions for the new
+  rewards**, made with the tool: more missions, so each banner,
+  background and frame has one to unlock it.
 
 ## Future
 
@@ -1012,7 +1036,8 @@ until the user brings it back.
 - **Levels, with accounts** (asked for 2026-10-01; postponed to an idea
   on 2026-10-02): an account level from the rounds and missions it has
   played, shown on the card.
-- **An admin page** (raised 2026-10-01, maybe): for the user or staff to
+- **An admin page online** (raised 2026-10-01; the local admin tool in
+  Next comes first, 2026-10-02): for the user or staff to
   add, upload and edit songs, missions, badges, cosmetics and characters
   without the code. The site has no server for its content, so it would
   sign in (with accounts) and open a pull request with the content files
