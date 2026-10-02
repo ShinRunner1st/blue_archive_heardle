@@ -11,6 +11,8 @@ import {
   type DayAndNight,
   HUB_CARDS,
   type HubCard,
+  ROOM_CARDS,
+  type RoomCard,
   type PagePicturesFile,
   type StreakPlaceEntry,
 } from "../content/types";
@@ -45,6 +47,11 @@ type Part =
   | { part: "place"; index: number }
   | { part: "hub" }
   | { part: "rooms" };
+
+const ROOM_CARD_NAMES: Record<RoomCard, string> = {
+  join: "Join a room",
+  make: "Make a room",
+};
 
 const CARD_NAMES: Record<HubCard, string> = {
   ost: "OST",
@@ -312,7 +319,7 @@ export function PagePicturesTab({
           <Item $active={picked.part === "rooms"}>
             <ItemButton onClick={() => setPicked({ part: "rooms" })}>
               <strong>Multiplayer</strong>
-              <small>The room behind its pages</small>
+              <small>Its background, Join a room and Make a room</small>
             </ItemButton>
             {itemCount("rooms") > 0 && <Badge $tone="retired">!</Badge>}
           </Item>
@@ -459,9 +466,8 @@ export function PagePicturesTab({
           <>
             <Heading>Hub cards</Heading>
             <Hint style={{ marginBottom: 12 }}>
-              The scene behind each card on the hub (the Multiplayer card&apos;s
-              and OST&apos;s also stand behind Make a room and Join a room). On
-              the Worker: run npm run songs before merging.
+              The scene behind each card on the hub. On the Worker: run npm run
+              songs before merging.
             </Hint>
             {HUB_CARDS.map((card) => (
               <React.Fragment key={card}>
@@ -501,12 +507,47 @@ export function PagePicturesTab({
           <>
             <Heading>Multiplayer</Heading>
             <Hint style={{ marginBottom: 12 }}>
-              Behind Multiplayer&apos;s pages, whatever the season or streak. On
+              The scenes on the two big cards before a room, and the background
+              behind Multiplayer&apos;s pages, whatever the season or streak. On
               the Worker: run npm run songs before merging.
             </Hint>
+            {ROOM_CARDS.map((card) => (
+              <React.Fragment key={card}>
+                <Heading as="h3">{ROOM_CARD_NAMES[card]}</Heading>
+                <PicturePicker
+                  value={pages.roomCards[card]}
+                  onChange={(key) =>
+                    setPages((all) => ({
+                      ...all,
+                      roomCards: { ...all.roomCards, [card]: key },
+                    }))
+                  }
+                />
+                <details style={{ margin: "8px 0 14px" }}>
+                  <summary style={{ cursor: "pointer" }}>
+                    Make a new {ROOM_CARD_NAMES[card]} scene
+                  </summary>
+                  <PictureMaker
+                    target={`pictures/hub/room-${card}.webp`}
+                    styles={["card"]}
+                    makeLabel="Make it (replaces this card's own picture)"
+                    onBefore={() =>
+                      setPages((all) => ({
+                        ...all,
+                        roomCards: {
+                          ...all.roomCards,
+                          [card]: `hub/room-${card}`,
+                        },
+                      }))
+                    }
+                    onMade={onPictures}
+                  />
+                </details>
+              </React.Fragment>
+            ))}
             {TIMES.map((time) => (
               <React.Fragment key={time}>
-                <Heading as="h3">By {time}</Heading>
+                <Heading as="h3">Background by {time}</Heading>
                 <PicturePicker
                   value={pages.rooms[time]}
                   onChange={(key) =>
@@ -561,6 +602,7 @@ export function PagePicturesTab({
           wins: place?.wins,
           hub: pages.hub,
           rooms: pages.rooms,
+          roomCards: pages.roomCards,
         }}
       />
     </>

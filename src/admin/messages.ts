@@ -10,6 +10,7 @@ import type {
   CosmeticsFile,
   DayAndNight,
   HubCard,
+  RoomCard,
   MissionsFile,
   NewsEntry,
 } from "../content/types";
@@ -55,6 +56,7 @@ export type PreviewView =
       /** The hub's cards' and Multiplayer's pictures, by their keys. */
       hub: Record<HubCard, string>;
       rooms: DayAndNight;
+      roomCards: Record<RoomCard, string>;
     }
   | {
       kind: "season";

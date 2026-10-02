@@ -78,7 +78,8 @@ export function PagePreview({
   // The cards read the hub's scenes from this frame's own copy of the
   // content, which only the preview runs.
   Object.assign(PAGE_PICTURES.hub, view.hub);
-  const cards = JSON.stringify(view.hub);
+  Object.assign(PAGE_PICTURES.roomCards, view.roomCards);
+  const cards = JSON.stringify([view.hub, view.roomCards]);
 
   if (view.part === "rooms") {
     const src = workerUrl(night ? view.rooms.night : view.rooms.day);

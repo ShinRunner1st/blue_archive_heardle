@@ -134,11 +134,14 @@ export function pictureUses(files: ContentFiles, key: string): string[] {
     if (background.picture === key) uses.push(`background ${background.id}`);
   }
   // The pages' pictures: the Worker's by key, the site's own by path.
-  const { home, places, hub, rooms } = files.pagePictures;
+  const { home, places, hub, rooms, roomCards } = files.pagePictures;
   for (const [card, picture] of Object.entries(hub)) {
     if (picture === key) uses.push(`the hub's ${card} card`);
   }
   if (rooms.day === key || rooms.night === key) uses.push("Multiplayer");
+  for (const [card, picture] of Object.entries(roomCards)) {
+    if (picture === key) uses.push(`Multiplayer's ${card} card`);
+  }
   const bundled: Array<[string, string]> = [
     ["the home background", home.day],
     ["the home background", home.night],

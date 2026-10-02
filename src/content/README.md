@@ -168,8 +168,9 @@ The pictures behind the site's pages:
   each a `name` ("📍 New place unlocked: …"), the `wins` in a row that
   reach it (more than the place before), and its `day` and `night`.
 - `hub`: the scene behind each card on the hub (`ost`, `voice`,
-  `picture`, `students`, `multiplayer`; Multiplayer's and the OST's also
-  stand behind Make a room and Join a room), 720×320.
+  `picture`, `students`, `multiplayer`), 720×320.
+- `roomCards`: the scenes behind the two big cards before a room, `join`
+  (Join a room) and `make` (Make a room), 720×320 like the hub's.
 - `rooms`: Multiplayer's background, by `day` and `night`, whatever the
   season or streak.
 
@@ -179,7 +180,7 @@ page shows: files in `src/image/`, named from there
 1280×900 made by `scripts/make-backdrop.mjs`. Every picture in
 `src/image/backgrounds/` is built into the site whether named or not, so
 delete one nothing uses (the tool lists them). They go live when the
-branch is merged, with no `npm run songs`. `hub` and `rooms` are
+branch is merged, with no `npm run songs`. `hub`, `rooms` and `roomCards` are
 pictures on the Worker, by their keys in `src/constants/pictureFiles.ts`,
 so `npm run songs` puts a new one up first, as for seasons.
 

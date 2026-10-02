@@ -76,5 +76,9 @@
   "rooms": {
     "day": "multiplayer/backdrop-day",
     "night": "multiplayer/backdrop-night"
+  },
+  "roomCards": {
+    "join": "hub/multiplayer",
+    "make": "hub/ost"
   }
 }

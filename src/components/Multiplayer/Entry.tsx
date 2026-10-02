@@ -256,7 +256,7 @@ export function Entry({
         <Styled.EntryCards>
           <Styled.BigCard aria-labelledby="room-join">
             <Styled.BigScene>
-              <WorkerPicture picture={PAGE_PICTURES.hub.multiplayer} />
+              <WorkerPicture picture={PAGE_PICTURES.roomCards.join} />
               <Styled.BigTitle id="room-join">
                 <IoEnter aria-hidden="true" />
                 Join a room
@@ -319,7 +319,7 @@ export function Entry({
 
           <Styled.BigCard aria-labelledby="room-new">
             <Styled.BigScene>
-              <WorkerPicture picture={PAGE_PICTURES.hub.ost} />
+              <WorkerPicture picture={PAGE_PICTURES.roomCards.make} />
               <Styled.BigTitle id="room-new">
                 <IoAddCircle aria-hidden="true" />
                 Make a room

@@ -672,7 +672,7 @@ export function checkContent(
   // page-pictures.json
   {
     const report = check("pagePictures");
-    const { home, places, hub, rooms } = content.pagePictures;
+    const { home, places, hub, rooms, roomCards } = content.pagePictures;
     // Shipped with the site, so the file is what's checked: in src/image/.
     const bundled = (file: unknown, what: string) =>
       report(
@@ -713,6 +713,8 @@ export function checkContent(
     for (const card of HUB_CARDS) onWorker(hub[card], `the hub's ${card} card`);
     onWorker(rooms.day, "Multiplayer by day");
     onWorker(rooms.night, "Multiplayer by night");
+    onWorker(roomCards.join, "Multiplayer's Join a room");
+    onWorker(roomCards.make, "Multiplayer's Make a room");
   }
 
   return problems;

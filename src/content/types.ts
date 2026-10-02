@@ -85,6 +85,10 @@ export const HUB_CARDS = [
 ] as const;
 export type HubCard = (typeof HUB_CARDS)[number];
 
+/** The two big cards on the page before a room. */
+export const ROOM_CARDS = ["join", "make"] as const;
+export type RoomCard = (typeof ROOM_CARDS)[number];
+
 /**
  * The pictures behind the site's pages. The home background and the
  * streak places ship with the site: files in src/image/, named from
@@ -97,6 +101,8 @@ export interface PagePicturesFile {
   places: StreakPlaceEntry[];
   hub: Record<HubCard, string>;
   rooms: DayAndNight;
+  /** The scenes behind Join a room and Make a room. */
+  roomCards: Record<RoomCard, string>;
 }
 
 /** Every mission and cosmetic id ever shipped, by list. */

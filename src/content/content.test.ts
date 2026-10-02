@@ -174,6 +174,7 @@ describe("checkContent", () => {
     pages.places[4].day = "../secret.webp";
     pages.hub.voice = "hub/nothing";
     pages.rooms.day = "";
+    pages.roomCards.make = "hub/gone";
     const [second, third, fifth] = [1, 2, 4].map((i) => pages.places[i].name);
     expect(messages(content, "pagePictures")).toEqual([
       "home by night: src/image/nowhere.webp isn't there",
@@ -182,6 +183,7 @@ describe("checkContent", () => {
       `${fifth} by day: src/image/../secret.webp isn't there`,
       "the hub's voice card: hub/nothing isn't on the Worker",
       "Multiplayer by day:  isn't on the Worker",
+      "Multiplayer's Make a room: hub/gone isn't on the Worker",
     ]);
   });
 
