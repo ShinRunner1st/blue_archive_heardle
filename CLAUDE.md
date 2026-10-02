@@ -485,7 +485,9 @@ songs` put the new files on the Worker and R2 first. About 0.3 KB gzipped
   Worker and R2. About 22 KB gzipped more on the first load, still six
   files; 101 files on the site Worker (a `/privacy` page and lazy
   chunks); no new files on R2. Google's app is published, and the
-  sitemap sent again, once `/privacy` is live.
+  sitemap sent again, once `/privacy` is live. The same day,
+  `fix/account-tab-reads`: the Account tab stays once opened, so
+  switching the profile's tabs reads the account once, not every visit.
 
 ## Content files
 
