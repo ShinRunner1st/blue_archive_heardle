@@ -87,7 +87,10 @@ const PlayArea = styled.div`
   align-items: center;
 `;
 
+/** The game's play area: a column that centres what's wider, the cards. */
 const Column = styled.main`
+  display: flex;
+  flex-direction: column;
   width: min(600px, 90%);
   padding-bottom: 40px;
 `;
