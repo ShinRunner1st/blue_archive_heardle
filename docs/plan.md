@@ -982,7 +982,13 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   tapping a card opens their profile, and cards show their cosmetics.
   The user chose to wait for accounts (2026-10-01): without them a room
   can check an item exists but not that its player unlocked it, and a
-  profile's numbers come from the player's own browser.
+  profile's numbers come from the player's own browser. Cosmetics in
+  rooms came with room passes. Tapping a card: designed in
+  `docs/room-profiles.md` (2026-10-02), the user's four choices: the
+  card, the verified record and the summary labelled unverified; shown by
+  default with a switch; guests can look; found by a ticket the room
+  signs, so pages never get public ids. Nothing is built until the user
+  approves it. _Drafted on `docs/room-profiles`, off `main`._
 - **Missions for the new rewards**: more missions, so each banner,
   background and frame has one to unlock it, in `missions.json` and
   `cosmetics.json` as now; ids never renamed. With the cosmetics above.
