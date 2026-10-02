@@ -1430,7 +1430,15 @@ The Global schedule is copied from SchaleDB to our own Worker; the page
 never asks SchaleDB for anything.
 Players see the same in About this game.
 
-**Accounts are optional.** One keeps the Google or Discord id (`sub`, or
+**Guests** play every game, keep their progress in the browser only (there
+is no save file to move it), and can clear only the starter missions
+(`"guests": true` in `missions.json`) and wear what those unlock. Every
+other mission and reward, and verified results, need an account.
+
+**Accounts are optional, and start fresh.** Signing in deletes the
+browser's guest progress (nothing of it goes into the account) and loads
+the account's; signing out, or deleting the account, clears the browser
+back to a new guest. One keeps the Google or Discord id (`sub`, or
 Discord's user id; never an email, name or picture), the profile and its
 summary, the progress and its last backup, the missions cleared, when it
 was made and last used, and each session's SHA-256 and end. Nothing else,

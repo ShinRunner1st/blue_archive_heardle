@@ -16,7 +16,9 @@ What the user decided (2026-10-02):
   levels until there is a concrete progression design.
 - **Guests** play rooms as now, with a name and a picture. The difference
   is that nothing of theirs is kept online; they must never feel like
-  second-class players.
+  second-class players. _Changed 2026-10-03 (Guest limits in
+  `docs/plan.md`): guests clear only starter missions, an account starts
+  fresh, and the save file is gone._
 - **D1** keeps accounts and progress; **Durable Objects** keep only live
   rooms, never anything permanent. D1 reads and writes are measured before
   anything more is stored.
@@ -325,6 +327,11 @@ Then, by what each side has:
 After it, the browser's save **is** the account's copy, kept in the same
 localStorage keys as today, so the games read it as they always have and
 work offline.
+
+_Changed 2026-10-03 (Guest limits in `docs/plan.md`): signing in no
+longer merges the browser's guest progress; it's deleted and the
+account's loaded. Signing out always clears the browser, and the save
+file below is gone. What follows is how it was built first._
 
 **Signing out** asks each time, keeping it by default: keep this progress in this browser (it plays on as a
 guest, and a later sign-in merges again, without doubling, thanks to the

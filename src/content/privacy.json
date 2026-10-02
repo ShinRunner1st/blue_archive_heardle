@@ -1,13 +1,14 @@
 {
-  "updated": "2026-10-02",
+  "updated": "2026-10-03",
   "contact": "privacy@baheardle.com",
-  "intro": "Blue Archive Heardle is a free fan game, made and run by one person, ShinRunner1st. You can play every game without an account. Signing in is optional, and only for keeping your progress and profile across devices, and a verified record of your dailies and room games.",
+  "intro": "Blue Archive Heardle is a free fan game, made and run by one person, ShinRunner1st. You can play every game without an account. Signing in is optional: it keeps your progress and profile across devices, opens every mission and reward, and keeps a verified record of your dailies and room games.",
   "sections": [
     {
       "id": "guests",
       "title": "Playing without an account",
       "paragraphs": [
-        "Your scores, streaks, missions, profile and settings are saved only in this browser. Nothing about them is sent anywhere.",
+        "Your scores, streaks, missions, profile and settings are saved only in this browser. Nothing about them is sent anywhere. There's no save file to move them: clearing this browser's data, or playing on another device, starts again.",
+        "As a guest you can clear a few starter missions, and wear what they unlock; every other mission and reward, and verified results, need an account.",
         "In Multiplayer, a room gets the name and picture from your profile (or the student you pick for it), the title, banner, frame and background you picked, and your answers, and shows them to the other players in it. When the room closes, everything about it is deleted. Your browser keeps a random key for each room you were in, for a few hours, so a tab closed by mistake can go back in as you."
       ]
     },
@@ -15,12 +16,13 @@
       "id": "account",
       "title": "If you sign in",
       "paragraphs": [
-        "You sign in with Google or Discord, and can link both to one account. For it, we keep:"
+        "You sign in with Google or Discord, and can link both to one account. For it, we keep:",
+        "An account starts fresh. When you sign in, this browser's progress as a guest is deleted, not brought into the account, and the account's progress takes its place. When you sign out, the account's progress is cleared from this browser, which goes back to being a new guest. Your progress stays in your account."
       ],
       "list": [
         "your Google or Discord account's id: a number that tells us it's you, not your email, name or picture there;",
         "the name and favourite student you set in your profile, and the title, banner, frame, background and Sensei card colours you picked;",
-        "your progress: your rounds in every game and mode, your multiplayer games and the missions you've cleared, as a copy of your save, and the copy from before the last time two devices' progress was joined;",
+        "your progress: your rounds in every game and mode, your multiplayer games and the missions you've cleared, as a copy of your save, and the copy from before the last time two of your devices' progress was joined;",
         "a summary of your record (rounds played, wins, best streaks and the like), worked out from your progress;",
         "your verified results, and your daily time zone: see Verified results below;",
         "whether players in a room with you can see your profile from your card: on, unless you turn it off (see Who sees what);",
@@ -34,9 +36,9 @@
         "Signed in, each daily you play is also kept as a verified result, apart from your progress. As the daily starts (its first clip, line or picture, or your first guess), our server notes which daily, which day and when. When it ends, your browser sends your guesses in order (with your skips, and whether you gave up); the server judges them itself with the game's own rules and keeps the result (won, lost, or not finished in time), the tries, the guesses, when it finished, and whether its time counted. The time is the server's own clock, from start to finish.",
         "From a multiplayer game played to its end while signed in, the room signs a short receipt of your result: the game, typed or 4-Choice, the rounds, how many played, your place and score, and when it ended. Your browser brings it to your account, which counts each game once.",
         "To know which day's puzzle is yours, your account keeps your daily time zone: its name, such as Asia/Bangkok, as your device sets it, the first time you play a verified daily (and again if you change it). It says roughly where you are; it's never looked up from your address, and it's used for nothing else.",
-        "Why: so your account has a record the server saw and judged itself, apart from your own browser's record, which can be changed or imported, and verified streaks that can't be made up or replayed. You see it on your profile's Verified tab, and players in a room with you can see its totals from your card, unless you hide your profile (see Who sees what). There are no leaderboards, and no list or search of players.",
-        "What it doesn't promise: verified means our server started, judged and timed it. It doesn't mean nobody cheated. The answers are in the game's own files, so they can be looked up, a changed page can play differently, and anyone can make more than one account. Verified results stop made-up, imported and replayed results; they aren't cheat-proof.",
-        "Dailies played as a guest, offline or before you signed in stay only in your browser, and are never made verified later; nothing from your saves or a save file is ever counted as verified. Your browser keeps a note of verified dailies under way and receipts not yet taken, until your account has them, and clears it when you sign out.",
+        "Why: so your account has a record the server saw and judged itself, apart from your own browser's record, which can be changed, and verified streaks that can't be made up or replayed. You see it on your profile's Verified tab, and players in a room with you can see its totals from your card, unless you hide your profile (see Who sees what). There are no leaderboards, and no list or search of players.",
+        "What it doesn't promise: verified means our server started, judged and timed it. It doesn't mean nobody cheated. The answers are in the game's own files, so they can be looked up, a changed page can play differently, and anyone can make more than one account. Verified results stop made-up and replayed results; they aren't cheat-proof.",
+        "Dailies played offline stay in your progress, and are never made verified later, and those played as a guest go with the rest of a guest's progress when you sign in; nothing from your saves is ever counted as verified. Your browser keeps a note of verified dailies under way and receipts not yet taken, until your account has them, and clears it when you sign out.",
         "Your verified results and daily time zone are kept as long as your account. They're in Download my data, and Delete account removes them with everything else."
       ]
     },
@@ -88,9 +90,9 @@
       "title": "Your choices",
       "list": [
         "Download everything kept for your account, at any time, your verified results and daily time zone included: ☰ Profile, Account, Download my data.",
-        "Delete your account and everything kept for it, at any time, your verified results and daily time zone included: ☰ Profile, Account, Delete account. You choose whether this browser keeps your progress as a guest.",
+        "Delete your account and everything kept for it, at any time, your verified results and daily time zone included: ☰ Profile, Account, Delete account. This browser is cleared too, and goes back to being a new guest.",
         "Hide your profile from players in rooms, or show it again: ☰ Profile, Account, Your profile in rooms. Your card in a room still shows your name, picture and cosmetics.",
-        "Sign out: this browser keeps your progress, unless you choose to clear it.",
+        "Sign out: the account's progress is cleared from this browser, and stays in your account.",
         "Remove the site from your Google account under Security, Your connections to third-party apps and services, or from Discord under User Settings, Authorized Apps. Neither gave us anything to take back, so this only tidies their list."
       ]
     },

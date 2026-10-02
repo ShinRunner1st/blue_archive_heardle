@@ -254,14 +254,17 @@ export function InfoPopUp({
             <PopUpCardText>
               No cookies, ads or analytics, and nothing is tracked. Without an
               account, your score, streaks, missions and settings are saved only
-              in this browser and never sent anywhere.
+              in this browser and never sent anywhere, and a few starter
+              missions are yours to clear.
             </PopUpCardText>
             <PopUpCardText>
               Signing in with Google or Discord is optional. An account keeps
               your Google or Discord id (not your email or name), your profile,
-              progress and missions, so they follow you to other devices. You
-              can download or delete it all at any time, and one unused for two
-              years is deleted.
+              progress and missions, so they follow you to other devices, and
+              opens every mission and reward. It starts fresh: signing in
+              deletes this browser&apos;s guest progress, and signing out clears
+              the account&apos;s from it. You can download or delete it all at
+              any time, and one unused for two years is deleted.
             </PopUpCardText>
             <PopUpCardText>
               Signed in, your dailies are also kept as verified results: the
@@ -271,9 +274,8 @@ export function InfoPopUp({
               your results from finished room games. You see them on your
               profile. Verified means the server started and judged it, not that
               nobody cheated: answers can still be looked up. Dailies played as
-              a guest or offline stay in this browser, and are never made
-              verified. They&apos;re kept with your account, in Download my
-              data, and go with Delete account.
+              a guest or offline are never made verified. They&apos;re kept with
+              your account, in Download my data, and go with Delete account.
             </PopUpCardText>
             <PopUpCardText>
               Signed in, players in a room with you, guests too, can tap your

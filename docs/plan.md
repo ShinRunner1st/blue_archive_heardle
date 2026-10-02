@@ -852,7 +852,7 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   The user's answers (2026-10-02): Google and Discord, one account with
   both; the profile, cosmetics and progress in D1, settings in the
   browser; profiles and cosmetics in rooms, no levels yet; guests as
-  now and never second-class; Durable Objects for live rooms only; the
+  now and never second-class (reversed on 2026-10-03: see Guest limits); Durable Objects for live rooms only; the
   privacy policy and deletion before anyone can sign in. The full plan is
   `docs/accounts.md`, **approved 2026-10-02** with its four decisions
   (guests wear their own cosmetics; sign-out keeps this browser's copy,
@@ -1119,6 +1119,38 @@ admin`, on their PC only, nothing deployed or in the site's build),
   banners, frames...) still needs its place on screen drawn in code.
   Then **missions for the new rewards**, made with the tool: more
   missions, so each banner, background and frame has one to unlock it.
+
+- **Guest limits** (decided 2026-10-03, reversing "guests never feel
+  second-class"): an account is what keeps progress, so guests get less.
+  - Guests see and clear only the starter missions, one or two easy ones
+    per tab, marked per mission in the tool (`"guests": true`), and
+    those unlock only starter rewards. The rewards are arranged again for
+    it: the starter missions keep or take a small reward (a title, a
+    background, a cursor colour); characters, frames, banners and card
+    colours are for accounts. A reward moved off a mission keeps it as a
+    former one, so no account loses what it has.
+  - What a guest cleared or unlocked before outside the starter set is
+    locked again (the user's choice over keeping it).
+  - Verified results stay for accounts, as they always were.
+  - An account starts fresh: signing in deletes the browser's guest
+    progress (nothing is merged into the account, new or old) and loads
+    the account's, after a clear warning. Signing out, or deleting the
+    account, always clears the browser back to a new guest.
+  - No save file: export and import go from Settings for everyone. The
+    account's Download my data stays (the policy promises it, and the law
+    asks for it); the admin tool's save preview reads that file instead.
+  - The privacy policy, About and README say so first, then What's new.
+    Built on `feat/guest-limits`, off `feat/admin-tool`, a step at a time:
+  1. the decision and the policy, About and README;
+  2. guest missions (the flag, the tool's switch, the pop-up and rewards
+     for guests, the rewards arranged again);
+  3. accounts (sign-in replaces, sign-out clears);
+  4. the save file out of Settings, the tool's preview from Download my
+     data;
+  5. What's new, the full check and screenshots.
+     _Before it, on the same branch: banners show sharp pictures of their
+     scenes (`pictures/scenes/banner-*`, 640×160, a new banner size in the
+     picture maker), not the seasons' blurred backdrops._
 
 ## Future
 

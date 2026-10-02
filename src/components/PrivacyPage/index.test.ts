@@ -20,7 +20,7 @@ describe("PrivacyPage", () => {
   const text = () => harness.container.textContent ?? "";
 
   it("shows every section, with its date", () => {
-    expect(text()).toContain("Last changed 2 October 2026");
+    expect(text()).toContain("Last changed 3 October 2026");
     for (const section of privacy.sections) {
       expect(text()).toContain(section.title);
     }
