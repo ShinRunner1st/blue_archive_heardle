@@ -15,6 +15,7 @@ import { ProfileHero } from "../components/Profile/ProfileCard";
 import { ProfileFrame } from "../components/Profile/ProfileFrame";
 import * as ProfileStyled from "../components/Profile/index.styled";
 import { songs } from "../constants";
+import { titleText } from "../constants/cosmetics";
 import type {
   Banner,
   CardColors,
@@ -71,7 +72,7 @@ export function RewardsPreview({ view }: { view: RewardsView }) {
   const look: CardLook = {
     name: "Sensei",
     student: SAMPLE_STUDENT,
-    title: title.mission === undefined ? "Sensei" : title.name,
+    title: titleText(title),
     banner: pickOf<Banner>("banners", cosmetics.banners),
     frame: pickOf<Frame>("frames", cosmetics.frames),
     background: pickOf<ProfileBackground>("backgrounds", cosmetics.backgrounds),
@@ -107,7 +108,7 @@ export function RewardsPreview({ view }: { view: RewardsView }) {
               titleOf={titleOf}
             />
             <SenseiCardPicture
-              title={title.mission === undefined ? undefined : title.name}
+              title={titleText(title) || undefined}
               colors={pickOf<CardColors>("cardColors", cosmetics.cardColors)}
             />
             {list === "titles" && (

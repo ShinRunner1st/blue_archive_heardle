@@ -24,6 +24,7 @@ import prettier from "prettier";
 
 import {
   type PictureEntry,
+  type PictureMade,
   type PictureRequest,
   pictureTargetProblem,
   VIEWABLE_PICTURE,
@@ -92,11 +93,12 @@ async function buildPictures(): Promise<void> {
 /** Makes a picture as the request says, then lists it if it's the Worker's. */
 export async function makePicture(
   request: PictureRequest
-): Promise<{ path: string; kb: number }> {
+): Promise<PictureMade> {
   const problem = pictureTargetProblem(request);
   if (problem) throw new Error(problem);
 
   const dir = mkdtempSync(join(tmpdir(), "admin-picture-"));
+  let summary: Partial<PictureMade> = {};
   try {
     let from: string;
     if (request.upload) {
@@ -118,18 +120,22 @@ export async function makePicture(
         request.target,
       ]);
     } else {
-      await run([
+      const printed = await run([
         "scripts/make-picture.mjs",
         from,
         request.style === "cover" ? "cover" : "scene",
         request.target,
       ]);
+      // Its last line says how it came out.
+      const last = printed.trim().split(/\r?\n/).pop() ?? "{}";
+      summary = JSON.parse(last) as Partial<PictureMade>;
     }
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
   if (request.target.startsWith("pictures/")) await buildPictures();
   return {
+    ...summary,
     path: request.target,
     kb: Math.round(statSync(request.target).size / 102.4) / 10,
   };

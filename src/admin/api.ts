@@ -3,7 +3,7 @@ import type { ContentFiles } from "../content/types";
 import type { ContentProblem } from "../content/validate";
 import type { CharacterRequest } from "./characterRules";
 import type { CachedSprite } from "./characterServer";
-import type { PictureEntry, PictureRequest } from "./pictureRules";
+import type { PictureEntry, PictureMade, PictureRequest } from "./pictureRules";
 import type { ContentState } from "./server";
 
 export type { ContentState };
@@ -38,7 +38,7 @@ export const fileUrl = (path: string, version = "") =>
   `/api/file?path=${encodeURIComponent(path)}${version && `&v=${version}`}`;
 
 type PictureResult =
-  | { ok: true; pictures: PictureEntry[] }
+  | { ok: true; pictures: PictureEntry[]; made?: PictureMade }
   | { ok: false; error: string };
 
 async function pictureCall(
@@ -52,10 +52,11 @@ async function pictureCall(
   });
   const data = (await response.json()) as {
     pictures?: PictureEntry[];
+    made?: PictureMade;
     error?: string;
   };
   return response.ok
-    ? { ok: true, pictures: data.pictures ?? [] }
+    ? { ok: true, pictures: data.pictures ?? [], made: data.made }
     : { ok: false, error: data.error ?? `Failed: ${response.status}` };
 }
 

@@ -23,6 +23,15 @@ export interface PictureRequest {
   background?: string;
 }
 
+/** How a picture came out: from what size, to what, and how alike. */
+export interface PictureMade {
+  path: string;
+  kb: number;
+  sourceKb?: number;
+  quality?: number;
+  ssim?: number;
+}
+
 export interface PictureEntry {
   /** As pictureFiles.ts names it: "scenes/rooftop". */
   key: string;

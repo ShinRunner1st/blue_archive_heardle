@@ -107,6 +107,9 @@ const hueSwatch = (hue: number) => {
   return `#${channel(0)}${channel(8)}${channel(4)}`.toUpperCase();
 };
 
+/** The mission picker's "everyone's from the start". */
+const FREE = "__free";
+
 /** A reward's id from its name, while it still follows it. */
 const autoId = (name: string, taken: string[]) =>
   freeId(slugOf(name || "new"), taken);
@@ -336,14 +339,17 @@ function RewardForm({
   const missionFixed = released && !!mission && !mission.retired;
   const formerMissions = (item.formerMissions as string[] | undefined) ?? [];
 
+  /** "" is no mission yet; FREE is everyone's, on purpose. */
   const pickMission = (id: string) => {
     const old = item.mission as string | undefined;
+    const mission = id === FREE ? "" : id;
     const former =
-      released && old && old !== id && !formerMissions.includes(old)
+      released && old && old !== mission && !formerMissions.includes(old)
         ? [...formerMissions, old]
         : formerMissions;
     onChange({
-      mission: id || undefined,
+      mission: mission || undefined,
+      free: id === FREE || undefined,
       formerMissions: former.length > 0 ? former : undefined,
     });
   };
@@ -425,13 +431,20 @@ function RewardForm({
           >
             <Select
               name="mission"
-              value={(item.mission as string | undefined) ?? ""}
+              value={
+                item.free ? FREE : (item.mission as string | undefined) ?? ""
+              }
               disabled={missionFixed}
               onChange={(event) => pickMission(event.target.value)}
             >
               <option value="">
                 {list === "characters" ? "None: everyone's" : "Pick a mission…"}
               </option>
+              {list !== "characters" && (
+                <option value={FREE}>
+                  None: everyone&apos;s from the start
+                </option>
+              )}
               {missions.map((option) => (
                 <option key={option.id} value={option.id}>
                   {option.title || option.id}
@@ -578,7 +591,11 @@ function LookFields({
 
   switch (list) {
     case "titles":
-      return <Hint>A title is its name.</Hint>;
+      return item.blank ? (
+        <Hint>The blank title: a card shows no title until one is picked.</Hint>
+      ) : (
+        <Hint>A title is its name.</Hint>
+      );
 
     case "cardColors":
       return (
@@ -671,6 +688,13 @@ function LookFields({
 
     case "banners": {
       const picture = item.picture as string | undefined;
+      if (item.blank) {
+        return (
+          <Hint>
+            The blank banner: no strip; a title picked shows as words alone.
+          </Hint>
+        );
+      }
       return (
         <>
           <Field label="Behind the title">

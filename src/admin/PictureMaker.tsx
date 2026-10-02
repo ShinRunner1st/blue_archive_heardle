@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 import { makePicture } from "./api";
-import type { PictureEntry, PictureStyle } from "./pictureRules";
+import type { PictureEntry, PictureMade, PictureStyle } from "./pictureRules";
 import { Button, Card, Field, Hint, Input, Note, Row, Select } from "./ui";
 
 export const STYLE_LABELS: Record<PictureStyle, string> = {
@@ -28,6 +28,20 @@ const Drop = styled.label<{ $over: boolean }>`
     display: none;
   }
 `;
+
+const size = (kb: number) =>
+  kb >= 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${Math.round(kb)} KB`;
+
+/** How a picture came out, in a line: "3.4 MB → 52 KB, quality 64…". */
+function madeLine(made: PictureMade | undefined): string {
+  if (!made) return "";
+  if (made.sourceKb === undefined) return `Made: ${size(made.kb)}.`;
+  return `Made: ${size(made.sourceKb)} → ${size(made.kb)}, WebP quality ${
+    made.quality
+  }, as alike as SSIM ${
+    made.ssim
+  } (compressed as far as it still looks the same).`;
+}
 
 /** The biggest upload the server takes, with room for base64. */
 const MAX_UPLOAD = 18 * 1024 * 1024;
@@ -60,6 +74,7 @@ export function PictureMaker({
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState("");
   const [over, setOver] = React.useState(false);
+  const [made, setMade] = React.useState("");
 
   React.useEffect(() => setName(background), [background]);
 
@@ -90,6 +105,7 @@ export function PictureMaker({
     setBusy(false);
     if (result.ok) {
       setUpload(undefined);
+      setMade(madeLine(result.made));
       onMade(result.pictures);
     } else setError(result.error);
   };
@@ -173,6 +189,7 @@ export function PictureMaker({
         </Field>
       )}
       {error && <Note $tone="bad">{error}</Note>}
+      {made && <Note $tone="good">{made}</Note>}
       <Row>
         <Button
           $variant="primary"

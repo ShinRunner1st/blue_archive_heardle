@@ -323,7 +323,7 @@ export function adminApi(): AdminPlugin {
               const made = await makePicture(
                 JSON.parse(text) as PictureRequest
               );
-              return send(res, 200, { ...made, pictures: listScenePictures() });
+              return send(res, 200, { made, pictures: listScenePictures() });
             }
             if (req.method === "DELETE") {
               const { path } = JSON.parse(text) as { path: string };

@@ -6,7 +6,7 @@
 import styled from "styled-components";
 
 import { PopUp } from "../components/PopUp";
-import { Badges } from "../components/Profile";
+import ProfilePopUp from "../components/Profile";
 import { CardLook, PlayerCard } from "../components/Profile/PlayerCard";
 import { ProfileHero } from "../components/Profile/ProfileCard";
 import { BACKGROUNDS, BANNERS, FRAMES } from "../constants/cosmetics";
@@ -60,7 +60,7 @@ export function PicturePreview({ view }: { view: View<"picture"> }) {
   const look: CardLook = {
     name: "Sensei",
     student: 10000,
-    title: "Sensei",
+    title: "",
     banner: {
       ...BANNERS[1],
       picture: view.key,
@@ -131,11 +131,14 @@ export function BadgesPreview({ view }: { view: View<"badges"> }) {
       done: songs.length > 0 && found === songs.length,
     };
   });
+  // The game's own profile, on its OST tab, with the albums being made:
+  // its other tabs (Overview has the shelf too) are a click away.
   return (
-    <PopUp wide title="Profile" onClose={nothing}>
-      <div style={{ padding: "0 28px 18px" }}>
-        <Badges badges={badges} />
-      </div>
-    </PopUp>
+    <ProfilePopUp
+      onClose={nothing}
+      onSenseiCard={nothing}
+      startTab="ost"
+      badges={badges}
+    />
   );
 }
