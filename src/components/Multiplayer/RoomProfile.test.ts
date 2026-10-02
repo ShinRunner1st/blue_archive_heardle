@@ -73,29 +73,45 @@ function show(state: RoomProfileState, onRetry = vi.fn()) {
   return harness.container.ownerDocument.body.textContent ?? "";
 }
 
+/** Opens one of the profile's tabs; the page's text after. */
+function tab(label: string): string {
+  const button = [
+    ...harness.container.ownerDocument.querySelectorAll('[role="tab"]'),
+  ].find((element) => element.textContent?.trim() === label);
+  if (!button) throw new Error(`no ${label} tab`);
+  act(() => (button as HTMLButtonElement).click());
+  return harness.container.ownerDocument.body.textContent ?? "";
+}
+
 describe("RoomProfile", () => {
-  it("shows the verified record, then their own saves' summary marked unverified", () => {
+  it("opens on the verified record, laid out as the player's own profile", () => {
     const text = show({ status: "shown", answer: ANSWER });
     expect(text).toContain("Mutsuki's profile");
-    const verified = text.indexOf("Verified since");
-    const own = text.indexOf("From their own saves");
-    expect(verified).toBeGreaterThan(-1);
-    expect(own).toBeGreaterThan(verified);
-    expect(text).toContain("Not verified: worked out in their own browser");
+    // The head: their name, and when their verified record began.
+    expect(text).toContain("Verified since");
     expect(text).toContain("aren't cheat-proof");
     // Best streaks only: another player's current streaks aren't read.
     expect(text).toContain("Best streak");
     expect(text).not.toMatch(/Streak\d/);
+    // Their saves wait on their own tab.
+    expect(text).not.toContain("Not verified: worked out");
+  });
+
+  it("shows their own saves on the next tab, marked unverified", () => {
+    show({ status: "shown", answer: ANSWER });
+    const text = tab("Their saves");
+    expect(text).toContain("Not verified: worked out in their own browser");
     expect(text).toContain("120");
     expect(text).toContain("JP");
+    expect(tab("Verified")).toContain("Dailies played");
   });
 
   it("says when there's no summary yet", () => {
-    const text = show({
+    show({
       status: "shown",
       answer: { ...ANSWER, summary: null },
     });
-    expect(text).toContain("Nothing synced yet.");
+    expect(tab("Their saves")).toContain("Nothing synced yet.");
   });
 
   it("says it's loading, hidden, or failed, with Try again", () => {

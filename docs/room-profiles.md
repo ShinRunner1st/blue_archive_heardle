@@ -186,10 +186,11 @@ Each step only once the user approves it, on its own stacked branch:
    answering) is a button under its corner, so the host's Kick stays
    pressable; the page asks the room, at most once a second, and takes
    the ticket to `POST /profile-view` with no session token, signed in or
-   not (`fetchProfileView`); `RoomProfile` shows the card, the verified
-   record (`VerifiedRecord`, the Verified tab's own, with best streaks)
-   and "From their own saves", marked not verified, and is kept for the
-   room. The Account tab has "Your profile in rooms", Hide or Show, which
+   not (`fetchProfileView`); `RoomProfile` is laid out as the player's
+   own profile (their look across the head, their frame round the
+   panel), with two tabs: Verified (`VerifiedRecord`, the Verified tab's
+   own, with best streaks) and Their saves, marked not verified; kept
+   for the room. The Account tab has "Your profile in rooms", Hide or Show, which
    drops the page's room pass so the next room gets one that says so.
    In Chrome with eight players (four signed in, one hidden, three
    guests, the page a guest): only the three shown cards open, the
