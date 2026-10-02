@@ -1166,7 +1166,10 @@ admin`, on their PC only, nothing deployed or in the site's build),
      reading saves as the account keeps them), the reset no longer says to
      export first, and the Missions tab's preview reads the `progress` of
      a Download my data file (`src/admin/accountSave.ts`)_;
-  5. What's new, the full check and screenshots.
+  5. What's new, the full check and screenshots. _Built: a "Guests and
+     accounts" entry (starter missions, a fresh account, no more save
+     files, the two rewards moved, sharper banners); checked at 1920×911
+     and on a phone. The release waits for the user._
      _Before it, on the same branch: banners show sharp pictures of their
      scenes (`pictures/scenes/banner-*`, 640×160, a new banner size in the
      picture maker), not the seasons' blurred backdrops._

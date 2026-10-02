@@ -1,5 +1,36 @@
 [
   {
+    "id": "2026-10-guests",
+    "name": "Guests and accounts",
+    "items": [
+      {
+        "icon": "IoRibbon",
+        "title": "Starter missions",
+        "text": "Without an account you can clear the starter missions, one or two easy ones in each tab, and wear what they unlock. Every other mission and reward comes with an account (☰ Profile, Account). Missions a guest cleared outside the starter ones, and what they unlocked, are locked."
+      },
+      {
+        "icon": "IoKey",
+        "title": "A fresh account",
+        "text": "An account now starts fresh: signing in deletes this browser's progress as a guest rather than adding it to the account, and the Account tab asks first. Signing out clears this browser, as your progress is in your account. Already signed in? Nothing changes."
+      },
+      {
+        "icon": "IoSave",
+        "title": "No more save files",
+        "text": "Export and import are gone from Settings: an account keeps your progress and brings it to every device you play on. Signed in, Download my data on the Account tab still gives you a copy of everything."
+      },
+      {
+        "icon": "IoGift",
+        "title": "Rewards moved",
+        "text": "Aris now comes with finishing 10 multiplayer games, and the violet cursor with naming a voice before any hint. Accounts that already have them keep them."
+      },
+      {
+        "icon": "IoImage",
+        "title": "Sharper banners",
+        "text": "Banners with a scene behind them now show it sharp, not blurred."
+      }
+    ]
+  },
+  {
     "id": "2026-10-room-profiles",
     "name": "Profiles and cards",
     "items": [
