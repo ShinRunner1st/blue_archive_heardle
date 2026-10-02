@@ -5,14 +5,15 @@
 
 /**
  * How a picture is made: a blurred backdrop like the seasons' (by day or
- * night, dimmed to match), a sharp scene, a hub card's wide strip, or an
- * album's square cover.
+ * night, dimmed to match), a sharp scene, a hub card's wide strip, a
+ * banner's narrower one, or an album's square cover.
  */
 export type PictureStyle =
   | "backdrop-day"
   | "backdrop-night"
   | "scene"
   | "card"
+  | "banner"
   | "cover";
 
 export interface PictureRequest {
@@ -69,6 +70,10 @@ const TARGETS: Record<PictureStyle, [RegExp, string]> = {
   card: [
     /^pictures\/hub\/[a-z0-9-]+\.webp$/,
     "A hub card goes in pictures/hub/",
+  ],
+  banner: [
+    /^pictures\/scenes\/[a-z0-9-]+\.webp$/,
+    "A banner's picture goes in pictures/scenes/",
   ],
   "backdrop-day": [BACKDROP_TARGET, BACKDROP_WHERE],
   "backdrop-night": [BACKDROP_TARGET, BACKDROP_WHERE],

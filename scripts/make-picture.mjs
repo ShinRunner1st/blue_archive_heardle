@@ -11,6 +11,9 @@
  * (shown at most about that wide, in the profile's head).
  * card: 720x320, cropped to fill, a hub card's scene (twice the widest card
  * on a phone, as scripts/make-card.mjs makes them).
+ * banner: 640x160, cropped to fill, a banner's picture: banners are pills of
+ * at most 280x38, so this is twice that with room for the crop, about a
+ * fifth of a scene's bytes.
  * cover: 256x256, cropped to fill, like the albums' covers.
  *
  * Compressed by itself, as the site's pictures were by hand: made the size
@@ -49,13 +52,14 @@ const run = promisify(execFile);
 const KINDS = {
   scene: { width: 960, height: 540, same: 0.95, lowest: 40, highest: 72 },
   card: { width: 720, height: 320, same: 0.95, lowest: 40, highest: 72 },
+  banner: { width: 640, height: 160, same: 0.95, lowest: 40, highest: 72 },
   cover: { width: 256, height: 256, same: 0.985, lowest: 30, highest: 92 },
 };
 
 const [from, kind, output] = process.argv.slice(2);
 if (!from || !(kind in KINDS) || !output) {
   console.error(
-    "Usage: node scripts/make-picture.mjs <file or BG name> <scene|card|cover> <output.webp>"
+    "Usage: node scripts/make-picture.mjs <file or BG name> <scene|card|banner|cover> <output.webp>"
   );
   process.exit(1);
 }

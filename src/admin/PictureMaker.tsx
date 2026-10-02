@@ -10,6 +10,7 @@ export const STYLE_LABELS: Record<PictureStyle, string> = {
   "backdrop-night": "A backdrop like the seasons', by night: darker",
   scene: "A sharp scene, 960×540, for cards and banners",
   card: "A hub card's scene, 720×320, sharp",
+  banner: "A banner's picture, 640×160, sharp",
   cover: "An album cover, 256×256",
 };
 

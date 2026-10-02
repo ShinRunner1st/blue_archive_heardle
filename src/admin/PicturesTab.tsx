@@ -185,7 +185,7 @@ export function PicturesTab({
                       ? picture.key.endsWith("-night")
                         ? ["backdrop-night"]
                         : ["backdrop-day"]
-                      : ["scene", "backdrop-day", "backdrop-night"]
+                      : ["scene", "banner", "backdrop-day", "backdrop-night"]
                   }
                   makeLabel="Replace it"
                   onMade={onPictures}
@@ -238,7 +238,7 @@ export function PicturesTab({
             )}
             <PictureMaker
               target={newPath}
-              styles={["scene", "backdrop-day", "backdrop-night"]}
+              styles={["scene", "banner", "backdrop-day", "backdrop-night"]}
               onMade={(list) => {
                 onPictures(list);
                 setSelected(`scenes/${slugOf(name) || "new"}`);

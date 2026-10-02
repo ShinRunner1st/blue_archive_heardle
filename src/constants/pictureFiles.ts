@@ -17,6 +17,15 @@ export const pictureFiles: Record<string, string> = {
   "hub/voice": "pictures/voice.05e54679.webp",
   "multiplayer/backdrop-day": "pictures/backdrop-day.181c3eff.webp",
   "multiplayer/backdrop-night": "pictures/backdrop-night.ca7e0011.webp",
+  "scenes/banner-autumn": "pictures/banner-autumn.f4bd49ff.webp",
+  "scenes/banner-beach": "pictures/banner-beach.a53a27c1.webp",
+  "scenes/banner-cherry-blossom":
+    "pictures/banner-cherry-blossom.8ca62759.webp",
+  "scenes/banner-night-carnival":
+    "pictures/banner-night-carnival.8c33056e.webp",
+  "scenes/banner-summer-festival":
+    "pictures/banner-summer-festival.fe911166.webp",
+  "scenes/banner-winter-lodge": "pictures/banner-winter-lodge.1bc32d00.webp",
   "seasons/anniversary-day": "pictures/anniversary-day.89d6d25b.webp",
   "seasons/anniversary-night": "pictures/anniversary-night.1868992f.webp",
   "seasons/autumn-day": "pictures/autumn-day.88c879d7.webp",

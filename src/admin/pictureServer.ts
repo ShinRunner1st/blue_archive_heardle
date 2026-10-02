@@ -123,7 +123,9 @@ export async function makePicture(
       const printed = await run([
         "scripts/make-picture.mjs",
         from,
-        request.style === "cover" || request.style === "card"
+        request.style === "cover" ||
+        request.style === "card" ||
+        request.style === "banner"
           ? request.style
           : "scene",
         request.target,
