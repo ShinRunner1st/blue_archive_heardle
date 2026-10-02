@@ -207,4 +207,26 @@ Each step only once the user approves it, on its own stacked branch:
    room see its totals, and Your choices gains hiding it. About, the
    README (Privacy and Profile) and a What's new entry say the same._
 5. **Measured on the preview**, with the preview accounts stack
-   (`chore/accounts-preview`), before any release.
+   (`chore/accounts-preview`), before any release. _On 2026-10-02 the
+   stack was deployed to the preview by hand (its config cherry-picked
+   onto a local branch, `chore/profile-preview`, never pushed): migration
+   0006 on the preview's database alone, then the accounts Worker, the
+   rooms (`PROTOCOL` 7) and the site, whose bundle and
+   Content-Security-Policy name only the preview's accounts. The user
+   signed in with Google in one window and joined as a guest in another,
+   and the figures below are Cloudflare's own, by the minute, which
+   matched a tail of both Workers kept to method, path and status (no
+   headers, bodies or tickets):_
+   - _A guest's first tap: 2 accounts requests (the preflight and
+     `POST /profile-view`, no session), 3 queries; this account had no
+     verified results yet, so about 2 rows read, 9 with five summaries
+     as measured locally. Tapping again: nothing._
+   - _Hide: `PUT /me/profile-shown` and its preflight, 1 row written,
+     and the Account tab's `GET /me`. A guest's tap with a ticket from
+     before: 1 request (the preflight cached), 404, 1 row read._
+   - _Rejoining after Hide asked for a new pass (1 request), and the
+     card stopped opening; after Show and a rejoin, the next tap opened
+     the profile again._
+   - _The rooms Worker made no D1 call and errors were 0 on both
+     Workers. The minute with Show, the pass and a view read 23 rows and
+     wrote 1. Production's Workers, database and secrets were untouched._

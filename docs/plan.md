@@ -997,7 +997,10 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   Account tab's switch), on `feat/profile-page`, off
   `feat/profile-rooms`. Step 4, privacy (the policy first, About, the
   README, What's new), on `docs/profile-privacy`, off
-  `feat/profile-page`._
+  `feat/profile-page`. Step 5, measured on the Cloudflare preview with
+  its own accounts Worker and database (their config still only on
+  `chore/accounts-preview`), the figures on `docs/profile-measured`, off
+  `docs/profile-privacy`. The release waits for the user._
 - **Missions for the new rewards**: more missions, so each banner,
   background and frame has one to unlock it, in `missions.json` and
   `cosmetics.json` as now; ids never renamed. With the cosmetics above.
