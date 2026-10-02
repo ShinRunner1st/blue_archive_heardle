@@ -1129,6 +1129,32 @@ admin`, on their PC only, nothing deployed or in the site's build),
   card colours, a red cursor, silver and prism foil banners. Eleven
   missions use rules. `ids.lock.json` was rewritten to match._
 
+- **Cosmetics people see, and moving ones** (the user's feedback on the
+  59 missions, 2026-10-03). Done at once: the tool's 9 problems (the
+  missions taken back, now listed as `withdrawn` in `ids.lock.json`),
+  cleared missions under the ones left to do, backgrounds as sharp scenes,
+  nothing past about 200 days of steady play. Then, a step at a time, each
+  once the user says go:
+
+  1. **Banners as nameplates**, like Blue Archive's own emblems (the user
+     title under a player's name): a plate with the picture across it, the
+     title on a soft band, an emblem in a ring; the game's own plates as the
+     reference (from its UI files, BA-AD); new and custom ones made in the
+     tool. **Emblems drawn inside banners**: SVG shapes like the frames'
+     ornaments, or a PNG or JPG made into a small picture on the Worker.
+     Card colours become everyone's, as rewards they didn't interest.
+  2. **Moving cosmetics, Blue Archive themed**: name effects (a new kind,
+     on the card and in rooms: rooms and accounts change with it), moving
+     backgrounds (petals, snow, sparks over the scene), banners (a light
+     across foil, a slow pan) and frames (pulsing glows, a turning border,
+     drifting sparkles), each made from parts in the tool.
+  3. **More characters**: the most popular in the official polls of 2025
+     and 2026, their sprites from the game's files (downloading what's
+     missing with BA-AD), a basic set-up each for the user to check.
+  4. **Missions and rewards again**, with the new cosmetics: more missions
+     and rules where needed, favouring what other players see, reasonable,
+     none past about 200 days.
+
 - **Guest limits** (decided 2026-10-03, reversing "guests never feel
   second-class"): an account is what keeps progress, so guests get less.
   - Guests see and clear only the starter missions, one or two easy ones
