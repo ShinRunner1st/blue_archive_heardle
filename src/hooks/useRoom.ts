@@ -32,7 +32,21 @@ import {
  */
 export type RoomStatus = "idle" | "connecting" | "open" | "failed";
 
+/** A profile's ticket the room sent this page, for a card it tapped. */
+export interface ProfileTicket {
+  /** The card's player, by room id. */
+  id: string;
+  ticket: string;
+  /** Counts them, so the same card's twice is a new one. */
+  n: number;
+}
+
 export interface RoomConnection {
+  /**
+   * The newest profile ticket the room sent for a card this page tapped
+   * (docs/room-profiles.md), held only in memory.
+   */
+  profileTicket: ProfileTicket | null;
   status: RoomStatus;
   view: RoomView | null;
   /** When the view came, for the phase's clock (endsIn counts from it). */
@@ -132,6 +146,8 @@ export function useRoom(): RoomConnection {
   const [receivedAt, setReceivedAt] = React.useState(0);
   const [error, setError] = React.useState<RoomError | null>(null);
   const [session, setSession] = React.useState(0);
+  const [profileTicket, setProfileTicket] =
+    React.useState<ProfileTicket | null>(null);
 
   const socket = React.useRef<WebSocket | null>(null);
   const intent = React.useRef<Intent | null>(null);
@@ -239,9 +255,21 @@ export function useRoom(): RoomConnection {
         if (typeof message.receipt === "string") keepReceipt(message.receipt);
         return;
       }
-      // A profile's ticket (docs/room-profiles.md): not a refusal. Nothing
-      // asks for one yet.
-      if (message.t === "profile") return;
+      // A profile's ticket for a card this page tapped
+      // (docs/room-profiles.md): not a refusal.
+      if (message.t === "profile") {
+        if (
+          typeof message.id === "string" &&
+          typeof message.ticket === "string"
+        ) {
+          setProfileTicket((last) => ({
+            id: message.id,
+            ticket: message.ticket,
+            n: (last?.n ?? 0) + 1,
+          }));
+        }
+        return;
+      }
 
       refused = true;
       if (message.code === "missing" && target.rejoin && !target.recreate) {
@@ -383,6 +411,7 @@ export function useRoom(): RoomConnection {
   );
 
   return {
+    profileTicket,
     status,
     view,
     receivedAt,

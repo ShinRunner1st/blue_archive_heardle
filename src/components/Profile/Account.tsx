@@ -1,5 +1,5 @@
 import React from "react";
-import { IoLogoDiscord, IoLogoGoogle } from "react-icons/io5";
+import { IoLogoDiscord, IoLogoGoogle, IoPeople } from "react-icons/io5";
 
 import {
   backupBeforeAccount,
@@ -15,6 +15,7 @@ import {
   deleteAccount,
   fetchAccount,
   finishSignIn,
+  putProfileShown,
   SignInNotice,
   signOut,
   startSignIn,
@@ -309,6 +310,36 @@ export function AccountPanel() {
                 </Styled.AccountRow>
               );
             })}
+          </Styled.AccountRows>
+          <Styled.AccountRows>
+            <Styled.AccountRow>
+              <IoPeople aria-hidden="true" />
+              <Styled.AccountProvider>
+                Your profile in rooms
+                <span>
+                  {state.view.profileShown
+                    ? "Players in a room with you can see it from your card"
+                    : "Hidden: your card in a room opens nothing"}
+                </span>
+              </Styled.AccountProvider>
+              <Styled.AccountButton
+                type="button"
+                disabled={busy}
+                aria-pressed={!state.view.profileShown}
+                onClick={() =>
+                  act(async () => {
+                    const shown = !state.view.profileShown;
+                    if (await putProfileShown(shown)) {
+                      // The next room gets a pass that says so.
+                      forgetRoomPass();
+                    }
+                    await load();
+                  })
+                }
+              >
+                {state.view.profileShown ? "Hide" : "Show"}
+              </Styled.AccountButton>
+            </Styled.AccountRow>
           </Styled.AccountRows>
           <Styled.AccountLead as="p">
             Your progress is kept with your account, and here as well, so it

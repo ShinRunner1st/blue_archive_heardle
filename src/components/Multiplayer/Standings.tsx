@@ -28,6 +28,11 @@ interface Props {
   receivedAt: number;
   send: (message: ClientMessage) => void;
   onLeave: () => void;
+  /**
+   * Opens a player's profile, from their card (docs/room-profiles.md):
+   * only signed-in players' cards that the room marks, never one's own.
+   */
+  onOpenProfile?: (id: string) => void;
 }
 
 /**
@@ -37,7 +42,13 @@ interface Props {
  * who named it. Each player goes back to the lobby when they like, and
  * after OVER_MS the room takes everyone still here.
  */
-export function Standings({ view, receivedAt, send, onLeave }: Props) {
+export function Standings({
+  view,
+  receivedAt,
+  send,
+  onLeave,
+  onOpenProfile,
+}: Props) {
   const now = useNow();
   const place = places(view.players);
   const ordered = standings(view.players);
@@ -107,6 +118,11 @@ export function Standings({ view, receivedAt, send, onLeave }: Props) {
                       </>
                     )}
                     you={player.id === view.you}
+                    onOpen={
+                      player.profile && player.id !== view.you && onOpenProfile
+                        ? () => onOpenProfile(player.id)
+                        : undefined
+                    }
                     line={
                       <Styled.PodiumScore>{score(player)}</Styled.PodiumScore>
                     }
@@ -141,6 +157,11 @@ export function Standings({ view, receivedAt, send, onLeave }: Props) {
                 )}
                 you={player.id === view.you}
                 away={!player.here}
+                onOpen={
+                  player.profile && player.id !== view.you && onOpenProfile
+                    ? () => onOpenProfile(player.id)
+                    : undefined
+                }
                 lead={
                   <Styled.PlaceNo>
                     {player.score > 0 ? place.get(player.id) : "–"}

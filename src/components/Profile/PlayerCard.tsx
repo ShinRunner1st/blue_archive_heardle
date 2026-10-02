@@ -108,6 +108,11 @@ interface Props {
   right?: boolean | null;
   /** Over the card, as the host's Kick. */
   children?: React.ReactNode;
+  /**
+   * Makes the card a button that opens its player's profile
+   * (docs/room-profiles.md), under its corner.
+   */
+  onOpen?: () => void;
 }
 
 /**
@@ -129,6 +134,7 @@ export function PlayerCard({
   away = false,
   right = null,
   children,
+  onOpen,
 }: Props) {
   const phone = useMediaQuery("(max-width: 600px)");
   const size =
@@ -167,6 +173,13 @@ export function PlayerCard({
             {line}
           </Styled.CardText>
           {aside && <Styled.CardAside>{aside}</Styled.CardAside>}
+          {onOpen && (
+            <Styled.CardOpen
+              type="button"
+              aria-label={`See ${look.name}'s profile`}
+              onClick={onOpen}
+            />
+          )}
           {corner && <Styled.CardCorner>{corner}</Styled.CardCorner>}
           {children}
         </Styled.Card>

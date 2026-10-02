@@ -49,6 +49,11 @@ interface Props {
   receivedAt: number;
   send: (message: ClientMessage) => void;
   onLeave: () => void;
+  /**
+   * Opens a player's profile, from their card (docs/room-profiles.md):
+   * only signed-in players' cards that the room marks, never one's own.
+   */
+  onOpenProfile?: (id: string) => void;
 }
 
 /** How long a copy button shows it worked. */
@@ -85,7 +90,13 @@ export const ACCESS_ICONS: Record<RoomAccess, React.ComponentType> = {
  * Leave and Start, pinned to the foot on a phone. A lobby where nothing
  * happens for IDLE_MS closes, with a warning for its last minute.
  */
-export function Lobby({ view, receivedAt, send, onLeave }: Props) {
+export function Lobby({
+  view,
+  receivedAt,
+  send,
+  onLeave,
+  onOpenProfile,
+}: Props) {
   const now = useNow();
   const isHost = view.host === view.you;
   const { settings } = view;
@@ -176,6 +187,7 @@ export function Lobby({ view, receivedAt, send, onLeave }: Props) {
               : "Waiting for the host to start"
           }
           onKick={isHost ? (id) => send({ t: "kick", id }) : undefined}
+          onOpenProfile={onOpenProfile}
         />
 
         <Styled.LobbyButtons>
@@ -336,10 +348,12 @@ function LobbyPlayers({
   view,
   hint,
   onKick,
+  onOpenProfile,
 }: {
   view: RoomView;
   hint: string;
   onKick?: (id: string) => void;
+  onOpenProfile?: (id: string) => void;
 }) {
   const free = Math.max(0, view.settings.maxPlayers - view.players.length);
   const [arming, setArming] = React.useState<string | null>(null);
@@ -380,6 +394,11 @@ function LobbyPlayers({
                 )}
                 you={isYou}
                 away={!player.here}
+                onOpen={
+                  player.profile && player.id !== view.you && onOpenProfile
+                    ? () => onOpenProfile(player.id)
+                    : undefined
+                }
                 corner={
                   <>
                     <Styled.LobbyState

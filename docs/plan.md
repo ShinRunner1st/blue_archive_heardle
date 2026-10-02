@@ -992,7 +992,10 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   accounts Worker (migration 0006, the ticket, `POST /profile-view`, the
   switch), on `feat/profile-view`, off `docs/room-profiles`. Step 2, the
   rooms (cards marked, the ticket to the asker only, `PROTOCOL` 7), on
-  `feat/profile-rooms`, off `feat/profile-view`._
+  `feat/profile-rooms`, off `feat/profile-view`. Step 3, the page
+  (tappable cards in the lobby and standings, the profile pop-up, the
+  Account tab's switch), on `feat/profile-page`, off
+  `feat/profile-rooms`._
 - **Missions for the new rewards**: more missions, so each banner,
   background and frame has one to unlock it, in `missions.json` and
   `cosmetics.json` as now; ids never renamed. With the cosmetics above.

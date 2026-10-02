@@ -2,7 +2,11 @@ import React, { act } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createHarness } from "../../test/harness";
-import { fetchAccount, fetchVerified } from "../../helpers/accountClient";
+import {
+  fetchAccount,
+  fetchVerified,
+  putProfileShown,
+} from "../../helpers/accountClient";
 
 import ProfilePopUp from ".";
 
@@ -11,6 +15,7 @@ vi.mock("../../helpers/accountClient", async (original) => ({
   fetchAccount: vi.fn(),
   fetchVerified: vi.fn(),
   finishSignIn: vi.fn(async () => null),
+  putProfileShown: vi.fn(async () => true),
 }));
 
 const fetched = vi.mocked(fetchAccount);
@@ -168,5 +173,32 @@ describe("ProfilePopUp's Verified tab", () => {
     await settle();
     expect(verified).toHaveBeenCalledTimes(2);
     expect(panel()?.textContent).toContain("OST");
+  });
+});
+
+describe("ProfilePopUp's switch for profiles in rooms", () => {
+  it("hides the profile, then reads the account again to show it", async () => {
+    const put = vi.mocked(putProfileShown);
+    put.mockClear();
+    harness.render(profile("account"));
+    await settle();
+    const panel = () =>
+      harness.container.ownerDocument.querySelector('[role="tabpanel"]');
+    expect(panel()?.textContent).toContain(
+      "Players in a room with you can see it from your card"
+    );
+    fetched.mockResolvedValue({
+      publicId: "p1",
+      createdAt: Date.UTC(2026, 9, 2),
+      identities: [{ provider: "discord", linkedAt: Date.UTC(2026, 9, 2) }],
+      profileShown: false,
+    });
+    const hide = [
+      ...harness.container.ownerDocument.querySelectorAll("button"),
+    ].find((button) => button.textContent === "Hide");
+    act(() => hide!.click());
+    await settle();
+    expect(put).toHaveBeenCalledWith(false);
+    expect(panel()?.textContent).toContain("Hidden: your card in a room");
   });
 });

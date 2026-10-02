@@ -3,6 +3,7 @@ import {
   AccountProfile,
   AccountView,
   AuthError,
+  ProfileViewAnswer,
   ProfileSummary,
   Provider,
 } from "../types/account";
@@ -418,6 +419,47 @@ export async function fetchVerified(): Promise<VerifiedView | undefined> {
   }
   if (!response.ok) throw new AccountsUnavailable();
   return (await response.json()) as VerifiedView;
+}
+
+/**
+ * Another player's profile, from the ticket their room signed for it
+ * (docs/room-profiles.md); null if it's hidden, gone, or the ticket ran
+ * out. Sent with no session token, signed in or not: the ticket is all it
+ * needs, and the token goes nowhere it isn't needed. Throws if the
+ * accounts can't be reached.
+ */
+export async function fetchProfileView(
+  ticket: string
+): Promise<ProfileViewAnswer | null> {
+  let response: Response;
+  try {
+    response = await fetch(`${accountsUrl()}/profile-view`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ticket }),
+      credentials: "omit",
+      referrerPolicy: "no-referrer",
+    });
+  } catch {
+    throw new AccountsUnavailable();
+  }
+  if (response.status === 404) return null;
+  if (!response.ok) throw new AccountsUnavailable();
+  return (await response.json()) as ProfileViewAnswer;
+}
+
+/**
+ * The Account tab's switch: whether players in a room may see this
+ * account's profile from its card. False if signed out.
+ */
+export async function putProfileShown(shown: boolean): Promise<boolean> {
+  const response = await api("PUT", "/me/profile-shown", { shown });
+  if (response.status === 401) {
+    writeToken(null);
+    return false;
+  }
+  if (!response.ok) throw new AccountsUnavailable();
+  return true;
 }
 
 /** Test seam: a new page, as far as this module's memory goes. */

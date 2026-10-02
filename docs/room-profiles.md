@@ -180,7 +180,21 @@ Each step only once the user approves it, on its own stacked branch:
 3. **The page**: tappable cards for signed-in players, the read-only
    profile pop-up (from the profile's own parts, the summary labelled),
    kept for the room; the Account tab's switch; tests; screenshots at
-   1920×1080, 945, 911 and a phone, with eight players.
+   1920×1080, 945, 911 and a phone, with eight players. _Built on
+   `feat/profile-page`: a marked card (in the lobby and on the
+   standings, not during rounds, where a pop-up would get in the way of
+   answering) is a button under its corner, so the host's Kick stays
+   pressable; the page asks the room, at most once a second, and takes
+   the ticket to `POST /profile-view` with no session token, signed in or
+   not (`fetchProfileView`); `RoomProfile` shows the card, the verified
+   record (`VerifiedRecord`, the Verified tab's own, with best streaks)
+   and "From their own saves", marked not verified, and is kept for the
+   room. The Account tab has "Your profile in rooms", Hide or Show, which
+   drops the page's room pass so the next room gets one that says so.
+   In Chrome with eight players (four signed in, one hidden, three
+   guests, the page a guest): only the three shown cards open, the
+   profile shows both records, the page's only account requests were
+   the view and its preflight, and opening it again asked nothing._
 4. **Privacy**: the policy, About, the README, What's new.
 5. **Measured on the preview**, with the preview accounts stack
    (`chore/accounts-preview`), before any release.

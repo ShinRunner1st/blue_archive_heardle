@@ -9,12 +9,14 @@ import {
 } from "../../helpers/roomClient";
 import { recordRoomGame } from "../../helpers/missions";
 import { prepareRoomPass } from "../../helpers/roomPass";
+import { PROFILE_GAP_MS } from "../../helpers/room";
 import { places } from "../../helpers/roomView";
 import { useRoom } from "../../hooks/useRoom";
 import { isRoomCode, RoomHold, RoomNudge } from "../../types/room";
 
 import { Entry } from "./Entry";
 import { Lobby } from "./Lobby";
+import { RoomProfile, RoomProfileState } from "./RoomProfile";
 import { RoundScreen } from "./RoundScreen";
 import { Standings } from "./Standings";
 import * as Styled from "./index.styled";
@@ -32,6 +34,9 @@ interface Props {
 
 /** How long the note saying why stays. */
 const NUDGE_MS = 3000;
+
+/** How long a profile's ticket is waited for before saying it failed. */
+const ASK_MS = 6000;
 
 const NUDGES: Record<RoomNudge["why"], string> = {
   leave: "You're in a room: press Leave to go.",
@@ -51,7 +56,8 @@ export default function Multiplayer({
   onProfile,
 }: Props) {
   const room = useRoom();
-  const { view, status, send, join, rejoin, create, leave } = room;
+  const { view, status, send, join, rejoin, create, leave, profileTicket } =
+    room;
   // Signed in: the room pass asked for now, so joining needn't wait.
   React.useEffect(prepareRoomPass, []);
 
@@ -111,6 +117,65 @@ export default function Multiplayer({
       rejoin(linked, roomName(linked), loadRoomIcon(), loadRoomSettings());
     }
   }, [linked, rejoin]);
+
+  // Profiles from a card (docs/room-profiles.md): each kept for as long
+  // as this page is in the room, so the same card again asks for nothing.
+  const [profiles, setProfiles] = React.useState<
+    Record<string, RoomProfileState>
+  >({});
+  const [viewing, setViewing] = React.useState<string | null>(null);
+  const code = view?.code;
+  React.useEffect(() => {
+    setProfiles({});
+    setViewing(null);
+  }, [code]);
+  // The room takes one ask a second from a page: a quicker one waits.
+  const askedAt = React.useRef(0);
+  const askProfile = React.useCallback(
+    (id: string) => {
+      setProfiles((kept) => ({ ...kept, [id]: { status: "loading" } }));
+      const wait = Math.max(0, askedAt.current + PROFILE_GAP_MS - Date.now());
+      askedAt.current = Date.now() + wait;
+      window.setTimeout(() => send({ t: "profile", id }), wait);
+      window.setTimeout(
+        () =>
+          setProfiles((kept) =>
+            kept[id]?.status === "loading"
+              ? { ...kept, [id]: { status: "failed" } }
+              : kept
+          ),
+        wait + ASK_MS
+      );
+    },
+    [send]
+  );
+  const openProfile = React.useCallback(
+    (id: string) => {
+      setViewing(id);
+      const kept = profiles[id];
+      if (!kept || kept.status === "failed") askProfile(id);
+    },
+    [profiles, askProfile]
+  );
+  // The room's ticket, taken to the accounts Worker for the profile.
+  React.useEffect(() => {
+    if (!profileTicket) return;
+    const { id, ticket } = profileTicket;
+    import("../../helpers/accountClient")
+      .then(({ fetchProfileView }) => fetchProfileView(ticket))
+      .then((answer) =>
+        setProfiles((kept) => ({
+          ...kept,
+          [id]: answer ? { status: "shown", answer } : { status: "hidden" },
+        }))
+      )
+      .catch(() =>
+        setProfiles((kept) => ({ ...kept, [id]: { status: "failed" } }))
+      );
+  }, [profileTicket]);
+  const viewed = viewing
+    ? view?.players.find((player) => player.id === viewing)
+    : undefined;
 
   // Gone back from the standings before the room: the lobby, for them.
   const backEarly = Boolean(
@@ -175,6 +240,7 @@ export default function Multiplayer({
           receivedAt={room.receivedAt}
           send={send}
           onLeave={leave}
+          onOpenProfile={openProfile}
         />
       ) : screen === "standings" ? (
         <Standings
@@ -182,6 +248,7 @@ export default function Multiplayer({
           receivedAt={room.receivedAt}
           send={send}
           onLeave={leave}
+          onOpenProfile={openProfile}
         />
       ) : (
         <RoundScreen
@@ -191,6 +258,14 @@ export default function Multiplayer({
           send={send}
           onLeave={leave}
           keyboardEnabled={keyboardEnabled}
+        />
+      )}
+      {viewed && viewing && profiles[viewing] && (
+        <RoomProfile
+          player={viewed}
+          state={profiles[viewing]}
+          onRetry={() => askProfile(viewing)}
+          onClose={() => setViewing(null)}
         />
       )}
     </>

@@ -54,7 +54,7 @@ const dayDate = (day: number) =>
     year: "numeric",
   });
 
-function Tile({
+export function Tile({
   label,
   value,
   sub,
@@ -132,7 +132,29 @@ export function VerifiedPanel() {
     );
   }
 
-  const { view } = state;
+  return <VerifiedRecord record={state.view} note={ABOUT} />;
+}
+
+/** A record's dailies, with or without their current streaks. */
+type RecordDaily = Omit<VerifiedDailyStats, "streak"> & { streak?: number };
+
+/**
+ * A verified record: the player's own (the Verified tab, with current
+ * streaks) or another player's from their card (docs/room-profiles.md,
+ * best streaks only), with a line on what verified means.
+ */
+export function VerifiedRecord({
+  record,
+  note,
+}: {
+  record: {
+    since: number | null;
+    dailies: Record<string, RecordDaily>;
+    rooms: VerifiedView["rooms"];
+  };
+  note: string;
+}) {
+  const view = record;
   const played = VERIFIED_DAILIES.filter((daily) => view.dailies[daily]);
   const rooms = view.rooms;
   const topThree = rooms
@@ -152,7 +174,7 @@ export function VerifiedPanel() {
         {view.since === null
           ? "Nothing verified yet."
           : `Verified since ${dayDate(view.since)}.`}{" "}
-        {ABOUT}
+        {note}
       </Styled.Note>
 
       {view.since !== null && (
@@ -186,7 +208,7 @@ function VerifiedGame({
   stats,
 }: {
   daily: VerifiedDaily;
-  stats: VerifiedDailyStats;
+  stats: RecordDaily;
 }) {
   const students = isStudents(daily);
   const bars = [
@@ -212,11 +234,15 @@ function VerifiedGame({
           }
         />
         <Tile label="Won" value={percent(stats.won, stats.played)} />
-        <Tile
-          label="Streak"
-          value={String(stats.streak)}
-          sub={`best ${stats.bestStreak}`}
-        />
+        {stats.streak === undefined ? (
+          <Tile label="Best streak" value={String(stats.bestStreak)} />
+        ) : (
+          <Tile
+            label="Streak"
+            value={String(stats.streak)}
+            sub={`best ${stats.bestStreak}`}
+          />
+        )}
         {students && (
           <Tile
             label="Fastest find"

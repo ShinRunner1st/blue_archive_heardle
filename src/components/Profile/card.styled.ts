@@ -473,6 +473,31 @@ export const CardAside = styled.div`
   margin-left: auto;
 `;
 
+/**
+ * Over the whole card, under its corner (the host's Kick stays pressable):
+ * opens the player's profile (docs/room-profiles.md).
+ */
+export const CardOpen = styled.button`
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: inherit;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${({ theme }) => theme.border};
+    outline-offset: -2px;
+  }
+`;
+
 /** In the card's top corner: a state chip, the host's Kick. */
 export const CardCorner = styled.div`
   position: absolute;
