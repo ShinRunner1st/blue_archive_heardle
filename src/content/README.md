@@ -73,12 +73,36 @@ from `pictures/seasons/` unless another season shares them.
   changes (that's a new mission, with a new id). Nobody can clear it any
   more; whoever did sees it under Retired in its tab and keeps what it
   unlocked. It doesn't count towards the missions' total.
-- `fact`: what it counts, one of `MISSION_FACTS` in
-  `src/constants/missions.ts` (each described there): daily wins, songs
-  guessed, a Time Attack's best, multiplayer games and more. A new kind of
-  count is code, in `missionFacts` (`src/helpers/missions.ts`).
+- `fact` or `rule`, never both: what it counts.
+
+  - `fact` is one of the game's own counts, `MISSION_FACTS` in
+    `src/constants/missions.ts` (each described there): daily wins, songs
+    guessed, a full schedule, a birthday daily, OST badges and more.
+  - `rule` is a count made from the rounds in the saves, so a new kind of
+    mission needs no code (`src/helpers/missionRules.ts`):
+
+    ```json
+    "rule": { "count": "streak", "games": ["halo"], "silhouette": true, "tries": 1 }
+    ```
+
+    `count` is what's done with the rounds: `rounds` (how many),
+    `different` (different answers; one student named by voice and found
+    in the student game is one), `days` (different daily puzzle days),
+    `streak` (most in a row in one way to play; a round that doesn't count
+    breaks it), `dayStreak` (daily puzzle days in a row) or `run` (most in
+    one Time Attack run). Every other field may be left out, meaning any:
+    `games` (`ost`, `voice`, `halo`, `weapon`, `gameplay`, `lore`,
+    `multiplayer`), `modes` (`daily`, `classic`, `nohint`, `choice`,
+    `timeattack`), `server` (`global` or `jp`), `silhouette` (halos and
+    weapons: `true` silhouettes only, `false` pictures only), `result`
+    (`won`, the default, or `played`), `tries` (within that many; 1 is the
+    first), `clip` (the OST: heard no more than that many seconds) and
+    `seconds` (the student game: found in under). A field only some games
+    have keeps the count to those, and a rule no way to play can count is
+    refused. The admin tool says which ways to play a rule counts from.
+
 - `goal`: the count that clears it, or `"all"` for every song or every
-  badge (it grows with the game).
+  badge (it grows with the game); a rule's is a number.
 
 Rounds already played count, so a new mission can be cleared the moment a
 player opens the page: they get a toast for it.

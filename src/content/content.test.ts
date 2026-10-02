@@ -91,6 +91,26 @@ describe("checkContent", () => {
     ]);
   });
 
+  it("checks a mission's rule", () => {
+    const content = copy();
+    const [first, second, third] = content.missions.missions;
+    delete first.fact;
+    first.rule = { count: "streak", games: ["voice"], tries: 1 };
+    expect(messages(content, "missions")).toEqual([]);
+
+    second.rule = { count: "rounds" };
+    Object.assign(third, {
+      fact: undefined,
+      rule: { count: "days", clip: 2, seconds: 30 },
+      goal: "all",
+    });
+    expect(messages(content, "missions")).toEqual([
+      `${second.id}: a fact and a rule, where it takes one`,
+      `${third.id}: rule matches no way to play: no game has everything it asks for`,
+      `${third.id}: a rule's goal is a number, not "all"`,
+    ]);
+  });
+
   it("keeps cosmetics to missions there are, and retired with them", () => {
     const content = copy();
     const banner = content.cosmetics.banners.find(({ id }) => id === "sakura")!;

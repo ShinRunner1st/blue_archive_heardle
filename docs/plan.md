@@ -1097,6 +1097,20 @@ admin`, on their PC only, nothing deployed or in the site's build),
      clip or time, counted, counted once each, or as a streak or a best
      run), so a new kind of count needs no code; the 24 counts there stay
      as they are. Progress previewed from an imported save file.
+     _Built on `feat/admin-tool`: a mission names a `fact` or a `rule`
+     (`src/helpers/missionRules.ts`): which rounds (games, ways to play,
+     server, picture or silhouette), which of them count (won or played,
+     within so many tries, from a short clip, on a fast clock), and how
+     (how many, different answers, different days, in a row, days in a
+     row, a Time Attack run). Every finished round of every game is read
+     into one shape; a rule's details keep it to the games that have them,
+     and one no way to play can count is refused. 14 of the 24 counts have
+     a rule that counts the same, held to it by a test, and the tool starts
+     a rule from one. The tool says which ways to play a rule covers,
+     words the mission's text from it, and previews every mission's
+     progress from a save file picked on the PC, read in the page. Nothing
+     changes for players until a mission uses a rule; with none, no more
+     is worked out than before._
 
   The user's rule (2026-10-02): **everything expandable**, each new thing
   added and previewed in the tool, as long as nothing breaks. Deleting a

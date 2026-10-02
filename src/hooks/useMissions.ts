@@ -2,9 +2,8 @@ import React from "react";
 
 import { subscribeCosmetics } from "../helpers/cosmetics";
 import {
-  missionFacts,
-  missionProgress,
   MissionProgress,
+  readMissionProgress,
   subscribeMissions,
 } from "../helpers/missions";
 
@@ -35,7 +34,7 @@ export function useMissionsVersion(): number {
 
 /** Every mission's progress, read from the saves when the caller shows. */
 export function useMissionProgress(): MissionProgress[] {
-  const read = () => missionProgress(missionFacts());
+  const read = () => readMissionProgress();
   const [progress, setProgress] = React.useState(read);
   React.useEffect(() => subscribe(() => setProgress(read())), []);
   return progress;

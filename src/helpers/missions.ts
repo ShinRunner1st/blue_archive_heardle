@@ -8,14 +8,14 @@ import {
 import { Mission, MissionFact, MISSIONS } from "../constants/missions";
 import { students } from "../constants/students";
 import { VOLUMES } from "../constants/volumes";
-import { GAME_MODES, GameMode } from "../types/mode";
-import { PICTURE_KINDS, PICTURE_SLOTS, PictureRound } from "../types/picture";
-import { Round } from "../types/stats";
+import { GAME_MODES } from "../types/mode";
+import { PICTURE_KINDS, PICTURE_SLOTS } from "../types/picture";
 import { Server, SERVERS } from "../types/server";
-import { STUDENT_SLOTS, StudentRound, StudentSlot } from "../types/student";
-import { NamedRound, VOICE_MODES, VoiceMode, VoiceRound } from "../types/voice";
+import { STUDENT_SLOTS } from "../types/student";
+import { NamedRound, VOICE_MODES } from "../types/voice";
 import { badgeProgress, guessedThemes } from "./badges";
 import { dateOfDay, dayNumber } from "./daily";
+import { MissionSave, ruleValues } from "./missionRules";
 import {
   loadPictureRounds,
   loadRounds,
@@ -175,11 +175,7 @@ export function saveClearedMissions(ids: string[]): void {
 }
 
 /** One server's student game, Voice and picture rounds. */
-interface ServerRounds {
-  students: Record<StudentSlot, StudentRound[]>;
-  voices: Record<VoiceMode, VoiceRound[]>;
-  pictures: Record<string, PictureRound[]>;
-}
+type ServerRounds = Pick<MissionSave, "students" | "voices" | "pictures">;
 
 function serverRounds(server: Server): ServerRounds {
   return {
@@ -191,7 +187,24 @@ function serverRounds(server: Server): ServerRounds {
     ) as ServerRounds["voices"],
     pictures: Object.fromEntries(
       PICTURE_SLOTS.map((slot) => [slot, loadPictureRounds(slot, server)])
-    ),
+    ) as ServerRounds["pictures"],
+  };
+}
+
+/**
+ * Everything the missions count from this browser: every save on both
+ * servers and the multiplayer games. It reads and checks every key, so it
+ * runs when a save changes, not each frame.
+ */
+export function loadMissionSave(): MissionSave {
+  return {
+    rounds: Object.fromEntries(
+      GAME_MODES.map((mode) => [mode, loadRounds(mode)])
+    ) as MissionSave["rounds"],
+    ...serverRounds("global"),
+    jp: serverRounds("jp"),
+    roomRecord: loadLegacyRoomRecord(),
+    roomGames: loadRoomGames(),
   };
 }
 
@@ -229,16 +242,18 @@ function isBirthday(day: number): boolean {
 }
 
 /**
- * Everything the missions count, read from every save on both servers and
- * the multiplayer record. Run when a save changes, not each frame: it reads
- * and checks every key.
+ * Everything the game's own counts count, from a save: this browser's
+ * unless another is given (an imported file, in the admin tool).
  */
-export function missionFacts(today: number = dayNumber()): MissionFacts {
-  const ost = Object.fromEntries(
-    GAME_MODES.map((mode) => [mode, loadRounds(mode)])
-  ) as Record<GameMode, Round[]>;
-  const servers = SERVERS.map(serverRounds);
-  const room = loadRoomRecord();
+export function missionFacts(
+  today: number = dayNumber(),
+  save: MissionSave = loadMissionSave()
+): MissionFacts {
+  const ost = save.rounds;
+  const servers: ServerRounds[] = SERVERS.map((server) =>
+    server === "jp" ? save.jp : save
+  );
+  const room = roomRecordOf(save.roomRecord, save.roomGames);
 
   const ostDailyDays = wonDays(ost.daily, (round) => round.didGuess);
   const guessed = guessedThemes([...ost.daily, ...ost.endless]);
@@ -413,7 +428,20 @@ export const FACT_TOTALS: Partial<Record<MissionFact, () => number>> = {
 
 export function goalOf(mission: Mission): number {
   if (mission.goal !== "all") return mission.goal;
-  return FACT_TOTALS[mission.fact]?.() ?? Infinity;
+  return (mission.fact && FACT_TOTALS[mission.fact]?.()) || Infinity;
+}
+
+/**
+ * Each mission's count among the facts, or among the rule counts (see
+ * missionRules.ts) for a mission with a rule.
+ */
+export function missionValue(
+  mission: Mission,
+  facts: MissionFacts,
+  ruled: Record<string, number>
+): number {
+  if (mission.rule) return ruled[mission.id] ?? 0;
+  return mission.fact ? facts[mission.fact] : 0;
 }
 
 /**
@@ -424,7 +452,8 @@ export function goalOf(mission: Mission): number {
  */
 export function missionProgress(
   facts: MissionFacts,
-  cleared: Iterable<string> = loadClearedMissions()
+  cleared: Iterable<string> = loadClearedMissions(),
+  ruled: Record<string, number> = {}
 ): MissionProgress[] {
   const before = new Set(cleared);
   const shown = MISSIONS.filter(
@@ -432,11 +461,12 @@ export function missionProgress(
   );
   return shown.map((mission) => {
     const goal = goalOf(mission);
-    const reached = !mission.retired && facts[mission.fact] >= goal;
+    const value = missionValue(mission, facts, ruled);
+    const reached = !mission.retired && value >= goal;
     const done = reached || before.has(mission.id);
     return {
       mission,
-      value: done ? goal : Math.min(facts[mission.fact], goal),
+      value: done ? goal : Math.min(value, goal),
       goal,
       done,
     };
@@ -453,17 +483,36 @@ export interface MissionCheck {
   first: boolean;
 }
 
+/** Every mission's progress from this browser's saves, read once. */
+export function readMissionProgress(
+  today: number = dayNumber()
+): MissionProgress[] {
+  const save = loadMissionSave();
+  return missionProgress(
+    missionFacts(today, save),
+    undefined,
+    ruleValues(save)
+  );
+}
+
 /**
  * Works the missions out from the saves and remembers any newly cleared.
  * Tells the listeners (the Missions pop-up, the cosmetics' pickers) when one
- * was.
+ * was. Without facts it reads the saves; facts given (by a test) come with
+ * the rule counts read from the saves unless those are given too.
  */
 export function checkMissions(
-  facts: MissionFacts = missionFacts()
+  facts?: MissionFacts,
+  ruled?: Record<string, number>
 ): MissionCheck {
+  const save = facts && ruled ? null : loadMissionSave();
   const stored = loadCleared();
   const before = new Set(stored ?? []);
-  const cleared = missionProgress(facts, before)
+  const cleared = missionProgress(
+    facts ?? missionFacts(dayNumber(), save!),
+    before,
+    ruled ?? ruleValues(save!)
+  )
     .filter(({ done, mission }) => done && !before.has(mission.id))
     .map(({ mission }) => mission);
   if (cleared.length > 0 || stored === null) {

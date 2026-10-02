@@ -91,6 +91,35 @@ function MissionsPreview({
       />
     );
   }
+  const { save } = view;
+  if (save) {
+    // As the save's player sees them, as missionProgress has it.
+    const cleared = new Set(save.cleared);
+    const all = view.missions
+      .filter(({ id, retired }) => !retired || cleared.has(id))
+      .map((mission) => {
+        const goal = goalOf(mission);
+        const value = save.values[mission.id] ?? 0;
+        const done =
+          cleared.has(mission.id) || (!mission.retired && value >= goal);
+        return {
+          mission,
+          goal,
+          value: done ? goal : Math.min(value, goal),
+          done,
+        };
+      });
+    return (
+      <MissionsView
+        key={view.group}
+        all={all}
+        groups={view.groups}
+        unlocks={unlocks}
+        group={view.group}
+        onClose={nothing}
+      />
+    );
+  }
   // As a player sees them: the edited mission at the progress picked, the
   // rest not started; a retired one only shows to whoever cleared it.
   const all = view.missions

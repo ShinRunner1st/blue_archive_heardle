@@ -351,7 +351,9 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   the profile (beside its table by game, and on its OST tab).
 - **Missions** (☰ Missions): 39 one-off missions, a tab per game, worked
   out from the saves on both servers (`src/helpers/missions.ts`, list in
-  `src/constants/missions.ts`, ids never renamed), kept once cleared in
+  `src/constants/missions.ts`, ids never renamed), each counting one of
+  the game's own counts or a rule made of games, ways to play, server,
+  result, tries, clip and clock (`missionRules.ts`), kept once cleared in
   their own key and the save file; a toast after the round that clears
   one. Multiplayer's from a local count of games finished and won. Some
   unlock cosmetics (`src/content/cosmetics.json`, drawn in code): Sensei

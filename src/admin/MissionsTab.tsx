@@ -4,15 +4,30 @@ import { MISSION_FACTS, Mission, MissionFact } from "../constants/missions";
 import type { ContentFiles, CosmeticsFile, IdsLock } from "../content/types";
 import type { ContentProblem } from "../content/validate";
 import { unlocksOf } from "../helpers/cosmetics";
-import { FACT_TOTALS, goalOf } from "../helpers/missions";
+import { dayNumber } from "../helpers/daily";
+import { FACT_RULES, ruleValues } from "../helpers/missionRules";
+import {
+  FACT_TOTALS,
+  goalOf,
+  missionFacts,
+  missionValue,
+} from "../helpers/missions";
+import {
+  MAX_SAVE_FILE_BYTES,
+  readSaveFile,
+  type SaveFile,
+} from "../helpers/saveFile";
 import { freeId, moved, replaced, slugOf, stepped } from "./draft";
 import type { ContentState } from "./api";
 import { isShipped } from "./lock";
 import type { PictureEntry } from "./pictureRules";
 import { PreviewPane } from "./PreviewPane";
+import { RuleEditor } from "./RuleEditor";
+import { ruleSentence } from "./ruleText";
 import {
   Badge,
   Button,
+  Card,
   Check,
   Column,
   Empty,
@@ -101,6 +116,36 @@ export function MissionsTab({ draft, update, shipped, problems }: TabProps) {
   const [selected, setSelected] = React.useState<number | null>(null);
   const [value, setValue] = React.useState(0);
   const [toast, setToast] = React.useState(false);
+  const [save, setSave] = React.useState<{ name: string; save: SaveFile }>();
+  const [saveError, setSaveError] = React.useState("");
+
+  // Every mission's count in the imported save, the draft's rules too.
+  const counted = React.useMemo(() => {
+    if (!save) return undefined;
+    const facts = missionFacts(dayNumber(), save.save);
+    const ruled = ruleValues(save.save, missions);
+    return {
+      values: Object.fromEntries(
+        missions.map((item) => [item.id, missionValue(item, facts, ruled)])
+      ),
+      cleared: save.save.missions,
+    };
+  }, [save, missions]);
+
+  const openSave = (file: File | undefined) => {
+    if (!file) return;
+    if (file.size > MAX_SAVE_FILE_BYTES) {
+      setSaveError("That file is far bigger than any save.");
+      return;
+    }
+    file.text().then((text) => {
+      const result = readSaveFile(text);
+      if (result.ok) {
+        setSave({ name: file.name, save: result.save });
+        setSaveError("");
+      } else setSaveError(result.error);
+    });
+  };
 
   const group = groups.find(({ id }) => id === groupId) ?? groups[0];
   const mission = selected === null ? undefined : missions[selected];
@@ -119,6 +164,9 @@ export function MissionsTab({ draft, update, shipped, problems }: TabProps) {
       const list = files.missions.missions;
       const old = list[index];
       const next: Mission = { ...old, ...patch };
+      for (const field of Object.keys(next) as Array<keyof Mission>) {
+        if (next[field] === undefined) delete next[field];
+      }
       const others = list.filter((other) => other !== old).map(({ id }) => id);
       if (
         !("id" in patch) &&
@@ -192,8 +240,19 @@ export function MissionsTab({ draft, update, shipped, problems }: TabProps) {
     selected: mission?.id,
     value,
     toast,
+    ...(counted && { save: counted }),
   };
   const goal = mission ? goalOf(mission) : 0;
+  const shown = missions.filter(
+    (item) => !item.retired || counted?.cleared.includes(item.id)
+  );
+  const done = counted
+    ? shown.filter(
+        (item) =>
+          counted.cleared.includes(item.id) ||
+          counted.values[item.id] >= goalOf(item)
+      ).length
+    : 0;
 
   return (
     <>
@@ -379,30 +438,79 @@ export function MissionsTab({ draft, update, shipped, problems }: TabProps) {
       <PreviewPane
         view={view}
         extra={
-          mission && (
+          <>
             <Row style={{ marginBottom: 4 }}>
-              <label>
-                Progress {Math.min(value, goal)} / {goal}{" "}
-                <input
-                  type="range"
-                  name="preview-progress"
-                  min={0}
-                  max={Number.isFinite(goal) ? goal : 1}
-                  value={Math.min(value, goal)}
-                  onChange={(event) => setValue(Number(event.target.value))}
-                />
-              </label>
-              <Check style={{ margin: 0 }}>
-                <input
-                  type="checkbox"
-                  name="preview-toast"
-                  checked={toast}
-                  onChange={(event) => setToast(event.target.checked)}
-                />
-                Show the toast
-              </Check>
+              {save && counted ? (
+                <>
+                  <span>
+                    <strong>{save.name}</strong>: {done} of {shown.length} done
+                    {mission &&
+                      `; this one ${
+                        counted.cleared.includes(mission.id)
+                          ? "cleared"
+                          : `${Math.min(
+                              counted.values[mission.id] ?? 0,
+                              goal
+                            )} / ${goal}`
+                      }`}
+                  </span>
+                  <Button onClick={() => setSave(undefined)}>
+                    Forget the save
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <label>
+                    <Button as="span" role="button">
+                      Preview a player&apos;s save…
+                    </Button>
+                    <input
+                      type="file"
+                      name="preview-save"
+                      accept=".txt,text/plain"
+                      style={{ display: "none" }}
+                      onChange={(event) => {
+                        openSave(event.target.files?.[0]);
+                        event.target.value = "";
+                      }}
+                    />
+                  </label>
+                  <Hint>
+                    A file from Settings → Export: each mission&apos;s progress
+                    from its rounds, the draft&apos;s new ones too. It stays on
+                    this PC.
+                  </Hint>
+                </>
+              )}
             </Row>
-          )
+            {saveError && <Note $tone="bad">{saveError}</Note>}
+            {mission && (
+              <Row style={{ marginBottom: 4 }}>
+                {!save && (
+                  <label>
+                    Progress {Math.min(value, goal)} / {goal}{" "}
+                    <input
+                      type="range"
+                      name="preview-progress"
+                      min={0}
+                      max={Number.isFinite(goal) ? goal : 1}
+                      value={Math.min(value, goal)}
+                      onChange={(event) => setValue(Number(event.target.value))}
+                    />
+                  </label>
+                )}
+                <Check style={{ margin: 0 }}>
+                  <input
+                    type="checkbox"
+                    name="preview-toast"
+                    checked={toast}
+                    onChange={(event) => setToast(event.target.checked)}
+                  />
+                  Show the toast
+                </Check>
+              </Row>
+            )}
+          </>
         }
       />
     </>
@@ -427,7 +535,8 @@ function MissionForm({
   onDelete: () => void;
 }) {
   const unlocks = unlocksOf(mission.id, cosmetics);
-  const hasAll = mission.fact in FACT_TOTALS;
+  const hasAll = !!mission.fact && mission.fact in FACT_TOTALS;
+  const { rule } = mission;
 
   return (
     <>
@@ -472,34 +581,71 @@ function MissionForm({
       </Field>
       <Field
         label="What it counts"
-        hint={
-          <>
-            {MISSION_FACTS[mission.fact]}. Worked out from the player&apos;s
-            saves, so rounds already played count.
-          </>
-        }
+        hint="Worked out from the player's saves, so rounds already played count."
       >
         <Select
-          name="fact"
-          value={mission.fact}
-          onChange={(event) => {
-            const fact = event.target.value as MissionFact;
-            onChange({
-              fact,
-              goal:
-                mission.goal === "all" && !(fact in FACT_TOTALS)
-                  ? 1
-                  : mission.goal,
-            });
-          }}
+          name="counts-by"
+          value={rule ? "rule" : "fact"}
+          onChange={(event) =>
+            onChange(
+              event.target.value === "rule"
+                ? {
+                    fact: undefined,
+                    rule: (mission.fact && FACT_RULES[mission.fact]) || {
+                      count: "rounds",
+                    },
+                    goal: mission.goal === "all" ? 1 : mission.goal,
+                  }
+                : { rule: undefined, fact: FACTS[0] }
+            )
+          }
         >
-          {FACTS.map((fact) => (
-            <option key={fact} value={fact}>
-              {MISSION_FACTS[fact]}
-            </option>
-          ))}
+          <option value="fact">One of the game&apos;s own counts</option>
+          <option value="rule">A rule: pick the rounds it counts</option>
         </Select>
       </Field>
+      {rule ? (
+        <Card>
+          <RuleEditor
+            rule={rule}
+            onChange={(next) => onChange({ rule: next })}
+          />
+        </Card>
+      ) : (
+        <Field
+          label="The count"
+          hint={
+            mission.fact && (
+              <>
+                {MISSION_FACTS[mission.fact]}.
+                {FACT_RULES[mission.fact] &&
+                  " A rule counts this the same: pick A rule above to start from it."}
+              </>
+            )
+          }
+        >
+          <Select
+            name="fact"
+            value={mission.fact}
+            onChange={(event) => {
+              const fact = event.target.value as MissionFact;
+              onChange({
+                fact,
+                goal:
+                  mission.goal === "all" && !(fact in FACT_TOTALS)
+                    ? 1
+                    : mission.goal,
+              });
+            }}
+          >
+            {FACTS.map((fact) => (
+              <option key={fact} value={fact}>
+                {MISSION_FACTS[fact]}
+              </option>
+            ))}
+          </Select>
+        </Field>
+      )}
       {hasAll && (
         <Check>
           <input
@@ -510,8 +656,8 @@ function MissionForm({
               onChange({ goal: event.target.checked ? "all" : 1 })
             }
           />
-          Every one there is ({FACT_TOTALS[mission.fact]?.()} now; grows with
-          the game)
+          Every one there is ({mission.fact && FACT_TOTALS[mission.fact]?.()}{" "}
+          now; grows with the game)
         </Check>
       )}
       {mission.goal !== "all" && (
@@ -527,6 +673,18 @@ function MissionForm({
             }
           />
         </Field>
+      )}
+      {rule && mission.goal !== "all" && (
+        <Row style={{ marginBottom: 12 }}>
+          <Button
+            onClick={() =>
+              onChange({ text: ruleSentence(rule, mission.goal as number) })
+            }
+          >
+            Word “What to do” from the rule
+          </Button>
+          <Hint>{ruleSentence(rule, mission.goal)}</Hint>
+        </Row>
       )}
       <Field
         label="Id"

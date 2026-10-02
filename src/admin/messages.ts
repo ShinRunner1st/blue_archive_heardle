@@ -27,6 +27,11 @@ export type PreviewView =
       selected?: string;
       value: number;
       toast: boolean;
+      /**
+       * A player's save, imported: each mission's count in it, by id, and
+       * the missions it had cleared, in place of the progress picked.
+       */
+      save?: { values: Record<string, number>; cleared: string[] };
     }
   | { kind: "whatsNew"; updates: NewsEntry[] }
   | {

@@ -13,8 +13,16 @@ import {
   type OrnamentShape,
 } from "../constants/cosmetics";
 import { ICONS } from "../constants/icons";
-import { MISSION_FACTS } from "../constants/missions";
+import {
+  MISSION_FACTS,
+  type MissionRule,
+  RULE_COUNTS,
+  RULE_GAMES,
+  RULE_MODES,
+} from "../constants/missions";
+import { waysOf } from "../helpers/missionRules";
 import { FACT_TOTALS } from "../helpers/missions";
+import { SERVERS } from "../types/server";
 import {
   HUB_CARDS,
   type ContentFileName,
@@ -47,6 +55,90 @@ const isBetween = (value: unknown, min: number, max: number) =>
   Number.isFinite(value) &&
   value >= min &&
   value <= max;
+
+const RULE_FIELDS = new Set([
+  "count",
+  "games",
+  "modes",
+  "server",
+  "silhouette",
+  "result",
+  "tries",
+  "clip",
+  "seconds",
+]);
+
+/** A list of names from `names`, each once. */
+const isNameList = (value: unknown, names: object) =>
+  Array.isArray(value) &&
+  value.every((name) => typeof name === "string" && name in names) &&
+  new Set(value).size === value.length;
+
+/**
+ * What's wrong with a mission's rule: a field it doesn't know, a value out
+ * of reach, or filters no way to play has all of (a clip and a clock: only
+ * the OST has one, only the student game the other).
+ */
+export function ruleProblems(rule: MissionRule): string[] {
+  const problems: string[] = [];
+  const need = (ok: boolean, problem: string) => ok || problems.push(problem);
+  for (const field of Object.keys(rule)) {
+    need(RULE_FIELDS.has(field), `rule has a field it doesn't know, ${field}`);
+  }
+  need(
+    rule.count in RULE_COUNTS,
+    `rule counts ${rule.count}, which isn't a count`
+  );
+  if (rule.games !== undefined) {
+    need(
+      isNameList(rule.games, RULE_GAMES),
+      "rule's games must be known games, each once"
+    );
+  }
+  if (rule.modes !== undefined) {
+    need(
+      isNameList(rule.modes, RULE_MODES),
+      "rule's ways to play must be known ones, each once"
+    );
+  }
+  if (rule.server !== undefined) {
+    need(SERVERS.includes(rule.server), "rule's server must be global or jp");
+  }
+  if (rule.silhouette !== undefined) {
+    need(
+      typeof rule.silhouette === "boolean",
+      "rule's silhouette must be true or false"
+    );
+  }
+  if (rule.result !== undefined) {
+    need(
+      rule.result === "won" || rule.result === "played",
+      "rule's result must be won or played"
+    );
+  }
+  if (rule.tries !== undefined) {
+    need(
+      Number.isInteger(rule.tries) && rule.tries >= 1 && rule.tries <= 99,
+      "rule's tries must be a whole number from 1 to 99"
+    );
+  }
+  if (rule.clip !== undefined) {
+    need(isBetween(rule.clip, 1, 16), "rule's clip must be 1 to 16 seconds");
+  }
+  if (rule.seconds !== undefined) {
+    need(
+      isBetween(rule.seconds, 1, 3600),
+      "rule's clock must be 1 to 3600 seconds"
+    );
+  }
+  if (problems.length === 0) {
+    need(
+      waysOf(rule).length > 0,
+      "rule matches no way to play: no game has everything it asks for"
+    );
+  }
+  return problems;
+}
 
 /** An SVG path's commands and numbers, and nothing else. */
 const PATH = /^[MmLlHhVvCcSsQqTtAaZz0-9.,\s-]+$/;
@@ -348,17 +440,36 @@ export function checkContent(
         groups.has(mission.group),
         `${mission.id}: no tab ${mission.group}`
       );
-      report(
-        mission.fact in MISSION_FACTS,
-        `${mission.id}: fact ${mission.fact} isn't one the game counts`
-      );
+      const { fact, rule } = mission;
+      if (rule !== undefined) {
+        report(
+          fact === undefined,
+          `${mission.id}: a fact and a rule, where it takes one`
+        );
+        const isObject = typeof rule === "object" && rule !== null;
+        report(isObject, `${mission.id}: rule must be an object`);
+        if (isObject) {
+          for (const problem of ruleProblems(rule)) {
+            report(false, `${mission.id}: ${problem}`);
+          }
+        }
+      } else {
+        report(
+          fact !== undefined && fact in MISSION_FACTS,
+          `${mission.id}: fact ${fact} isn't one the game counts`
+        );
+      }
       report(mission.title, `${mission.id}: title is empty`);
       report(mission.text, `${mission.id}: text is empty`);
       const goal: unknown = mission.goal;
       if (goal === "all") {
         report(
-          mission.fact in FACT_TOTALS,
+          rule !== undefined || (fact !== undefined && fact in FACT_TOTALS),
           `${mission.id}: "all" of a fact with no total`
+        );
+        report(
+          rule === undefined,
+          `${mission.id}: a rule's goal is a number, not "all"`
         );
       } else {
         report(

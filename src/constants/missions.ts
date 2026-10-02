@@ -1,4 +1,5 @@
 import missionData from "../content/missions.json";
+import type { Server } from "../types/server";
 
 /**
  * A tab of the Missions pop-up, by its id in missions.json's groups: data,
@@ -15,7 +16,8 @@ export const MISSION_GROUPS = missionData.groups as Array<{
 /**
  * What a mission can count, worked out from the saves by missionFacts (see
  * helpers/missions.ts), and what each means: a mission in missions.json
- * names one and a goal. A new kind of count is code, added here and there.
+ * names one and a goal. These stay as they are; a new kind of count is a
+ * rule (MissionRule below), which needs no code.
  */
 export const MISSION_FACTS = {
   dailiesWon: "Daily puzzles won, every game, both servers",
@@ -46,6 +48,71 @@ export const MISSION_FACTS = {
 
 export type MissionFact = keyof typeof MISSION_FACTS;
 
+/**
+ * The games a rule can count: the picture game's halos and weapons, and the
+ * student game's two ways to play, each apart, as players see them.
+ */
+export const RULE_GAMES = {
+  ost: "OST",
+  voice: "Voice",
+  halo: "Halo",
+  weapon: "Weapon",
+  gameplay: "Students: Gameplay",
+  lore: "Students: Lore",
+  multiplayer: "Multiplayer",
+} as const;
+
+export type RuleGame = keyof typeof RULE_GAMES;
+
+/** The ways to play, by the names every game shares. */
+export const RULE_MODES = {
+  daily: "Daily",
+  classic: "Classic",
+  nohint: "No hints",
+  choice: "4-Choice",
+  timeattack: "Time Attack",
+} as const;
+
+export type RuleMode = keyof typeof RULE_MODES;
+
+/** What a rule does with the rounds it matches. */
+export const RULE_COUNTS = {
+  rounds: "How many",
+  different: "How many different answers (songs, students, halos, weapons)",
+  days: "How many different days (daily puzzles)",
+  streak: "Most in a row, in one way to play",
+  dayStreak: "Most days in a row (daily puzzles)",
+  run: "Most in one Time Attack run",
+} as const;
+
+export type RuleCount = keyof typeof RULE_COUNTS;
+
+/**
+ * A count made from the rounds in the saves, so a new kind of mission needs
+ * no code: which rounds (the games, ways to play, server, picture or
+ * silhouette), which of them count (won or only played, within so many
+ * tries, from a short clip, on a fast clock), and what's done with them.
+ * Every field but the count may be left out, meaning any. A field only some
+ * games have keeps the count to those: a clip to the OST, a clock to the
+ * student game, a server to the games that have one.
+ */
+export interface MissionRule {
+  count: RuleCount;
+  games?: RuleGame[];
+  modes?: RuleMode[];
+  server?: Server;
+  /** Halos and weapons only: their silhouettes (true) or the pictures. */
+  silhouette?: boolean;
+  /** Won, the default, or played to the end, won or not. */
+  result?: "won" | "played";
+  /** Within this many tries: 1 is the first. */
+  tries?: number;
+  /** The OST's: heard no more than this many seconds of the song. */
+  clip?: number;
+  /** The student game's: in under this many seconds on its clock. */
+  seconds?: number;
+}
+
 export interface Mission {
   /** Kept in the saves once cleared: never rename one. */
   id: string;
@@ -53,10 +120,12 @@ export interface Mission {
   title: string;
   /** What to do, as the game's own missions word it. */
   text: string;
-  fact: MissionFact;
+  /** What it counts: one of the game's counts, or a rule; never both. */
+  fact?: MissionFact;
+  rule?: MissionRule;
   /**
-   * The fact's value that clears it; "all" is every one there is, for a
-   * fact with a total (every song, every badge).
+   * The count that clears it; "all" is every one there is, for a fact with a
+   * total (every song, every badge).
    */
   goal: number | "all";
   /**
@@ -70,7 +139,7 @@ export interface Mission {
 /**
  * The missions, from src/content/missions.json, each cleared once and for
  * good: a reset of stats doesn't take one back. Add one there with any fact
- * above; a new kind of fact is code, in missionFacts. Ids are kept in the
+ * or rule above, which need no code. Ids are kept in the
  * saves, so one is never renamed; removing one simply stops it showing.
  */
 export const MISSIONS = missionData.missions as Mission[];
