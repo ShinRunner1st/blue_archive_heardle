@@ -308,6 +308,15 @@ export const BACKUP_BEFORE_ACCOUNT_KEY = "backup.beforeAccount";
 export const ACCOUNT_NONCE_KEY = "account.nonce";
 
 /**
+ * localStorage key holding the signed-in account's verified dailies under
+ * way and its room receipts not yet taken (helpers/verifiedPlay.ts): what
+ * the server issued, and finishes and receipts kept until it takes them.
+ * Apart from the saves: never in the save file, progress sync or a merge,
+ * and forgotten whenever the session changes.
+ */
+export const VERIFIED_KEY = "verified";
+
+/**
  * localStorage key holding the format this browser's saves are in (see
  * helpers/saveFormat.ts); absent is format 1.
  */

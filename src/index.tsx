@@ -18,6 +18,7 @@ import {
   startAccountSync,
   takeSignInReturn,
 } from "./helpers/accountFlag";
+import { startVerifiedSync } from "./helpers/verifiedPlay";
 import { useColorScheme } from "./hooks/useColorScheme";
 import App from "./app";
 import "./index.css";
@@ -80,4 +81,6 @@ joinAccount().finally(() => {
   );
   // Signed in: what's played goes to the account as the page goes on.
   startAccountSync();
+  // And verified dailies and room receipts kept from before are sent.
+  startVerifiedSync();
 });

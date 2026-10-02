@@ -31,7 +31,18 @@ import { hasSignInReturn, requestProfileSync } from "./helpers/accountFlag";
 import { pictureRunsOf } from "./helpers/pictureTimeAttack";
 import { KIND_NAMES, PICTURE_MODE_NAMES } from "./helpers/pictureRounds";
 import { guessesForCharacter, isWon } from "./helpers/studentRounds";
-import { asRound as voiceAsRound } from "./helpers/voiceRounds";
+import {
+  isOver as isNamedOver,
+  asRound as voiceAsRound,
+} from "./helpers/voiceRounds";
+import { isFinished } from "./helpers/calStats";
+import {
+  movesOf,
+  VerifiedDaily,
+  verifiedDailyOf,
+} from "./helpers/verifiedDaily";
+import { verifiedRoundOver, verifiedStart } from "./helpers/verifiedPlay";
+import { VerifiedNote } from "./components/VerifiedNote";
 import { voiceRunsOf } from "./helpers/voiceTimeAttack";
 import { runsOf } from "./helpers/timeAttack";
 import { LATEST_UPDATE_ID } from "./constants/whatsNew";
@@ -559,6 +570,81 @@ function App() {
       }
     : { ...round, tries: round.tries };
 
+  // The daily on screen, for verified play (helpers/verifiedPlay.ts): which
+  // of the eleven, its round as the game saves it, whether nothing has been
+  // played in it yet, and whether it's over. Null off a daily. For a guest
+  // nothing below sends anything: verifiedStart and verifiedRoundOver do
+  // nothing without a session.
+  const onScreenDaily = React.useMemo(() => {
+    if (noGame || mode !== "daily") return null;
+    if (isStudents) {
+      return {
+        daily: verifiedDailyOf(studentWay, server),
+        round: studentRound,
+        untouched: studentRound.guesses.length === 0 && !studentRound.gaveUp,
+        over: isWon(studentRound) || studentRound.gaveUp === true,
+      };
+    }
+    if (isPicture || isVoice) {
+      const named = isPicture ? pictureRound : voiceRound;
+      return {
+        daily: verifiedDailyOf(isPicture ? pictureKind : "voice", server),
+        round: named,
+        untouched: named.guesses.length === 0,
+        over: isNamedOver(named),
+      };
+    }
+    return {
+      daily: "ost" as VerifiedDaily,
+      round,
+      untouched: round.currentTry === 0,
+      over: isFinished(round),
+    };
+  }, [
+    noGame,
+    mode,
+    isStudents,
+    isPicture,
+    isVoice,
+    studentWay,
+    server,
+    studentRound,
+    pictureKind,
+    pictureRound,
+    voiceRound,
+    round,
+  ]);
+
+  // As the daily first plays, signed in: its attempt is asked for.
+  const startVerified = React.useCallback(() => {
+    if (!onScreenDaily || onScreenDaily.over) return;
+    const { daily, round: played, untouched } = onScreenDaily;
+    verifiedStart(daily, played.day, untouched);
+  }, [onScreenDaily]);
+
+  // The picture is the round: it plays as soon as it shows.
+  React.useEffect(() => {
+    if (isPicture) startVerified();
+  }, [isPicture, startVerified]);
+
+  // A Students daily starts with its first guess sent, as its clock does.
+  const { guess: guessStudent } = students;
+  const onStudentGuess = React.useCallback(
+    (id: number) => {
+      startVerified();
+      guessStudent(id);
+    },
+    [startVerified, guessStudent]
+  );
+
+  // A daily's round over on screen: its moves are sent to be judged, if
+  // the server issued it.
+  React.useEffect(() => {
+    if (!onScreenDaily?.over) return;
+    const { daily, round: played } = onScreenDaily;
+    verifiedRoundOver(daily, played.day, () => movesOf(daily, played));
+  }, [onScreenDaily]);
+
   // Songs guessed right in any mode, time attack included.
   const jukeboxGuessed = React.useMemo(
     () => new Set([...guessedEver, ...timeAttack.guessed]),
@@ -910,7 +996,7 @@ function App() {
               round={studentRound}
               score={`${students.wins}/${students.played}`}
               streak={students.streak}
-              onGuess={students.guess}
+              onGuess={onStudentGuess}
               onGiveUp={students.giveUp}
               onNext={students.next}
               onNewDay={students.refreshDay}
@@ -945,6 +1031,7 @@ function App() {
               mode={voice.mode}
               game={voice}
               onHintsChange={setVoiceHints}
+              onPlay={startVerified}
               keyboardEnabled={!isPopUpOpen}
             />
           ) : isTimeAttack ? (
@@ -984,6 +1071,13 @@ function App() {
               streak={streak}
               badgeLines={badgeLines}
               record={record}
+              onPlay={startVerified}
+            />
+          )}
+          {onScreenDaily?.over && (
+            <VerifiedNote
+              daily={onScreenDaily.daily}
+              day={onScreenDaily.round.day}
             />
           )}
         </Styled.Container>

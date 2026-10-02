@@ -36,6 +36,8 @@ interface Props {
   onHintsChange?: (on: boolean) => void;
   /** False while a dialog is open, so the page's keys stay inert. */
   keyboardEnabled: boolean;
+  /** Told as the line plays, for a verified daily's start. */
+  onPlay?: () => void;
 }
 
 /**
@@ -48,6 +50,7 @@ export function VoiceGame({
   game,
   onHintsChange,
   keyboardEnabled,
+  onPlay,
 }: Props) {
   const { round } = game;
   const answer = studentById.get(round.answer);
@@ -179,6 +182,7 @@ export function VoiceGame({
         url={url}
         keyboardEnabled={keyboardEnabled && !listOpen}
         onSkipTrack={onSkipTrack}
+        onPlay={onPlay}
         hint={
           <>
             <kbd>Space</kbd> play · type, then <kbd>Enter</kbd> to pick and

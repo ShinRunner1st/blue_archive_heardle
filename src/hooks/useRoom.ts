@@ -13,6 +13,7 @@ import {
   setRoomInAddress,
 } from "../helpers/roomClient";
 import { mayHavePass, ownLook, roomPass } from "../helpers/roomPass";
+import { keepReceipt } from "../helpers/verifiedPlay";
 import {
   AccessChange,
   ClientMessage,
@@ -232,8 +233,12 @@ export function useRoom(): RoomConnection {
         return;
       }
       // A signed-in player's receipt (docs/verified-stats.md, section 8):
-      // not a refusal. Nothing takes it to the account yet.
-      if (message.t === "receipt") return;
+      // not a refusal. Kept until the account takes it, which counts each
+      // game once however often it comes.
+      if (message.t === "receipt") {
+        if (typeof message.receipt === "string") keepReceipt(message.receipt);
+        return;
+      }
 
       refused = true;
       if (message.code === "missing" && target.rejoin && !target.recreate) {

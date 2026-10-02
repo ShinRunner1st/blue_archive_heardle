@@ -24,6 +24,7 @@ export type ProfileTab =
   | "picture"
   | "students"
   | "room"
+  | "verified"
   | "account";
 type Tab = ProfileTab;
 
@@ -35,6 +36,13 @@ const AccountPanel = React.lazy(() =>
   import("./Account").then(({ AccountPanel }) => ({ default: AccountPanel }))
 );
 
+/** The Verified tab's code, likewise fetched only when it opens. */
+const VerifiedPanel = React.lazy(() =>
+  import("./Verified").then(({ VerifiedPanel }) => ({
+    default: VerifiedPanel,
+  }))
+);
+
 const TABS: Array<{ id: Tab; label: string; games: ProfileGame["id"][] }> = [
   { id: "overview", label: "Overview", games: [] },
   { id: "ost", label: "OST", games: ["ost"] },
@@ -44,7 +52,10 @@ const TABS: Array<{ id: Tab; label: string; games: ProfileGame["id"][] }> = [
   { id: "room", label: "Multiplayer", games: [] },
   // Only where accounts are on: the dev server and the site's preview.
   ...(accountsEnabled()
-    ? [{ id: "account" as const, label: "Account", games: [] }]
+    ? [
+        { id: "verified" as const, label: "Verified", games: [] },
+        { id: "account" as const, label: "Account", games: [] },
+      ]
     : []),
 ];
 
@@ -88,6 +99,8 @@ export default function ProfilePopUp({
   // The Account tab reads the account as it opens: kept from then on, so
   // flicking between tabs costs one read, not one a visit.
   const [accountKept, setAccountKept] = React.useState(tab === "account");
+  // The Verified tab reads the account's verified record once, the same way.
+  const [verifiedKept, setVerifiedKept] = React.useState(tab === "verified");
 
   if (customizing) {
     // Opened on Customize from elsewhere: closing it goes back there.
@@ -151,6 +164,7 @@ export default function ProfilePopUp({
                   onClick={() => {
                     setTab(id);
                     if (id === "account") setAccountKept(true);
+                    if (id === "verified") setVerifiedKept(true);
                   }}
                 >
                   {label}
@@ -167,7 +181,7 @@ export default function ProfilePopUp({
       )}
     >
       <Styled.Page role="tabpanel" aria-label={shown.label}>
-        {tab === "account" ? null : tab === "overview" ? (
+        {tab === "account" || tab === "verified" ? null : tab === "overview" ? (
           <Overview stats={stats} />
         ) : tab === "room" ? (
           <Styled.Tiles>
@@ -192,6 +206,13 @@ export default function ProfilePopUp({
           </>
         )}
         {/* After the other tabs' content, which starts the page. */}
+        {verifiedKept && (
+          <Styled.KeptTab hidden={tab !== "verified"}>
+            <React.Suspense fallback={<Styled.Note>Loading…</Styled.Note>}>
+              <VerifiedPanel />
+            </React.Suspense>
+          </Styled.KeptTab>
+        )}
         {accountKept && (
           <Styled.KeptTab hidden={tab !== "account"}>
             <React.Suspense fallback={<Styled.Note>Loading…</Styled.Note>}>

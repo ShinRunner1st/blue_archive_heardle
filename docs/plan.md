@@ -964,7 +964,10 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   checks), on `feat/verified-worker`, off `feat/verified-rules`. Step 3,
   the rooms (a game id, receipts signed for each signed-in player on
   their own connection, `PROTOCOL` 6), on `feat/verified-rooms`, off
-  `feat/verified-worker`._
+  `feat/verified-worker`. Step 4, the page (each daily's start and
+  finish signed in, kept finishes and receipts, a line under the result,
+  the profile's Verified tab), on `feat/verified-page`, off
+  `feat/verified-rooms`._
 - **Levels, with accounts** (asked for 2026-10-01): an account level
   from the rounds and missions it has played, shown on the card.
 - **Other players' profiles and cosmetics in rooms, with accounts**:

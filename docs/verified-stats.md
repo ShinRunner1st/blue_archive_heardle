@@ -455,7 +455,29 @@ Each step only once the user approves it, on its own stacked branch:
    receipt's D1 half (`recordRoomResult`) moved to `verified.ts`, so the
    rooms Worker bundles none of it._
 4. **The page**: start and finish around each daily (signed in only), the
-   kept finishes and receipts, the Verified section.
+   kept finishes and receipts, the Verified section. _Built on
+   `feat/verified-page`: `verifiedPlay.ts` (with the page) keeps what the
+   server issued under its own key, `verified`, never in the save file,
+   progress sync or a merge, and forgotten when the session changes;
+   `verifiedSync.ts` (fetched only signed in, with something to send)
+   makes the requests. A daily's start goes as it first plays (the OST's
+   first clip, Voice's first line, the picture shown, Students' first
+   guess), never for a daily with moves already saved, and never twice:
+   tried three times in its first seconds, a start that doesn't reach the
+   account leaves the daily personal for good. Its end sends the moves
+   from the save's round (`movesOf`), judged by the shared rules first;
+   one that can't be sent is kept and sent when the page is back online,
+   opens again or is shown again, marked a retry. A line under the
+   result says whether it was verified, or why not; the result is the
+   page's as ever. Room receipts are kept until taken, and dropped once
+   counted, refused or run out. The profile's Verified tab reads
+   `GET /verified` once as it first opens, kept while the profile is.
+   A guest's page sends nothing and loads none of it but a check for a
+   session. Measured in Chrome against the local Worker: a daily is a
+   start and a finish (and one preflight a page), a reload of a finished
+   one nothing, the profile one read; about 2.4 KB gzipped more on the
+   first load, the Verified tab and the sender two lazy chunks (1.8 and
+   1.3 KB)._
 5. **Privacy**: the policy, About, the README, What's new.
 6. **Measured on the preview**, as accounts' step 6 was, before any
    release.

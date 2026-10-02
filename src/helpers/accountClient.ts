@@ -7,7 +7,9 @@ import {
   Provider,
 } from "../types/account";
 import type { AccountExport } from "../accounts/privacy";
+import type { VerifiedView } from "../types/verified";
 import { accountsUrl, pendingSignInReturn } from "./accountFlag";
+import { forgetVerified } from "./verifiedPlay";
 
 /**
  * The page's side of accounts (docs/accounts.md, section 2), loaded with
@@ -25,6 +27,8 @@ function readToken(): string | null {
 }
 
 function writeToken(token: string | null): void {
+  // Verified dailies and receipts kept here were the session before's.
+  forgetVerified();
   try {
     if (token) localStorage.setItem(ACCOUNT_SESSION_KEY, token);
     else localStorage.removeItem(ACCOUNT_SESSION_KEY);
@@ -374,6 +378,46 @@ export async function fetchAccountData(): Promise<AccountExport | null> {
   }
   if (!response.ok) throw new AccountsUnavailable();
   return (await response.json()) as AccountExport;
+}
+
+/**
+ * `POST /verified` (a daily's start or finish, or a room receipt): the
+ * answer's status and body, undefined if signed out (a stale token is
+ * dropped). Throws if the accounts can't be reached or are failing, so
+ * what was sent is kept and sent again.
+ */
+export async function postVerified(
+  body: Record<string, unknown>
+): Promise<{ status: number; body: Record<string, unknown> } | undefined> {
+  if (!readToken()) return undefined;
+  const response = await api("POST", "/verified", body);
+  if (response.status === 401) {
+    writeToken(null);
+    return undefined;
+  }
+  if (response.status >= 500 || response.status === 429) {
+    throw new AccountsUnavailable();
+  }
+  const answer: unknown = await response.json().catch(() => null);
+  return {
+    status: response.status,
+    body:
+      typeof answer === "object" && answer !== null
+        ? (answer as Record<string, unknown>)
+        : {},
+  };
+}
+
+/** The account's verified record, for the profile; undefined if signed out. */
+export async function fetchVerified(): Promise<VerifiedView | undefined> {
+  if (!readToken()) return undefined;
+  const response = await api("GET", "/verified");
+  if (response.status === 401) {
+    writeToken(null);
+    return undefined;
+  }
+  if (!response.ok) throw new AccountsUnavailable();
+  return (await response.json()) as VerifiedView;
 }
 
 /** Test seam: a new page, as far as this module's memory goes. */

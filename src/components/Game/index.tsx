@@ -49,6 +49,8 @@ interface Props {
   badgeLines: string[];
   /** The player's history with this song, once the round is over. */
   record: string;
+  /** Told as the clip plays, for a verified daily's start. */
+  onPlay?: () => void;
 }
 
 export function Game({
@@ -77,6 +79,7 @@ export function Game({
   onNewDay,
   onSkipTrack,
   onBrowseSongs,
+  onPlay,
 }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const isOver = isFinished(round);
@@ -183,6 +186,7 @@ export function Game({
         inputRef={inputRef}
         keyboardEnabled={keyboardEnabled}
         onSkipTrack={onSkipTrack}
+        onPlay={onPlay}
       />
       <Search
         currentTry={currentTry}

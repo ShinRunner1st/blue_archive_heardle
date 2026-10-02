@@ -33,6 +33,8 @@ interface Props {
   onStatusChange?: (status: PlayerStatus) => void;
   /** The keyboard hint under the controls. */
   hint?: React.ReactNode;
+  /** Told each time the line starts playing: a daily's first play starts it. */
+  onPlay?: () => void;
 }
 
 const POLL_INTERVAL_MS = 100;
@@ -52,6 +54,7 @@ export function VoicePlayer({
   steady = false,
   onStatusChange,
   hint,
+  onPlay,
 }: Props) {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
   const [play, setPlay] = React.useState(false);
@@ -176,7 +179,10 @@ export function VoicePlayer({
         preload="auto"
         onLoadedMetadata={handleReady}
         onError={handleError}
-        onPlay={() => setPlay(true)}
+        onPlay={() => {
+          setPlay(true);
+          onPlay?.();
+        }}
         onPause={() => setPlay(false)}
         onEnded={stop}
       />

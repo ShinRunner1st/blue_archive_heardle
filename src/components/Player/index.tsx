@@ -54,6 +54,8 @@ interface Props {
    * only tells one clip from the next.
    */
   clipUrl?: string;
+  /** Told each time the clip starts playing: a daily's first play starts it. */
+  onPlay?: () => void;
 }
 
 const POLL_INTERVAL_MS = 250;
@@ -84,6 +86,7 @@ export function Player({
   onStatusChange,
   steady = false,
   clipUrl,
+  onPlay,
 }: Props) {
   const audioRef = React.useRef<HTMLAudioElement | null>(null);
 
@@ -255,7 +258,10 @@ export function Player({
 
   // Playback can also be started or stopped from outside the page, such as
   // the browser's media controls. Following it keeps the clip limit enforced.
-  const handlePlay = React.useCallback(() => setPlay(true), []);
+  const handlePlay = React.useCallback(() => {
+    setPlay(true);
+    onPlay?.();
+  }, [onPlay]);
   const handlePause = React.useCallback(() => setPlay(false), []);
 
   const retry = React.useCallback(() => setAttempt((n) => n + 1), []);
