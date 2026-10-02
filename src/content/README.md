@@ -120,8 +120,9 @@ Lists, each starting with the default everyone has (no `mission`):
     out from the card's corner, and turned for the others. Each shape is a
     `path` (`d`), `circle` (`cx`, `cy`, `r`) or `ellipse` (`cx`, `cy`,
     `rx`, `ry`), with a `fill`, a `stroke` and `strokeWidth`, or both, and
-    `at`, [x, y, degrees], to move and turn it. The admin tool can take
-    them from a pasted SVG.
+    `at`, [x, y, degrees] or [x, y, degrees, size], to move, turn and
+    size it. In the admin tool they're picked from a library of ready-made
+    shapes and dragged into place, or taken from a pasted SVG.
 - `backgrounds`: the scene behind the profile's card, a `picture` on the
   Worker as banners name theirs. Pictures already there cost nothing more;
   a new one goes in `pictures/` and up with `npm run songs`.

@@ -22,7 +22,9 @@ export function OrnamentShapeView({
     stroke: shape.stroke === undefined ? undefined : colors[shape.stroke],
     strokeWidth: shape.stroke === undefined ? undefined : shape.strokeWidth,
     transform: shape.at
-      ? `translate(${shape.at[0]} ${shape.at[1]}) rotate(${shape.at[2]})`
+      ? `translate(${shape.at[0]} ${shape.at[1]}) rotate(${shape.at[2]})${
+          shape.at[3] === undefined ? "" : ` scale(${shape.at[3]})`
+        }`
       : undefined,
   };
   switch (shape.shape) {

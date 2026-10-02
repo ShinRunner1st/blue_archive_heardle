@@ -97,11 +97,12 @@ function shapeProblems(
   if (shape.at !== undefined) {
     need(
       Array.isArray(shape.at) &&
-        shape.at.length === 3 &&
+        (shape.at.length === 3 || shape.at.length === 4) &&
         isBetween(shape.at[0], -48, 48) &&
         isBetween(shape.at[1], -48, 48) &&
-        isBetween(shape.at[2], -360, 360),
-      "at is [x, y, degrees], x and y -48 to 48"
+        isBetween(shape.at[2], -360, 360) &&
+        (shape.at[3] === undefined || isBetween(shape.at[3], 0.1, 4)),
+      "at is [x, y, degrees] or [x, y, degrees, size], x and y -48 to 48, size 0.1-4"
     );
   }
   return problems;

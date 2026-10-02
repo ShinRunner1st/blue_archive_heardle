@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import type { Frame } from "../constants/cosmetics";
+import { frameProblems } from "../content/validate";
 import { shapesFromSvg, withoutColor } from "./FrameEditor";
+import { ORNAMENT_LIBRARY, placed } from "./ornamentLibrary";
 
 describe("shapesFromSvg", () => {
   it("takes paths, circles and ellipses, their colours into the palette", () => {
@@ -54,5 +56,25 @@ describe("withoutColor", () => {
     expect(next.inner?.color).toBe(1);
     expect(next.glows?.[0].color).toBe(0);
     expect(next.ornament?.shapes[0]).toMatchObject({ fill: 1, stroke: 0 });
+  });
+});
+
+describe("the ornament library", () => {
+  it("makes shapes the content check takes, in any palette", () => {
+    for (const colors of [["#FFFFFF"], ["#FFFFFF", "#000000", "#FF0000"]]) {
+      const frame: Frame = {
+        id: "test",
+        name: "Test",
+        colors,
+        border: { width: 2, colors: [0] },
+        ornament: {
+          corners: ["tl"],
+          shapes: ORNAMENT_LIBRARY.flatMap((item) =>
+            placed(item, colors, [11, 11])
+          ),
+        },
+      };
+      expect(frameProblems(frame)).toEqual([]);
+    }
   });
 });

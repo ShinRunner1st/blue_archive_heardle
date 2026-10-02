@@ -7,7 +7,6 @@
 import React from "react";
 import styled from "styled-components";
 
-import { OrnamentShapeView } from "../components/Profile/ProfileFrame";
 import {
   type Frame,
   FRAME_CORNERS,
@@ -19,6 +18,8 @@ import {
   type OrnamentShape,
   type OrnamentShapeKind,
 } from "../constants/cosmetics";
+import { ORNAMENT_LIBRARY, placed } from "./ornamentLibrary";
+import { OrnamentMaker } from "./OrnamentMaker";
 import { ColorField } from "./pickers";
 import {
   Button,
@@ -195,6 +196,17 @@ function NumberField({
   );
 }
 
+/** A part of the editor folded away, for when it's wanted. */
+const Details = styled.details`
+  margin-bottom: 12px;
+
+  > summary {
+    cursor: pointer;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+`;
+
 /** Fields side by side. */
 const Fields = styled(Row)`
   align-items: flex-start;
@@ -304,48 +316,6 @@ export function shapesFromSvg(text: string, palette: string[]): PastedShapes {
   return { shapes, colors, notes };
 }
 
-/* ---------- The ornament up close ---------- */
-
-const Zoom = styled.svg`
-  width: 168px;
-  height: 168px;
-  border-radius: 8px;
-  background: rgba(0, 0, 0, 0.35);
-`;
-
-/**
- * Where the card's corner is in an ornament's box: the ornament is 26 px,
- * set 7 px out from the card, whose corners round by 16 px.
- */
-const CARD_EDGE = (7 * 24) / 26;
-const CARD_ROUND = (16 * 24) / 26;
-
-function OrnamentZoom({ frame }: { frame: Frame }) {
-  const grid = [4, 8, 12, 16, 20];
-  return (
-    <Zoom viewBox="0 0 24 24" aria-label="The ornament on the top left corner">
-      {grid.map((at) => (
-        <g key={at} stroke="rgba(255,255,255,0.08)" strokeWidth={0.06}>
-          <line x1={at} y1={0} x2={at} y2={24} />
-          <line x1={0} y1={at} x2={24} y2={at} />
-        </g>
-      ))}
-      <path
-        d={`M${CARD_EDGE} 24V${
-          CARD_EDGE + CARD_ROUND
-        }a${CARD_ROUND} ${CARD_ROUND} 0 0 1 ${CARD_ROUND} -${CARD_ROUND}H24`}
-        fill="none"
-        stroke="rgba(255,255,255,0.35)"
-        strokeWidth={0.15}
-        strokeDasharray="0.6 0.4"
-      />
-      {frame.ornament?.shapes.map((shape, i) => (
-        <OrnamentShapeView key={i} shape={shape} colors={frame.colors} />
-      ))}
-    </Zoom>
-  );
-}
-
 /* ---------- One shape ---------- */
 
 function ShapeFields({
@@ -378,7 +348,12 @@ function ShapeFields({
       onChange={(value) => set({ [key]: value })}
     />
   );
-  const at = shape.at ?? [0, 0, 0];
+  const at = [
+    shape.at?.[0] ?? 0,
+    shape.at?.[1] ?? 0,
+    shape.at?.[2] ?? 0,
+    shape.at?.[3] ?? 1,
+  ];
   return (
     <Card>
       <Row style={{ marginBottom: 8 }}>
@@ -495,22 +470,28 @@ function ShapeFields({
           name={`shape-${index}-at`}
           checked={shape.at !== undefined}
           onChange={(event) =>
-            set({ at: event.target.checked ? [0, 0, 0] : undefined })
+            set({ at: event.target.checked ? [0, 0, 0, 1] : undefined })
           }
         />
-        Moved and turned
+        Moved, turned and sized
       </Check>
       {shape.at && (
         <Fields>
-          {(["x", "y", "degrees"] as const).map((label, i) => (
+          {(["x", "y", "degrees", "size"] as const).map((label, i) => (
             <NumberField
               key={label}
-              label={i === 2 ? "Turned, degrees" : `Moved ${label}`}
+              label={
+                i === 3
+                  ? "Size, 1 as drawn"
+                  : i === 2
+                  ? "Turned, degrees"
+                  : `Moved ${label}`
+              }
               name={`shape-${index}-at-${i}`}
               value={at[i]}
-              step={i === 2 ? 5 : 0.5}
+              step={i === 3 ? 0.05 : i === 2 ? 5 : 0.5}
               onChange={(value) => {
-                const next = [...at] as [number, number, number];
+                const next = [...at] as [number, number, number, number];
                 next[i] = value;
                 set({ at: next });
               }}
@@ -538,6 +519,8 @@ export function FrameFields({
   const used = usedColors(frame);
   const [pasted, setPasted] = React.useState("");
   const [pasteNotes, setPasteNotes] = React.useState<string[]>([]);
+  // The ornament's shapes picked on its board, by place in the list.
+  const [picked, setPicked] = React.useState<number[]>([]);
 
   const setBorder = (patch: Partial<Frame["border"]>) =>
     onChange({ border: { ...border, ...patch } });
@@ -820,7 +803,7 @@ export function FrameFields({
               ornament: event.target.checked
                 ? {
                     corners: [...FRAME_CORNERS],
-                    shapes: [{ shape: "circle", cx: 5, cy: 5, r: 3, fill: 0 }],
+                    shapes: placed(ORNAMENT_LIBRARY[0], colors, [11, 11]),
                   }
                 : undefined,
             })
@@ -830,134 +813,143 @@ export function FrameFields({
       </Check>
       {ornament && (
         <>
-          <Row style={{ marginBottom: 12, alignItems: "flex-start" }}>
-            <OrnamentZoom frame={frame} />
-            <div>
-              <Field label="On">
-                <div>
-                  {FRAME_CORNERS.map((corner) => (
-                    <Check key={corner} style={{ marginBottom: 4 }}>
-                      <input
-                        type="checkbox"
-                        name={`corner-${corner}`}
-                        checked={ornament.corners.includes(corner)}
-                        onChange={(event) =>
-                          onChange({
-                            ornament: {
-                              ...ornament,
-                              corners: FRAME_CORNERS.filter((c) =>
-                                c === corner
-                                  ? event.target.checked
-                                  : ornament.corners.includes(c)
-                              ),
-                            },
-                          })
-                        }
-                      />
-                      {CORNER_NAMES[corner]}
-                    </Check>
-                  ))}
-                </div>
-              </Field>
-              <Hint>
-                Drawn for the top left in a 24×24 box, then turned to each
-                corner. The dashed line is the card&apos;s corner.
-              </Hint>
-            </div>
-          </Row>
-          {ornament.shapes.map((shape, i) => (
-            <ShapeFields
-              key={i}
-              shape={shape}
-              index={i}
-              count={ornament.shapes.length}
-              colors={colors}
-              onChange={(next) =>
-                setShapes(ornament.shapes.map((s, j) => (j === i ? next : s)))
-              }
-              onMove={(to) => {
-                const shapes = [...ornament.shapes];
-                const [moving] = shapes.splice(i, 1);
-                shapes.splice(to, 0, moving);
-                setShapes(shapes);
-              }}
-              onCopy={() =>
-                setShapes([
-                  ...ornament.shapes.slice(0, i + 1),
-                  structuredClone(shape),
-                  ...ornament.shapes.slice(i + 1),
-                ])
-              }
-              onRemove={() =>
-                setShapes(ornament.shapes.filter((_, j) => j !== i))
-              }
-            />
-          ))}
-          <Row style={{ marginBottom: 12 }}>
-            {ORNAMENT_SHAPES.map((kind) => (
-              <Button
-                key={kind}
-                onClick={() =>
+          <Field label="On the corners">
+            <Row>
+              {FRAME_CORNERS.map((corner) => (
+                <Check key={corner} style={{ marginBottom: 0 }}>
+                  <input
+                    type="checkbox"
+                    name={`corner-${corner}`}
+                    checked={ornament.corners.includes(corner)}
+                    onChange={(event) =>
+                      onChange({
+                        ornament: {
+                          ...ornament,
+                          corners: FRAME_CORNERS.filter((c) =>
+                            c === corner
+                              ? event.target.checked
+                              : ornament.corners.includes(c)
+                          ),
+                        },
+                      })
+                    }
+                  />
+                  {CORNER_NAMES[corner]}
+                </Check>
+              ))}
+            </Row>
+          </Field>
+          <OrnamentMaker
+            ornament={ornament}
+            colors={colors}
+            picked={picked}
+            onPick={setPicked}
+            onChange={setShapes}
+          />
+          <Details>
+            <summary>Exact numbers, shape by shape</summary>
+            {ornament.shapes.map((shape, i) => (
+              <ShapeFields
+                key={i}
+                shape={shape}
+                index={i}
+                count={ornament.shapes.length}
+                colors={colors}
+                onChange={(next) =>
+                  setShapes(ornament.shapes.map((s, j) => (j === i ? next : s)))
+                }
+                onMove={(to) => {
+                  const shapes = [...ornament.shapes];
+                  const [moving] = shapes.splice(i, 1);
+                  shapes.splice(to, 0, moving);
+                  setShapes(shapes);
+                }}
+                onCopy={() =>
                   setShapes([
-                    ...ornament.shapes,
-                    kind === "path"
-                      ? { shape: kind, d: "M4 4h16", stroke: 0, strokeWidth: 2 }
-                      : kind === "circle"
-                      ? { shape: kind, cx: 6, cy: 6, r: 3, fill: 0 }
-                      : { shape: kind, cx: 10, cy: 6, rx: 6, ry: 3, fill: 0 },
+                    ...ornament.shapes.slice(0, i + 1),
+                    structuredClone(shape),
+                    ...ornament.shapes.slice(i + 1),
                   ])
                 }
-              >
-                + {SHAPE_NAMES[kind]}
-              </Button>
+                onRemove={() =>
+                  setShapes(ornament.shapes.filter((_, j) => j !== i))
+                }
+              />
             ))}
-          </Row>
-          <Field
-            label="Or paste an SVG"
-            hint="Its paths, circles and ellipses become shapes, its colours added to the palette. Draw it in a 24×24 box."
-          >
-            <TextArea
-              name="frame-svg"
-              value={pasted}
-              spellCheck={false}
-              placeholder='<svg viewBox="0 0 24 24">…</svg>'
-              style={{ fontFamily: "monospace" }}
-              onChange={(event) => setPasted(event.target.value)}
-            />
-          </Field>
-          <Row style={{ marginBottom: 12 }}>
-            {(["Add its shapes", "Replace the shapes"] as const).map(
-              (label) => (
+            <Row style={{ marginBottom: 12 }}>
+              {ORNAMENT_SHAPES.map((kind) => (
                 <Button
-                  key={label}
-                  disabled={!pasted.trim()}
-                  onClick={() => {
-                    const made = shapesFromSvg(pasted, colors);
-                    setPasteNotes(made.notes);
-                    if (made.shapes.length === 0) return;
-                    onChange({
-                      colors: made.colors,
-                      ornament: {
-                        ...ornament,
-                        shapes:
-                          label === "Add its shapes"
-                            ? [...ornament.shapes, ...made.shapes]
-                            : made.shapes,
-                      },
-                    });
-                    setPasted("");
-                  }}
+                  key={kind}
+                  onClick={() =>
+                    setShapes([
+                      ...ornament.shapes,
+                      kind === "path"
+                        ? {
+                            shape: kind,
+                            d: "M4 4h16",
+                            stroke: 0,
+                            strokeWidth: 2,
+                          }
+                        : kind === "circle"
+                        ? { shape: kind, cx: 6, cy: 6, r: 3, fill: 0 }
+                        : { shape: kind, cx: 10, cy: 6, rx: 6, ry: 3, fill: 0 },
+                    ])
+                  }
                 >
-                  {label}
+                  + {SHAPE_NAMES[kind]}
                 </Button>
-              )
-            )}
-          </Row>
-          {pasteNotes.map((note) => (
-            <Note key={note} $tone="warn">
-              {note}
-            </Note>
-          ))}
+              ))}
+            </Row>
+          </Details>
+          <Details>
+            <summary>Paste an SVG drawn elsewhere</summary>
+            <Field
+              label="An SVG"
+              hint="Its paths, circles and ellipses become shapes, its colours added to the palette. Draw it in a 24×24 box."
+            >
+              <TextArea
+                name="frame-svg"
+                value={pasted}
+                spellCheck={false}
+                placeholder='<svg viewBox="0 0 24 24">…</svg>'
+                style={{ fontFamily: "monospace" }}
+                onChange={(event) => setPasted(event.target.value)}
+              />
+            </Field>
+            <Row style={{ marginBottom: 12 }}>
+              {(["Add its shapes", "Replace the shapes"] as const).map(
+                (label) => (
+                  <Button
+                    key={label}
+                    disabled={!pasted.trim()}
+                    onClick={() => {
+                      const made = shapesFromSvg(pasted, colors);
+                      setPasteNotes(made.notes);
+                      if (made.shapes.length === 0) return;
+                      onChange({
+                        colors: made.colors,
+                        ornament: {
+                          ...ornament,
+                          shapes:
+                            label === "Add its shapes"
+                              ? [...ornament.shapes, ...made.shapes]
+                              : made.shapes,
+                        },
+                      });
+                      setPasted("");
+                    }}
+                  >
+                    {label}
+                  </Button>
+                )
+              )}
+            </Row>
+            {pasteNotes.map((note) => (
+              <Note key={note} $tone="warn">
+                {note}
+              </Note>
+            ))}
+          </Details>
         </>
       )}
     </>

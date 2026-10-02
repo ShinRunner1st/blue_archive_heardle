@@ -154,7 +154,8 @@ export type OrnamentShapeKind = (typeof ORNAMENT_SHAPES)[number];
  * One SVG shape of an ornament, in a 24×24 box drawn for the top-left
  * corner (the others are it turned): a path's `d`, a circle's `cx`, `cy`
  * and `r`, or an ellipse's `cx`, `cy`, `rx` and `ry`, filled, outlined or
- * both. `at` moves it and turns it, as [x, y, degrees].
+ * both. `at` moves it, turns it and sizes it, as [x, y, degrees] or
+ * [x, y, degrees, size], size 1 as drawn.
  */
 export interface OrnamentShape {
   shape: OrnamentShapeKind;
@@ -167,7 +168,7 @@ export interface OrnamentShape {
   fill?: FrameColor;
   stroke?: FrameColor;
   strokeWidth?: number;
-  at?: [number, number, number];
+  at?: [number, number, number] | [number, number, number, number];
 }
 
 export const FRAME_CORNERS = ["tl", "tr", "br", "bl"] as const;
