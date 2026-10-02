@@ -129,18 +129,17 @@ Lists, each starting with the default everyone has (no `mission`):
   in rooms, like the game's own emblems (its user titles; the game's plates
   are 558×106, these about the same shape):
   - `picture`, a picture on the Worker (a key in
-    `src/constants/pictureFiles.ts`): a plate, `plates/rarity-sr` (the
-    game's own plate art, 558×106, in `pictures/plates/`), or a scene such as
-    `scenes/banner-beach`; or, with no picture, `fill`, two or more colours
-    for a foil.
+    `src/constants/pictureFiles.ts`): a plate of its own (558×106, in
+    `pictures/plates/`) or a scene such as `scenes/banner-beach`; or, with
+    no picture, `fill`, two or more colours for a foil.
   - `pattern` (optional): `facets` (pale triangles, as most of the
     game's plates), `grid` (as its default plate) or `lines`, drawn in
     the `accent`.
   - `accent`, the rim (and an emblem's ring); `ink`, the title.
   - `band` (optional): a soft band behind the title, so it reads over a
     picture.
-  - `tag` (optional): up to 20 letters in a pill at the plate's foot,
-    such as "30 days", shown in capitals: what was done, for others to see.
+  - `tag` (optional, for whoever makes the plate to use or not): up to 20
+    letters in a pill at the plate's foot, such as "30 days", in capitals.
   - `emblem` (optional): its `style`, `ring` (in a ring at the head),
     `crest` (standing free there) or `side` (a `picture` down the left,
     as drawn, as the game's cut-out student faces and bosses are, or with

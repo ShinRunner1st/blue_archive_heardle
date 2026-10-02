@@ -1152,23 +1152,21 @@ admin`, on their PC only, nothing deployed or in the site's build),
      grid or lines, a light rim and a pill tag; banners are plates drawn
      from parts (a picture or foil, pattern, rim, band, tag, an emblem in a
      ring, as a crest or a picture down the side cut on a slant), the ten
-     there redrawn as plates, each with a tag saying what was done. Card
+     there redrawn as plates. Card
      colours are everyone's; their five missions give new plates (Full
      schedule, Full shelf, On duty, Unstoppable, Kivotos chorus). A shape
      can be a picture (`pictures/emblems/`, a PNG or JPG fitted in 256×256,
      transparent, a few KB, made in Pictures → Emblems), and a frame's
      corner can have its own ornament, started from the shared one turned
      to it. The tool's banner editor and the frame's corner tabs share one
-     shape editor._ After the user's feedback (2026-10-03): the new plates
-     looked plain, so plates are now built as the game builds its emblems,
-     from its own art: its plate pictures (`pictures/plates/`, the three
-     favour plates with their "FAVOR RANK" label painted out) and its
-     cut-out faces and bosses as side emblems, shown as drawn (Yuuka,
-     Shiroko riding, Mari, Perorozilla; a photo can still be cut on a
-     slant). Silver, gold and prism foil take the game's N, SR and SSR
-     plates, Schale its default plate. 13 pictures, about 100 KB, for the
-     Worker and R2 before release. Plates come in four sizes (podium,
-     card, choice, profile head), smaller on cards and the podium; faces
+     shape editor._ After the user's feedback (2026-10-03): plates built
+     from the game's own art (its plate pictures and cut-out faces) were
+     tried and turned down, as worse than the drawn ones, which stay; the
+     tool keeps what it gained for them (Pictures → Plates, 558×106, and a
+     side picture shown as drawn, or cut on a slant if asked). Tags are
+     optional, for staff to use or not; no plate has one. Plates come in
+     four sizes (podium, card, choice, profile head), smaller on cards and
+     the podium; faces
      sit in the middle of their ring (the box counted the ring inside the
      picture's size); Pictures lists Plates and Emblems (a new one was
      made but not shown); the tool no longer scrolls as a whole (an

@@ -236,9 +236,50 @@
       "id": "schale",
       "name": "Schale",
       "free": true,
-      "picture": "plates/default",
+      "fill": ["#F6FAFF", "#E4EFFC", "#F2F7FE"],
+      "pattern": "grid",
       "ink": "#1B3A6B",
-      "accent": "#A9C6EC"
+      "accent": "#A9C6EC",
+      "emblem": {
+        "style": "crest",
+        "colors": ["#6F93C8", "#FFFFFF"],
+        "shapes": [
+          {
+            "shape": "circle",
+            "cx": 12,
+            "cy": 12,
+            "r": 10,
+            "stroke": 0,
+            "strokeWidth": 0.9
+          },
+          {
+            "shape": "circle",
+            "cx": 12,
+            "cy": 12,
+            "r": 6.8,
+            "stroke": 0,
+            "strokeWidth": 0.5
+          },
+          {
+            "shape": "path",
+            "d": "M12 0.5V23.5M0.5 12H23.5",
+            "stroke": 0,
+            "strokeWidth": 0.45
+          },
+          {
+            "shape": "path",
+            "d": "M12 4.5L13.5 10.5L19.5 12L13.5 13.5L12 19.5L10.5 13.5L4.5 12L10.5 10.5Z",
+            "fill": 0
+          },
+          {
+            "shape": "circle",
+            "cx": 12,
+            "cy": 12,
+            "r": 1.3,
+            "fill": 1
+          }
+        ]
+      }
     },
     {
       "id": "sakura",
@@ -251,8 +292,7 @@
       "emblem": {
         "style": "ring",
         "icon": "IoHeart"
-      },
-      "tag": "150 dailies"
+      }
     },
     {
       "id": "beach",
@@ -265,8 +305,7 @@
       "emblem": {
         "style": "ring",
         "icon": "IoMusicalNotes"
-      },
-      "tag": "150 songs"
+      }
     },
     {
       "id": "festival",
@@ -279,8 +318,7 @@
       "emblem": {
         "style": "ring",
         "icon": "IoSparkles"
-      },
-      "tag": "10 voices in a row"
+      }
     },
     {
       "id": "halloween",
@@ -293,8 +331,7 @@
       "emblem": {
         "style": "ring",
         "icon": "IoMoon"
-      },
-      "tag": "50 silhouettes"
+      }
     },
     {
       "id": "autumn",
@@ -307,8 +344,7 @@
       "emblem": {
         "style": "ring",
         "icon": "IoSearch"
-      },
-      "tag": "25 quick finds"
+      }
     },
     {
       "id": "snow",
@@ -321,68 +357,85 @@
       "emblem": {
         "style": "ring",
         "icon": "IoSnow"
-      },
-      "tag": "1,000 rounds"
+      }
     },
     {
       "id": "silver",
       "name": "Silver foil",
       "mission": "picture-150",
-      "picture": "plates/rarity-n",
-      "ink": "#2A3446",
+      "fill": ["#7D8796", "#E9EEF5", "#98A2B2", "#D3DAE6"],
+      "pattern": "facets",
+      "ink": "#1C222D",
       "accent": "#FFFFFF",
       "emblem": {
         "style": "ring",
         "icon": "IoCamera"
-      },
-      "tag": "150 pictures"
+      }
     },
     {
       "id": "gold",
       "name": "Gold foil",
       "mission": "room-streak-3",
-      "picture": "plates/rarity-sr",
-      "ink": "#4A3205",
+      "fill": ["#B8892B", "#F7DC8B", "#C9972F", "#F2C14E"],
+      "pattern": "facets",
+      "ink": "#3A2A05",
       "accent": "#FFF3C4",
       "emblem": {
         "style": "ring",
         "icon": "IoTrophy"
-      },
-      "tag": "3 wins in a row"
+      }
     },
     {
       "id": "prism",
       "name": "Prism foil",
       "mission": "rounds-5000",
-      "picture": "plates/rarity-ssr",
+      "fill": ["#FF9ACB", "#9AD0FF", "#A8F0B8", "#FFE58F"],
+      "pattern": "facets",
       "ink": "#2B2147",
       "accent": "#FFFFFF",
       "emblem": {
         "style": "ring",
         "icon": "IoSparkles"
-      },
-      "tag": "5,000 rounds"
+      }
     },
     {
       "id": "schedule",
       "name": "Full schedule",
       "mission": "daily-sweep",
-      "picture": "plates/favor-blue",
+      "fill": ["#EEF6FF", "#CFE4FF", "#F4F9FF"],
+      "pattern": "facets",
       "ink": "#17406F",
-      "accent": "#9CC4F0",
+      "accent": "#84B4EA",
       "emblem": {
-        "style": "side",
-        "picture": "emblems/yuuka"
-      },
-      "tag": "6 dailies, one day"
+        "style": "crest",
+        "colors": ["#128AFA", "#FFFFFF"],
+        "shapes": [
+          {
+            "shape": "circle",
+            "cx": 12,
+            "cy": 12,
+            "r": 9.5,
+            "fill": 0,
+            "stroke": 1,
+            "strokeWidth": 1.2
+          },
+          {
+            "shape": "path",
+            "d": "M7.4 12.4L10.6 15.6L16.8 8.8",
+            "stroke": 1,
+            "strokeWidth": 2.4
+          }
+        ]
+      }
     },
     {
       "id": "record-shelf",
       "name": "Full shelf",
       "mission": "ost-badges",
-      "picture": "plates/starry-night",
-      "ink": "#FFE7A3",
-      "accent": "#C9B6FF",
+      "fill": ["#121829", "#24304F", "#161D33"],
+      "pattern": "lines",
+      "ink": "#F2C14E",
+      "accent": "#D9A93A",
       "emblem": {
         "style": "ring",
         "colors": ["#0B0F1C", "#59678C", "#F2C14E"],
@@ -425,47 +478,88 @@
             "fill": 0
           }
         ]
-      },
-      "tag": "every badge"
+      }
     },
     {
       "id": "on-duty",
       "name": "On duty",
       "mission": "daily-30",
-      "picture": "plates/favor-gold",
+      "fill": ["#FFF7DA", "#FFE08A", "#FFF3C6"],
+      "pattern": "facets",
       "ink": "#5A3E05",
-      "accent": "#E8C05A",
+      "accent": "#E2B243",
       "emblem": {
-        "style": "side",
-        "picture": "emblems/shiroko-riding"
-      },
-      "tag": "30 days"
+        "style": "crest",
+        "colors": ["#FFFFFF", "#C08A1E"],
+        "shapes": [
+          {
+            "shape": "circle",
+            "cx": 12,
+            "cy": 12,
+            "r": 9.8,
+            "fill": 0,
+            "stroke": 1,
+            "strokeWidth": 1.4
+          },
+          {
+            "shape": "path",
+            "d": "M12 3.6V5.4M20.4 12H18.6M12 20.4V18.6M3.6 12H5.4",
+            "stroke": 1,
+            "strokeWidth": 1.1
+          },
+          {
+            "shape": "path",
+            "d": "M12 7V12L15.4 14.2",
+            "stroke": 1,
+            "strokeWidth": 1.6
+          }
+        ]
+      }
     },
     {
       "id": "unstoppable",
       "name": "Unstoppable",
       "mission": "streak-50",
-      "picture": "plates/sunset-clouds",
-      "ink": "#7A2E0E",
-      "accent": "#FFD9B0",
+      "fill": ["#4A0B16", "#A3172C", "#E04050"],
+      "pattern": "facets",
+      "ink": "#FFFFFF",
+      "accent": "#FFB4B4",
       "emblem": {
-        "style": "side",
-        "picture": "emblems/perorozilla"
-      },
-      "tag": "50 in a row"
+        "style": "crest",
+        "colors": ["#FF8A3D", "#FFE27A"],
+        "shapes": [
+          {
+            "shape": "path",
+            "d": "M12 1.5C13.2 6 17.6 8.4 17.6 14C17.6 18.2 15.2 22 12 22C8.8 22 6.4 18.2 6.4 14C6.4 10.8 8.4 9.2 9.2 6.4C10.4 8 11 9.2 11.4 10.4C12.6 8.2 12.8 4.8 12 1.5Z",
+            "fill": 0
+          },
+          {
+            "shape": "path",
+            "d": "M12 11C13.8 13.2 14.8 15 14.8 17.2C14.8 19.4 13.6 21 12 21C10.4 21 9.2 19.4 9.2 17.2C9.2 15.4 10.2 14.2 10.9 12.8C11.3 13.7 11.6 14.2 12 14.6C12.3 13.4 12.4 12.2 12 11Z",
+            "fill": 1
+          }
+        ]
+      }
     },
     {
       "id": "chorus",
       "name": "Kivotos chorus",
       "mission": "voice-250",
-      "picture": "plates/favor-pink",
-      "ink": "#6B1F4A",
-      "accent": "#F5B8D8",
+      "fill": ["#EFE6FF", "#CDB8FF", "#F7F1FF", "#D9C9FF"],
+      "pattern": "facets",
+      "ink": "#3A2470",
+      "accent": "#A68BF2",
       "emblem": {
-        "style": "side",
-        "picture": "emblems/mari"
-      },
-      "tag": "250 voices"
+        "style": "crest",
+        "colors": ["#7B5BE0"],
+        "shapes": [
+          {
+            "shape": "path",
+            "d": "M3 10H5.4V14H3ZM7.2 7H9.6V17H7.2ZM11.4 3.5H13.8V20.5H11.4ZM15.6 7H18V17H15.6ZM19.8 10H22.2V14H19.8Z",
+            "fill": 0
+          }
+        ]
+      }
     }
   ],
   "frames": [
