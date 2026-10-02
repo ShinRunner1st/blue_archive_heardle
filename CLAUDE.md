@@ -352,13 +352,14 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   `src/constants/missions.ts`, ids never renamed), kept once cleared in
   their own key and the save file; a toast after the round that clears
   one. Multiplayer's from a local count of games finished and won. Some
-  unlock cosmetics (`src/constants/cosmetics.ts`, drawn in code): Sensei
+  unlock cosmetics (`src/content/cosmetics.json`, drawn in code): Sensei
   card titles and colours (picked on the card) and cursor effect colours
   (Settings), characters beside the game, and the profile's banners,
   frames and backgrounds (Customize). `COSMETIC_KINDS` lists every kind.
 - **Profile** (☰ Profile, and on the hub's record): the player's card
   (`src/components/Profile/`: their favourite student, title on a banner
-  with a picture or foil and an emblem, a frame drawn in code, a
+  with a picture or foil and an emblem, a frame drawn from the parts
+  its entry lists (a border, glows, corner ornaments as SVG shapes), a
   background scene from the Worker) and their record from the saves
   (`profileStats.ts`): totals, a table by game, and a tab per game with its
   ways to play, daily spread, tries, Time Attack or find times. Customize

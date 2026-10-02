@@ -384,7 +384,7 @@ they need no more height than the OST, and every game fits a 1080p window.
   mission is also kept in its own key and the save file, so a reset never
   takes it back; ids are never renamed. Multiplayer's count the games this
   browser saw to their standings and its first places, kept here only.
-  Some unlock a cosmetic (`src/constants/cosmetics.ts`, all drawn in code):
+  Some unlock a cosmetic (`src/content/cosmetics.json`, all drawn in code):
   a title and colours for the Sensei card, picked on the card, and a colour
   for the cursor's flash and trail (pink, gold, green, violet or a
   rainbow, each tap the next hue), picked in Settings, a student beside the

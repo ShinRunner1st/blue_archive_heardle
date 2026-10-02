@@ -1,94 +1,65 @@
 import React from "react";
 
-import { Frame } from "../../constants/cosmetics";
+import {
+  Frame,
+  FRAME_CORNERS,
+  FrameCorner,
+  OrnamentShape,
+} from "../../constants/cosmetics";
 
 import * as Styled from "./index.styled";
 
-type Corner = "tl" | "tr" | "bl" | "br";
-const CORNERS: Corner[] = ["tl", "tr", "bl", "br"];
-
-/** A corner's ornament, drawn for its frame's kind; none for the others. */
-function Ornament({ frame, corner }: { frame: Frame; corner: Corner }) {
-  const [line, accent = line] = frame.colors;
-  let shape: React.ReactNode = null;
-  switch (frame.kind) {
-    case "filigree":
-      shape = (
-        <>
-          <path
-            d="M3 21V9a6 6 0 0 1 6-6h12"
-            stroke={line}
-            strokeWidth="2.4"
-            fill="none"
-          />
-          <path
-            d="M7 21v-8a6 6 0 0 1 6-6h8"
-            stroke={accent}
-            strokeWidth="1.2"
-            fill="none"
-          />
-          <circle cx="4.5" cy="4.5" r="2.6" fill={accent} />
-        </>
-      );
-      break;
-    case "petals":
-      shape = [
-        [7, 7, 0],
-        [17, 4, 30],
-      ].map(([x, y, turn]) => (
-        <g key={x} transform={`translate(${x} ${y}) rotate(${turn})`}>
-          <ellipse cy="-3.2" rx="2.4" ry="3.6" fill={accent} />
-          <ellipse cy="3.2" rx="2.4" ry="3.6" fill={accent} />
-          <ellipse cx="-3.2" rx="3.6" ry="2.4" fill={accent} />
-          <ellipse cx="3.2" rx="3.6" ry="2.4" fill={accent} />
-          <circle r="1.6" fill="#FFE27A" />
-        </g>
-      ));
-      break;
-    case "halo":
-      // On two corners only: a halo floats, it doesn't fence.
-      if (corner === "tr" || corner === "bl") return null;
-      shape = (
-        <>
-          <ellipse
-            cx="11"
-            cy="9"
-            rx="9"
-            ry="4.2"
-            stroke={accent}
-            strokeWidth="2.2"
-            fill="none"
-          />
-          <path
-            d="M11 2v3M4 4l2 2M18 4l-2 2"
-            stroke={accent}
-            strokeWidth="1.6"
-          />
-        </>
-      );
-      break;
-    case "prism":
-      shape = (
-        <path
-          d="M12 2l2.6 6.4L21 9l-5 4.4L17.4 20 12 16.6 6.6 20 8 13.4 3 9l6.4-.6z"
-          fill="#FFFFFF"
+/** One shape of an ornament, its colours from the frame's palette. */
+export function OrnamentShapeView({
+  shape,
+  colors,
+}: {
+  shape: OrnamentShape;
+  colors: string[];
+}) {
+  const paint = {
+    fill: shape.fill === undefined ? "none" : colors[shape.fill],
+    stroke: shape.stroke === undefined ? undefined : colors[shape.stroke],
+    strokeWidth: shape.stroke === undefined ? undefined : shape.strokeWidth,
+    transform: shape.at
+      ? `translate(${shape.at[0]} ${shape.at[1]}) rotate(${shape.at[2]})`
+      : undefined,
+  };
+  switch (shape.shape) {
+    case "path":
+      return <path d={shape.d} {...paint} />;
+    case "circle":
+      return <circle cx={shape.cx} cy={shape.cy} r={shape.r} {...paint} />;
+    case "ellipse":
+      return (
+        <ellipse
+          cx={shape.cx}
+          cy={shape.cy}
+          rx={shape.rx}
+          ry={shape.ry}
+          {...paint}
         />
       );
-      break;
-    default:
-      return null;
   }
+}
+
+/** A corner's ornament, drawn for the top left and turned to its corner. */
+function Ornament({ frame, corner }: { frame: Frame; corner: FrameCorner }) {
+  const { ornament } = frame;
+  if (!ornament?.corners.includes(corner)) return null;
   return (
     <Styled.Ornament viewBox="0 0 24 24" aria-hidden="true" $corner={corner}>
-      {shape}
+      {ornament.shapes.map((shape, i) => (
+        <OrnamentShapeView key={i} shape={shape} colors={frame.colors} />
+      ))}
     </Styled.Ornament>
   );
 }
 
 /**
- * A profile's frame around its card, or round the whole profile pop-up: a
- * line, or one drawn with ornaments on the corners, a glow or a gradient,
- * as its kind says (FRAME_KINDS).
+ * A profile's frame around its card, or round the whole profile pop-up,
+ * drawn from its parts: a border, a line inside it, glows and an ornament
+ * on the corners.
  */
 export function ProfileFrame({
   frame,
@@ -102,14 +73,10 @@ export function ProfileFrame({
 }) {
   return (
     <Styled.Frame $popUp={popUp}>
-      {CORNERS.map((corner) => (
+      {FRAME_CORNERS.map((corner) => (
         <Ornament key={corner} frame={frame} corner={corner} />
       ))}
-      <Styled.FrameInner
-        $kind={frame.kind}
-        $colors={frame.colors}
-        $popUp={popUp}
-      >
+      <Styled.FrameInner $frame={frame} $popUp={popUp}>
         {children}
       </Styled.FrameInner>
     </Styled.Frame>

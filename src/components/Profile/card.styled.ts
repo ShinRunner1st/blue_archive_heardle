@@ -1,7 +1,7 @@
 import styled, { css } from "styled-components";
 import "@fontsource-variable/nunito-sans";
 
-import { FrameKind } from "../../constants/cosmetics";
+import type { Frame as FrameParts } from "../../constants/cosmetics";
 
 /**
  * The player's card, its frame and its banner: shared by the profile,
@@ -13,7 +13,7 @@ const shadowText = css`
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.55);
 `;
 
-/* ---------- The frame: a border drawn for its kind ---------- */
+/* ---------- The frame: drawn from its parts ---------- */
 
 export const Frame = styled.div<{ $popUp?: boolean }>`
   position: relative;
@@ -52,9 +52,51 @@ const alpha = (color: string, amount: number) =>
     .toString(16)
     .padStart(2, "0")}`;
 
+/** A frame's border, inner line and glows, as CSS. */
+function frameLook(frame: FrameParts, ground: string) {
+  const { colors, border, inner, glows = [] } = frame;
+  const paint = border.colors.map((at) => colors[at]);
+  const shadows = [
+    ...(inner
+      ? [
+          `inset 0 0 0 ${inner.gap}px ${ground}`,
+          `inset 0 0 0 ${inner.gap + inner.width}px ${alpha(
+            colors[inner.color],
+            inner.strength
+          )}`,
+        ]
+      : []),
+    ...glows.map(
+      ({ blur, spread, color, strength }) =>
+        `0 0 ${blur}px ${spread}px ${alpha(colors[color], strength)}`
+    ),
+  ];
+  // A gradient is the border-box's background, under the padding-box's.
+  const gradient =
+    border.gradient === "conic"
+      ? `conic-gradient(from ${border.angle ?? 0}deg, ${paint.join(", ")})`
+      : border.gradient === "linear" || paint.length > 1
+      ? `linear-gradient(${border.angle ?? 90}deg, ${paint.join(", ")})`
+      : null;
+  return css`
+    ${gradient
+      ? css`
+          border: ${border.width}px solid transparent;
+          background: linear-gradient(${ground}, ${ground}) padding-box,
+            ${gradient} border-box;
+        `
+      : css`
+          border: ${border.width}px solid ${paint[0]};
+        `}
+    ${shadows.length > 0 &&
+    css`
+      box-shadow: ${shadows.join(", ")};
+    `}
+  `;
+}
+
 export const FrameInner = styled.div<{
-  $kind: FrameKind;
-  $colors: string[];
+  $frame: FrameParts;
   $popUp?: boolean;
 }>`
   position: relative;
@@ -78,47 +120,7 @@ export const FrameInner = styled.div<{
       }
     `}
 
-  ${({ $kind, $colors, theme }) => {
-    const [line, accent = line] = $colors;
-    const ground = theme.background1;
-    switch ($kind) {
-      case "filigree":
-        return css`
-          border: 2px solid ${line};
-          box-shadow: inset 0 0 0 4px ${ground},
-            inset 0 0 0 5px ${alpha(accent, 0.6)};
-        `;
-      case "petals":
-        return css`
-          border: 2px solid ${line};
-          box-shadow: 0 0 0 1px ${alpha(line, 0.3)};
-        `;
-      case "halo":
-        return css`
-          border: 2px solid ${line};
-          box-shadow: 0 0 12px ${alpha(line, 0.4)};
-        `;
-      case "neon":
-        return css`
-          border: 2px solid transparent;
-          background: linear-gradient(${ground}, ${ground}) padding-box,
-            linear-gradient(120deg, ${$colors.join(", ")}) border-box;
-          box-shadow: 0 0 14px ${alpha($colors[1] ?? line, 0.55)},
-            0 0 4px ${alpha(line, 0.6)};
-        `;
-      case "prism":
-        return css`
-          border: 3px solid transparent;
-          background: linear-gradient(${ground}, ${ground}) padding-box,
-            conic-gradient(from 30deg, ${[...$colors, $colors[0]].join(", ")})
-              border-box;
-        `;
-      default:
-        return css`
-          border: 1px solid ${line};
-        `;
-    }
-  }}
+  ${({ $frame, theme }) => frameLook($frame, theme.background1)}
 `;
 
 /* ---------- The banner ---------- */

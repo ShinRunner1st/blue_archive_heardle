@@ -95,7 +95,7 @@ Lists, each starting with the default everyone has (no `mission`):
   blue has none); one with `"rainbow": true` changes hue with every tap.
   `swatch` is the colour (or CSS gradient) shown in Settings.
 - `characters`: who stands beside the game. Each also needs its sprite in
-  `public/spine/` and an entry in `src/constants/characters.ts`.
+  `public/spine/` and its set-up in `characters.json`.
 - `banners`: the strip the title sits on, on the profile and its card.
   `picture` is a picture on the Worker (a key in
   `src/constants/pictureFiles.ts`, such as `seasons/beach-day`) under
@@ -103,11 +103,25 @@ Lists, each starting with the default everyone has (no `mission`):
   `ink` is the title's colour, `accent` the emblem's ring, the stripes and
   the line along its foot, and `emblem` an icon from
   `src/constants/icons.ts`.
-- `frames`: the frame round the profile's card. `kind` is how it's drawn: `line`,
-  `filigree`, `petals`, `halo` (ornaments on the corners), `neon` (a glow
-  of its colours) or `prism` (a ring of them); `colors` the line first,
-  then the ornaments or glow. A new kind needs drawing in
-  `src/components/Profile/ProfileFrame.tsx`.
+- `frames`: the frame round the profile's card, drawn from parts, so a
+  new style is only an entry. `colors` is its palette, and every colour
+  a part takes is a place in it (0 the first), so recolouring a style is
+  changing `colors` alone:
+  - `border`: `width` in px and `colors`, one for a plain line or more
+    for a gradient, `gradient` `linear` (across, at `angle` degrees) or
+    `conic` (round the card, starting at `angle`).
+  - `inner` (optional): a thin line inside the border, `gap` px of the
+    page's colour between them, its `width`, `color` and `strength`
+    (0 to 1), as the filigree frames have.
+  - `glows` (optional, four at most): round the outside, each a `blur`,
+    `spread`, `color` and `strength`; no blur is a hard ring.
+  - `ornament` (optional): SVG shapes on the `corners` (`tl`, `tr`, `br`,
+    `bl`), drawn for the top left in a 24×24 box, its top left 6.5 units
+    out from the card's corner, and turned for the others. Each shape is a
+    `path` (`d`), `circle` (`cx`, `cy`, `r`) or `ellipse` (`cx`, `cy`,
+    `rx`, `ry`), with a `fill`, a `stroke` and `strokeWidth`, or both, and
+    `at`, [x, y, degrees], to move and turn it. The admin tool can take
+    them from a pasted SVG.
 - `backgrounds`: the scene behind the profile's card, a `picture` on the
   Worker as banners name theirs. Pictures already there cost nothing more;
   a new one goes in `pictures/` and up with `npm run songs`.

@@ -1069,12 +1069,25 @@ admin`, on their PC only, nothing deployed or in the site's build),
   tool saying "3.4 MB → 52 KB"; the badges previewed in the game's own
   profile; and **a blank title and banner by default** (the user's pick of
   three): a new card is the name alone, Schale's banner stays as a free
-  pick (`"free": true`), and the rooms and accounts fall back to blank. 6. Frame styles from parts (a line, a glow, corner ornaments as SVG
-  shapes in the content), so a new style needs no code; the six there
-  redrawn from parts, checked pixel for pixel against today's. 7. Mission counts from rules (a game, mode, server, result, tries,
-  clip or time, counted, counted once each, or as a streak or a best
-  run), so a new kind of count needs no code; the 24 counts there stay
-  as they are. Progress previewed from an imported save file.
+  pick (`"free": true`), and the rooms and accounts fall back to blank.
+  Then, the user's ask: rewards previewed in a room's lobby, a round and
+  the standings too, with eight players.
+
+  6. Frame styles from parts (a line, a glow, corner ornaments as SVG
+     shapes in the content), so a new style needs no code; the six there
+     redrawn from parts, checked pixel for pixel against today's.
+     _Built on `feat/admin-tool`: a frame is a palette and parts that
+     name its colours by number (a border, plain or a gradient; a line
+     inside; glows; an ornament of paths, circles and ellipses on the
+     corners it names), drawn by `ProfileFrame`; the six redrawn came
+     out identical to the pixel, day and night, at 1× and 2×, on the card
+     and the pop-up. The tool edits every part, starts from another
+     frame, shows the ornament up close over the card's corner, and takes
+     shapes from a pasted SVG._
+  7. Mission counts from rules (a game, mode, server, result, tries,
+     clip or time, counted, counted once each, or as a streak or a best
+     run), so a new kind of count needs no code; the 24 counts there stay
+     as they are. Progress previewed from an imported save file.
 
   The user's rule (2026-10-02): **everything expandable**, each new thing
   added and previewed in the tool, as long as nothing breaks. Deleting a

@@ -253,50 +253,283 @@
     {
       "id": "schale",
       "name": "Schale",
-      "kind": "line",
-      "colors": ["#5A6A8F"]
+      "colors": ["#5A6A8F"],
+      "border": {
+        "width": 1,
+        "colors": [0]
+      }
     },
     {
       "id": "sakura",
       "name": "Sakura",
       "mission": "daily-sweep",
-      "kind": "petals",
-      "colors": ["#F7A8C8", "#FBC3DA"]
+      "colors": ["#F7A8C8", "#FBC3DA", "#FFE27A"],
+      "border": {
+        "width": 2,
+        "colors": [0]
+      },
+      "glows": [
+        {
+          "blur": 0,
+          "spread": 1,
+          "color": 0,
+          "strength": 0.3
+        }
+      ],
+      "ornament": {
+        "corners": ["tl", "tr", "br", "bl"],
+        "shapes": [
+          {
+            "shape": "ellipse",
+            "cy": -3.2,
+            "rx": 2.4,
+            "ry": 3.6,
+            "fill": 1,
+            "at": [7, 7, 0]
+          },
+          {
+            "shape": "ellipse",
+            "cy": 3.2,
+            "rx": 2.4,
+            "ry": 3.6,
+            "fill": 1,
+            "at": [7, 7, 0]
+          },
+          {
+            "shape": "ellipse",
+            "cx": -3.2,
+            "rx": 3.6,
+            "ry": 2.4,
+            "fill": 1,
+            "at": [7, 7, 0]
+          },
+          {
+            "shape": "ellipse",
+            "cx": 3.2,
+            "rx": 3.6,
+            "ry": 2.4,
+            "fill": 1,
+            "at": [7, 7, 0]
+          },
+          {
+            "shape": "circle",
+            "r": 1.6,
+            "fill": 2,
+            "at": [7, 7, 0]
+          },
+          {
+            "shape": "ellipse",
+            "cy": -3.2,
+            "rx": 2.4,
+            "ry": 3.6,
+            "fill": 1,
+            "at": [17, 4, 30]
+          },
+          {
+            "shape": "ellipse",
+            "cy": 3.2,
+            "rx": 2.4,
+            "ry": 3.6,
+            "fill": 1,
+            "at": [17, 4, 30]
+          },
+          {
+            "shape": "ellipse",
+            "cx": -3.2,
+            "rx": 3.6,
+            "ry": 2.4,
+            "fill": 1,
+            "at": [17, 4, 30]
+          },
+          {
+            "shape": "ellipse",
+            "cx": 3.2,
+            "rx": 3.6,
+            "ry": 2.4,
+            "fill": 1,
+            "at": [17, 4, 30]
+          },
+          {
+            "shape": "circle",
+            "r": 1.6,
+            "fill": 2,
+            "at": [17, 4, 30]
+          }
+        ]
+      }
     },
     {
       "id": "halo",
       "name": "Halo",
       "mission": "picture-50",
-      "kind": "halo",
-      "colors": ["#7FD3FF", "#9BE0FF"]
+      "colors": ["#7FD3FF", "#9BE0FF"],
+      "border": {
+        "width": 2,
+        "colors": [0]
+      },
+      "glows": [
+        {
+          "blur": 12,
+          "spread": 0,
+          "color": 0,
+          "strength": 0.4
+        }
+      ],
+      "ornament": {
+        "corners": ["tl", "br"],
+        "shapes": [
+          {
+            "shape": "ellipse",
+            "cx": 11,
+            "cy": 9,
+            "rx": 9,
+            "ry": 4.2,
+            "stroke": 1,
+            "strokeWidth": 2.2
+          },
+          {
+            "shape": "path",
+            "d": "M11 2v3M4 4l2 2M18 4l-2 2",
+            "stroke": 1,
+            "strokeWidth": 1.6
+          }
+        ]
+      }
     },
     {
       "id": "silver",
       "name": "Silver filigree",
       "mission": "voice-100",
-      "kind": "filigree",
-      "colors": ["#C9D3E0", "#E9EEF5"]
+      "colors": ["#C9D3E0", "#E9EEF5"],
+      "border": {
+        "width": 2,
+        "colors": [0]
+      },
+      "inner": {
+        "gap": 4,
+        "width": 1,
+        "color": 1,
+        "strength": 0.6
+      },
+      "ornament": {
+        "corners": ["tl", "tr", "br", "bl"],
+        "shapes": [
+          {
+            "shape": "path",
+            "d": "M3 21V9a6 6 0 0 1 6-6h12",
+            "stroke": 0,
+            "strokeWidth": 2.4
+          },
+          {
+            "shape": "path",
+            "d": "M7 21v-8a6 6 0 0 1 6-6h8",
+            "stroke": 1,
+            "strokeWidth": 1.2
+          },
+          {
+            "shape": "circle",
+            "cx": 4.5,
+            "cy": 4.5,
+            "r": 2.6,
+            "fill": 1
+          }
+        ]
+      }
     },
     {
       "id": "gold",
       "name": "Gold filigree",
       "mission": "daily-30",
-      "kind": "filigree",
-      "colors": ["#F2C14E", "#F7DC8B"]
+      "colors": ["#F2C14E", "#F7DC8B"],
+      "border": {
+        "width": 2,
+        "colors": [0]
+      },
+      "inner": {
+        "gap": 4,
+        "width": 1,
+        "color": 1,
+        "strength": 0.6
+      },
+      "ornament": {
+        "corners": ["tl", "tr", "br", "bl"],
+        "shapes": [
+          {
+            "shape": "path",
+            "d": "M3 21V9a6 6 0 0 1 6-6h12",
+            "stroke": 0,
+            "strokeWidth": 2.4
+          },
+          {
+            "shape": "path",
+            "d": "M7 21v-8a6 6 0 0 1 6-6h8",
+            "stroke": 1,
+            "strokeWidth": 1.2
+          },
+          {
+            "shape": "circle",
+            "cx": 4.5,
+            "cy": 4.5,
+            "r": 2.6,
+            "fill": 1
+          }
+        ]
+      }
     },
     {
       "id": "neon",
       "name": "Arcade neon",
       "mission": "room-win",
-      "kind": "neon",
-      "colors": ["#00E5FF", "#B04CFF", "#FF4FA3"]
+      "colors": ["#00E5FF", "#B04CFF", "#FF4FA3"],
+      "border": {
+        "width": 2,
+        "colors": [0, 1, 2],
+        "gradient": "linear",
+        "angle": 120
+      },
+      "glows": [
+        {
+          "blur": 14,
+          "spread": 0,
+          "color": 1,
+          "strength": 0.55
+        },
+        {
+          "blur": 4,
+          "spread": 0,
+          "color": 0,
+          "strength": 0.6
+        }
+      ]
     },
     {
       "id": "prism",
       "name": "Prism",
       "mission": "streak-30",
-      "kind": "prism",
-      "colors": ["#FF6B6B", "#FFD93D", "#6BCB77", "#4D96FF", "#B04CFF"]
+      "colors": [
+        "#FF6B6B",
+        "#FFD93D",
+        "#6BCB77",
+        "#4D96FF",
+        "#B04CFF",
+        "#FFFFFF"
+      ],
+      "border": {
+        "width": 3,
+        "colors": [0, 1, 2, 3, 4, 0],
+        "gradient": "conic",
+        "angle": 30
+      },
+      "ornament": {
+        "corners": ["tl", "tr", "br", "bl"],
+        "shapes": [
+          {
+            "shape": "path",
+            "d": "M12 2l2.6 6.4L21 9l-5 4.4L17.4 20 12 16.6 6.6 20 8 13.4 3 9l6.4-.6z",
+            "fill": 5
+          }
+        ]
+      }
     }
   ],
   "backgrounds": [

@@ -5,7 +5,13 @@
  * entry, worded as what to do about it.
  */
 import { songs } from "../constants";
-import { FRAME_KINDS } from "../constants/cosmetics";
+import {
+  type Frame,
+  FRAME_CORNERS,
+  FRAME_GRADIENTS,
+  ORNAMENT_SHAPES,
+  type OrnamentShape,
+} from "../constants/cosmetics";
 import { ICONS } from "../constants/icons";
 import { MISSION_FACTS } from "../constants/missions";
 import { FACT_TOTALS } from "../helpers/missions";
@@ -33,6 +39,148 @@ export interface ContentEnv {
 
 const HEX = /^#[0-9a-fA-F]{6}$/;
 const isHex = (color: unknown) => typeof color === "string" && HEX.test(color);
+
+/** A number from `min` to `max`, both included. */
+const isBetween = (value: unknown, min: number, max: number) =>
+  typeof value === "number" &&
+  Number.isFinite(value) &&
+  value >= min &&
+  value <= max;
+
+/** An SVG path's commands and numbers, and nothing else. */
+const PATH = /^[MmLlHhVvCcSsQqTtAaZz0-9.,\s-]+$/;
+
+/** What's wrong with one shape of an ornament, `isColor` its palette's. */
+function shapeProblems(
+  shape: OrnamentShape,
+  isColor: (at: unknown) => boolean
+): string[] {
+  const problems: string[] = [];
+  const need = (ok: boolean, problem: string) => ok || problems.push(problem);
+  const numbers = (keys: Array<keyof OrnamentShape>) =>
+    keys.every(
+      (key) => shape[key] === undefined || isBetween(shape[key], -48, 48)
+    );
+  if (!(ORNAMENT_SHAPES as readonly string[]).includes(shape.shape)) {
+    return [`${shape.shape} isn't a shape (${ORNAMENT_SHAPES.join(", ")})`];
+  }
+  if (shape.shape === "path") {
+    need(
+      typeof shape.d === "string" &&
+        shape.d.length <= 2000 &&
+        PATH.test(shape.d),
+      "a path needs its d, of path commands and numbers"
+    );
+  }
+  if (shape.shape === "circle")
+    need(isBetween(shape.r, 0, 24), "a circle needs r, 0-24");
+  if (shape.shape === "ellipse") {
+    need(
+      isBetween(shape.rx, 0, 24) && isBetween(shape.ry, 0, 24),
+      "an ellipse needs rx and ry, 0-24"
+    );
+  }
+  need(numbers(["cx", "cy"]), "cx and cy must be -48 to 48");
+  need(
+    shape.fill !== undefined || shape.stroke !== undefined,
+    "a shape needs a fill, an outline or both"
+  );
+  if (shape.fill !== undefined)
+    need(isColor(shape.fill), "its fill isn't a colour of the frame's");
+  if (shape.stroke !== undefined) {
+    need(isColor(shape.stroke), "its outline isn't a colour of the frame's");
+    need(
+      isBetween(shape.strokeWidth, 0.1, 12),
+      "an outline needs its width, 0.1-12"
+    );
+  }
+  if (shape.at !== undefined) {
+    need(
+      Array.isArray(shape.at) &&
+        shape.at.length === 3 &&
+        isBetween(shape.at[0], -48, 48) &&
+        isBetween(shape.at[1], -48, 48) &&
+        isBetween(shape.at[2], -360, 360),
+      "at is [x, y, degrees], x and y -48 to 48"
+    );
+  }
+  return problems;
+}
+
+/**
+ * What's wrong with a frame's parts: each colour a part names must be in
+ * its palette, and every size within what a card can carry.
+ */
+export function frameProblems(frame: Frame): string[] {
+  const problems: string[] = [];
+  const need = (ok: boolean, problem: string) => ok || problems.push(problem);
+  const colors = Array.isArray(frame.colors) ? frame.colors : [];
+  need(colors.length > 0, "no colours");
+  need(colors.every(isHex), "colours must be #rrggbb");
+  const isColor = (at: unknown) =>
+    Number.isInteger(at) &&
+    (at as number) >= 0 &&
+    (at as number) < colors.length;
+
+  const { border, inner, glows, ornament } = frame;
+  if (!border) return [...problems, "no border"];
+  need(isBetween(border.width, 0.5, 8), "the border's width must be 0.5-8");
+  need(
+    Array.isArray(border.colors) &&
+      border.colors.length > 0 &&
+      border.colors.every(isColor),
+    "the border's colours must be colours of the frame's"
+  );
+  if (border.gradient !== undefined) {
+    need(
+      (FRAME_GRADIENTS as readonly string[]).includes(border.gradient),
+      `a gradient is ${FRAME_GRADIENTS.join(" or ")}`
+    );
+  }
+  if (border.angle !== undefined)
+    need(isBetween(border.angle, -360, 360), "the angle must be -360 to 360");
+  if (inner) {
+    need(isBetween(inner.gap, 0, 12), "the inner line's gap must be 0-12");
+    need(
+      isBetween(inner.width, 0.5, 6),
+      "the inner line's width must be 0.5-6"
+    );
+    need(isColor(inner.color), "the inner line's colour isn't the frame's");
+    need(
+      isBetween(inner.strength, 0, 1),
+      "the inner line's strength must be 0-1"
+    );
+  }
+  for (const [i, glow] of (glows ?? []).entries()) {
+    need(isBetween(glow.blur, 0, 40), `glow ${i + 1}: blur must be 0-40`);
+    need(isBetween(glow.spread, 0, 12), `glow ${i + 1}: spread must be 0-12`);
+    need(isColor(glow.color), `glow ${i + 1}: its colour isn't the frame's`);
+    need(isBetween(glow.strength, 0, 1), `glow ${i + 1}: strength must be 0-1`);
+  }
+  need((glows ?? []).length <= 4, "four glows at most");
+  if (ornament) {
+    const corners = Array.isArray(ornament.corners) ? ornament.corners : [];
+    need(
+      corners.length > 0 &&
+        new Set(corners).size === corners.length &&
+        corners.every((corner) =>
+          (FRAME_CORNERS as readonly string[]).includes(corner)
+        ),
+      "the ornament needs one corner or more, each once"
+    );
+    const shapes = Array.isArray(ornament.shapes) ? ornament.shapes : [];
+    need(
+      shapes.length > 0 && shapes.length <= 40,
+      "the ornament needs 1-40 shapes"
+    );
+    shapes.forEach((shape, i) => {
+      for (const problem of shapeProblems(shape, isColor)) {
+        problems.push(`ornament shape ${i + 1}: ${problem}`);
+      }
+    });
+  }
+  return problems;
+}
 
 /** Days in a month of a leap year, so 29 February counts. */
 const daysIn = (month: number) => new Date(2028, month, 0).getDate();
@@ -328,15 +476,9 @@ export function checkContent(
       );
     }
     for (const frame of cosmetics.frames) {
-      report(
-        (FRAME_KINDS as readonly string[]).includes(frame.kind),
-        `frame ${frame.id}: kind ${frame.kind} isn't drawn by ProfileFrame`
-      );
-      report(frame.colors.length > 0, `frame ${frame.id}: no colours`);
-      report(
-        frame.colors.every(isHex),
-        `frame ${frame.id}: colours must be #rrggbb`
-      );
+      for (const problem of frameProblems(frame)) {
+        report(false, `frame ${frame.id}: ${problem}`);
+      }
     }
     for (const background of cosmetics.backgrounds.slice(1)) {
       report(

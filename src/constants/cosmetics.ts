@@ -104,28 +104,91 @@ export interface Banner extends Cosmetic {
 /** A blank banner has no look of its own: ProfileBanner draws none. */
 export const BANNERS = cosmeticData.banners as unknown as Banner[];
 
-/**
- * How a frame is drawn, each in code (ProfileFrame): a line; filigree,
- * petals or a halo on the corners; a neon glow; a prism of colours. A new
- * one needs drawing there; a new frame of a kind there is only an entry.
+/*
+ * A frame is drawn from parts, all data (ProfileFrame), so a new style is
+ * only an entry: a border, a thin line inside it, glows outside, and an
+ * ornament on the corners. Every colour in a part is a place in the
+ * frame's `colors`, so recolouring a style is changing its palette.
  */
-export const FRAME_KINDS = [
-  "line",
-  "filigree",
-  "petals",
-  "halo",
-  "neon",
-  "prism",
-] as const;
-export type FrameKind = (typeof FRAME_KINDS)[number];
 
-export interface Frame extends Cosmetic {
-  kind: FrameKind;
-  /** The kind's colours: the line first, then its ornaments or glow. */
-  colors: string[];
+/** A colour of the frame's palette, by its place in `colors`. */
+export type FrameColor = number;
+
+export const FRAME_GRADIENTS = ["linear", "conic"] as const;
+
+export interface FrameBorder {
+  /** Its width, in px. */
+  width: number;
+  /** One colour for a plain line; more for a gradient round it. */
+  colors: FrameColor[];
+  /**
+   * How a gradient runs: straight across at `angle`, or round the card
+   * starting from it.
+   */
+  gradient?: (typeof FRAME_GRADIENTS)[number];
+  /** In degrees. */
+  angle?: number;
 }
 
-export const FRAMES = cosmeticData.frames as Frame[];
+/** A thin line inside the border, the page's colour between them. */
+export interface FrameInnerLine {
+  gap: number;
+  width: number;
+  color: FrameColor;
+  /** How strong the colour is, 0 to 1. */
+  strength: number;
+}
+
+/** A glow, or a hard ring with no blur, round the outside. */
+export interface FrameGlow {
+  blur: number;
+  spread: number;
+  color: FrameColor;
+  strength: number;
+}
+
+export const ORNAMENT_SHAPES = ["path", "circle", "ellipse"] as const;
+export type OrnamentShapeKind = (typeof ORNAMENT_SHAPES)[number];
+
+/**
+ * One SVG shape of an ornament, in a 24×24 box drawn for the top-left
+ * corner (the others are it turned): a path's `d`, a circle's `cx`, `cy`
+ * and `r`, or an ellipse's `cx`, `cy`, `rx` and `ry`, filled, outlined or
+ * both. `at` moves it and turns it, as [x, y, degrees].
+ */
+export interface OrnamentShape {
+  shape: OrnamentShapeKind;
+  d?: string;
+  cx?: number;
+  cy?: number;
+  r?: number;
+  rx?: number;
+  ry?: number;
+  fill?: FrameColor;
+  stroke?: FrameColor;
+  strokeWidth?: number;
+  at?: [number, number, number];
+}
+
+export const FRAME_CORNERS = ["tl", "tr", "br", "bl"] as const;
+export type FrameCorner = (typeof FRAME_CORNERS)[number];
+
+export interface FrameOrnament {
+  /** The corners it sits on: a halo floats on two, filigree fences four. */
+  corners: FrameCorner[];
+  shapes: OrnamentShape[];
+}
+
+export interface Frame extends Cosmetic {
+  /** The palette its parts take their colours from. */
+  colors: string[];
+  border: FrameBorder;
+  inner?: FrameInnerLine;
+  glows?: FrameGlow[];
+  ornament?: FrameOrnament;
+}
+
+export const FRAMES = cosmeticData.frames as unknown as Frame[];
 
 /** A scene behind the profile and its card: a picture on the Worker. */
 export interface ProfileBackground extends Cosmetic {

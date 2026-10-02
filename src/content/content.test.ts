@@ -113,19 +113,53 @@ describe("checkContent", () => {
     ]);
   });
 
-  it("checks colours, kinds, emblems and pictures", () => {
+  it("checks colours, emblems and pictures", () => {
     const content = copy();
     const frame = content.cosmetics.frames[1];
-    Object.assign(frame, { kind: "zigzag", colors: ["red"] });
+    Object.assign(frame, { colors: ["red"] });
     const banner = content.cosmetics.banners.find(({ id }) => id === "schale")!;
     Object.assign(banner, { emblem: "IoNothing", picture: "nowhere" });
     expect(messages(content, "cosmetics")).toEqual(
       expect.arrayContaining([
-        `frame ${frame.id}: kind zigzag isn't drawn by ProfileFrame`,
         `frame ${frame.id}: colours must be #rrggbb`,
+        `frame ${frame.id}: ornament shape 1: its fill isn't a colour of the frame's`,
         `banner ${banner.id}: emblem IoNothing isn't in icons.ts`,
         `banner ${banner.id}: nowhere isn't on the Worker`,
       ])
+    );
+  });
+
+  it("checks a frame's parts", () => {
+    const content = copy();
+    const frame = content.cosmetics.frames.find(({ id }) => id === "gold")!;
+    frame.border = {
+      width: 20,
+      colors: [0, 7],
+      gradient: "zigzag" as "linear",
+    };
+    frame.glows = [{ blur: 99, spread: 0, color: 0, strength: 2 }];
+    frame.ornament = {
+      corners: ["tl", "tl"],
+      shapes: [
+        { shape: "path", d: "M0 0<script>", stroke: 1 },
+        { shape: "circle", cx: 4 },
+        { shape: "star" as "path", fill: 0 },
+      ],
+    };
+    expect(messages(content, "cosmetics")).toEqual(
+      [
+        "the border's width must be 0.5-8",
+        "the border's colours must be colours of the frame's",
+        "a gradient is linear or conic",
+        "glow 1: blur must be 0-40",
+        "glow 1: strength must be 0-1",
+        "the ornament needs one corner or more, each once",
+        "ornament shape 1: a path needs its d, of path commands and numbers",
+        "ornament shape 1: an outline needs its width, 0.1-12",
+        "ornament shape 2: a circle needs r, 0-24",
+        "ornament shape 2: a shape needs a fill, an outline or both",
+        "ornament shape 3: star isn't a shape (path, circle, ellipse)",
+      ].map((problem) => `frame gold: ${problem}`)
     );
   });
 

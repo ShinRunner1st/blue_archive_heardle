@@ -1,9 +1,10 @@
 import React from "react";
 
-import { FRAME_KINDS, FrameKind } from "../constants/cosmetics";
+import type { Frame } from "../constants/cosmetics";
 import type { Mission } from "../constants/missions";
 import type { CosmeticsFile, IdsLock } from "../content/types";
 import { freeId, moved, slugOf } from "./draft";
+import { FrameFields } from "./FrameEditor";
 import { isShipped } from "./lock";
 import type { TabProps } from "./MissionsTab";
 import {
@@ -51,16 +52,6 @@ const LISTS: Record<ListName, { label: string; where: string }> = {
   characters: { label: "Characters", where: "Settings" },
 };
 
-/** How each kind of frame is drawn, for its picker. */
-const FRAME_LOOKS: Record<FrameKind, string> = {
-  line: "A line",
-  filigree: "Filigree on the corners",
-  petals: "Petals on the corners",
-  halo: "A halo on two corners",
-  neon: "A neon glow of its colours",
-  prism: "A ring of its colours, with stars",
-};
-
 /** A new reward of a list, ready to fill in. */
 function fresh(list: ListName, id: string): Reward {
   const base = { id, name: "" };
@@ -85,7 +76,11 @@ function fresh(list: ListName, id: string): Reward {
         emblem: "IoStar",
       } as Reward;
     case "frames":
-      return { ...base, kind: "line", colors: ["#FFFFFF"] } as Reward;
+      return {
+        ...base,
+        colors: ["#FFFFFF"],
+        border: { width: 2, colors: [0] },
+      } as Reward;
     case "backgrounds":
       return { ...base, picture: SCENE_PICTURES[0] } as Reward;
     default:
@@ -272,6 +267,7 @@ export function RewardsTab({ draft, update, shipped, problems }: TabProps) {
             key={`${list}-${index}`}
             list={list}
             item={item}
+            others={items}
             isDefault={index === 0}
             released={isShipped(shipped, list, item.id)}
             missions={missions}
@@ -339,6 +335,7 @@ export function RewardsTab({ draft, update, shipped, problems }: TabProps) {
 function RewardForm({
   list,
   item,
+  others,
   isDefault,
   released,
   missions,
@@ -350,6 +347,8 @@ function RewardForm({
 }: {
   list: ListName;
   item: Reward;
+  /** The rest of its list. */
+  others: Reward[];
   isDefault: boolean;
   released: boolean;
   missions: Mission[];
@@ -499,7 +498,7 @@ function RewardForm({
       )}
 
       <Heading>Look</Heading>
-      <LookFields list={list} item={item} onChange={onChange} />
+      <LookFields list={list} item={item} others={others} onChange={onChange} />
 
       {!isDefault && (
         <>
@@ -587,10 +586,12 @@ function ColorList({
 function LookFields({
   list,
   item,
+  others,
   onChange,
 }: {
   list: ListName;
   item: Reward;
+  others: Reward[];
   onChange: (patch: Record<string, unknown>) => void;
 }) {
   const color = (key: string, label: string, hint?: string) => (
@@ -778,28 +779,11 @@ function LookFields({
 
     case "frames":
       return (
-        <>
-          <Field label="Style">
-            <Select
-              name="frame-kind"
-              value={item.kind as string}
-              onChange={(event) => onChange({ kind: event.target.value })}
-            >
-              {FRAME_KINDS.map((kind) => (
-                <option key={kind} value={kind}>
-                  {FRAME_LOOKS[kind]}
-                </option>
-              ))}
-            </Select>
-          </Field>
-          <ColorList
-            colors={item.colors as string[]}
-            min={1}
-            labels={(i) => (i === 0 ? "The line" : `Ornament or glow ${i}`)}
-            onChange={(colors) => onChange({ colors })}
-          />
-          <Hint>New styles of their own come with step 6.</Hint>
-        </>
+        <FrameFields
+          frame={item as unknown as Frame}
+          others={others as unknown as Frame[]}
+          onChange={onChange}
+        />
       );
 
     case "backgrounds":
