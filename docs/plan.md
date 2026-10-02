@@ -1010,10 +1010,14 @@ admin`, on their PC only, nothing deployed or in the site's build),
   over an online admin page or an off-the-shelf CMS, and staff may use
   it later, so it is built to move online then: forms, previews and
   checks shared, only the save step swapped for opening a pull request.
-  Proposed steps, nothing built until the user approves them:
+  Steps, each built once the user approves it:
 
   1. The content test's checks moved into one validator
      (`src/content/validate.ts`) that the test and the tool both use.
+     _Built on `feat/admin-tool`, off `docs/profile-measured` (the user
+     chose to stack it, 2026-10-02): the files' shapes in
+     `src/content/types.ts`, and a check for two seasons on one day,
+     which the README promised but the test never had._
   2. The tool's shell (its own Vite config, localhost only, writing
      `src/content/` and `ids.lock.json`), with Missions and What's new.
   3. Rewards (titles, card and cursor colours, banners, frames,

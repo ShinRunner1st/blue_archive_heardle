@@ -2,11 +2,13 @@
 
 The game's seasons, missions and what they unlock, OST badges and What's new
 live here as JSON, so adding or removing one never touches a component. The
-code in `src/constants/` only reads these files. `content.test.ts` checks
-every file on each `npm test` (and in CI), and names the entry when
-something is wrong: a repeated id, a date that doesn't exist, two seasons on
-one day, a picture not made, an icon not on the list, a song not in the
-game.
+code in `src/constants/` only reads these files. The checks are in
+`validate.ts` (the files' shapes in `types.ts`): `content.test.ts` runs
+them on every file on each `npm test` (and in CI), and they name the entry
+when something is wrong: a repeated id, a date that doesn't exist, two
+seasons on one day, a picture not made, an icon not on the list, a song not
+in the game. A new check goes in `validate.ts`, with a test that breaks a
+copy of the files to show it fires.
 
 After any change: `npm test`. After a change with pictures (a season, a
 badge cover): `npm run songs` too, before merging.

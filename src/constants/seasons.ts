@@ -21,7 +21,7 @@ export interface Season {
 }
 
 /** A season as src/content/seasons.json writes it. */
-interface SeasonEntry {
+export interface SeasonEntry {
   id: string;
   home: string;
   from: MonthDay;
