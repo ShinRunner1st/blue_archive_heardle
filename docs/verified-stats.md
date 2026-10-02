@@ -361,6 +361,57 @@ Reading a streak back reads every daily the account played on those days
 so a short streak costs a few rows and a 30-day one about 40. Deleting an
 account costs a row written for each of its rows, the verified ones too.
 
+### Verified, measured on Cloudflare (step 6)
+
+On the preview, 2026-10-02 (UTC): `ba-heardle-site-preview`, its own
+accounts Worker `ba-heardle-accounts-preview` on its own D1 database
+`ba-heardle-accounts-preview` (production's was untouched) and its own
+rooms `ba-heardle-rooms-preview`, with the user signing in with Google and
+playing each case in turn in Chrome. Each case's rows are D1's own
+per-minute analytics for those minutes; `wrangler tail` (time, method,
+path and status only) says which requests made them; the Workers' and
+Durable Objects' figures are Cloudflare's per minute. Requests count
+preflights. The account was new, so its rows were few.
+
+| Case (minute, UTC)                                                                                            | Accounts requests              | Rows read | Rows written | Against the local figures                                                            |
+| ------------------------------------------------------------------------------------------------------------- | ------------------------------ | --------- | ------------ | ------------------------------------------------------------------------------------ |
+| A. A new account's sign-in, first upload and profile (08:56)                                                  | 12 (4 preflights)              | 20        | 16           | as accounts' own: 12 + 2 + 2 written                                                 |
+| B, C. The OST daily's first start (zone set) and its finish, then a reload of it (08:57)                      | 2 and its preflight; 3 opening | 22        | 6            | 4/2 + 7/2, and the opening's sync about 10/2; the reload sent nothing to `/verified` |
+| D, E. Voice lost at its most tries; Students given up (08:58)                                                 | 4                              | 24        | 6            | two starts and finishes, 6/1 and 6-7/2 each                                          |
+| F. A Students daily's start (08:59)                                                                           | 1                              | 6         | 1            | 6/1, exactly                                                                         |
+| F, G. Its finish, sent once back online (a retry), and the Verified tab, its tabs then switched (09:00)       | 2                              | 18        | 2            | a finish's 7/2 and the record's 8-10; the switches sent nothing                      |
+| H. The room pass (09:01), then a 2-player room's receipt, and again after a reload at the standings (09:04)   | 3; then 6                      | 8; 24     | 1; 6         | the receipt 3/2 and again 3/0, with the openings' syncs                              |
+| I. A second browser: a guest's daily, then a returning sign-in, its daily merged in (09:06, 09:09)            | 0 as a guest; 12 (4), then 3   | 32; 11    | 10; 1        | 6, the merge's 3 and the profile's 1; no `/verified`: that daily had moves already   |
+| J, K. The zone moved east (Kiritimati): a Halo start and finish; west (Pago Pago): two starts refused (09:10) | 4, and 3 opening               | 33        | 6            | the move east's start 6/2 and finish 2; each refusal 0 written                       |
+| L, M. A start, the Account tab, Download my data, Delete account (09:11)                                      | 4 (1)                          | 91        | 25           | under the local 85 and 135 read, 63 written, which were for a fuller account         |
+
+- **Every case was at or under the local figures.** One preflight for
+  `/verified` in the whole session; a guest's page called the accounts
+  Worker not at all.
+- **After Delete account**, every table of the preview database held 0
+  rows, the four verified ones included.
+- **The rooms** for case H: 3 rooms Worker requests (the host, the guest,
+  the host's reload: one per connection), 53 Durable Object invocations
+  (the 3 connections and 50 WebSocket events), and 7 Durable Object rows
+  written for the whole 5-round game. The game's id and its end add no
+  row: they ride in the writes it makes as it starts and ends anyway.
+- **Not seen on Cloudflare**, as they need days to pass: a finish past
+  its deadline, the lazy close of an abandoned attempt, and a streak over
+  days. They were measured locally (above) and checked by the tests.
+- **The picture daily starts as it shows**, as section 5 says: in case K,
+  as the time zone was set back and the page dealt the day's Weapon
+  picture, it was started then (a start, 1 row written).
+- Cloudflare's invocation analytics named the new preview Worker
+  `__unknown__` that day; its counts matched the tail, minute by minute.
+
+**A representative engaged day**, from these measured parts (how often a
+player does each is a guess, and this is not a capacity): the usual
+signed-in day (about 10 requests, 50 rows read, 6 written), 3 dailies
+(6 requests, about 36 read, 9 written), 1 room receipt (1, 3, 2), 2
+profile openings with the Verified tab (2, about 20, 0) and a preflight:
+**about 20 requests, 110 rows read and 17 written**, inside the
+estimates below.
+
 ### Rooms (checked in step 3)
 
 - **Rooms Worker requests**: none added.
@@ -492,4 +543,7 @@ Each step only once the user approves it, on its own stacked branch:
    it counted), each summary, and the room results. Delete account and
    the two-year cleanup already took the four tables (step 2)._
 6. **Measured on the preview**, as accounts' step 6 was, before any
-   release.
+   release. _Measured on 2026-10-02 (section 12), on a preview accounts
+   Worker and database of its own (`accounts-worker/wrangler.preview.jsonc`,
+   on `chore/accounts-preview`), as production's accounts serve real
+   players now; the figures are recorded on `docs/verified-measured`._
