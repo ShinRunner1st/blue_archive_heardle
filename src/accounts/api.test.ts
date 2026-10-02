@@ -6,7 +6,7 @@ import { fakeD1, FakeD1 } from "../test/fakeD1";
 import { DEFAULT_LOOK } from "../helpers/roomLook";
 import { ACCOUNT_UNUSED_DAYS } from "../types/account";
 import { ROOM_PASS_MS } from "../types/room";
-import { AccountsEnv, handle, pageToReturnTo } from "./api";
+import { AccountsEnv, handle, pageToReturnTo, SITE_ORIGINS } from "./api";
 import { signValue } from "./crypto";
 import { tidyAccounts } from "./privacy";
 import { readRoomPass } from "./roomPass";
@@ -24,7 +24,15 @@ let env: AccountsEnv;
 beforeEach(() => {
   db = fakeD1();
   now = Date.UTC(2026, 9, 2, 12);
-  env = { db, stateKey: "test-state-key", fakeSignIn: true, now: () => now };
+  // As `npm run accounts` runs it: stand-in sign-in pages, and a local dev
+  // server's pages let in. "Where pages may come from" tests the deployed one.
+  env = {
+    db,
+    stateKey: "test-state-key",
+    fakeSignIn: true,
+    localDev: true,
+    now: () => now,
+  };
 });
 
 function call(
@@ -168,7 +176,7 @@ describe("signing in", () => {
       { origin: null }
     );
     expect(bad.status).toBe(400);
-    expect(pageToReturnTo(`${PAGE}#old`)).toBe(PAGE);
+    expect(pageToReturnTo(`${PAGE}#old`, true)).toBe(PAGE);
   });
 
   it("refuses a changed state, another provider's, or one too old", async () => {
@@ -227,6 +235,111 @@ describe("signing in", () => {
     expect(
       (await call("POST", "/auth/session", { body: { code: "x" } })).status
     ).toBe(429);
+  });
+});
+
+describe("where pages may come from", () => {
+  const LIVE_PAGE = "https://baheardle.com/ost";
+  const LOCAL_PAGES = [
+    PAGE,
+    "http://localhost:5173/",
+    "http://127.0.0.1:3000/ost",
+    "http://localhost:3000.evil.example/ost",
+  ];
+
+  /** As deployed: real sign-in pages, and no local dev server let in. */
+  function deployed() {
+    env.fakeSignIn = false;
+    env.localDev = false;
+    env.google = { clientId: "google-id", clientSecret: "google-secret" };
+  }
+
+  const preflight = (origin: string) => call("OPTIONS", "/me", { origin });
+
+  it("lists only the site, its test address and its preview", () => {
+    expect([...SITE_ORIGINS]).toEqual([
+      "https://baheardle.com",
+      "https://ba-heardle-site.shinrunner1st.workers.dev",
+      "https://ba-heardle-site-preview.shinrunner1st.workers.dev",
+    ]);
+  });
+
+  it("turns a localhost page away from a deployed Worker's API", async () => {
+    deployed();
+    for (const origin of [
+      SITE,
+      "http://localhost:5173",
+      "http://127.0.0.1:3000",
+    ]) {
+      expect((await preflight(origin)).status).toBe(403);
+      expect((await call("GET", "/me", { origin })).status).toBe(403);
+      expect(
+        (await call("POST", "/auth/session", { origin, body: { code: "x" } }))
+          .status
+      ).toBe(403);
+    }
+    const site = await preflight("https://baheardle.com");
+    expect(site.status).toBe(204);
+    expect(site.headers.get("Access-Control-Allow-Origin")).toBe(
+      "https://baheardle.com"
+    );
+  });
+
+  it("never sends a deployed Worker's sign-in back to localhost", async () => {
+    deployed();
+    for (const back of LOCAL_PAGES) {
+      const query = new URLSearchParams({ nonce: NONCE, back });
+      const started = await call("GET", `/auth/google/start?${query}`, {
+        origin: null,
+      });
+      expect(started.status).toBe(400);
+      expect(started.headers.get("Location")).toBeNull();
+      expect(pageToReturnTo(back)).toBeNull();
+    }
+    // The site itself still starts one, to Google.
+    const query = new URLSearchParams({ nonce: NONCE, back: LIVE_PAGE });
+    expect(
+      location(
+        await call("GET", `/auth/google/start?${query}`, { origin: null })
+      ).origin
+    ).toBe("https://accounts.google.com");
+  });
+
+  it("won't follow a signed state back to localhost on a deployed Worker", async () => {
+    deployed();
+    // Signed with the Worker's own key, as a local run sharing it could.
+    const toLocal = await signValue(
+      "state",
+      { p: "google", n: NONCE, b: PAGE, e: now + 60_000 },
+      "test-state-key"
+    );
+    const refused = await answer("google", toLocal, { error: "access_denied" });
+    expect(refused.status).toBe(400);
+    expect(refused.headers.get("Location")).toBeNull();
+
+    const toSite = await signValue(
+      "state",
+      { p: "google", n: NONCE, b: LIVE_PAGE, e: now + 60_000 },
+      "test-state-key"
+    );
+    const back = location(
+      await answer("google", toSite, { error: "access_denied" })
+    );
+    expect(back.origin).toBe("https://baheardle.com");
+    expect(back.hash).toBe(`#authError=cancelled&nonce=${NONCE}`);
+  });
+
+  it("lets a local dev server's pages in, as `npm run accounts` runs", async () => {
+    const local = await preflight(SITE);
+    expect(local.status).toBe(204);
+    expect(local.headers.get("Access-Control-Allow-Origin")).toBe(SITE);
+    expect(pageToReturnTo(PAGE, true)).toBe(PAGE);
+    expect(
+      pageToReturnTo("http://localhost:3000.evil.example/ost", true)
+    ).toBeNull();
+    // A whole sign-in comes back to the local page.
+    const token = await signIn("dev");
+    expect((await me(token)).status).toBe(200);
   });
 });
 

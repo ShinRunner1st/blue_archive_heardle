@@ -136,7 +136,8 @@ beforeEach(async () => {
   now = Date.UTC(2026, 9, 2, 12);
   online = true;
   calls = [];
-  env = { db, stateKey: "test-key", now: () => now };
+  // A local dev server's page, as `npm run accounts` lets in.
+  env = { db, stateKey: "test-key", localDev: true, now: () => now };
   account = await createAccount(db, "google", "alice", now);
   // The page's requests reach the Worker's code, from the site's address.
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {

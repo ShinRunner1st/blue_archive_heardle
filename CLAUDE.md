@@ -120,8 +120,11 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   localStorage, travels only in an Authorization header, and is never
   logged or put in an address. On wherever the build has an accounts
   address: baheardle.com (`api.baheardle.com`, `.env.production`), the
-  preview (`.env.preview`, the workers.dev address) and the dev server
-  (`npm run accounts`, with stand-in sign-in pages). CI deploys it from
+  preview (`.env.preview`, also `api.baheardle.com`: the Worker has no
+  workers.dev address) and the dev server (`npm run accounts`, with
+  stand-in sign-in pages). Deployed, it takes only the site's own pages
+  (`SITE_ORIGINS`); localhost only with `npm run accounts` (`LOCAL_DEV`).
+  Discord's sign-in is off (empty `DISCORD_CLIENT_ID`) until the release. CI deploys it from
   `main` before the rooms and the site (`npm run deploy:accounts`: Time
   Travel bookmark, migrations, Worker); `npm run accounts:measure` and
   `scripts/measure-accounts.mjs` measure what each request costs D1.

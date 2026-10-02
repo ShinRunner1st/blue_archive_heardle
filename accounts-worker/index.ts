@@ -28,6 +28,13 @@ interface Env {
    */
   FAKE_SIGN_IN?: string;
   /**
+   * "yes" only from `npm run accounts` and `accounts:measure`: a local dev
+   * server's pages (`http://localhost:<port>`) may call it and be signed
+   * in to. On localhost only, like FAKE_SIGN_IN, so a deployed Worker
+   * takes the site's own pages and nothing else.
+   */
+  LOCAL_DEV?: string;
+  /**
    * "yes" only from `npm run accounts:measure`: each answer says what it
    * cost D1 (rows read and written) in headers, for the measurements in
    * docs/accounts.md, section 6. On localhost only, like FAKE_SIGN_IN.
@@ -102,6 +109,7 @@ export default {
       google: keys(env.GOOGLE_CLIENT_ID, env.GOOGLE_CLIENT_SECRET),
       discord: keys(env.DISCORD_CLIENT_ID, env.DISCORD_CLIENT_SECRET),
       fakeSignIn: env.FAKE_SIGN_IN === "yes" && local,
+      localDev: env.LOCAL_DEV === "yes" && local,
       signInLimit: limiter(env.SIGN_IN_LIMIT),
       apiLimit: limiter(env.API_LIMIT),
       limitKey: await counterKey(request),

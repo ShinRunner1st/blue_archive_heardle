@@ -92,6 +92,13 @@ export interface AccountsEnv {
    * localhost (see accounts-worker/index.ts). Never on a deployed Worker.
    */
   fakeSignIn?: boolean;
+  /**
+   * A local dev server's pages (`http://localhost:<port>`) may call the API
+   * and be signed in to: only with `wrangler dev`'s LOCAL_DEV and on
+   * localhost (see accounts-worker/index.ts). Never on a deployed Worker,
+   * where only SITE_ORIGINS may.
+   */
+  localDev?: boolean;
   /** Sign-ins, and everything else, per address a minute. */
   signInLimit?: (key: string) => Promise<boolean>;
   apiLimit?: (key: string) => Promise<boolean>;
@@ -102,24 +109,36 @@ export interface AccountsEnv {
 }
 
 /**
- * The pages allowed to sign in and call the API: the site, its test
- * address, its preview, and a local dev server, as for the rooms.
+ * The only pages a deployed Worker lets sign in, call the API and be sent
+ * back to: the site, its test address and its preview. A page anywhere
+ * else could be handed a sign-in's one-time code, so a local dev server is
+ * let in only by `localDev`.
  */
-export function isSiteOrigin(origin: string | null): boolean {
+export const SITE_ORIGINS: readonly string[] = [
+  "https://baheardle.com",
+  "https://ba-heardle-site.shinrunner1st.workers.dev",
+  "https://ba-heardle-site-preview.shinrunner1st.workers.dev",
+];
+
+const LOCAL_ORIGIN = /^http:\/\/localhost:\d+$/;
+
+/** Whether a page may sign in and call the API; see SITE_ORIGINS. */
+export function isSiteOrigin(origin: string | null, localDev = false): boolean {
+  if (origin === null) return false;
   return (
-    origin === "https://baheardle.com" ||
-    origin === "https://ba-heardle-site.shinrunner1st.workers.dev" ||
-    origin === "https://ba-heardle-site-preview.shinrunner1st.workers.dev" ||
-    (origin !== null && /^http:\/\/localhost:\d+$/.test(origin))
+    SITE_ORIGINS.includes(origin) || (localDev && LOCAL_ORIGIN.test(origin))
   );
 }
 
 /** The page to come back to: on the site, with no `#` part of its own. */
-export function pageToReturnTo(back: string | null): string | null {
+export function pageToReturnTo(
+  back: string | null,
+  localDev = false
+): string | null {
   if (!back) return null;
   try {
     const url = new URL(back);
-    if (!isSiteOrigin(url.origin)) return null;
+    if (!isSiteOrigin(url.origin, localDev)) return null;
     url.hash = "";
     return url.toString();
   } catch {
@@ -238,7 +257,7 @@ export async function handle(
 
   // The API: the site's pages only.
   const origin = request.headers.get("Origin");
-  if (!origin || !isSiteOrigin(origin)) {
+  if (!origin || !isSiteOrigin(origin, env.localDev)) {
     return new Response("Forbidden", { status: 403 });
   }
   if (request.method === "OPTIONS") {
@@ -407,7 +426,7 @@ async function start(
   now: number
 ): Promise<Response> {
   const params = new URL(request.url).searchParams;
-  const page = pageToReturnTo(params.get("back"));
+  const page = pageToReturnTo(params.get("back"), env.localDev);
   const nonce = params.get("nonce") ?? "";
   if (!page || !NONCE.test(nonce)) {
     return plainPage(
@@ -477,7 +496,9 @@ async function callback(
     env.stateKey
   );
   const page =
-    state && typeof state.b === "string" ? pageToReturnTo(state.b) : null;
+    state && typeof state.b === "string"
+      ? pageToReturnTo(state.b, env.localDev)
+      : null;
   const nonce = state && typeof state.n === "string" ? state.n : "";
   if (!state || !page || state.p !== provider || !NONCE.test(nonce)) {
     return plainPage(

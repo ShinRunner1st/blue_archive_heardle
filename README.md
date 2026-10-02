@@ -941,9 +941,13 @@ shows wherever the build has an accounts address.
   It stands in for Google's and Discord's pages with one of its own (pick
   a name; the same name is the same account), so it all works without
   them. The stand-in is only ever on localhost.
-- **The preview** is built in Vite's `preview` mode (`.env.preview`, which
-  points at the Worker's workers.dev address, working before the Custom
-  Domain is set up).
+- **The preview** is built in Vite's `preview` mode (`.env.preview`, with
+  its own rooms; its accounts are `api.baheardle.com`'s, the Worker's only
+  address, as it has no workers.dev one).
+- **Which pages it takes:** deployed, only the site's own (baheardle.com,
+  its test address and its preview, `SITE_ORIGINS`) may call it or be
+  sent back to after a sign-in; a local dev server's only with `npm run
+accounts` (`LOCAL_DEV`, on localhost only).
 - **Deploying:** CI publishes it from `main` before the rooms and the
   site (`npm run deploy:accounts`): it prints the database's Time Travel
   bookmark, to go back to, applies the migrations (which only ever add),

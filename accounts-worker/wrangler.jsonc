@@ -29,10 +29,11 @@
   // Not secret: the client ids are in every sign-in link. An empty one turns
   // that provider's sign-in off (its button says it isn't available).
   // Google's app is in "Testing" until the release: only its test users
-  // can sign in with it.
+  // can sign in with it. Discord's has no such mode, so it stays off until
+  // the release, when its id goes back: 1555352991316320296.
   "vars": {
     "GOOGLE_CLIENT_ID": "675992797051-89eelrq9h5ccp2qnmfuf4gkfn4bj6umv.apps.googleusercontent.com",
-    "DISCORD_CLIENT_ID": "1555352991316320296"
+    "DISCORD_CLIENT_ID": ""
   },
   // Counted per address (hashed) a minute: sign-ins (starting one and
   // swapping its code), and every other call.
@@ -56,6 +57,8 @@
   "routes": [{ "pattern": "api.baheardle.com", "custom_domain": true }],
   // No logs or traces: a request's headers can hold a session token.
   "observability": { "enabled": false },
-  "workers_dev": true,
+  // Only api.baheardle.com: no workers.dev address, so there's one way in
+  // for sign-ins (and for scanners). `npm run accounts` is unaffected.
+  "workers_dev": false,
   "preview_urls": false
 }

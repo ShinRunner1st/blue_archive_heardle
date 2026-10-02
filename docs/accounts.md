@@ -70,7 +70,15 @@ Changes from the first sketch:
 the D1 database `ba-heardle-accounts`. It serves at **`api.baheardle.com`**,
 a Custom Domain like the site's. Google asks for its sign-in addresses to
 be on a domain verified in Search Console, and baheardle.com already is; a
-workers.dev address can't be verified.
+workers.dev address can't be verified. It has no workers.dev address at all
+(`workers_dev: false`), so sign-ins, and scanners, have one way in.
+
+**Which pages it takes:** a deployed Worker lets only the site's own pages
+call it, and sends a sign-in back only to them (`SITE_ORIGINS` in
+`src/accounts/api.ts`: baheardle.com, its test address and its preview).
+A local dev server's (`http://localhost:<port>`) are let in only by
+`npm run accounts` (its `LOCAL_DEV`, honoured on localhost only), as a
+page anywhere else could be handed a sign-in's one-time code.
 
 **Scopes:** Google's `openid` only (its `sub`, a number for the person),
 and Discord's `identify` (its user id). We keep only those ids: no email,
@@ -569,7 +577,7 @@ unmeasured; table 1 has only the local run.
 and counted on its own line: scanners. Within minutes of
 `api.baheardle.com` getting its certificate (which goes into the public
 certificate logs scanners read), and through the workers.dev address
-too, about **180 requests in the first 2.5 hours** asked for `/.env`,
+too (turned off since), about **180 requests in the first 2.5 hours** asked for `/.env`,
 `/.git/config`, `/config.json`, `/CLAUDE.md`, `/AGENTS.md`, `setup.php`
 and the like, from the Netherlands, Germany and the US. Each got a 404
 and cost D1 nothing, but each was a Worker request (10 more were
@@ -778,8 +786,9 @@ on the preview) until step 6.
      nonce stops a sign-in being slipped into someone else's page._
    - _Rate limits: 10 sign-ins and 60 other calls a minute per address;
      syncs get theirs with step 3._
-   - _The preview signs in against the Worker's workers.dev address for
-     now; `api.baheardle.com` comes with the release._
+   - _The preview signed in against the Worker's workers.dev address
+     until step 6's hardening; it uses `api.baheardle.com` now, the
+     Worker's only address._
    - _A local stand-in for Google's and Discord's pages (`npm run
 accounts`, localhost only), so the whole flow is tried without
      their keys._
@@ -964,7 +973,11 @@ favourite student, title, banner, frame, background, expiry}` with
    user's own Google and Discord sign-ins (section 6): every case at or
    under the local figures, and scanners found, given their own line in
    the quota. Not yet observed: a preflight's reuse past 15 minutes, and
-   the daily cleanup on Cloudflare. The release waits for the user._
+   the daily cleanup on Cloudflare. Then hardened before the release: a
+   deployed Worker takes only `SITE_ORIGINS` (localhost only with `npm run
+accounts`), its workers.dev address is off, and Discord's sign-in is
+   off (its client id emptied) until the release puts it back, as
+   Discord's apps have no testing mode. The release waits for the user._
 
 ## Decisions (settled 2026-10-02)
 
