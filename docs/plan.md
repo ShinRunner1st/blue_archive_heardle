@@ -1019,18 +1019,34 @@ admin`, on their PC only, nothing deployed or in the site's build),
      `src/content/types.ts`, and a check for two seasons on one day,
      which the README promised but the test never had._
   2. The tool's shell (its own Vite config, localhost only, writing
-     `src/content/` and `ids.lock.json`), with Missions and What's new.
-  3. Rewards (titles, card and cursor colours, banners, frames,
-     backgrounds) with live previews from the game's own components;
-     characters shown read-only (they need Spine files and code).
+     `src/content/` and `ids.lock.json`), with Missions (their tabs too)
+     and What's new.
+  3. Every cosmetic list: titles, Sensei card colours, cursor colours,
+     banners, frames, backgrounds and which mission unlocks each
+     character, with live previews from the game's own components (the
+     Sensei card, the profile card, a box to tap and drag the cursor in).
   4. Pictures (drop one in, made the right size as WebP,
-     `build:pictures` run), Seasons and OST badges.
+     `build:pictures` run), Seasons and OST badges, each previewed.
+  5. Characters, the ones there and new ones: their set-up moves from
+     `src/constants/characters.ts` into a content file, and the tool
+     makes a new one's sprite from the game's files (`build-spine.py`)
+     and shows any character in a Spine preview, to frame her and set
+     her faces (each mood, which faces blink) and her pat and look.
+  6. Frame styles from parts (a line, a glow, corner ornaments as SVG
+     shapes in the content), so a new style needs no code; the six there
+     redrawn from parts, checked pixel for pixel against today's.
+  7. Mission counts from rules (a game, mode, server, result, tries,
+     clip or time, counted, counted once each, or as a streak or a best
+     run), so a new kind of count needs no code; the 24 counts there stay
+     as they are. Progress previewed from an imported save file.
 
-  Deleting a mission or reward is retiring it (ids are kept); seasons,
-  badges and What's new entries can go. A new mission `fact`, cosmetic
-  kind or frame kind is still code. Then **missions for the new
-  rewards**, made with the tool: more missions, so each banner,
-  background and frame has one to unlock it.
+  The user's rule (2026-10-02): **everything expandable**, each new thing
+  added and previewed in the tool, as long as nothing breaks. Deleting a
+  mission or reward is retiring it (ids are kept); seasons, badges and
+  What's new entries can go. A new _kind_ of reward (beside titles,
+  banners, frames...) still needs its place on screen drawn in code.
+  Then **missions for the new rewards**, made with the tool: more
+  missions, so each banner, background and frame has one to unlock it.
 
 ## Future
 
