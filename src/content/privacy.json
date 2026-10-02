@@ -1,7 +1,7 @@
 {
   "updated": "2026-10-02",
   "contact": "privacy@baheardle.com",
-  "intro": "Blue Archive Heardle is a free fan game, made and run by one person, ShinRunner1st. You can play every game without an account. Signing in is optional, and only for keeping your progress and profile across devices.",
+  "intro": "Blue Archive Heardle is a free fan game, made and run by one person, ShinRunner1st. You can play every game without an account. Signing in is optional, and only for keeping your progress and profile across devices, and a verified record of your dailies and room games.",
   "sections": [
     {
       "id": "guests",
@@ -22,7 +22,21 @@
         "the name and favourite student you set in your profile, and the title, banner, frame, background and Sensei card colours you picked;",
         "your progress: your rounds in every game and mode, your multiplayer games and the missions you've cleared, as a copy of your save, and the copy from before the last time two devices' progress was joined;",
         "a summary of your record (rounds played, wins, best streaks and the like), worked out from your progress;",
+        "your verified results, and your daily time zone: see Verified results below;",
         "when the account was made and last used, and for each device you're signed in on, a scrambled form of its sign-in key and when it runs out."
+      ]
+    },
+    {
+      "id": "verified",
+      "title": "Verified results",
+      "paragraphs": [
+        "Signed in, each daily you play is also kept as a verified result, apart from your progress. As the daily starts (its first clip, line or picture, or your first guess), our server notes which daily, which day and when. When it ends, your browser sends your guesses in order (with your skips, and whether you gave up); the server judges them itself with the game's own rules and keeps the result (won, lost, or not finished in time), the tries, the guesses, when it finished, and whether its time counted. The time is the server's own clock, from start to finish.",
+        "From a multiplayer game played to its end while signed in, the room signs a short receipt of your result: the game, typed or 4-Choice, the rounds, how many played, your place and score, and when it ended. Your browser brings it to your account, which counts each game once.",
+        "To know which day's puzzle is yours, your account keeps your daily time zone: its name, such as Asia/Bangkok, as your device sets it, the first time you play a verified daily (and again if you change it). It says roughly where you are; it's never looked up from your address, and it's used for nothing else.",
+        "Why: so your account has a record the server saw and judged itself, apart from your own browser's record, which can be changed or imported, and verified streaks that can't be made up or replayed. Only you see it, on your profile's Verified tab: there are no leaderboards, and nobody else's page shows it.",
+        "What it doesn't promise: verified means our server started, judged and timed it. It doesn't mean nobody cheated. The answers are in the game's own files, so they can be looked up, a changed page can play differently, and anyone can make more than one account. Verified results stop made-up, imported and replayed results; they aren't cheat-proof.",
+        "Dailies played as a guest, offline or before you signed in stay only in your browser, and are never made verified later; nothing from your saves or a save file is ever counted as verified. Your browser keeps a note of verified dailies under way and receipts not yet taken, until your account has them, and clears it when you sign out.",
+        "Your verified results and daily time zone are kept as long as your account. They're in Download my data, and Delete account removes them with everything else."
       ]
     },
     {
@@ -47,7 +61,7 @@
       "id": "who",
       "title": "Who sees what",
       "paragraphs": [
-        "Other players in a room see your name, picture, title, banner, frame and background while you're in it. Nobody else sees your progress or your Google or Discord account. If others can ever see more, such as your profile's record, this page will say so first."
+        "Other players in a room see your name, picture, title, banner, frame and background while you're in it. Nobody else sees your progress, your verified results or your Google or Discord account. If others can ever see more, such as your profile's record, this page will say so first."
       ]
     },
     {
@@ -61,7 +75,7 @@
       "id": "how-long",
       "title": "How long",
       "paragraphs": [
-        "An account is kept until you delete it, or until it's gone unused for two years (no sign-in and no sync from any device), when it's deleted the same way. A device's sign-in ends after 90 days without use.",
+        "An account, and everything kept for it (your verified results and daily time zone too), is kept until you delete it, or until it's gone unused for two years (no sign-in and no sync from any device), when it's deleted the same way. A device's sign-in ends after 90 days without use.",
         "After an account is deleted, the database's recovery history (Cloudflare D1's Time Travel, which is always on and can put the whole database back as it was at an earlier moment) can still bring it back for up to 7 days, on the free plan the site uses; Cloudflare's paid plan keeps 30 days, and this page will change first if the site ever moves to it. After that, it can't be brought back that way. A room's data lasts only while the room is open."
       ]
     },
@@ -69,8 +83,8 @@
       "id": "choices",
       "title": "Your choices",
       "list": [
-        "Download everything kept for your account, at any time: ☰ Profile, Account, Download my data.",
-        "Delete your account and everything kept for it, at any time: ☰ Profile, Account, Delete account. You choose whether this browser keeps your progress as a guest.",
+        "Download everything kept for your account, at any time, your verified results and daily time zone included: ☰ Profile, Account, Download my data.",
+        "Delete your account and everything kept for it, at any time, your verified results and daily time zone included: ☰ Profile, Account, Delete account. You choose whether this browser keeps your progress as a guest.",
         "Sign out: this browser keeps your progress, unless you choose to clear it.",
         "Remove the site from your Google account under Security, Your connections to third-party apps and services, or from Discord under User Settings, Authorized Apps. Neither gave us anything to take back, so this only tidies their list."
       ]

@@ -1,5 +1,21 @@
 [
   {
+    "id": "2026-10-verified",
+    "name": "Verified record",
+    "items": [
+      {
+        "icon": "IoShieldCheckmark",
+        "title": "A verified record",
+        "text": "Signed in, each daily you play is also checked by the server: it notes the daily as it starts, judges your guesses itself and keeps the result, a verified record apart from this browser's, with verified streaks. A line under the result says whether it counted. Room games you finish while signed in count too. Dailies played as a guest or offline stay as they are."
+      },
+      {
+        "icon": "IoTrophy",
+        "title": "The Verified tab",
+        "text": "☰ Profile, Verified shows your verified dailies, streaks and room games, just to you. Verified means the server started and judged it, not that nobody cheated. What's kept is on the Privacy page, and in Download my data."
+      }
+    ]
+  },
+  {
     "id": "2026-10-accounts",
     "name": "Accounts",
     "items": [

@@ -407,6 +407,12 @@ they need no more height than the OST, and every game fits a 1080p window.
   ones naming their mission; banners
   and backgrounds are pictures already on the Worker, fetched only when
   shown. In a room, everyone's card wears what they picked.
+  Signed in, a **Verified** tab shows the record the account kept itself
+  (`src/components/Profile/Verified.tsx`, read once as it opens): each
+  daily played verified, its streak and spread, the fastest verified find,
+  and room games by place, with what verified does and doesn't mean. A
+  line under each signed-in daily's result says whether it was verified,
+  or why not (`src/components/VerifiedNote/`).
 - **Character** - on wide screens, Arona (light mode) or Plana (dark mode)
   stands beside the game and reacts to your guesses. Hold her to make her look
   at you, stroke her head, or tap her. ☰ → Settings swaps in Mari or turns
@@ -920,6 +926,16 @@ shows wherever the build has an accounts address.
   the player comes back as themselves from another device (the first is
   told "elsewhere"). It lives in the page's memory only. A guest joins as
   ever and never asks for one.
+- **Verified stats** (`docs/verified-stats.md`): a record the server keeps
+  itself, apart from the progress. Signed in, each daily asks
+  `POST /verified` to issue its attempt as it first plays and sends its
+  moves at its end, which the Worker judges with the shared rules
+  (`src/helpers/verifiedDaily.ts`) by the account's daily time zone
+  (`src/accounts/verified.ts`); a room signs a receipt of each signed-in
+  player's result, which the page brings to the account
+  (`src/accounts/roomReceipt.ts`). The page's side is
+  `src/helpers/verifiedPlay.ts` and `verifiedSync.ts`. It stops made-up,
+  imported and replayed history, not answers being looked up.
 - **Signing in** is a redirect, never a script of theirs on our pages: the
   page goes to the Worker, which sends it to Google or Discord with a
   signed `state` (the page's nonce, the page to come back to); their
@@ -1421,6 +1437,24 @@ either. A daily cron
 two years (`seen_day`, marked by any call or sign-in, at most once a day)
 and the sessions and sign-in codes that ran out. Room passes carry only
 the public id, name, favourite student and cosmetics.
+
+**Verified results** (`docs/verified-stats.md`), signed in only, apart
+from the progress: each verified daily attempt (which daily and day, when
+the server started and finished it, the moves sent, the outcome, the
+tries and whether its time counted), a summary per daily, the account's
+daily time zone (its IANA name, the page's own, never looked up from the
+address) to work out the account's day, and room results from receipts
+the rooms sign (game, typed or 4-Choice, rounds, players, place, score,
+when it ended). They're kept as long as the account, are in Download my
+data (`verified` in the file), and go with Delete account and the
+two-year cleanup (the four `verified_*` tables are in `ACCOUNT_TABLES`).
+Nobody else sees them: no leaderboards, no public profile. The browser
+keeps only a note of dailies under way and receipts not yet taken (the
+`verified` key), cleared when the session changes, never in a save file.
+Verified means the server issued, judged and timed it, not that nobody
+cheated: answers can be looked up, a changed page can play differently,
+and accounts are free, as the policy and About say. A daily played as a
+guest, offline or before signing in is never made verified.
 
 ## Support
 

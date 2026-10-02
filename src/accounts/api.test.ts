@@ -1171,6 +1171,42 @@ describe("deleting and downloading an account", () => {
         .toString()
     ).toBe('{"format":2}');
     expect((data.sessions as unknown[]).length).toBe(1);
+    // The verified record, with the daily time zone, apart from the save.
+    expect(data.verified).toEqual({
+      dailyTimeZone: { zone: "UTC", setAt: new Date(now).toISOString() },
+      dailies: [
+        {
+          daily: "ost",
+          puzzle: dayInZone("UTC", now),
+          attemptId: expect.stringMatching(/^[a-z2-7]{26}$/),
+          startedAt: new Date(now).toISOString(),
+          finishedAt: new Date(now).toISOString(),
+          outcome: "won",
+          tries: 1,
+          moves: {
+            guesses: [verifiedAnswer("ost", dayInZone("UTC", now))],
+          },
+          timeMs: 0,
+          timeCounted: true,
+        },
+      ],
+      summaries: [
+        expect.objectContaining({ game: "ost", played: 1, won: 1 }),
+        expect.objectContaining({ game: "rooms", played: 1, won: 0 }),
+      ],
+      rooms: [
+        {
+          gameId: expect.stringMatching(/^[a-z2-7]{26}$/),
+          game: "voice",
+          answers: "choice",
+          rounds: 10,
+          players: 3,
+          place: 2,
+          score: 6,
+          endedAt: new Date(now).toISOString(),
+        },
+      ],
+    });
     const text = JSON.stringify(data);
     expect(text).not.toContain(token);
     const accountId = (

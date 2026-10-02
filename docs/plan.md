@@ -967,7 +967,9 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   `feat/verified-worker`. Step 4, the page (each daily's start and
   finish signed in, kept finishes and receipts, a line under the result,
   the profile's Verified tab), on `feat/verified-page`, off
-  `feat/verified-rooms`._
+  `feat/verified-rooms`. Step 5, privacy (the policy, About, the README,
+  What's new, and the verified record in Download my data), on
+  `docs/verified-privacy`, off `feat/verified-page`._
 - **Levels, with accounts** (asked for 2026-10-01): an account level
   from the rounds and missions it has played, shown on the card.
 - **Other players' profiles and cosmetics in rooms, with accounts**:

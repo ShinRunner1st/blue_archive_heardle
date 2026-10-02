@@ -352,6 +352,7 @@ every account request does.
 | Room receipt                                        | 3         | 2            |
 | Room receipt again, or another account's (403)      | 3         | 0            |
 | Delete account, with about 40 verified rows         | 130       | 63           |
+| Download my data, with them (step 5; 34 without)    | 86        | 0            |
 
 So an attempt costs one row written to start and two to finish (the
 attempt and its summary), a receipt two, and nothing is written twice.
@@ -478,6 +479,17 @@ Each step only once the user approves it, on its own stacked branch:
    one nothing, the profile one read; about 2.4 KB gzipped more on the
    first load, the Verified tab and the sender two lazy chunks (1.8 and
    1.3 KB)._
-5. **Privacy**: the policy, About, the README, What's new.
+5. **Privacy**: the policy, About, the README, What's new. _Built on
+   `docs/verified-privacy`: the policy's new "Verified results" section
+   (the attempts with their guesses, results and times, room results,
+   the daily time zone, why, for how long, in Download my data, gone with
+   Delete account, and that verified isn't cheat-proof), with the
+   account, who-sees, how-long and choices sections to match; a paragraph
+   in About; the README's Privacy, Profile and Accounts; a What's new
+   entry. Download my data gains `verified` (`exportVerified` in
+   `src/accounts/privacy.ts`): the zone and when it was set, every
+   attempt (its moves, outcome, tries, start and finish, time and whether
+   it counted), each summary, and the room results. Delete account and
+   the two-year cleanup already took the four tables (step 2)._
 6. **Measured on the preview**, as accounts' step 6 was, before any
    release.

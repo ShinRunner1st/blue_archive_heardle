@@ -42,6 +42,28 @@ describe("downloadAccountData", () => {
         gzipBase64: gzipped(save),
       },
       progressBackup: null,
+      verified: {
+        dailyTimeZone: {
+          zone: "Asia/Bangkok",
+          setAt: "2026-10-02T00:00:00.000Z",
+        },
+        dailies: [
+          {
+            daily: "ost",
+            puzzle: 6,
+            attemptId: "abcdefghijklmnopqrstuvwxyz",
+            startedAt: "2026-10-02T00:00:00.000Z",
+            finishedAt: "2026-10-02T00:01:00.000Z",
+            outcome: "won",
+            tries: 2,
+            moves: { guesses: [null, "7"] },
+            timeMs: 60_000,
+            timeCounted: true,
+          },
+        ],
+        summaries: [],
+        rooms: [],
+      },
     });
 
     expect(await downloadAccountData()).toBe(true);
@@ -55,7 +77,15 @@ describe("downloadAccountData", () => {
       missions: [{ mission: "daily-7" }],
       progress: { format: 2, revision: 3, save },
       progressBackup: null,
+      // The verified record as kept, apart from the save.
+      verified: {
+        dailyTimeZone: { zone: "Asia/Bangkok" },
+        dailies: [
+          { daily: "ost", outcome: "won", moves: { guesses: [null, "7"] } },
+        ],
+      },
     });
+    expect(file.about).toContain("never imports into a save");
     expect(JSON.stringify(file)).not.toContain("gzipBase64");
   });
 

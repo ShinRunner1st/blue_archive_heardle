@@ -105,7 +105,8 @@ interface ProgressRow {
  * its Google and Discord ids, its sessions (when each runs out; the
  * tokens themselves were never kept), the profile with its summary, the
  * missions, and the progress and its backup as the page sent them,
- * gzipped, which the page opens into the file (the Worker never does).
+ * gzipped, which the page opens into the file (the Worker never does);
+ * and the verified record, with the daily time zone.
  */
 export async function exportAccount(db: Db, account: string) {
   const row = await db
@@ -148,6 +149,7 @@ export async function exportAccount(db: Db, account: string) {
     )
     .bind(account)
     .first<ProgressRow>();
+  const verified = await exportVerified(db, account);
   const saveOf = (kept: ProgressRow | null) =>
     kept && {
       format: kept.format,
@@ -189,6 +191,117 @@ export async function exportAccount(db: Db, account: string) {
     })),
     progress: saveOf(progress),
     progressBackup: saveOf(backup),
+    verified,
+  };
+}
+
+/** A JSON column back as it was written; null if it's empty or broken. */
+function parsed(text: string | null): unknown {
+  if (text === null) return null;
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The account's verified record (docs/verified-stats.md, section 10), as
+ * kept: its daily time zone, every verified daily attempt with its moves,
+ * the summary of each, and the room results from receipts. Apart from the
+ * progress in the file, as it is in the database.
+ */
+async function exportVerified(db: Db, account: string) {
+  const all = <T>(sql: string) =>
+    db
+      .prepare(sql)
+      .bind(account)
+      .all<T>()
+      .then(({ results }) => results);
+  const clock = await db
+    .prepare("SELECT zone, set_at FROM verified_clock WHERE account_id = ?")
+    .bind(account)
+    .first<{ zone: string; set_at: number }>();
+  const [dailies, summaries, rooms] = await Promise.all([
+    all<{
+      day: number;
+      game: string;
+      attempt_id: string;
+      started_at: number;
+      finished_at: number | null;
+      outcome: string | null;
+      tries: number | null;
+      guesses: string | null;
+      time_verified: number | null;
+    }>(
+      `SELECT day, game, attempt_id, started_at, finished_at, outcome, tries, guesses, time_verified
+       FROM verified_daily WHERE account_id = ? ORDER BY day, game`
+    ),
+    all<{
+      game: string;
+      played: number;
+      won: number;
+      abandoned: number;
+      spread: string;
+      best_streak: number;
+      best_time: number | null;
+      first_day: number;
+    }>(
+      `SELECT game, played, won, abandoned, spread, best_streak, best_time, first_day
+       FROM verified_summary WHERE account_id = ? ORDER BY game`
+    ),
+    all<{
+      game_id: string;
+      game: string;
+      answers: string;
+      rounds: number;
+      players: number;
+      place: number;
+      score: number;
+      ended_at: number;
+    }>(
+      `SELECT game_id, game, answers, rounds, players, place, score, ended_at
+       FROM verified_room WHERE account_id = ? ORDER BY ended_at, game_id`
+    ),
+  ]);
+  return {
+    dailyTimeZone: clock && { zone: clock.zone, setAt: iso(clock.set_at) },
+    dailies: dailies.map((row) => ({
+      daily: row.game,
+      puzzle: row.day,
+      attemptId: row.attempt_id,
+      startedAt: iso(row.started_at),
+      finishedAt: row.finished_at === null ? null : iso(row.finished_at),
+      // Open: started, not yet finished or closed.
+      outcome: row.outcome ?? "open",
+      tries: row.tries,
+      moves: parsed(row.guesses),
+      timeMs:
+        row.finished_at === null || row.outcome === "abandoned"
+          ? null
+          : row.finished_at - row.started_at,
+      timeCounted: row.time_verified === null ? null : row.time_verified === 1,
+    })),
+    summaries: summaries.map((row) => ({
+      game: row.game,
+      played: row.played,
+      won: row.won,
+      abandoned: row.abandoned,
+      spread: parsed(row.spread),
+      bestStreak: row.best_streak,
+      bestTimeMs: row.best_time,
+      firstPuzzle: row.first_day,
+    })),
+    rooms: rooms.map((row) => ({
+      gameId: row.game_id,
+      game: row.game,
+      answers: row.answers,
+      rounds: row.rounds,
+      players: row.players,
+      place: row.place,
+      score: row.score,
+      endedAt: iso(row.ended_at),
+    })),
   };
 }
 
