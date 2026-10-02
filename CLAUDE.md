@@ -538,6 +538,7 @@ add every new id to `ids.lock.json`, which the content test holds them to.
 ```sh
 npm run dev          # local server
 npm run accounts     # the accounts Worker locally, for sign-in in dev
+npm run admin        # the admin tool: edit the content files, with previews
 npm test             # vitest
 npm run format:check && npm run lint && npm run typecheck && npm test && npm run build
 npm run check:pages  # after a build: every page on both servers in Chrome

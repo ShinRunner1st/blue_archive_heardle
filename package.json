@@ -14,6 +14,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "admin": "vite --config vite.admin.config.ts",
     "start": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "wrangler dev --config site-worker/wrangler.jsonc --port 4173",

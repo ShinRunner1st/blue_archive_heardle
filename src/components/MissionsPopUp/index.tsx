@@ -3,6 +3,7 @@ import { IoCheckmarkCircle, IoGift } from "react-icons/io5";
 
 import { MISSION_GROUPS, MissionGroup } from "../../constants/missions";
 import { unlocksOf } from "../../helpers/cosmetics";
+import { MissionProgress } from "../../helpers/missions";
 import { useMissionProgress } from "../../hooks/useMissions";
 import { Button } from "../Button";
 import { PopUp, PopUpMeta } from "../PopUp";
@@ -19,7 +20,37 @@ interface Props {
  * as it opens, and again when one is cleared while it's open.
  */
 export function MissionsPopUp({ onClose }: Props) {
-  const all = useMissionProgress();
+  return (
+    <MissionsView
+      all={useMissionProgress()}
+      groups={MISSION_GROUPS}
+      unlocks={unlocksOf}
+      onClose={onClose}
+    />
+  );
+}
+
+interface ViewProps extends Props {
+  /** Every mission's progress, retired ones included. */
+  all: MissionProgress[];
+  groups: Array<{ id: MissionGroup; name: string }>;
+  /** What clearing a mission unlocks, by name. */
+  unlocks: (missionId: string) => string[];
+  /** The tab to open on, in place of the first with something left. */
+  group?: MissionGroup;
+}
+
+/**
+ * The pop-up itself, drawn from what it's given: the game's missions, or
+ * the admin tool's draft of them in its preview.
+ */
+export function MissionsView({
+  all,
+  groups,
+  unlocks: unlocksOf,
+  group: openOn,
+  onClose,
+}: ViewProps) {
   // The missions there are to clear; the retired ones cleared come last,
   // under Retired, and count for nothing.
   const progress = all.filter(({ mission }) => !mission.retired);
@@ -27,9 +58,12 @@ export function MissionsPopUp({ onClose }: Props) {
   // Opens on the first tab with something left to do.
   const [group, setGroup] = React.useState<MissionGroup>(
     () =>
-      MISSION_GROUPS.find(({ id }) =>
+      openOn ??
+      groups.find(({ id }) =>
         progress.some(({ mission, done }) => mission.group === id && !done)
-      )?.id ?? "daily"
+      )?.id ??
+      groups[0]?.id ??
+      "daily"
   );
 
   return (
@@ -48,7 +82,7 @@ export function MissionsPopUp({ onClose }: Props) {
       }
     >
       <Styled.Tabs role="tablist" aria-label="Missions by game">
-        {MISSION_GROUPS.map(({ id, name }) => {
+        {groups.map(({ id, name }) => {
           const own = progress.filter(({ mission }) => mission.group === id);
           const done = own.filter((item) => item.done).length;
           return (
@@ -82,7 +116,7 @@ export function MissionsPopUp({ onClose }: Props) {
             return (
               <React.Fragment key={mission.id}>
                 {firstRetired && <Styled.Retired>Retired</Styled.Retired>}
-                <Styled.Mission $done={done}>
+                <Styled.Mission $done={done} data-mission={mission.id}>
                   <Styled.Head>
                     <Styled.Title>{mission.title}</Styled.Title>
                     {done ? (

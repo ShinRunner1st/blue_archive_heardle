@@ -11,6 +11,8 @@ interface Props {
   onDismiss: () => void;
   /** Opens the Missions pop-up. */
   onOpen: () => void;
+  /** What the mission unlocks, when it isn't the game's (the admin tool). */
+  unlocks?: string[];
 }
 
 /** How long a toast stays, unless the pointer rests on it. */
@@ -21,7 +23,12 @@ const SHOW_MS = 5000;
  * banner, with what it unlocked. A tap opens the missions; it goes by
  * itself after a few seconds.
  */
-export function MissionToast({ toast, onDismiss, onOpen }: Props) {
+export function MissionToast({
+  toast,
+  onDismiss,
+  onOpen,
+  unlocks: given,
+}: Props) {
   const [held, setHeld] = React.useState(false);
 
   React.useEffect(() => {
@@ -30,7 +37,8 @@ export function MissionToast({ toast, onDismiss, onOpen }: Props) {
     return () => window.clearTimeout(timer);
   }, [toast, held, onDismiss]);
 
-  const unlocks = toast.kind === "mission" ? unlocksOf(toast.mission.id) : [];
+  const unlocks =
+    toast.kind === "mission" ? given ?? unlocksOf(toast.mission.id) : [];
 
   return (
     <Styled.Toast

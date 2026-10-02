@@ -10,6 +10,11 @@ seasons on one day, a picture not made, an icon not on the list, a song not
 in the game. A new check goes in `validate.ts`, with a test that breaks a
 copy of the files to show it fires.
 
+The admin tool, `npm run admin`, edits these files on this PC, with previews
+drawn by the game's own components, and saves only once the checks pass
+(writing `ids.lock.json` too); see the tool below. Its tabs so far:
+Missions and What's new.
+
 After any change: `npm test`. After a change with pictures (a season, a
 badge cover): `npm run songs` too, before merging.
 
@@ -147,3 +152,24 @@ new students, a change to how something plays.
 `icon` names one of the icons in `src/constants/icons.ts`; to use another
 from [react-icons' Ionicons 5](https://react-icons.github.io/react-icons/icons/io5/),
 add it to that list.
+
+## The admin tool (`npm run admin`)
+
+A page on this PC (http://127.0.0.1:5180, nothing deployed and nothing in
+the site's build) for editing these files. Each tab lists its entries, a
+form edits one, and a preview beside it draws the game's own pop-up from
+the draft, at 1920×911 or a phone's size, by day or night, fitted or at
+100%. Problems from `validate.ts` show as you type, and Save stays off
+until there are none; the tool's server checks again before it writes, and
+writes the files as Prettier would, so the diff is only what changed.
+
+- **Released or not**: an id in `ids.lock.json` on `main` has reached
+  players, so it is fixed and can only be retired. One added since can be
+  renamed (a mission's follows its title until edited) or deleted, and the
+  lock follows. Rewards pointing at a renamed mission follow it.
+- **Unsaved work** stays in the browser; the tool offers it back next time.
+- After a save: `npm test`, look at the diff, commit.
+
+Code: `src/admin/` (the server in `server.ts`, run by
+`vite.admin.config.ts`; the preview frame in `preview.tsx`). It answers
+only its own page on this machine (the Host and Origin headers).

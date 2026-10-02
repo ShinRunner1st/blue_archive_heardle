@@ -10,20 +10,22 @@ import {
   PopUpGroupLabel,
   PopUpSpacer,
 } from "../PopUp";
-import { SHOWN_UPDATES, WHATS_NEW } from "../../constants/whatsNew";
+import { NewsUpdate, SHOWN_UPDATES, WHATS_NEW } from "../../constants/whatsNew";
 
 import * as Styled from "./index.styled";
 
 interface Props {
   onClose: () => void;
+  /** The updates to show, newest first: the game's, or the admin tool's draft. */
+  updates?: NewsUpdate[];
 }
 
 /**
  * What has been added lately: the newest update, then the few before it for
  * anyone who missed them. Shown once after an update, and from the menu.
  */
-export function WhatsNewPopUp({ onClose }: Props) {
-  const updates = WHATS_NEW.slice(0, SHOWN_UPDATES);
+export function WhatsNewPopUp({ onClose, updates: all = WHATS_NEW }: Props) {
+  const updates = all.slice(0, SHOWN_UPDATES);
 
   return (
     <PopUp

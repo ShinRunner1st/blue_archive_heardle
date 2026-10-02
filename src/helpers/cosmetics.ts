@@ -22,6 +22,7 @@ import {
 import { loadClearedMissions } from "./missions";
 import { markProfileEdited } from "./profileEdit";
 import { isOffered, Unlockable, unlockedBy, unlockedWith } from "./unlocks";
+import type { CosmeticsFile } from "../content/types";
 
 /** Whether the player may use it: the default, or its mission cleared. */
 export function isUnlocked(
@@ -261,19 +262,40 @@ export function nextCursorPalette(): CursorPalette {
   return color.hue === undefined ? BLUE_PALETTE : paletteOfHue(color.hue);
 }
 
+/** Each kind's list in cosmetics.json. */
+const KIND_LISTS: Record<
+  CosmeticKind,
+  Exclude<keyof CosmeticsFile, "characters">
+> = {
+  title: "titles",
+  cardColors: "cardColors",
+  cursor: "cursorColors",
+  banner: "banners",
+  frame: "frames",
+  background: "backgrounds",
+};
+
 /**
  * What clearing a mission unlocks, as the pop-up and the toast name it: a
- * retired mission's too, as whoever cleared it keeps them.
+ * retired mission's too, as whoever cleared it keeps them. From the game's
+ * cosmetics, or a draft of them in the admin tool.
  */
-export function unlocksOf(missionId: string): string[] {
+export function unlocksOf(
+  missionId: string,
+  cosmetics?: CosmeticsFile
+): string[] {
+  const kinds = Object.entries(COSMETIC_KINDS) as Array<
+    [CosmeticKind, (typeof COSMETIC_KINDS)[CosmeticKind]]
+  >;
+  const characters: Cosmetic[] = cosmetics?.characters ?? CHARACTER_CHOICES;
   return [
-    ...Object.values(COSMETIC_KINDS).flatMap(({ label, list }) =>
-      (list as Cosmetic[])
+    ...kinds.flatMap(([kind, { label, list }]) =>
+      ((cosmetics?.[KIND_LISTS[kind]] ?? list) as Cosmetic[])
         .filter((item) => unlockedWith(item, missionId))
         .map(({ name }) => `${label}: ${name}`)
     ),
-    ...CHARACTER_CHOICES.filter((item) => unlockedWith(item, missionId)).map(
-      ({ name }) => `Character: ${name}`
-    ),
+    ...characters
+      .filter((item) => unlockedWith(item, missionId))
+      .map(({ name }) => `Character: ${name}`),
   ];
 }

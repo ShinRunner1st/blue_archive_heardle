@@ -1021,6 +1021,13 @@ admin`, on their PC only, nothing deployed or in the site's build),
   2. The tool's shell (its own Vite config, localhost only, writing
      `src/content/` and `ids.lock.json`), with Missions (their tabs too)
      and What's new.
+     _Built on `feat/admin-tool`: `src/admin/`, `vite.admin.config.ts`;
+     previews in a frame (1920×911 or a phone, day or night, fitted or
+     100%) from the game's own `MissionsView`, `MissionToast` and
+     `WhatsNewPopUp`, which now take a draft; mission tabs are data. An
+     id is fixed once it's in the lock on `main`; saves are checked again
+     by the tool's server and written byte for byte as Prettier would.
+     The user's screenshots from now on: 1920×911 and a phone._
   3. Every cosmetic list: titles, Sensei card colours, cursor colours,
      banners, frames, backgrounds and which mission unlocks each
      character, with live previews from the game's own components (the

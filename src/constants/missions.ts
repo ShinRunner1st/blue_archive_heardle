@@ -1,15 +1,12 @@
 import missionData from "../content/missions.json";
 
-/** The tabs of the Missions pop-up, in order. */
-export type MissionGroup =
-  | "daily"
-  | "ost"
-  | "voice"
-  | "picture"
-  | "students"
-  | "multiplayer"
-  | "kivotos";
+/**
+ * A tab of the Missions pop-up, by its id in missions.json's groups: data,
+ * so the admin tool can add one.
+ */
+export type MissionGroup = string;
 
+/** The tabs of the Missions pop-up, in order. */
 export const MISSION_GROUPS = missionData.groups as Array<{
   id: MissionGroup;
   name: string;
