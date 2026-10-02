@@ -133,6 +133,25 @@ export function pictureUses(files: ContentFiles, key: string): string[] {
   for (const background of files.cosmetics.backgrounds) {
     if (background.picture === key) uses.push(`background ${background.id}`);
   }
+  // The pages' pictures: the Worker's by key, the site's own by path.
+  const { home, places, hub, rooms } = files.pagePictures;
+  for (const [card, picture] of Object.entries(hub)) {
+    if (picture === key) uses.push(`the hub's ${card} card`);
+  }
+  if (rooms.day === key || rooms.night === key) uses.push("Multiplayer");
+  const bundled: Array<[string, string]> = [
+    ["the home background", home.day],
+    ["the home background", home.night],
+    ...places.flatMap(
+      ({ name, day, night }): Array<[string, string]> => [
+        [name, day],
+        [name, night],
+      ]
+    ),
+  ];
+  for (const [what, file] of bundled) {
+    if (`src/image/${file}`.replace(/\.webp$/, "") === key) uses.push(what);
+  }
   return uses;
 }
 
@@ -143,7 +162,13 @@ export function existingFiles(): string[] {
   const spine = existsSync("public/spine")
     ? readdirSync("public/spine").flatMap((id) => list(`public/spine/${id}`))
     : [];
-  return [...list("pictures/seasons"), ...list("src/image/badges"), ...spine];
+  return [
+    ...list("pictures/seasons"),
+    ...list("src/image/badges"),
+    ...list("src/image").filter((path) => path.endsWith(".webp")),
+    ...list("src/image/backgrounds"),
+    ...spine,
+  ];
 }
 
 /**

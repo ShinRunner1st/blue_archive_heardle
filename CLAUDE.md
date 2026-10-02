@@ -338,6 +338,8 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   all tapped. Wide screens only.
 - **Streak places**: every 10 wins in a row moves the background somewhere new
   in Kivotos, up to the sky at 100; a loss sends it back to the Trinity library.
+  The places, the home background, the hub's card scenes and Multiplayer's
+  background are content (`src/content/page-pictures.json`).
 - **Seasons**: through the year the home background becomes the time of
   year's scene: both anniversaries (JP 1-7 Feb, Global 4-12 Nov),
   Valentine's, cherry blossom, beach, summer festival, Halloween, autumn

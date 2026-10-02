@@ -2,6 +2,7 @@ import React from "react";
 import { IoArrowForward, IoCheckmark, IoClose, IoTime } from "react-icons/io5";
 
 import { Page, PAGES } from "../../constants/pages";
+import { PAGE_PICTURES } from "../../constants/pagePictures";
 import { pictureFiles } from "../../constants/pictureFiles";
 import { audioBaseUrl, backupUrlFor } from "../../helpers/audioUrl";
 import {
@@ -83,12 +84,12 @@ function Status({ result }: { result: DailyResult }) {
 }
 
 /**
- * One of the game's scenes behind a card (pictures/hub/, made by
- * scripts/make-card.mjs), from the Worker, or its copy on R2 if the Worker
- * fails; the card is plain if both do.
+ * One of the game's scenes behind a card (page-pictures.json's `hub`,
+ * made by scripts/make-card.mjs), from the Worker, or its copy on R2 if
+ * the Worker fails; the card is plain if both do.
  */
 function CardArt({ game }: { game: Game | "multiplayer" }) {
-  const file = pictureFiles[`hub/${game}`];
+  const file = pictureFiles[PAGE_PICTURES.hub[game]];
   const [src, setSrc] = React.useState(
     file ? `${audioBaseUrl()}/${file}` : null
   );

@@ -9,6 +9,7 @@ import {
 } from "react-icons/io5";
 
 import { students } from "../../constants/students";
+import { PAGE_PICTURES } from "../../constants/pagePictures";
 import {
   codeIn,
   loadRoomSettings,
@@ -255,7 +256,7 @@ export function Entry({
         <Styled.EntryCards>
           <Styled.BigCard aria-labelledby="room-join">
             <Styled.BigScene>
-              <WorkerPicture picture="hub/multiplayer" />
+              <WorkerPicture picture={PAGE_PICTURES.hub.multiplayer} />
               <Styled.BigTitle id="room-join">
                 <IoEnter aria-hidden="true" />
                 Join a room
@@ -318,7 +319,7 @@ export function Entry({
 
           <Styled.BigCard aria-labelledby="room-new">
             <Styled.BigScene>
-              <WorkerPicture picture="hub/ost" />
+              <WorkerPicture picture={PAGE_PICTURES.hub.ost} />
               <Styled.BigTitle id="room-new">
                 <IoAddCircle aria-hidden="true" />
                 Make a room

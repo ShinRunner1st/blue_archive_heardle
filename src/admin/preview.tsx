@@ -18,6 +18,7 @@ import { unlocksOf } from "../helpers/cosmetics";
 import { goalOf } from "../helpers/missions";
 import type { PreviewMessage, PreviewView } from "./messages";
 import { CharacterPreview } from "./CharacterPreview";
+import { PagePreview } from "./PagePreview";
 import { RewardsPreview } from "./RewardsPreview";
 import {
   BadgesPreview,
@@ -41,6 +42,7 @@ function View({ view, night }: { view: PreviewView; night: boolean }) {
   if (view.kind === "season")
     return <SeasonPreview view={view} night={night} />;
   if (view.kind === "badges") return <BadgesPreview view={view} />;
+  if (view.kind === "page") return <PagePreview view={view} night={night} />;
   if (view.kind === "whatsNew") {
     return (
       <WhatsNewPopUp

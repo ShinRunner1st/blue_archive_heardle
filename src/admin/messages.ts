@@ -8,6 +8,8 @@ import type { SpineCharacter } from "../constants/characters";
 import type {
   BadgeEntry,
   CosmeticsFile,
+  DayAndNight,
+  HubCard,
   MissionsFile,
   NewsEntry,
 } from "../content/types";
@@ -40,6 +42,20 @@ export type PreviewView =
     }
   /** A picture on the Worker by its key, or none picked. */
   | { kind: "picture"; key: string }
+  | {
+      kind: "page";
+      /** Which page picture: the home background, a place, the hub, rooms. */
+      part: "home" | "place" | "hub" | "rooms";
+      /** The home's or place's pictures, as addresses the frame can load. */
+      day: string;
+      night: string;
+      /** The home's or place's name, and the wins a place needs. */
+      name: string;
+      wins?: number;
+      /** The hub's cards' and Multiplayer's pictures, by their keys. */
+      hub: Record<HubCard, string>;
+      rooms: DayAndNight;
+    }
   | {
       kind: "season";
       id: string;

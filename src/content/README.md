@@ -1,7 +1,7 @@
 # Content
 
-The game's seasons, missions and what they unlock, OST badges and What's new
-live here as JSON, so adding or removing one never touches a component. The
+The game's seasons, missions and what they unlock, OST badges, What's new
+and the pictures behind the pages live here as JSON, so adding or removing one never touches a component. The
 code in `src/constants/` only reads these files. The checks are in
 `validate.ts` (the files' shapes in `types.ts`): `content.test.ts` runs
 them on every file on each `npm test` (and in CI), and they name the entry
@@ -14,7 +14,7 @@ The admin tool, `npm run admin`, edits these files on this PC, with previews
 drawn by the game's own components, and saves only once the checks pass
 (writing `ids.lock.json` too); see the tool below. Its tabs so far:
 Missions, Rewards (every list in `cosmetics.json`), Characters, Pictures,
-Seasons, OST badges and What's new.
+Seasons, Page pictures, OST badges and What's new.
 
 After any change: `npm test`. After a change with pictures (a season, a
 badge cover): `npm run songs` too, before merging.
@@ -156,6 +156,32 @@ tries 1 to 5, `won` on tries 1 to 6; `tapped`, picked from at random); and
 `note` says why her faces were picked. Arona and Plana are the pair "auto"
 stands for; any other is offered in Settings once she's in `characters` in
 `cosmetics.json`. The admin tool edits and adds them, with her drawn.
+
+## Page pictures (`page-pictures.json`)
+
+The pictures behind the site's pages:
+
+- `home`: the background below the first streak place, by `day` and
+  `night`, and its `name`, which a lost streak sends the player back to
+  ("Back to the Trinity library"). A season puts its own in its place.
+- `places`: where the background moves as the win streak grows, in order:
+  each a `name` ("📍 New place unlocked: …"), the `wins` in a row that
+  reach it (more than the place before), and its `day` and `night`.
+- `hub`: the scene behind each card on the hub (`ost`, `voice`,
+  `picture`, `students`, `multiplayer`; Multiplayer's and the OST's also
+  stand behind Make a room and Join a room), 720×320.
+- `rooms`: Multiplayer's background, by `day` and `night`, whatever the
+  season or streak.
+
+`home` and `places` ship with the site, as they're the first thing a
+page shows: files in `src/image/`, named from there
+(`backgrounds/010-abydos-station-day.webp`), blurred backdrops of
+1280×900 made by `scripts/make-backdrop.mjs`. Every picture in
+`src/image/backgrounds/` is built into the site whether named or not, so
+delete one nothing uses (the tool lists them). They go live when the
+branch is merged, with no `npm run songs`. `hub` and `rooms` are
+pictures on the Worker, by their keys in `src/constants/pictureFiles.ts`,
+so `npm run songs` puts a new one up first, as for seasons.
 
 ## Ids for good (`ids.lock.json`)
 

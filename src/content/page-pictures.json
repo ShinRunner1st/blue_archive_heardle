@@ -1,0 +1,80 @@
+{
+  "home": {
+    "name": "the Trinity library",
+    "day": "image.webp",
+    "night": "BG_TrinityOldLibrary_Night.webp"
+  },
+  "places": [
+    {
+      "wins": 10,
+      "name": "Abydos Station",
+      "day": "backgrounds/010-abydos-station-day.webp",
+      "night": "backgrounds/010-abydos-station-night.webp"
+    },
+    {
+      "wins": 20,
+      "name": "Millennium Campus",
+      "day": "backgrounds/020-millennium-campus-day.webp",
+      "night": "backgrounds/020-millennium-campus-night.webp"
+    },
+    {
+      "wins": 30,
+      "name": "Gehenna Streets",
+      "day": "backgrounds/030-gehenna-streets-day.webp",
+      "night": "backgrounds/030-gehenna-streets-night.webp"
+    },
+    {
+      "wins": 40,
+      "name": "Hyakkiyako Lantern Road",
+      "day": "backgrounds/040-hyakkiyako-lantern-road-day.webp",
+      "night": "backgrounds/040-hyakkiyako-lantern-road-night.webp"
+    },
+    {
+      "wins": 50,
+      "name": "Shanhaijing Gate",
+      "day": "backgrounds/050-shanhaijing-gate-day.webp",
+      "night": "backgrounds/050-shanhaijing-gate-night.webp"
+    },
+    {
+      "wins": 60,
+      "name": "Red Winter Campus",
+      "day": "backgrounds/060-red-winter-campus-day.webp",
+      "night": "backgrounds/060-red-winter-campus-night.webp"
+    },
+    {
+      "wins": 70,
+      "name": "Wildhunt Plaza",
+      "day": "backgrounds/070-wildhunt-plaza-day.webp",
+      "night": "backgrounds/070-wildhunt-plaza-night.webp"
+    },
+    {
+      "wins": 80,
+      "name": "Trinity Cathedral Plaza",
+      "day": "backgrounds/080-trinity-cathedral-plaza-day.webp",
+      "night": "backgrounds/080-trinity-cathedral-plaza-night.webp"
+    },
+    {
+      "wins": 90,
+      "name": "Eridu Skyline",
+      "day": "backgrounds/090-eridu-skyline-day.webp",
+      "night": "backgrounds/090-eridu-skyline-night.webp"
+    },
+    {
+      "wins": 100,
+      "name": "Above Kivotos",
+      "day": "backgrounds/100-above-kivotos-day.webp",
+      "night": "backgrounds/100-above-kivotos-night.webp"
+    }
+  ],
+  "hub": {
+    "ost": "hub/ost",
+    "voice": "hub/voice",
+    "picture": "hub/picture",
+    "students": "hub/students",
+    "multiplayer": "hub/multiplayer"
+  },
+  "rooms": {
+    "day": "multiplayer/backdrop-day",
+    "night": "multiplayer/backdrop-night"
+  }
+}

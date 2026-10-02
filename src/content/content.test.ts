@@ -13,6 +13,7 @@ import badges from "./badges.json";
 import cosmetics from "./cosmetics.json";
 import idsLock from "./ids.lock.json";
 import missions from "./missions.json";
+import pagePictures from "./page-pictures.json";
 import characters from "./characters.json";
 import privacy from "./privacy.json";
 import seasons from "./seasons.json";
@@ -29,6 +30,7 @@ const files = {
   privacy,
   idsLock,
   characters,
+  pagePictures,
 } as unknown as ContentFiles;
 
 const env = { pictureFiles, exists: existsSync };
@@ -161,6 +163,26 @@ describe("checkContent", () => {
         "ornament shape 3: star isn't a shape (path, circle, ellipse)",
       ].map((problem) => `frame gold: ${problem}`)
     );
+  });
+
+  it("checks the pages' pictures: files, Worker keys and the places' order", () => {
+    const content = copy();
+    const { pagePictures: pages } = content;
+    pages.home.night = "nowhere.webp";
+    pages.places[1].wins = pages.places[0].wins;
+    pages.places[2].name = pages.places[3].name;
+    pages.places[4].day = "../secret.webp";
+    pages.hub.voice = "hub/nothing";
+    pages.rooms.day = "";
+    const [second, third, fifth] = [1, 2, 4].map((i) => pages.places[i].name);
+    expect(messages(content, "pagePictures")).toEqual([
+      "home by night: src/image/nowhere.webp isn't there",
+      `place "${third}" twice`,
+      `${second}: needs more wins than ${pages.places[0].name}`,
+      `${fifth} by day: src/image/../secret.webp isn't there`,
+      "the hub's voice card: hub/nothing isn't on the Worker",
+      "Multiplayer by day:  isn't on the Worker",
+    ]);
   });
 
   it("finds two seasons on one day, over New Year too", () => {

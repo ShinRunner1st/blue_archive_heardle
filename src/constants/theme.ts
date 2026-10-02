@@ -1,5 +1,8 @@
-import dayImage from "../image/image.webp";
-import nightImage from "../image/BG_TrinityOldLibrary_Night.webp";
+import { bundledPicture, PAGE_PICTURES } from "./pagePictures";
+
+/** The home background, by day and by night (page-pictures.json). */
+const dayImage = bundledPicture(PAGE_PICTURES.home.day);
+const nightImage = bundledPicture(PAGE_PICTURES.home.night);
 
 export type ColorScheme = "light" | "dark";
 

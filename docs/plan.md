@@ -1087,7 +1087,12 @@ admin`, on their PC only, nothing deployed or in the site's build),
      typing shapes too hard: ornaments are now made from a library of
      ready-made shapes dragged into place, sized and turned; and the whole
      tool has undo and redo (Ctrl+Z, Ctrl+Y), a drag or a word typed one
-     step._
+     step. Then **Page pictures** (the user's ask, 2026-10-03): the home
+     background, the streak places (names, wins, pictures; add or
+     remove), the hub's card scenes and Multiplayer's background moved
+     into `page-pictures.json`, edited in their own tab and previewed
+     behind the game's own hub and Multiplayer page. The site's built
+     pictures came out the same 30 files, byte for byte._
   7. Mission counts from rules (a game, mode, server, result, tries,
      clip or time, counted, counted once each, or as a streak or a best
      run), so a new kind of count needs no code; the 24 counts there stay

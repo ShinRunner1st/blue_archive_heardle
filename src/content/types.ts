@@ -63,6 +63,42 @@ export interface PrivacyFile {
   }>;
 }
 
+/** A picture by day and by night. */
+export interface DayAndNight {
+  day: string;
+  night: string;
+}
+
+/** A place the background moves to once a win streak reaches `wins`. */
+export interface StreakPlaceEntry extends DayAndNight {
+  wins: number;
+  name: string;
+}
+
+/** The hub's cards that have a scene behind them. */
+export const HUB_CARDS = [
+  "ost",
+  "voice",
+  "picture",
+  "students",
+  "multiplayer",
+] as const;
+export type HubCard = (typeof HUB_CARDS)[number];
+
+/**
+ * The pictures behind the site's pages. The home background and the
+ * streak places ship with the site: files in src/image/, named from
+ * there, as they're the first thing a page shows. The hub's cards and
+ * Multiplayer's room are on the Worker, by their keys in pictureFiles.ts.
+ */
+export interface PagePicturesFile {
+  /** The background below the first place, and its name after a loss. */
+  home: DayAndNight & { name: string };
+  places: StreakPlaceEntry[];
+  hub: Record<HubCard, string>;
+  rooms: DayAndNight;
+}
+
 /** Every mission and cosmetic id ever shipped, by list. */
 export type IdsLock = Record<"missions" | keyof CosmeticsFile, string[]>;
 
@@ -77,6 +113,7 @@ export interface ContentFiles {
   idsLock: IdsLock;
   /** Each character's set-up: her sprite, framing, faces and touch. */
   characters: SpineCharacter[];
+  pagePictures: PagePicturesFile;
 }
 
 export type ContentFileName = keyof ContentFiles;
@@ -91,4 +128,5 @@ export const CONTENT_FILE_PATHS: Record<ContentFileName, string> = {
   privacy: "privacy.json",
   idsLock: "ids.lock.json",
   characters: "characters.json",
+  pagePictures: "page-pictures.json",
 };

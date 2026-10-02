@@ -123,7 +123,9 @@ export async function makePicture(
       const printed = await run([
         "scripts/make-picture.mjs",
         from,
-        request.style === "cover" ? "cover" : "scene",
+        request.style === "cover" || request.style === "card"
+          ? request.style
+          : "scene",
         request.target,
       ]);
       // Its last line says how it came out.
@@ -141,13 +143,24 @@ export async function makePicture(
   };
 }
 
-/** Deletes a picture of the tool's folders, then lists the rest. */
+/** The tool's own pictures on the Worker, which it may delete. */
+const WORKER_PICTURE =
+  /^pictures\/(scenes|seasons|hub|multiplayer)\/[a-z0-9-]+\.webp$/;
+/** The site's own backgrounds it made, which it may delete too. */
+const SITE_PICTURE = /^src\/image\/backgrounds\/[a-z0-9-]+\.webp$/;
+
+/**
+ * Deletes a picture of the tool's folders, then lists the rest. The site's
+ * own backgrounds aren't the Worker's, so they need no list rebuilt.
+ */
 export async function deletePicture(path: string): Promise<void> {
-  if (!/^pictures\/(scenes|seasons)\/[a-z0-9-]+\.webp$/.test(path)) {
-    throw new Error("Only a picture in pictures/scenes or seasons can go.");
+  if (!WORKER_PICTURE.test(path) && !SITE_PICTURE.test(path)) {
+    throw new Error(
+      "Only a picture in pictures/scenes, seasons, hub, multiplayer or src/image/backgrounds can go."
+    );
   }
   rmSync(path, { force: true });
-  await buildPictures();
+  if (WORKER_PICTURE.test(path)) await buildPictures();
 }
 
 /** Sends one of the pictures the tool shows, from the project. */

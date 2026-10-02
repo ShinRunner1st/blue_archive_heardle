@@ -62,8 +62,17 @@ try {
   else await downloadBackground(name, source);
 
   const blur = `scale=${SIZE},gblur=sigma=${BLUR},`;
-  const k = BRIGHTNESS[time] / (await meanBrightness(source, blur));
-  const dim = `colorchannelmixer=rr=${k}:gg=${k}:bb=${k},`;
+  // A dark picture made a day one needs more than ffmpeg's ×2 at once, so
+  // it's brightened in steps of ×2 at most (an all-black one up to ×8).
+  const k = Math.min(
+    8,
+    BRIGHTNESS[time] / Math.max(0.01, await meanBrightness(source, blur))
+  );
+  const steps = Math.max(1, Math.ceil(Math.log(k) / Math.log(2)));
+  const each = steps === 1 ? k : k ** (1 / steps);
+  const dim = `colorchannelmixer=rr=${each}:gg=${each}:bb=${each},`.repeat(
+    steps
+  );
 
   await run("ffmpeg", [
     ...["-v", "error", "-y", "-i", source, "-vf", `${blur}${dim}format=rgb24`],

@@ -9,6 +9,7 @@ export const STYLE_LABELS: Record<PictureStyle, string> = {
   "backdrop-day": "A backdrop like the seasons', by day: blurred and dimmed",
   "backdrop-night": "A backdrop like the seasons', by night: darker",
   scene: "A sharp scene, 960×540, for cards and banners",
+  card: "A hub card's scene, 720×320, sharp",
   cover: "An album cover, 256×256",
 };
 
@@ -56,6 +57,7 @@ export function PictureMaker({
   styles,
   background = "",
   onMade,
+  onBefore,
   makeLabel = "Make it",
 }: {
   target: string;
@@ -63,6 +65,11 @@ export function PictureMaker({
   /** A background to start from, such as a season's scene. */
   background?: string;
   onMade: (pictures: PictureEntry[]) => void;
+  /**
+   * Just before it's made: the draft can name the new file first, as a
+   * file new to the site's own pictures reloads the page as it lands.
+   */
+  onBefore?: () => void;
   makeLabel?: string;
 }) {
   const [from, setFrom] = React.useState<"upload" | "background">(
@@ -103,6 +110,7 @@ export function PictureMaker({
   const make = async () => {
     setBusy(true);
     setError("");
+    onBefore?.();
     const result = await makePicture({
       target,
       style,

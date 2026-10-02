@@ -17,6 +17,7 @@ import type { PictureEntry } from "./pictureRules";
 import { MissionsTab } from "./MissionsTab";
 import { BadgesTab } from "./BadgesTab";
 import { CharactersTab } from "./CharactersTab";
+import { PagePicturesTab } from "./PagePicturesTab";
 import { PicturesTab } from "./PicturesTab";
 import { RewardsTab } from "./RewardsTab";
 import { SeasonsTab } from "./SeasonsTab";
@@ -29,6 +30,7 @@ const TABS = {
   characters: { label: "Characters", Component: CharactersTab },
   pictures: { label: "Pictures", Component: PicturesTab },
   seasons: { label: "Seasons", Component: SeasonsTab },
+  pages: { label: "Page pictures", Component: PagePicturesTab },
   badges: { label: "OST badges", Component: BadgesTab },
   whatsNew: { label: "What's new", Component: WhatsNewTab },
 } as const;

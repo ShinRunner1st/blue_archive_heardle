@@ -5,12 +5,14 @@
 
 /**
  * How a picture is made: a blurred backdrop like the seasons' (by day or
- * night, dimmed to match), a sharp scene, or an album's square cover.
+ * night, dimmed to match), a sharp scene, a hub card's wide strip, or an
+ * album's square cover.
  */
 export type PictureStyle =
   | "backdrop-day"
   | "backdrop-night"
   | "scene"
+  | "card"
   | "cover";
 
 export interface PictureRequest {
@@ -41,27 +43,45 @@ export interface PictureEntry {
   listed: boolean;
 }
 
-/** The pictures the tool shows from the project: the Worker's and covers. */
+/**
+ * The pictures the tool shows from the project: the Worker's, covers, and
+ * the site's own backgrounds.
+ */
 export const VIEWABLE_PICTURE =
-  /^(pictures\/[a-z]+\/[A-Za-z0-9_-]+|src\/image\/badges\/[a-z0-9-]+)\.webp$/;
+  /^(pictures\/[a-z]+\/[A-Za-z0-9_-]+|src\/image\/badges\/[a-z0-9-]+|src\/image\/(backgrounds\/)?[A-Za-z0-9_-]+)\.webp$/;
 
-const SCENE_TARGET = /^pictures\/(scenes|seasons)\/[a-z0-9-]+\.webp$/;
-const COVER_TARGET = /^src\/image\/badges\/[a-z0-9-]+\.webp$/;
+/** A backdrop: the seasons' and scenes', Multiplayer's, or the site's own. */
+const BACKDROP_TARGET =
+  /^(pictures\/(scenes|seasons|multiplayer)|src\/image\/backgrounds)\/[a-z0-9-]+\.webp$/;
+const BACKDROP_WHERE =
+  "A backdrop goes in pictures/scenes/, seasons/, multiplayer/ or src/image/backgrounds/";
+
+/** Where each style may go, and what to say when it's somewhere else. */
+const TARGETS: Record<PictureStyle, [RegExp, string]> = {
+  cover: [
+    /^src\/image\/badges\/[a-z0-9-]+\.webp$/,
+    "A cover goes in src/image/badges/",
+  ],
+  scene: [
+    /^pictures\/(scenes|seasons)\/[a-z0-9-]+\.webp$/,
+    "A picture goes in pictures/scenes/ or seasons/",
+  ],
+  card: [
+    /^pictures\/hub\/[a-z0-9-]+\.webp$/,
+    "A hub card goes in pictures/hub/",
+  ],
+  "backdrop-day": [BACKDROP_TARGET, BACKDROP_WHERE],
+  "backdrop-night": [BACKDROP_TARGET, BACKDROP_WHERE],
+};
+
 /** A wiki background's name, as the seasons' `scene` gives it. */
 const BACKGROUND = /^[A-Za-z0-9_]+$/;
 
 /** What's wrong with a request, or null. */
 export function pictureTargetProblem(request: PictureRequest): string | null {
-  const cover = request.style === "cover";
-  if (
-    cover
-      ? !COVER_TARGET.test(request.target)
-      : !SCENE_TARGET.test(request.target)
-  ) {
-    return cover
-      ? "A cover goes in src/image/badges/, named in small letters."
-      : "A picture goes in pictures/scenes/ or seasons/, named in small letters.";
-  }
+  const [target, where] = TARGETS[request.style] ?? [];
+  if (!target || !where) return "That isn't a way to make a picture.";
+  if (!target.test(request.target)) return `${where}, named in small letters.`;
   if (request.upload) {
     return /^data:image\/(png|jpeg|webp|gif|avif);base64,/.test(request.upload)
       ? null

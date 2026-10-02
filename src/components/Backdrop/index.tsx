@@ -1,6 +1,7 @@
 import React from "react";
 import { useTheme } from "styled-components";
 
+import { PAGE_PICTURES } from "../../constants/pagePictures";
 import { StreakPlace } from "../../constants/streakPlaces";
 import { backdropSrc } from "../../helpers/backdrop";
 import { homePicture, pictureUrl } from "../../helpers/season";
@@ -21,14 +22,10 @@ export interface Scene {
 
 /**
  * Multiplayer's: the Game Development Department's room, as the rooms have
- * no streak of their own to move the background (pictures/multiplayer/,
- * made with scripts/make-backdrop.mjs).
+ * no streak of their own to move the background (page-pictures.json's
+ * `rooms`, made with scripts/make-backdrop.mjs).
  */
-export const ROOMS_SCENE: Scene = {
-  id: "rooms",
-  day: "multiplayer/backdrop-day",
-  night: "multiplayer/backdrop-night",
-};
+export const ROOMS_SCENE: Scene = { id: "rooms", ...PAGE_PICTURES.rooms };
 
 interface Props {
   /** Where the win streak has reached; null for the scheme's own picture. */

@@ -15,11 +15,12 @@ import {
 import { ICONS } from "../constants/icons";
 import { MISSION_FACTS } from "../constants/missions";
 import { FACT_TOTALS } from "../helpers/missions";
-import type {
-  ContentFileName,
-  ContentFiles,
-  CosmeticsFile,
-  IdsLock,
+import {
+  HUB_CARDS,
+  type ContentFileName,
+  type ContentFiles,
+  type CosmeticsFile,
+  type IdsLock,
 } from "./types";
 
 export interface ContentProblem {
@@ -666,6 +667,52 @@ export function checkContent(
       JSON.stringify(privacy.sections).includes("{contact}"),
       "no section shows {contact}"
     );
+  }
+
+  // page-pictures.json
+  {
+    const report = check("pagePictures");
+    const { home, places, hub, rooms } = content.pagePictures;
+    // Shipped with the site, so the file is what's checked: in src/image/.
+    const bundled = (file: unknown, what: string) =>
+      report(
+        typeof file === "string" &&
+          /^(backgrounds\/)?[A-Za-z0-9_-]+\.webp$/.test(file) &&
+          env.exists(`src/image/${file}`),
+        `${what}: src/image/${String(file)} isn't there`
+      );
+    const onWorker = (key: unknown, what: string) =>
+      report(
+        typeof key === "string" && env.pictureFiles[key] !== undefined,
+        `${what}: ${String(key)} isn't on the Worker`
+      );
+    report(home.name, "home: name is empty");
+    bundled(home.day, "home by day");
+    bundled(home.night, "home by night");
+    unique(
+      report,
+      places.map(({ name }) => name),
+      "place"
+    );
+    places.forEach((place, i) => {
+      report(place.name, `place ${i + 1}: name is empty`);
+      report(
+        Number.isInteger(place.wins) && place.wins > 0,
+        `${place.name}: wins must be a whole number over 0`
+      );
+      // Each place further than the one before, so the tour only goes on.
+      if (i > 0) {
+        report(
+          place.wins > places[i - 1].wins,
+          `${place.name}: needs more wins than ${places[i - 1].name}`
+        );
+      }
+      bundled(place.day, `${place.name} by day`);
+      bundled(place.night, `${place.name} by night`);
+    });
+    for (const card of HUB_CARDS) onWorker(hub[card], `the hub's ${card} card`);
+    onWorker(rooms.day, "Multiplayer by day");
+    onWorker(rooms.night, "Multiplayer by night");
   }
 
   return problems;
