@@ -912,13 +912,18 @@ shows wherever the build has an accounts address.
   its summary, the totals worked out from the saves, sent as a cache and
   never read back. Then the **progress** (`src/helpers/progressSync.ts`):
   the save, as the save file's format 2, kept in the account too,
-  revision by revision; the first sign-in in a browser copies its save
-  aside, then uploads it, downloads the account's, or merges the two
-  (the account keeping a copy of what it had); after, a write on an
-  older revision is merged and sent again. The browser's save is only
-  changed before the page draws (a signed-in page waits up to 5 s), so
-  the games never write over it; signing out asks whether to keep this
-  browser's copy (kept by default) or clear it. Then **room passes**
+  revision by revision. An account starts fresh: the first sign-in in a
+  browser deletes the progress it had as a guest (the Account tab says
+  so first, if any rounds, missions or room games were played) and takes
+  the account's, nothing merged in; the profile sync waits until the
+  browser has joined, so no guest's missions or summary reach the account.
+  After, a write on an older revision (another device's) is merged and
+  sent again, the account keeping a copy of what it had. The browser's
+  save is only changed before the page draws (a signed-in page waits up to
+  5 s), so the games never write over it; a first sign-in that lands on a
+  page already drawn clears it and opens the page again. Signing out
+  saves the newest progress, then clears the browser back to a new guest
+  (asking first if it couldn't save), and so does Delete account. Then **room passes**
   (`src/accounts/roomPass.ts`, `src/helpers/roomPass.ts`): as
   `/multiplayer` opens, a signed-in page asks `GET /room-pass` for a pass,
   the account's public id, profile name, favourite student and the

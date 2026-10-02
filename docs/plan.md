@@ -1152,7 +1152,14 @@ admin`, on their PC only, nothing deployed or in the site's build),
      takes any other mission, not only retired ones, so the tool can move
      a released reward); a live mission names only what it gives now; the
      tool's preview shows a guest's pop-up_;
-  3. accounts (sign-in replaces, sign-out clears);
+  3. accounts (sign-in replaces, sign-out clears); _built: the first
+     sync in a browser deletes its guest progress before anything is read
+     or sent (a page already drawn opens again), the profile sync waits
+     until the browser has joined, the Account tab warns before a sign-in
+     when anything was played, and sign-out (after saving, or asking if
+     it couldn't) and Delete account clear the browser; tried in Chrome
+     against the local accounts Worker: guest progress gone at sign-in,
+     what was played signed in back after signing out and in again_;
   4. the save file out of Settings, the tool's preview from Download my
      data;
   5. What's new, the full check and screenshots.

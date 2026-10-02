@@ -2,13 +2,13 @@ import React from "react";
 import { IoLogoDiscord, IoLogoGoogle, IoPeople } from "react-icons/io5";
 
 import {
-  backupBeforeAccount,
   clearLocalProgress,
   forgetAccountProgress,
+  hasLocalProgress,
   lastProgressSync,
   saveBeforeSignOut,
 } from "../../helpers/progressSync";
-import { downloadText, reloadPage, saveFileName } from "../../helpers/saveFile";
+import { reloadPage } from "../../helpers/saveFile";
 import { downloadAccountData } from "../../helpers/accountData";
 import {
   AccountsUnavailable,
@@ -40,9 +40,9 @@ const ICONS: Record<Provider, React.ComponentType> = {
 };
 
 /** What a sync that couldn't happen means for the player. */
-const PROBLEMS: Record<"backupFailed" | "newerFormat" | "tooBig", string> = {
-  backupFailed:
-    "This browser's progress couldn't be copied aside first, so it hasn't been joined with your account yet. Free some space, or download a save file, then reload.",
+const PROBLEMS: Record<"clearFailed" | "newerFormat" | "tooBig", string> = {
+  clearFailed:
+    "This browser's progress as a guest couldn't be cleared, so your account's isn't here yet. Reload the page to try again.",
   newerFormat:
     "Your account has progress from a newer version of the game. Reload the page to bring it in.",
   tooBig:
@@ -108,62 +108,61 @@ export function AccountPanel() {
   const [state, setState] = React.useState<State>({ status: "loading" });
   const [notice, setNotice] = React.useState("");
   const [busy, setBusy] = React.useState(false);
-  // Signing out: the newest progress saving to the account, then the choice.
-  const [leaving, setLeaving] = React.useState<
-    "saving" | "saved" | "unsaved" | null
-  >(null);
-  // Deleting the account: what goes, then are you sure, then, once it's
-  // gone, whether this browser keeps its progress as a guest's.
-  const [deleting, setDeleting] = React.useState<
-    "ask" | "sure" | "deleted" | null
-  >(null);
-  const backup = backupBeforeAccount();
+  // Signing in where this browser has a guest's progress: it goes first.
+  const [joining, setJoining] = React.useState<Provider | null>(null);
+  // Signing out: the newest progress saving to the account, then, if it
+  // couldn't, whether to go anyway.
+  const [leaving, setLeaving] = React.useState<"saving" | "unsaved" | null>(
+    null
+  );
+  // Deleting the account: what goes, then are you sure.
+  const [deleting, setDeleting] = React.useState<"ask" | "sure" | null>(null);
   const result = lastProgressSync();
   const problem =
-    result === "backupFailed" || result === "newerFormat" || result === "tooBig"
+    result === "clearFailed" || result === "newerFormat" || result === "tooBig"
       ? result
       : null;
 
-  /** Signs out, keeping this browser's progress or clearing it. */
-  const leave = (clear: boolean) =>
+  /** Signs in, after saying a guest's progress here goes, if there is any. */
+  const signIn = (provider: Provider) => {
+    if (joining === null && hasLocalProgress()) setJoining(provider);
+    else void act(() => startSignIn(provider));
+  };
+
+  /**
+   * Leaves this browser a new guest's (docs/plan.md, Guest limits): the
+   * account's progress is cleared from it, and the page opens again.
+   */
+  const clearHere = () => {
+    forgetAccountProgress();
+    forgetMissionsSent();
+    forgetRoomPass();
+    clearLocalProgress();
+  };
+
+  /** Signs out, clearing this browser. */
+  const leave = () =>
     act(async () => {
-      forgetAccountProgress();
-      forgetMissionsSent();
-      forgetRoomPass();
-      if (clear) clearLocalProgress();
+      clearHere();
       await signOut();
-      setLeaving(null);
-      if (clear) {
-        reloadPage();
-        return;
-      }
-      setNotice("Signed out. This browser keeps its progress.");
-      await load();
+      reloadPage();
     });
 
-  /** Deletes the account; this browser's progress stays until asked. */
+  /** Saves the newest progress, then signs out; asks if it couldn't save. */
+  const startLeaving = () => {
+    setLeaving("saving");
+    saveBeforeSignOut()
+      .catch(() => false)
+      .then((saved) => (saved ? leave() : setLeaving("unsaved")));
+  };
+
+  /** Deletes the account, and clears this browser. */
   const deleteIt = () =>
     act(async () => {
       await deleteAccount();
-      forgetAccountProgress();
-      forgetMissionsSent();
-      forgetRoomPass();
-      setDeleting("deleted");
-    });
-
-  /** After a deletion: this browser's progress kept as a guest's, or not. */
-  const afterDeleting = (clear: boolean) => {
-    if (clear) {
-      clearLocalProgress();
+      clearHere();
       reloadPage();
-      return;
-    }
-    setDeleting(null);
-    setNotice(
-      "Your account and everything kept for it are deleted. This browser keeps its progress, as a guest's."
-    );
-    void load();
-  };
+    });
 
   const load = React.useCallback(async () => {
     try {
@@ -226,30 +225,58 @@ export function AccountPanel() {
         <>
           <Styled.AccountLead>
             Sign in with Google or Discord to keep your progress and profile
-            with an account, on every device. It&apos;s optional: everything
-            plays without one.
+            with an account, on every device, and open every mission and reward.
+            It&apos;s optional: every game plays without one.
           </Styled.AccountLead>
           <Styled.Note>
             An account keeps your Google or Discord id (not your email or name),
             your profile, progress and missions, and nothing else.{" "}
             <PolicyLink>What&apos;s kept, and for how long</PolicyLink>
           </Styled.Note>
-          <Styled.AccountButtons>
-            {PROVIDERS.map((provider) => {
-              const Icon = ICONS[provider];
-              return (
+          {joining ? (
+            <Styled.AccountLeave role="group" aria-label="Sign in">
+              <Styled.AccountLead as="p">
+                An account starts fresh: this browser&apos;s progress as a guest
+                (your rounds, streaks and missions) is deleted as you sign in,
+                not added to the account. If the account has progress, it comes
+                here instead.
+              </Styled.AccountLead>
+              <Styled.AccountButtons>
                 <Styled.AccountButton
-                  key={provider}
                   type="button"
                   disabled={busy}
-                  onClick={() => act(() => startSignIn(provider))}
+                  $danger
+                  onClick={() => signIn(joining)}
                 >
-                  <Icon aria-hidden="true" />
-                  Sign in with {PROVIDER_NAMES[provider]}
+                  Delete it and sign in with {PROVIDER_NAMES[joining]}
                 </Styled.AccountButton>
-              );
-            })}
-          </Styled.AccountButtons>
+                <Styled.AccountButton
+                  type="button"
+                  disabled={busy}
+                  onClick={() => setJoining(null)}
+                >
+                  Cancel
+                </Styled.AccountButton>
+              </Styled.AccountButtons>
+            </Styled.AccountLeave>
+          ) : (
+            <Styled.AccountButtons>
+              {PROVIDERS.map((provider) => {
+                const Icon = ICONS[provider];
+                return (
+                  <Styled.AccountButton
+                    key={provider}
+                    type="button"
+                    disabled={busy}
+                    onClick={() => signIn(provider)}
+                  >
+                    <Icon aria-hidden="true" />
+                    Sign in with {PROVIDER_NAMES[provider]}
+                  </Styled.AccountButton>
+                );
+              })}
+            </Styled.AccountButtons>
+          )}
         </>
       )}
 
@@ -343,23 +370,13 @@ export function AccountPanel() {
           </Styled.AccountRows>
           <Styled.AccountLead as="p">
             Your progress is kept with your account, and here as well, so it
-            plays on offline.
+            plays on offline. Signing out clears it from this browser.
           </Styled.AccountLead>
-          {backup && (
-            <Styled.AccountButtons>
-              <Styled.AccountButton
-                type="button"
-                onClick={() => downloadText(saveFileName(), backup)}
-              >
-                Download this browser&apos;s progress from before signing in
-              </Styled.AccountButton>
-            </Styled.AccountButtons>
-          )}
           {deleting === "ask" || deleting === "sure" ? (
             <Styled.AccountLeave role="group" aria-label="Delete account">
               <Styled.AccountLead as="p">
                 {deleting === "ask"
-                  ? "Deleting your account deletes everything kept for it: your Google and Discord links, your profile, your progress and its backup, your missions, and every device's sign-in. This browser's progress isn't touched: you choose after."
+                  ? "Deleting your account deletes everything kept for it: your Google and Discord links, your profile, your progress and its backup, your missions, and every device's sign-in. This browser is cleared too, back to a new guest."
                   : "Are you sure? It can't be undone, and other devices are signed out too."}
               </Styled.AccountLead>
               <Styled.AccountButtons>
@@ -384,54 +401,30 @@ export function AccountPanel() {
                 </Styled.AccountButton>
               </Styled.AccountButtons>
             </Styled.AccountLeave>
-          ) : deleting === "deleted" ? (
-            <Styled.AccountLeave role="group" aria-label="Account deleted">
-              <Styled.AccountLead as="p">
-                Your account is deleted. Keep your progress in this browser, to
-                play on as a guest?
-              </Styled.AccountLead>
-              <Styled.AccountButtons>
-                <Styled.AccountButton
-                  type="button"
-                  onClick={() => afterDeleting(false)}
-                >
-                  Keep it here
-                </Styled.AccountButton>
-                <Styled.AccountButton
-                  type="button"
-                  onClick={() => afterDeleting(true)}
-                >
-                  Clear it from this browser
-                </Styled.AccountButton>
-              </Styled.AccountButtons>
-            </Styled.AccountLeave>
           ) : leaving ? (
             <Styled.AccountLeave role="group" aria-label="Sign out">
               <Styled.AccountLead as="p">
                 {leaving === "saving"
-                  ? "Saving your newest progress to your account…"
-                  : leaving === "saved"
-                  ? "Keep your progress in this browser too? It's in your account either way."
-                  : "Couldn't save your newest progress to your account just now, so this browser keeps its copy."}
+                  ? "Saving your newest progress to your account, then signing out…"
+                  : "Couldn't save your newest progress to your account just now. Signing out clears this browser, so what isn't saved yet would be lost."}
               </Styled.AccountLead>
-              {leaving !== "saving" && (
+              {leaving === "unsaved" && (
                 <Styled.AccountButtons>
                   <Styled.AccountButton
                     type="button"
                     disabled={busy}
-                    onClick={() => leave(false)}
+                    onClick={startLeaving}
                   >
-                    Keep it here and sign out
+                    Try again
                   </Styled.AccountButton>
-                  {leaving === "saved" && (
-                    <Styled.AccountButton
-                      type="button"
-                      disabled={busy}
-                      onClick={() => leave(true)}
-                    >
-                      Clear it from this browser
-                    </Styled.AccountButton>
-                  )}
+                  <Styled.AccountButton
+                    type="button"
+                    disabled={busy}
+                    $danger
+                    onClick={leave}
+                  >
+                    Sign out anyway
+                  </Styled.AccountButton>
                   <Styled.AccountButton
                     type="button"
                     disabled={busy}
@@ -447,12 +440,7 @@ export function AccountPanel() {
               <Styled.AccountButton
                 type="button"
                 disabled={busy}
-                onClick={() => {
-                  setLeaving("saving");
-                  saveBeforeSignOut()
-                    .catch(() => false)
-                    .then((saved) => setLeaving(saved ? "saved" : "unsaved"));
-                }}
+                onClick={startLeaving}
               >
                 Sign out
               </Styled.AccountButton>

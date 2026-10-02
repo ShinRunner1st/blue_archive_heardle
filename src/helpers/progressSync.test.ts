@@ -12,25 +12,18 @@ import { songs } from "../constants/songs";
 import { fakeD1, FakeD1 } from "../test/fakeD1";
 import { MemoryStorage } from "../test/memoryStorage";
 import { Round } from "../types/stats";
-import { StudentRound } from "../types/student";
 import { fetchAccountState, resetAccountClientState } from "./accountClient";
-import { loadRoomGames, recordRoomGame, saveClearedMissions } from "./missions";
+import { loadClearedMissions, saveClearedMissions } from "./missions";
 import {
   clearLocalProgress,
+  hasLocalProgress,
   isLocalBehind,
   resetProgressSyncState,
   saveBeforeSignOut,
   syncProgress,
 } from "./progressSync";
 import { stamped } from "./roundId";
-import { currentSave } from "./saveFile";
-import {
-  emptyGuesses,
-  loadRounds,
-  loadStudentRounds,
-  saveRounds,
-  saveStudentRounds,
-} from "./storage";
+import { emptyGuesses, loadRounds, saveRounds } from "./storage";
 
 const SITE = "http://localhost:3000";
 
@@ -89,12 +82,6 @@ function ost(index: number, overrides: Partial<Round> = {}): Round {
     at++
   );
 }
-
-const student = (answer: number, day?: number): StudentRound =>
-  stamped(
-    { answer, guesses: [answer], ...(day === undefined ? {} : { day }) },
-    at++
-  );
 
 /** The account's save, as the Worker keeps it. */
 async function accountSave(): Promise<Record<string, unknown> | null> {
@@ -159,92 +146,83 @@ afterEach(() => {
 });
 
 describe("the first sign-in in a browser", () => {
-  it("sends this browser's progress to an account with none, kept aside first", async () => {
+  it("deletes a guest's progress, never sending it, then sends what's played", async () => {
     const a = await device(account);
     on(a);
+    // Played as a guest, before signing in.
     saveRounds([ost(0), ost(1)], "endless");
+    saveClearedMissions(["first-daily"]);
 
     expect(await sync()).toBe("synced");
+    expect(loadRounds("endless")).toEqual([]);
+    expect(loadClearedMissions()).toEqual([]);
+    expect(revision()).toBe(0);
+    expect(await accountSave()).toBeNull();
+    expect(a.storage.getItem(BACKUP_BEFORE_ACCOUNT_KEY)).toBeNull();
+    expect(a.storage.getItem(PROGRESS_REVISION_KEY)).toBe("0");
 
+    // Signed in, rounds go up as ever.
+    saveRounds([ost(2)], "endless");
+    expect(await sync()).toBe("synced");
     expect(revision()).toBe(1);
     const saved = (await accountSave())!;
-    expect((saved.rounds as Record<string, unknown[]>).endless).toHaveLength(2);
-    expect(a.storage.getItem(BACKUP_BEFORE_ACCOUNT_KEY)).not.toBeNull();
-    expect(a.storage.getItem(PROGRESS_REVISION_KEY)).toBe("1");
-    expect(loadRounds("endless")).toHaveLength(2);
+    expect((saved.rounds as Record<string, unknown[]>).endless).toHaveLength(1);
   });
 
-  it("brings the account's progress to a browser with none", async () => {
+  it("brings the account's progress in place of a guest's", async () => {
     const a = await device(account);
     on(a);
+    await sync();
     saveRounds([ost(0), ost(1)], "endless");
     await sync();
 
     const b = await device(account);
     on(b);
+    const guest = ost(5);
+    saveRounds([guest], "endless");
     expect(await sync()).toBe("synced");
-    expect(ids(loadRounds("endless"))).toEqual(
-      ids(
-        ((await accountSave()) as { rounds: { endless: Round[] } }).rounds
-          .endless
-      )
-    );
+    const accounts = ((await accountSave()) as { rounds: { endless: Round[] } })
+      .rounds.endless;
+    expect(ids(loadRounds("endless"))).toEqual(ids(accounts));
+    expect(ids(accounts)).not.toContain(guest.id);
+    // Nothing new: the account wasn't written again, nor kept a backup.
     expect(revision()).toBe(1);
-    // Nothing to put aside: this browser had nothing.
-    expect(b.storage.getItem(BACKUP_BEFORE_ACCOUNT_KEY)).toBeNull();
+    expect(
+      db.sqlite.prepare("SELECT revision FROM progress_backups").get()
+    ).toBeUndefined();
   });
 
-  it("merges both, each kept aside first, one daily a day", async () => {
+  it("opens a page that has drawn again, once the guest's is gone", async () => {
+    let reloads = 0;
+    setGlobal("window", { location: { reload: () => (reloads += 1) } });
     const a = await device(account);
     on(a);
-    const aDaily = student(10005, 3);
-    saveStudentRounds("lore-daily", [aDaily]);
     saveRounds([ost(0)], "endless");
-    await sync();
+    expect(await sync(false)).toBe("synced");
+    expect(reloads).toBe(1);
+    expect(loadRounds("endless")).toEqual([]);
+    expect(revision()).toBe(0);
 
-    const b = await device(account);
-    on(b);
-    // The same daily puzzle, played here later, and another round.
-    const bDaily = student(10005, 3);
-    saveStudentRounds("lore-daily", [bDaily]);
-    saveRounds([ost(2)], "endless");
-
-    expect(await sync()).toBe("synced");
-
-    // Both rounds, and one daily: both finished, the one dealt first.
-    expect(loadRounds("endless")).toHaveLength(2);
-    expect(ids(loadStudentRounds("lore-daily"))).toEqual([aDaily.id]);
-    expect(revision()).toBe(2);
-    // The account kept what it had; this browser kept its own.
-    const backup = db.sqlite
-      .prepare("SELECT revision FROM progress_backups")
-      .get() as { revision: number };
-    expect(backup.revision).toBe(1);
-    expect(b.storage.getItem(BACKUP_BEFORE_ACCOUNT_KEY)).not.toBeNull();
-  });
-
-  it("counts nothing twice when both have the same save", async () => {
-    const a = await device(account);
+    // The page open again, with nothing of the guest's: joined.
     on(a);
-    saveRounds([ost(0), ost(1)], "endless");
-    recordRoomGame(true, 500);
-    await sync();
-    const same = currentSave();
-
-    // The same save on another device (a save file carried over).
-    const b = await device(account);
-    on(b);
-    saveRounds(same.rounds.endless, "endless");
-    saveRoomGamesFrom(same.roomGames);
-    expect(await sync()).toBe("synced");
-
-    expect(loadRounds("endless")).toHaveLength(2);
-    expect(loadRoomGames()).toHaveLength(1);
-    // Nothing new: the account wasn't written again.
-    expect(revision()).toBe(1);
+    expect(await opens()).toBe("synced");
+    expect(reloads).toBe(1);
+    expect(a.storage.getItem(PROGRESS_REVISION_KEY)).toBe("0");
+    delete (globalThis as { window?: unknown }).window;
   });
 
-  it("does nothing for neither, and changes nothing when it can't copy aside", async () => {
+  it("warns of played progress only, not a round dealt as a page opened", async () => {
+    on(await device(account));
+    saveRounds([ost(0, { didGuess: false, currentTry: 0 })], "daily");
+    expect(hasLocalProgress()).toBe(false);
+    saveRounds([ost(1)], "endless");
+    expect(hasLocalProgress()).toBe(true);
+    // Either way, the first sync leaves nothing of it.
+    await sync();
+    expect(loadRounds("daily")).toEqual([]);
+  });
+
+  it("does nothing for neither, and sends nothing when it can't clear", async () => {
     const a = await device(account);
     on(a);
     expect(await sync()).toBe("synced");
@@ -253,21 +231,20 @@ describe("the first sign-in in a browser", () => {
     const b = await device(account);
     on(b);
     saveRounds([ost(0)], "endless");
-    b.storage.failOn = BACKUP_BEFORE_ACCOUNT_KEY;
-    expect(await sync()).toBe("backupFailed");
-    expect(revision()).toBe(0);
+    b.storage.failOn = b.storage
+      .keys()
+      .find((key) => key !== ACCOUNT_SESSION_KEY)!;
+    expect(await sync()).toBe("clearFailed");
+    expect(calls.filter(({ method }) => method === "PUT")).toEqual([]);
     expect(b.storage.getItem(PROGRESS_REVISION_KEY)).toBeNull();
   });
 });
-
-function saveRoomGamesFrom(games: ReturnType<typeof loadRoomGames>): void {
-  localStorage.setItem("roomGames", JSON.stringify(games));
-}
 
 describe("after, between devices", () => {
   async function twoJoined() {
     const a = await device(account);
     on(a);
+    await sync();
     saveRounds([ost(0)], "endless");
     await sync();
     const b = await device(account);
@@ -335,6 +312,7 @@ describe("what this page doesn't know", () => {
   it("keeps a newer page's fields, lists and missions in the account", async () => {
     const a = await device(account);
     on(a);
+    await sync();
     saveRounds([ost(0)], "endless");
     saveClearedMissions(["jp"]);
     await sync();
@@ -354,10 +332,11 @@ describe("what this page doesn't know", () => {
     );
     db.sqlite.prepare("UPDATE progress SET data = ?, revision = 2").run(data);
 
-    // This page merges, then plays on and sends again: none of it goes.
+    // This page takes it in, then plays on and sends twice: none of it goes.
     const b = await device(account);
     on(b);
-    saveRounds([ost(7)], "endless");
+    await sync();
+    saveRounds([...loadRounds("endless"), ost(7)], "endless");
     await sync();
     saveRounds([...loadRounds("endless"), ost(8)], "endless");
     await sync();
@@ -377,16 +356,17 @@ describe("what this page doesn't know", () => {
   it("leaves a newer format's save alone", async () => {
     const a = await device(account);
     on(a);
+    await sync();
     saveRounds([ost(0)], "endless");
     await sync();
     db.sqlite.prepare("UPDATE progress SET format = 3").run();
 
     const b = await device(account);
     on(b);
-    saveRounds([ost(9)], "endless");
     expect(await sync()).toBe("newerFormat");
-    expect(loadRounds("endless")).toHaveLength(1);
+    expect(loadRounds("endless")).toEqual([]);
     expect(revision()).toBe(1);
+    expect(b.storage.getItem(PROGRESS_REVISION_KEY)).toBeNull();
   });
 });
 
@@ -394,8 +374,9 @@ describe("what a sync costs", () => {
   async function joined() {
     const a = await device(account);
     on(a);
-    saveRounds([ost(0)], "endless");
     await opens();
+    saveRounds([ost(0)], "endless");
+    await sync(false);
     calls = [];
     return a;
   }
@@ -475,8 +456,10 @@ describe("signing out", () => {
   it("clears this browser's copy, the one put aside too", async () => {
     const a = await device(account);
     on(a);
+    await sync();
     saveRounds([ost(0)], "endless");
     await sync();
+    a.storage.setItem(BACKUP_BEFORE_ACCOUNT_KEY, "from before the change");
     clearLocalProgress();
     expect(loadRounds("endless")).toEqual([]);
     expect(a.storage.getItem(BACKUP_BEFORE_ACCOUNT_KEY)).toBeNull();
@@ -488,10 +471,11 @@ describe("signing out", () => {
 });
 
 describe("the profile's summary", () => {
-  it("is worked out from the progress after the merge", async () => {
+  it("is worked out from the account's progress, never a guest's", async () => {
     const { syncProfile } = await import("./profileSync");
     const a = await device(account);
     on(a);
+    await sync();
     saveRounds([ost(0), ost(1)], "endless");
     await sync();
 
@@ -504,10 +488,10 @@ describe("the profile's summary", () => {
     const row = db.sqlite.prepare("SELECT summary FROM profiles").get() as {
       summary: string;
     };
-    // All three rounds: the merge's, not this browser's own one.
+    // The account's two rounds: the guest's one here was deleted.
     expect(JSON.parse(row.summary)).toMatchObject({
-      roundsPlayed: 3,
-      songsGuessed: 3,
+      roundsPlayed: 2,
+      songsGuessed: 2,
     });
   });
 });

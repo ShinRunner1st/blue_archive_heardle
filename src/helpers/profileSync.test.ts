@@ -5,6 +5,7 @@ import {
   PROFILE_EDITED_KEY,
   PROFILE_MISSIONS_SENT_KEY,
   PROFILE_SUMMARY_SENT_KEY,
+  PROGRESS_REVISION_KEY,
 } from "../constants/game";
 import { AccountProfile } from "../types/account";
 import { fetchProfile, putProfile } from "./accountClient";
@@ -46,6 +47,8 @@ const song = { artist: "Mitsukiyo", name: "Constant Moderato", themeNo: "1" };
 
 beforeEach(() => {
   localStorage.clear();
+  // A browser joined with its account: one never joined sends nothing.
+  localStorage.setItem(PROGRESS_REVISION_KEY, "1");
   resetProfileSyncState();
   fetched.mockReset();
   put.mockReset();
@@ -156,6 +159,17 @@ describe("syncProfile", () => {
     fetched.mockResolvedValue(account());
     await syncProfile();
     expect(progress()).toBe(before);
+  });
+});
+
+describe("a browser not joined with its account yet", () => {
+  it("sends nothing of the guest's progress it may still hold", async () => {
+    localStorage.removeItem(PROGRESS_REVISION_KEY);
+    saveClearedMissions(["daily-7"]);
+    fetched.mockResolvedValue(null);
+    await syncProfile();
+    expect(fetched).not.toHaveBeenCalled();
+    expect(put).not.toHaveBeenCalled();
   });
 });
 

@@ -17,15 +17,16 @@ import {
   uploadProgress,
 } from "./accountClient";
 import { saveClearedMissions, saveRoomGames, saveRoomRecord } from "./missions";
-import { obscure } from "./obscure";
 import {
   currentSave,
   readSaveData,
+  reloadPage,
   SaveFile,
   saveData,
   ServerSave,
 } from "./saveFile";
 import { SAVE_FORMAT } from "./saveFormat";
+import { playedRounds } from "./missionRules";
 import { mergeSaves } from "./saveMerge";
 import { replaceAllRounds } from "./storage";
 
@@ -36,12 +37,10 @@ import { replaceAllRounds } from "./storage";
  * one simply written over the other unless the account hasn't changed
  * since this browser last matched it:
  *
- * - **First time** in a browser: its save is copied aside first
- *   (BACKUP_BEFORE_ACCOUNT_KEY), then: only the browser has progress, it
- *   goes up; only the account, it comes down; both, they're merged
- *   (mergeSaves: rounds and multiplayer games by id, one daily a day,
- *   missions joined) and the account keeps a copy of what it had; neither,
- *   nothing.
+ * - **First time** in a browser: an account starts fresh (docs/plan.md,
+ *   Guest limits). The browser's progress as a guest is deleted, never
+ *   sent, and the account's, if any, comes down. The sign-in asked first.
+ *   (Accounts joined before that change merged a browser's save in.)
  * - **After**: a save changed here goes up, built on the revision this
  *   browser last matched. If another device wrote meanwhile, the account
  *   says so (409): its save comes down, is merged with this one, and the
@@ -63,7 +62,7 @@ export type ProgressSync =
   | "signedOut"
   | "offline"
   | "newerFormat"
-  | "backupFailed"
+  | "clearFailed"
   | "tooBig";
 
 /** How many times a write is tried again after another device's. */
@@ -293,18 +292,31 @@ function applyLocally(save: SaveFile): boolean {
   return true;
 }
 
-/** Keeps this browser's save aside before it's first joined. */
-function backUpLocal(save: SaveFile): boolean {
-  if (isEmpty(save)) return true;
-  try {
-    localStorage.setItem(
-      BACKUP_BEFORE_ACCOUNT_KEY,
-      obscure(JSON.stringify(saveData(save)))
-    );
-    return true;
-  } catch {
-    return false;
-  }
+/** Whether this browser's save has been joined with the account yet. */
+export const isProgressJoined = () => joinedRevision() !== null;
+
+/**
+ * Whether this browser has progress a player would miss: a round played to
+ * its end, a mission or a multiplayer game. A round dealt as a page opened
+ * and never played isn't.
+ */
+export function hasLocalProgress(): boolean {
+  const save = currentSave();
+  return (
+    save.missions.length > 0 ||
+    save.roomRecord.games > 0 ||
+    playedRounds(save).length > 0
+  );
+}
+
+/**
+ * Signed in where this browser was never joined: the progress it has is a
+ * guest's, deleted rather than joined with the account. False if storage
+ * wouldn't take it, so nothing goes on as if it had.
+ */
+function startFresh(): boolean {
+  writeKey(BACKUP_BEFORE_ACCOUNT_KEY, null);
+  return applyLocally(emptySave());
 }
 
 /** This browser now matches the account at `revision`. */
@@ -349,6 +361,17 @@ async function syncOnce(
   { canApply, state }: Options,
   attempt: number
 ): Promise<ProgressSync | "again"> {
+  // A guest's progress never meets the account: gone before anything is
+  // read or sent. A page already drawn holds its rounds in memory and
+  // would write them back, so it opens again, empty.
+  if (joinedRevision() === null && !isEmpty(currentSave())) {
+    if (!startFresh()) return "clearFailed";
+    if (!canApply()) {
+      reloadPage();
+      return "synced";
+    }
+  }
+
   // Joined already, nothing waiting to be merged, and no state read as the
   // page opened: nothing to send costs nothing (a tab switch), and a change
   // goes straight up on the revision this browser matched. If another
@@ -375,9 +398,6 @@ async function syncOnce(
   const local = currentSave();
   const joined = joinedRevision();
   const extras = storedExtras();
-
-  // Never joined here: put this browser's save aside before anything.
-  if (joined === null && !backUpLocal(local)) return "backupFailed";
 
   const base = sessionRevision ?? joined;
   const accountMoved = !meta || meta.revision !== base;
@@ -410,6 +430,7 @@ async function syncOnce(
   if (typeof remote === "string") return remote;
 
   // The account's, joined with this browser's: theirs first in every tie.
+  // Never joined here, this browser's is empty: the account's comes down.
   const merged = isEmpty(local) ? remote.save : mergeSaves(remote.save, local);
   const nothingNew = contentOf(merged) === contentOf(remote.save);
   let revision = remote.revision;
@@ -490,9 +511,6 @@ export function forgetAccountProgress(): void {
   sessionRevision = null;
   localBehind = false;
 }
-
-/** The copy of this browser's save from before it was joined, if kept. */
-export const backupBeforeAccount = () => readKey(BACKUP_BEFORE_ACCOUNT_KEY);
 
 /** Test seam: a new page, as far as this module's memory goes. */
 export function resetProgressSyncState(): void {

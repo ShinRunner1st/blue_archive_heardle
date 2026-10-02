@@ -140,7 +140,11 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   the progress (`progressSync.ts`): the save in the account by revision,
   merged on a 409 with `mergeSaves`, both sides backed up before a merge,
   the browser's save changed only before the page draws (a signed-in page
-  waits up to 5 s), sign-out asking to keep or clear this browser's copy.
+  waits up to 5 s). Since Guest limits an account starts fresh: the first
+  sign-in in a browser deletes its guest progress (asked first, if any was
+  played) and takes the account's, nothing merged in, and the profile
+  waits until it has; sign-out and Delete account always clear the
+  browser back to a new guest.
   Step 4 the room pass (`roomPass.ts`, both sides): `GET /room-pass`, the
   public id, name, favourite student and the cosmetics the account's
   missions (`missions_cleared`, sent with the profile) unlock, signed

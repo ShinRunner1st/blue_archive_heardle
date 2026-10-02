@@ -21,7 +21,11 @@ import {
   withoutMarking,
 } from "./profileEdit";
 import { profileSummary } from "./profileSummary";
-import { isLocalBehind, progressSettled } from "./progressSync";
+import {
+  isLocalBehind,
+  isProgressJoined,
+  progressSettled,
+} from "./progressSync";
 
 /**
  * The profile in the account (docs/accounts.md, step 2): the name, the
@@ -120,8 +124,11 @@ const syncState = () => `${profileEditedAt()}|${missionsText()}`;
  * written). The summary is sent when it has changed since it was last.
  */
 async function syncOnce(now: number): Promise<void> {
-  // The summary comes from the progress, so the progress goes first.
+  // The summary comes from the progress, so the progress goes first. A
+  // browser it couldn't join yet may still hold a guest's progress (an
+  // account starts fresh): nothing goes until it has, missions or summary.
   await progressSettled().catch(() => {});
+  if (!isProgressJoined()) return;
   const remote = await fetchProfile();
   if (remote === undefined) return;
 
