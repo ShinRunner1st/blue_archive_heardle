@@ -129,6 +129,7 @@
       "id": "rainbow",
       "name": "Rainbow",
       "mission": "room-10",
+      "rainbow": true,
       "swatch": "linear-gradient(90deg, #ff4d4d, #ffd24d, #4dff88, #4dc3ff, #b84dff)"
     }
   ],

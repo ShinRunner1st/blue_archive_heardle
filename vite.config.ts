@@ -30,7 +30,7 @@ import {
  * developing, the way Cloudflare serves them once deployed. Production builds
  * read them from VITE_AUDIO_BASE_URL in .env.production instead.
  */
-const serveLocalAudio: Connect.NextHandleFunction = (req, res, next) => {
+export const serveLocalAudio: Connect.NextHandleFunction = (req, res, next) => {
   const now = req.url?.match(/^\/now\/(now\.json|img\/[\w.-]+\.webp)$/);
   if (now) {
     // Now in Global, from `npm run build:global-now`.

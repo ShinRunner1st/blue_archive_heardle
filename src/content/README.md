@@ -13,7 +13,7 @@ copy of the files to show it fires.
 The admin tool, `npm run admin`, edits these files on this PC, with previews
 drawn by the game's own components, and saves only once the checks pass
 (writing `ids.lock.json` too); see the tool below. Its tabs so far:
-Missions and What's new.
+Missions, Rewards (every list in `cosmetics.json`) and What's new.
 
 After any change: `npm test`. After a change with pictures (a season, a
 badge cover): `npm run songs` too, before merging.
@@ -91,7 +91,7 @@ Lists, each starting with the default everyone has (no `mission`):
   `body` (top to bottom), `ink` (names and numbers), `muted` (labels),
   `accent` (the address, title and tiles).
 - `cursorColors`: the cursor's flash and trail. `hue` is 0-359 (the game's
-  blue has none); the one with id `rainbow` changes hue with every tap.
+  blue has none); one with `"rainbow": true` changes hue with every tap.
   `swatch` is the colour (or CSS gradient) shown in Settings.
 - `characters`: who stands beside the game. Each also needs its sprite in
   `public/spine/` and an entry in `src/constants/characters.ts`.
@@ -167,6 +167,13 @@ writes the files as Prettier would, so the diff is only what changed.
   players, so it is fixed and can only be retired. One added since can be
   renamed (a mission's follows its title until edited) or deleted, and the
   lock follows. Rewards pointing at a renamed mission follow it.
+- **Rewards** are previewed where players meet them: titles and colours on
+  the Sensei card, banners, frames and backgrounds in the profile with its
+  frame and the cards rooms show, cursor colours in Settings with the
+  effects running, characters in Settings. "As a player who has unlocked
+  everything", or off, as a new player, with the locks and their missions.
+  A released reward keeps its mission while that mission is live; once it's
+  retired, a new one can take over and the old is kept as a former one.
 - **Unsaved work** stays in the browser; the tool offers it back next time.
 - After a save: `npm test`, look at the diff, commit.
 

@@ -1032,6 +1032,13 @@ admin`, on their PC only, nothing deployed or in the site's build),
      banners, frames, backgrounds and which mission unlocks each
      character, with live previews from the game's own components (the
      Sensei card, the profile card, a box to tap and drag the cursor in).
+     _Built on `feat/admin-tool`: the Rewards tab, previews in the real
+     Sensei card pop-up, the profile pop-up (its head, its frame, Customize's
+     choices, the room cards) and Settings (the cursor's effects tapping by
+     themselves), as a player with everything or a new one. Customize's
+     choices are a component of their own (`CosmeticOptions`), choice rows
+     take the draft's missions, and a cursor colour's `"rainbow": true` is
+     data, where the code once looked for the id._
   4. Pictures (drop one in, made the right size as WebP,
      `build:pictures` run), Seasons and OST badges, each previewed.
   5. Characters, the ones there and new ones: their set-up moves from

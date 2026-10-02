@@ -8,12 +8,23 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 import { ADMIN_PORT, adminApi } from "./src/admin/server";
+import { serveLocalAudio } from "./vite.config";
 
 export default defineConfig({
   root: "src/admin",
   // The game's own public files (fonts, cursor, characters) for previews.
   publicDir: "../../public",
-  plugins: [react(), adminApi()],
+  plugins: [
+    react(),
+    adminApi(),
+    {
+      // The pictures previews show, from audio-dist/ as in `npm run dev`.
+      name: "serve-local-audio",
+      configureServer: (server) => {
+        server.middlewares.use(serveLocalAudio);
+      },
+    },
+  ],
   define: {
     __BUILD_DATE__: JSON.stringify("admin"),
   },

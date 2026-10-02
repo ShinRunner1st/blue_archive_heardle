@@ -19,7 +19,17 @@ export type PreviewView =
       value: number;
       toast: boolean;
     }
-  | { kind: "whatsNew"; updates: NewsEntry[] };
+  | { kind: "whatsNew"; updates: NewsEntry[] }
+  | {
+      kind: "rewards";
+      list: keyof CosmeticsFile;
+      cosmetics: CosmeticsFile;
+      missions: MissionsFile["missions"];
+      /** The reward being edited, by its place in its list. */
+      index: number;
+      /** Drawn as a player who has cleared every mission, or none. */
+      unlocked: boolean;
+    };
 
 export interface PreviewMessage {
   type: "admin-preview";

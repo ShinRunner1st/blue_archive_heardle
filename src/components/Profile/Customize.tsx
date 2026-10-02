@@ -194,64 +194,16 @@ export function CustomizePopUp({ onClose }: { onClose: () => void }) {
                     }
                   />
                 ) : (
-                  <Styled.Options
-                    role="radiogroup"
-                    aria-labelledby={headingId}
-                    $kind={kind}
-                  >
-                    {items.map((item) => {
-                      const unlocked = isUnlocked(item, cleared);
-                      const active = draft[kind] === item.id;
-                      return (
-                        <Styled.Option
-                          key={item.id}
-                          type="button"
-                          role="radio"
-                          aria-checked={active}
-                          aria-disabled={!unlocked}
-                          $active={active}
-                          title={
-                            unlocked
-                              ? item.name
-                              : `Clear "${missionTitle(
-                                  item.mission
-                                )}" to unlock`
-                          }
-                          onClick={() =>
-                            unlocked &&
-                            setDraft((current) => ({
-                              ...current,
-                              [kind]: item.id,
-                            }))
-                          }
-                        >
-                          <Styled.OptionLook
-                            $locked={kind === "banner" && !unlocked}
-                          >
-                            <Swatch kind={kind} item={item} />
-                            {!unlocked && kind !== "banner" && (
-                              <Styled.Lock>
-                                <IoLockClosed aria-hidden="true" />
-                                <span>{missionTitle(item.mission)}</span>
-                              </Styled.Lock>
-                            )}
-                          </Styled.OptionLook>
-                          {kind !== "banner" ? (
-                            <Styled.OptionName>{item.name}</Styled.OptionName>
-                          ) : (
-                            // A banner wears its name: a locked one, dimmed,
-                            // says under it which mission opens it.
-                            !unlocked && (
-                              <Styled.OptionName>
-                                <IoLockClosed aria-hidden="true" />{" "}
-                                {missionTitle(item.mission)}
-                              </Styled.OptionName>
-                            )
-                          )}
-                        </Styled.Option>
-                      );
-                    })}
-                  </Styled.Options>
+                  <CosmeticOptions
+                    kind={kind}
+                    items={items}
+                    cleared={cleared}
+                    picked={draft[kind]}
+                    labelledBy={headingId}
+                    onPick={(id) =>
+                      setDraft((current) => ({ ...current, [kind]: id }))
+                    }
+                  />
                 )}
               </Styled.Section>
             );
@@ -349,6 +301,75 @@ function WhoSection({
         </Styled.WhoField>
       </Styled.WhoFields>
     </Styled.Section>
+  );
+}
+
+/**
+ * A kind's choices as swatches: each as it looks, its name, and for a
+ * locked one the lock and the mission that opens it. Also the admin tool's
+ * preview, with its draft's mission titles.
+ */
+export function CosmeticOptions({
+  kind,
+  items,
+  cleared,
+  picked,
+  labelledBy,
+  onPick,
+  titleOf = missionTitle,
+}: {
+  kind: Exclude<Section, "title">;
+  items: Cosmetic[];
+  cleared: Iterable<string>;
+  picked: string;
+  labelledBy: string;
+  onPick: (id: string) => void;
+  titleOf?: (missionId: string | undefined) => string;
+}) {
+  return (
+    <Styled.Options role="radiogroup" aria-labelledby={labelledBy} $kind={kind}>
+      {items.map((item) => {
+        const unlocked = isUnlocked(item, cleared);
+        const active = picked === item.id;
+        return (
+          <Styled.Option
+            key={item.id}
+            type="button"
+            role="radio"
+            aria-checked={active}
+            aria-disabled={!unlocked}
+            $active={active}
+            title={
+              unlocked
+                ? item.name
+                : `Clear "${titleOf(item.mission)}" to unlock`
+            }
+            onClick={() => unlocked && onPick(item.id)}
+          >
+            <Styled.OptionLook $locked={kind === "banner" && !unlocked}>
+              <Swatch kind={kind} item={item} />
+              {!unlocked && kind !== "banner" && (
+                <Styled.Lock>
+                  <IoLockClosed aria-hidden="true" />
+                  <span>{titleOf(item.mission)}</span>
+                </Styled.Lock>
+              )}
+            </Styled.OptionLook>
+            {kind !== "banner" ? (
+              <Styled.OptionName>{item.name}</Styled.OptionName>
+            ) : (
+              // A banner wears its name: a locked one, dimmed, says under it
+              // which mission opens it.
+              !unlocked && (
+                <Styled.OptionName>
+                  <IoLockClosed aria-hidden="true" /> {titleOf(item.mission)}
+                </Styled.OptionName>
+              )
+            )}
+          </Styled.Option>
+        );
+      })}
+    </Styled.Options>
   );
 }
 

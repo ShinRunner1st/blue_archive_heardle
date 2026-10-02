@@ -7,11 +7,13 @@ import { type ContentState, loadContent, saveContent } from "./api";
 import { changedFiles } from "./draft";
 import { nextLock } from "./lock";
 import { MissionsTab } from "./MissionsTab";
+import { RewardsTab } from "./RewardsTab";
 import { Brand, Body, Button, Note, Row, Shell, Tab, Tabs, TopBar } from "./ui";
 import { WhatsNewTab } from "./WhatsNewTab";
 
 const TABS = {
   missions: { label: "Missions", Component: MissionsTab },
+  rewards: { label: "Rewards", Component: RewardsTab },
   whatsNew: { label: "What's new", Component: WhatsNewTab },
 } as const;
 type TabId = keyof typeof TABS;

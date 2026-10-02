@@ -1,11 +1,10 @@
 import React from "react";
-import styled from "styled-components";
 
-import { ICONS, iconNamed } from "../constants/icons";
 import { SHOWN_UPDATES } from "../constants/whatsNew";
 import type { NewsEntry } from "../content/types";
 import { freeId, moved, replaced, slugOf } from "./draft";
 import type { TabProps } from "./MissionsTab";
+import { IconPicker } from "./pickers";
 import { PreviewPane } from "./PreviewPane";
 import {
   Badge,
@@ -26,42 +25,6 @@ import {
   Row,
   TextArea,
 } from "./ui";
-
-const IconGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
-  gap: 4px;
-  margin: 6px 0 10px;
-`;
-
-const IconChoice = styled.button.attrs({ type: "button" })<{
-  $active: boolean;
-}>`
-  display: grid;
-  place-items: center;
-  height: 40px;
-  font-size: 20px;
-  color: inherit;
-  border-radius: 6px;
-  border: 1px solid
-    ${({ $active, theme }) =>
-      $active ? theme.border : "rgba(255, 255, 255, 0.12)"};
-  background: ${({ $active, theme }) =>
-    $active ? theme.blue : "rgba(255, 255, 255, 0.05)"};
-  cursor: pointer;
-`;
-
-const IconName = styled.span`
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 18px;
-
-  small {
-    font-size: 12px;
-    opacity: 0.6;
-  }
-`;
 
 /** An update's id: the month it comes out, then its name. */
 const newId = (name: string, taken: string[]) => {
@@ -266,20 +229,9 @@ function NewsItemCard({
   onMove: (step: -1 | 1) => void;
   onRemove: () => void;
 }) {
-  const [picking, setPicking] = React.useState(false);
-  const Icon = iconNamed(item.icon);
-
   return (
     <Card>
-      <Row style={{ marginBottom: 8 }}>
-        <IconName>
-          <Icon aria-hidden="true" />
-          <small>{item.icon}</small>
-        </IconName>
-        <Button onClick={() => setPicking(!picking)}>
-          {picking ? "Done" : "Change icon"}
-        </Button>
-        <span style={{ marginLeft: "auto" }} />
+      <Row style={{ marginBottom: 8, justifyContent: "flex-end" }}>
         <IconButton aria-label="Up" disabled={first} onClick={() => onMove(-1)}>
           ↑
         </IconButton>
@@ -290,23 +242,12 @@ function NewsItemCard({
           ✕
         </IconButton>
       </Row>
-      {picking && (
-        <IconGrid role="radiogroup" aria-label="Icon">
-          {Object.entries(ICONS).map(([name, Choice]) => (
-            <IconChoice
-              key={name}
-              role="radio"
-              aria-checked={name === item.icon}
-              aria-label={name}
-              title={name}
-              $active={name === item.icon}
-              onClick={() => onChange({ ...item, icon: name })}
-            >
-              <Choice aria-hidden="true" />
-            </IconChoice>
-          ))}
-        </IconGrid>
-      )}
+      <Field label="Icon">
+        <IconPicker
+          value={item.icon}
+          onChange={(icon) => onChange({ ...item, icon })}
+        />
+      </Field>
       <Field label="Title">
         <Input
           name="item-title"

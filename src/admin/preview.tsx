@@ -17,6 +17,7 @@ import { applyColorSchemeToDocument } from "../helpers/colorScheme";
 import { unlocksOf } from "../helpers/cosmetics";
 import { goalOf } from "../helpers/missions";
 import type { PreviewMessage, PreviewView } from "./messages";
+import { RewardsPreview } from "./RewardsPreview";
 import "../index.css";
 
 const Backdrop = styled.div`
@@ -46,6 +47,7 @@ function View({ view }: { view: PreviewView }) {
     );
   }
 
+  if (view.kind === "rewards") return <RewardsPreview view={view} />;
   return <MissionsPreview view={view} />;
 }
 

@@ -52,8 +52,10 @@ export const CARD_COLORS = cosmeticData.cardColors as CardColors[];
  * own blue, or every colour in turn.
  */
 export interface CursorColor extends Cosmetic {
-  /** A hue, 0-360; none for the game's own blue or the rainbow. */
+  /** A hue, 0-360; none for the game's own blue or a rainbow. */
   hue?: number;
+  /** Every colour in turn, a new hue with each tap or drag. */
+  rainbow?: boolean;
   /** A swatch for the picker. */
   swatch: string;
 }

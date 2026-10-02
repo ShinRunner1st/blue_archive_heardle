@@ -21,6 +21,10 @@ interface Props {
   choices: Choice[];
   selected: string;
   onPick: (id: string) => void;
+  /** The missions cleared: this browser's, or the admin tool's pick. */
+  cleared?: string[];
+  /** A mission's title by id: the game's, or the admin tool's draft's. */
+  titleOf?: (missionId: string | undefined) => string;
 }
 
 const missionTitle = (id: string | undefined) =>
@@ -35,10 +39,12 @@ export function CosmeticChoices({
   choices,
   selected,
   onPick,
+  titleOf = missionTitle,
+  cleared: given,
 }: Props) {
   // Shows a choice unlocked the moment its mission is cleared.
   useMissionsVersion();
-  const cleared = loadClearedMissions();
+  const cleared = given ?? loadClearedMissions();
 
   return (
     <Styled.Choices role="radiogroup" aria-labelledby={labelledBy}>
@@ -56,7 +62,7 @@ export function CosmeticChoices({
             title={
               open
                 ? choice.name
-                : `Clear "${missionTitle(choice.mission)}" to unlock`
+                : `Clear "${titleOf(choice.mission)}" to unlock`
             }
             onClick={() => open && onPick(choice.id)}
           >

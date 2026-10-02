@@ -184,6 +184,14 @@ export function getCursorColor(): CursorColor {
   return cursorColor;
 }
 
+/**
+ * Shows a colour without picking it: the admin tool's preview, drawing one
+ * still being made.
+ */
+export function showCursorColor(color: CursorColor): void {
+  cursorColor = color;
+}
+
 /** Forgets the cached colour, for tests and after a save file is read. */
 export function resetCursorColor(): void {
   cursorColor = null;
@@ -255,7 +263,7 @@ let rainbowHue = 0;
  */
 export function nextCursorPalette(): CursorPalette {
   const color = getCursorColor();
-  if (color.id === "rainbow") {
+  if (color.rainbow) {
     rainbowHue = (rainbowHue + RAINBOW_STEP) % 360;
     return paletteOfHue(rainbowHue);
   }
