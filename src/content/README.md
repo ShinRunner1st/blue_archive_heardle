@@ -13,7 +13,8 @@ copy of the files to show it fires.
 The admin tool, `npm run admin`, edits these files on this PC, with previews
 drawn by the game's own components, and saves only once the checks pass
 (writing `ids.lock.json` too); see the tool below. Its tabs so far:
-Missions, Rewards (every list in `cosmetics.json`) and What's new.
+Missions, Rewards (every list in `cosmetics.json`), Pictures, Seasons, OST
+badges and What's new.
 
 After any change: `npm test`. After a change with pictures (a season, a
 badge cover): `npm run songs` too, before merging.
@@ -174,7 +175,17 @@ writes the files as Prettier would, so the diff is only what changed.
   everything", or off, as a new player, with the locks and their missions.
   A released reward keeps its mission while that mission is live; once it's
   retired, a new one can take over and the old is kept as a former one.
-- **Unsaved work** stays in the browser; the tool offers it back next time.
+- **Pictures** for banners and backgrounds go in `pictures/scenes/`, made
+  from a file dropped in or one of the game's backgrounds (by its wiki
+  name): a sharp 960×540 scene (`scripts/make-picture.mjs`, about 70 KB) or
+  a blurred backdrop like the seasons' (`make-backdrop.mjs`). The Seasons
+  tab makes a season's day and night pictures the same way, and the OST
+  badges tab an album's 256×256 cover in `src/image/badges/`. Each picture
+  for the Worker is listed at once (`build:pictures`, on this PC); putting
+  it on the Worker and R2 is still `npm run songs`, before merging. Only a
+  picture nothing shows can be deleted, and only the tool's own folders'.
+- **Unsaved work** stays in the browser; the tool offers it back next time,
+  or carries on with it by itself when only pictures changed.
 - After a save: `npm test`, look at the diff, commit.
 
 Code: `src/admin/` (the server in `server.ts`, run by

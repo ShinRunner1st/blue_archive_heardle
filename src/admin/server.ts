@@ -18,6 +18,14 @@ import {
 } from "../content/types";
 import type { ContentEnv, ContentProblem } from "../content/validate";
 import { nextLock } from "./lock";
+import {
+  deletePicture,
+  listScenePictures,
+  makePicture,
+  type PictureEntry,
+  type PictureRequest,
+  sendPicture,
+} from "./pictureServer";
 
 export const ADMIN_PORT = 5180;
 
@@ -41,8 +49,11 @@ interface AdminPlugin {
 }
 
 const CONTENT_DIR = "src/content";
-/** The most a save may send: the content files are about 60 KB. */
-const MAX_BODY = 5 * 1024 * 1024;
+/**
+ * The most a request may send: the content files are about 60 KB, an
+ * uploaded picture a few MB.
+ */
+const MAX_BODY = 25 * 1024 * 1024;
 
 /** What the page loads: the files, what's shipped, and the files on disk. */
 export interface ContentState {
@@ -51,6 +62,10 @@ export interface ContentState {
   shipped: IdsLock;
   /** Files the checks look for on disk (season pictures, badge covers). */
   existing: string[];
+  /** The pictures cards, banners and seasons can show. */
+  pictures: PictureEntry[];
+  /** OST albums in badges.json on `main`: their numbers stay. */
+  releasedBadges: number[];
 }
 
 const pathOf = (name: ContentFileName) =>
@@ -79,6 +94,40 @@ export function readShipped(current: IdsLock): IdsLock {
   } catch {
     return current;
   }
+}
+
+/** The albums released, by number; all of them without git. */
+function readReleasedBadges(current: ContentFiles["badges"]): number[] {
+  try {
+    const text = execFileSync(
+      "git",
+      ["show", `main:${CONTENT_DIR}/${CONTENT_FILE_PATHS.badges}`],
+      { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }
+    );
+    return (JSON.parse(text) as ContentFiles["badges"]).map(
+      ({ number }) => number
+    );
+  } catch {
+    return current.map(({ number }) => number);
+  }
+}
+
+/** Where the content on disk shows a picture, by its key. */
+export function pictureUses(files: ContentFiles, key: string): string[] {
+  const uses: string[] = [];
+  for (const season of files.seasons) {
+    const name = season.pictures ?? season.id;
+    if (key === `seasons/${name}-day` || key === `seasons/${name}-night`) {
+      uses.push(`season ${season.id}`);
+    }
+  }
+  for (const banner of files.cosmetics.banners) {
+    if (banner.picture === key) uses.push(`banner ${banner.id}`);
+  }
+  for (const background of files.cosmetics.backgrounds) {
+    if (background.picture === key) uses.push(`background ${background.id}`);
+  }
+  return uses;
 }
 
 /** The files the content checks ask about, as paths from the project root. */
@@ -191,6 +240,8 @@ export function adminApi(): AdminPlugin {
             files,
             shipped: readShipped(files.idsLock),
             existing: existingFiles(),
+            pictures: listScenePictures(),
+            releasedBadges: readReleasedBadges(files.badges),
           };
           return send(res, 200, state);
         }
@@ -202,6 +253,57 @@ export function adminApi(): AdminPlugin {
             send(res, result.problems.length > 0 ? 422 : 200, result);
           })
           .catch((error: unknown) => send(res, 400, { error: String(error) }));
+      });
+
+      // A picture from the project, for thumbnails and previews.
+      server.middlewares.use("/api/file", (req, res) => {
+        const path = new URL(req.url ?? "", "http://x").searchParams.get(
+          "path"
+        );
+        if (
+          !isOwnRequest(req.headers, false) ||
+          !path ||
+          !sendPicture(res, path)
+        ) {
+          send(res, 404, { error: "No such picture." });
+        }
+      });
+
+      server.middlewares.use("/api/picture", (req, res) => {
+        if (!isOwnRequest(req.headers, true)) {
+          return send(res, 403, { error: "Only the admin page can ask." });
+        }
+        readBody(req)
+          .then(async (text) => {
+            if (req.method === "POST") {
+              const made = await makePicture(
+                JSON.parse(text) as PictureRequest
+              );
+              return send(res, 200, { ...made, pictures: listScenePictures() });
+            }
+            if (req.method === "DELETE") {
+              const { path } = JSON.parse(text) as { path: string };
+              const key = path
+                .replace(/^pictures\//, "")
+                .replace(/\.webp$/, "");
+              const uses = pictureUses(readContent(), key);
+              if (uses.length > 0) {
+                return send(res, 409, {
+                  error: `Still shown by ${uses.join(
+                    ", "
+                  )}: save without it first.`,
+                });
+              }
+              await deletePicture(path);
+              return send(res, 200, { pictures: listScenePictures() });
+            }
+            send(res, 405, { error: "POST or DELETE" });
+          })
+          .catch((error: unknown) =>
+            send(res, 400, {
+              error: error instanceof Error ? error.message : String(error),
+            })
+          );
       });
     },
   };

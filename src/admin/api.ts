@@ -1,6 +1,7 @@
 /** The admin page's calls to its server (server.ts), on the same address. */
 import type { ContentFiles } from "../content/types";
 import type { ContentProblem } from "../content/validate";
+import type { PictureEntry, PictureRequest } from "./pictureRules";
 import type { ContentState } from "./server";
 
 export type { ContentState };
@@ -29,3 +30,36 @@ export async function saveContent(files: ContentFiles): Promise<SaveResult> {
   if (response.ok) return { ok: true, written: body.written ?? [] };
   return { ok: false, problems: body.problems ?? [], error: body.error };
 }
+
+/** A picture in the project, for thumbnails and previews. */
+export const fileUrl = (path: string, version = "") =>
+  `/api/file?path=${encodeURIComponent(path)}${version && `&v=${version}`}`;
+
+type PictureResult =
+  | { ok: true; pictures: PictureEntry[] }
+  | { ok: false; error: string };
+
+async function pictureCall(
+  method: "POST" | "DELETE",
+  body: unknown
+): Promise<PictureResult> {
+  const response = await fetch("/api/picture", {
+    method,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = (await response.json()) as {
+    pictures?: PictureEntry[];
+    error?: string;
+  };
+  return response.ok
+    ? { ok: true, pictures: data.pictures ?? [] }
+    : { ok: false, error: data.error ?? `Failed: ${response.status}` };
+}
+
+/** Makes a picture with the project's scripts; the list comes back. */
+export const makePicture = (request: PictureRequest) =>
+  pictureCall("POST", request);
+
+/** Deletes one of the tool's pictures; the list comes back. */
+export const deletePicture = (path: string) => pictureCall("DELETE", { path });

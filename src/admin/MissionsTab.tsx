@@ -6,7 +6,9 @@ import type { ContentProblem } from "../content/validate";
 import { unlocksOf } from "../helpers/cosmetics";
 import { FACT_TOTALS, goalOf } from "../helpers/missions";
 import { freeId, moved, replaced, slugOf, stepped } from "./draft";
+import type { ContentState } from "./api";
 import { isShipped } from "./lock";
+import type { PictureEntry } from "./pictureRules";
 import { PreviewPane } from "./PreviewPane";
 import {
   Badge,
@@ -34,6 +36,17 @@ export interface TabProps {
   update: (change: (files: ContentFiles) => ContentFiles) => void;
   shipped: IdsLock;
   problems: ContentProblem[];
+  /** What the server said as the page loaded. */
+  state: ContentState;
+  /** The pictures cards, banners and seasons can show. */
+  pictures: PictureEntry[];
+  /**
+   * A picture made or deleted: the list now, and a file made outside it
+   * (a badge's cover).
+   */
+  onPictures: (pictures: PictureEntry[], made?: string) => void;
+  /** Changes with every picture made, so thumbnails load again. */
+  pictureVersion: string;
 }
 
 const FACTS = Object.keys(MISSION_FACTS) as MissionFact[];

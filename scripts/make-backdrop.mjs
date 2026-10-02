@@ -5,13 +5,21 @@
  *
  *   node scripts/make-backdrop.mjs <BG name> <day|night> <output.webp>
  *   node scripts/make-backdrop.mjs FireplaceDormitory day pictures/seasons/christmas-day.webp
+ *   node scripts/make-backdrop.mjs my-picture.png night pictures/scenes/mine-night.webp
  *
  * The background is downloaded from the Blue Archive wiki (File:BG_<name>.jpg)
- * once, here, never by the game. Needs ffmpeg on the PATH, built with libwebp.
+ * once, here, never by the game; or, given a picture file in its place (the
+ * admin tool's uploads), made from that. Needs ffmpeg on the PATH, built with libwebp.
  * Run `npm run songs` afterwards to put the picture on the Worker.
  */
 import { execFile } from "node:child_process";
-import { mkdtempSync, rmSync, statSync } from "node:fs";
+import {
+  copyFileSync,
+  existsSync,
+  mkdtempSync,
+  rmSync,
+  statSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
@@ -50,7 +58,8 @@ async function meanBrightness(file, filters) {
 const dir = mkdtempSync(join(tmpdir(), "backdrop-"));
 try {
   const source = join(dir, "source.jpg");
-  await downloadBackground(name, source);
+  if (existsSync(name)) copyFileSync(name, source);
+  else await downloadBackground(name, source);
 
   const blur = `scale=${SIZE},gblur=sigma=${BLUR},`;
   const k = BRIGHTNESS[time] / (await meanBrightness(source, blur));

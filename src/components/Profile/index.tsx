@@ -247,7 +247,7 @@ function Tile({
  * The OST badges, an album each: its cover (grey until earned) and how
  * many of its songs have been guessed, as the badges pop-up shows them.
  */
-function Badges({
+export function Badges({
   badges,
   narrow = false,
 }: {

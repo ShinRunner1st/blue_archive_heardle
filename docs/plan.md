@@ -1041,6 +1041,12 @@ admin`, on their PC only, nothing deployed or in the site's build),
      data, where the code once looked for the id._
   4. Pictures (drop one in, made the right size as WebP,
      `build:pictures` run), Seasons and OST badges, each previewed.
+     _Built on `feat/admin-tool`: Pictures (`pictures/scenes/`, sharp
+     960×540 or a backdrop, from a file or a wiki background), Seasons (a
+     year strip, dates, home, day and night pictures made in place) and OST
+     badges (cover, tracklist by search or pasted numbers, released numbers
+     fixed), previewed on a profile, behind the page and on the badge
+     shelf. `npm run songs` stays by hand, as it publishes._
   5. Characters, the ones there and new ones: their set-up moves from
      `src/constants/characters.ts` into a content file, and the tool
      makes a new one's sprite from the game's files (`build-spine.py`)

@@ -6,14 +6,21 @@ import { checkContent } from "../content/validate";
 import { type ContentState, loadContent, saveContent } from "./api";
 import { changedFiles } from "./draft";
 import { nextLock } from "./lock";
+import type { PictureEntry } from "./pictureRules";
 import { MissionsTab } from "./MissionsTab";
+import { BadgesTab } from "./BadgesTab";
+import { PicturesTab } from "./PicturesTab";
 import { RewardsTab } from "./RewardsTab";
+import { SeasonsTab } from "./SeasonsTab";
 import { Brand, Body, Button, Note, Row, Shell, Tab, Tabs, TopBar } from "./ui";
 import { WhatsNewTab } from "./WhatsNewTab";
 
 const TABS = {
   missions: { label: "Missions", Component: MissionsTab },
   rewards: { label: "Rewards", Component: RewardsTab },
+  pictures: { label: "Pictures", Component: PicturesTab },
+  seasons: { label: "Seasons", Component: SeasonsTab },
+  badges: { label: "OST badges", Component: BadgesTab },
   whatsNew: { label: "What's new", Component: WhatsNewTab },
 } as const;
 type TabId = keyof typeof TABS;
@@ -64,6 +71,9 @@ export function AdminApp() {
     () => readStored<string>(sessionStorage, FLASH_KEY) ?? ""
   );
   const [saving, setSaving] = React.useState(false);
+  const [pictures, setPictures] = React.useState<PictureEntry[]>([]);
+  const [pictureVersion, setPictureVersion] = React.useState("");
+  const [made, setMade] = React.useState<string[]>([]);
 
   React.useEffect(() => {
     store(sessionStorage, FLASH_KEY, null);
@@ -71,12 +81,17 @@ export function AdminApp() {
       .then((loaded) => {
         setState(loaded);
         setDraft(loaded.files);
+        setPictures(loaded.pictures);
         const kept = readStored<StoredDraft>(localStorage, DRAFT_KEY);
         if (
           kept &&
           JSON.stringify(kept.files) !== JSON.stringify(loaded.files)
         ) {
-          setRestore(kept);
+          // The same files on disk as when the draft began, as after a
+          // picture made here reloads the page: carry on with it. Changed
+          // on disk since: ask.
+          if (kept.disk === JSON.stringify(loaded.files)) setDraft(kept.files);
+          else setRestore(kept);
         }
       })
       .catch((reason: unknown) => setError(String(reason)));
@@ -100,12 +115,16 @@ export function AdminApp() {
 
   const problems = React.useMemo(() => {
     if (!state || !draft) return [];
-    const existing = new Set(state.existing);
+    const existing = new Set([
+      ...state.existing,
+      ...pictures.map(({ path }) => path),
+      ...made,
+    ]);
     return checkContent(
       { ...draft, idsLock: nextLock(state.shipped, draft) },
       { pictureFiles, exists: (path) => existing.has(path) }
     );
-  }, [state, draft]);
+  }, [state, draft, pictures, made]);
 
   const update = React.useCallback(
     (change: (files: ContentFiles) => ContentFiles) =>
@@ -262,6 +281,14 @@ export function AdminApp() {
           update={update}
           shipped={state.shipped}
           problems={problems}
+          state={state}
+          pictures={pictures}
+          onPictures={(list, file) => {
+            setPictures(list);
+            if (file) setMade((files) => [...files, file]);
+            setPictureVersion(String(Date.now()));
+          }}
+          pictureVersion={pictureVersion}
         />
       </Body>
     </Shell>

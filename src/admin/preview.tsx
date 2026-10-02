@@ -18,6 +18,11 @@ import { unlocksOf } from "../helpers/cosmetics";
 import { goalOf } from "../helpers/missions";
 import type { PreviewMessage, PreviewView } from "./messages";
 import { RewardsPreview } from "./RewardsPreview";
+import {
+  BadgesPreview,
+  PicturePreview,
+  SeasonPreview,
+} from "./ContentPreviews";
 import "../index.css";
 
 const Backdrop = styled.div`
@@ -29,7 +34,11 @@ const Backdrop = styled.div`
 
 const nothing = () => {};
 
-function View({ view }: { view: PreviewView }) {
+function View({ view, night }: { view: PreviewView; night: boolean }) {
+  if (view.kind === "picture") return <PicturePreview view={view} />;
+  if (view.kind === "season")
+    return <SeasonPreview view={view} night={night} />;
+  if (view.kind === "badges") return <BadgesPreview view={view} />;
   if (view.kind === "whatsNew") {
     return (
       <WhatsNewPopUp
@@ -129,7 +138,7 @@ function Preview() {
   return (
     <ThemeProvider theme={themes[scheme]}>
       <Backdrop />
-      <View view={message.view} />
+      <View view={message.view} night={scheme === "dark"} />
     </ThemeProvider>
   );
 }

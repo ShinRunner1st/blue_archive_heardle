@@ -1,0 +1,154 @@
+/**
+ * The admin tool's pictures, on the PC: making one (from an upload or one
+ * of the game's backgrounds) with the project's own scripts, deleting one,
+ * and listing them, then rebuilding the picture list as `npm run
+ * build:pictures` does. Putting them on the Worker and R2 stays `npm run
+ * songs`, by hand, as it publishes.
+ */
+import { execFile } from "node:child_process";
+import {
+  createReadStream,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
+import type { ServerResponse } from "node:http";
+import { tmpdir } from "node:os";
+import { dirname, join, resolve } from "node:path";
+import prettier from "prettier";
+
+import {
+  type PictureEntry,
+  type PictureRequest,
+  pictureTargetProblem,
+  VIEWABLE_PICTURE,
+} from "./pictureRules";
+
+export type { PictureEntry, PictureRequest };
+
+/** Folders of pictures cards and banners can use, and which are the tool's. */
+const SCENE_FOLDERS = ["scenes", "seasons", "hub", "multiplayer"];
+
+function run(args: string[]): Promise<string> {
+  return new Promise((done, fail) =>
+    execFile(
+      process.execPath,
+      args,
+      { maxBuffer: 4 * 1024 * 1024 },
+      (error, stdout, stderr) =>
+        error ? fail(new Error(stderr.trim() || error.message)) : done(stdout)
+    )
+  );
+}
+
+/** The pictures in the scene folders, and whether the list has them yet. */
+export function listScenePictures(): PictureEntry[] {
+  const manifest = existsSync("src/constants/pictureFiles.ts")
+    ? readFileSync("src/constants/pictureFiles.ts", "utf8")
+    : "";
+  return SCENE_FOLDERS.flatMap((folder) => {
+    const dir = join("pictures", folder);
+    if (!existsSync(dir)) return [];
+    return readdirSync(dir)
+      .filter((file) => file.endsWith(".webp"))
+      .map((file) => {
+        const key = `${folder}/${file.slice(0, -".webp".length)}`;
+        return {
+          key,
+          path: `pictures/${folder}/${file}`,
+          kb: Math.round(statSync(join(dir, file)).size / 102.4) / 10,
+          listed: manifest.includes(`"${key}"`),
+        };
+      });
+  });
+}
+
+/**
+ * pictures/ to audio-dist/pictures/ and pictureFiles.ts, as `npm run
+ * build:pictures` does, the lists formatted as Prettier would.
+ */
+async function buildPictures(): Promise<void> {
+  await run(["scripts/build-pictures.mjs"]);
+  for (const file of [
+    "src/constants/pictureFiles.ts",
+    "src/constants/portraitFiles.ts",
+  ]) {
+    const options = (await prettier.resolveConfig(resolve(file))) ?? {};
+    writeFileSync(
+      file,
+      prettier.format(readFileSync(file, "utf8"), {
+        ...options,
+        filepath: file,
+      })
+    );
+  }
+}
+
+/** Makes a picture as the request says, then lists it if it's the Worker's. */
+export async function makePicture(
+  request: PictureRequest
+): Promise<{ path: string; kb: number }> {
+  const problem = pictureTargetProblem(request);
+  if (problem) throw new Error(problem);
+
+  const dir = mkdtempSync(join(tmpdir(), "admin-picture-"));
+  try {
+    let from: string;
+    if (request.upload) {
+      const data = request.upload.replace(/^data:[^,]*,/, "");
+      from = join(dir, "upload");
+      writeFileSync(from, Buffer.from(data, "base64"));
+    } else {
+      from = request.background ?? "";
+    }
+    mkdirSync(dirname(request.target), { recursive: true });
+    if (
+      request.style === "backdrop-day" ||
+      request.style === "backdrop-night"
+    ) {
+      await run([
+        "scripts/make-backdrop.mjs",
+        from,
+        request.style === "backdrop-day" ? "day" : "night",
+        request.target,
+      ]);
+    } else {
+      await run([
+        "scripts/make-picture.mjs",
+        from,
+        request.style === "cover" ? "cover" : "scene",
+        request.target,
+      ]);
+    }
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+  if (request.target.startsWith("pictures/")) await buildPictures();
+  return {
+    path: request.target,
+    kb: Math.round(statSync(request.target).size / 102.4) / 10,
+  };
+}
+
+/** Deletes a picture of the tool's folders, then lists the rest. */
+export async function deletePicture(path: string): Promise<void> {
+  if (!/^pictures\/(scenes|seasons)\/[a-z0-9-]+\.webp$/.test(path)) {
+    throw new Error("Only a picture in pictures/scenes or seasons can go.");
+  }
+  rmSync(path, { force: true });
+  await buildPictures();
+}
+
+/** Sends one of the pictures the tool shows, from the project. */
+export function sendPicture(res: ServerResponse, path: string): boolean {
+  if (!VIEWABLE_PICTURE.test(path) || !existsSync(path)) return false;
+  res.setHeader("Content-Type", "image/webp");
+  res.setHeader("Cache-Control", "no-store");
+  createReadStream(path).pipe(res);
+  return true;
+}

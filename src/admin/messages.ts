@@ -4,7 +4,12 @@
  * would see it.
  */
 import type { ColorScheme } from "../constants/theme";
-import type { CosmeticsFile, MissionsFile, NewsEntry } from "../content/types";
+import type {
+  BadgeEntry,
+  CosmeticsFile,
+  MissionsFile,
+  NewsEntry,
+} from "../content/types";
 
 export type PreviewView =
   | {
@@ -29,6 +34,27 @@ export type PreviewView =
       index: number;
       /** Drawn as a player who has cleared every mission, or none. */
       unlocked: boolean;
+    }
+  /** A picture on the Worker by its key, or none picked. */
+  | { kind: "picture"; key: string }
+  | {
+      kind: "season";
+      id: string;
+      home: string;
+      from: number[];
+      to: number[];
+      /** The pictures' addresses, or "" for one not made yet. */
+      day: string;
+      night: string;
+    }
+  | {
+      kind: "badges";
+      badges: BadgeEntry[];
+      /** Each cover's address, by its file name. */
+      covers: Record<string, string>;
+      /** The album being edited, and how many of its songs are guessed. */
+      selected: number;
+      found: number;
     };
 
 export interface PreviewMessage {
