@@ -85,6 +85,9 @@ export default function ProfilePopUp({
     TABS.some(({ id }) => id === startTab) ? startTab : "overview"
   );
   const [customizing, setCustomizing] = React.useState(customize);
+  // The Account tab reads the account as it opens: kept from then on, so
+  // flicking between tabs costs one read, not one a visit.
+  const [accountKept, setAccountKept] = React.useState(tab === "account");
 
   if (customizing) {
     // Opened on Customize from elsewhere: closing it goes back there.
@@ -145,7 +148,10 @@ export default function ProfilePopUp({
                   role="tab"
                   aria-selected={tab === id}
                   $active={tab === id}
-                  onClick={() => setTab(id)}
+                  onClick={() => {
+                    setTab(id);
+                    if (id === "account") setAccountKept(true);
+                  }}
                 >
                   {label}
                 </Styled.Tab>
@@ -161,11 +167,7 @@ export default function ProfilePopUp({
       )}
     >
       <Styled.Page role="tabpanel" aria-label={shown.label}>
-        {tab === "account" ? (
-          <React.Suspense fallback={<Styled.Note>Loading…</Styled.Note>}>
-            <AccountPanel />
-          </React.Suspense>
-        ) : tab === "overview" ? (
+        {tab === "account" ? null : tab === "overview" ? (
           <Overview stats={stats} />
         ) : tab === "room" ? (
           <Styled.Tiles>
@@ -188,6 +190,14 @@ export default function ProfilePopUp({
               ))}
             {tab === "ost" && <Badges badges={stats.badges} />}
           </>
+        )}
+        {/* After the other tabs' content, which starts the page. */}
+        {accountKept && (
+          <Styled.KeptTab hidden={tab !== "account"}>
+            <React.Suspense fallback={<Styled.Note>Loading…</Styled.Note>}>
+              <AccountPanel />
+            </React.Suspense>
+          </Styled.KeptTab>
         )}
       </Styled.Page>
     </PopUp>

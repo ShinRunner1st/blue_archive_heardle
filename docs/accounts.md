@@ -559,19 +559,28 @@ sums below, not a measurement.
 
 **Exceptional flows**, counted apart from the usual day, as how often
 they happen is unknown. The daily cleanup's first run on Cloudflare
-(2026-10-02, 04:23 UTC) wasn't observed, so its cost there is
-unmeasured; table 1 has only the local run.
+(2026-10-02, 04:23:55 UTC) succeeded in 2.9 ms of CPU, but shared its
+minute with other reads, so its statements were then run again by hand
+on the production database, each giving its own count: 1 row read
+each, 0 written, with nothing expired. All three are full scans (the
+query plan says `SCAN`; `expires_at` and `seen_day` have no index, as
+an index costs a write), so a run reads a row for every session,
+sign-in code and account there is. The Account tab's figure is from
+production the same day: 415 rows for 64 openings in one minute, when
+switching between the profile's tabs read the account at every visit
+(it's read once while the profile is open since).
 
-| Flow                             | Worker requests                                                           | D1 rows read          | D1 rows written                                      |
-| -------------------------------- | ------------------------------------------------------------------------- | --------------------- | ---------------------------------------------------- |
-| Signing in, a new account        | 12 (8 with preflights kept)                                               | 4, and its first sync | **12**, and 12 for a first profile's missions (once) |
-| Signing in, returning            | 8 (12 with its preflights)                                                | 5                     | **6** (7 on a new UTC day)                           |
-| A conflict: 409, download, merge | 4, a preflight, and 1 more as the page next opens (it takes the merge in) | 11-17, and 1-2 then   | 3 (the merged save and its backup)                   |
-| A room pass                      | 1, and a preflight once                                                   | 16 to about 44        | 0                                                    |
-| Linking a second provider        | 6 (1 preflight)                                                           | a few                 | 3                                                    |
-| Download my data                 | 1, and a preflight                                                        | up to 37              | 0                                                    |
-| Delete account                   | 1                                                                         | up to 41              | up to 18                                             |
-| The daily cleanup (04:23 UTC)    | **unmeasured** on Cloudflare                                              | **unmeasured**        | **unmeasured**                                       |
+| Flow                             | Worker requests                                                           | D1 rows read                              | D1 rows written                                             |
+| -------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------- | ----------------------------------------------------------- |
+| Signing in, a new account        | 12 (8 with preflights kept)                                               | 4, and its first sync                     | **12**, and 12 for a first profile's missions (once)        |
+| Signing in, returning            | 8 (12 with its preflights)                                                | 5                                         | **6** (7 on a new UTC day)                                  |
+| A conflict: 409, download, merge | 4, a preflight, and 1 more as the page next opens (it takes the merge in) | 11-17, and 1-2 then                       | 3 (the merged save and its backup)                          |
+| A room pass                      | 1, and a preflight once                                                   | 16 to about 44                            | 0                                                           |
+| Linking a second provider        | 6 (1 preflight)                                                           | a few                                     | 3                                                           |
+| Download my data                 | 1, and a preflight                                                        | up to 37                                  | 0                                                           |
+| Delete account                   | 1                                                                         | up to 41                                  | up to 18                                                    |
+| Opening the Account tab          | 1 (once while the profile is open)                                        | about 6.5                                 | 0                                                           |
+| The daily cleanup (04:23 UTC)    | 1 scheduled run                                                           | 1 a row in the 3 tables (3 on 2026-10-02) | 0 with nothing expired; a deletion's own when something has |
 
 **Traffic nobody asked for.** Taken from the same Worker-request quota,
 and counted on its own line: scanners. Within minutes of

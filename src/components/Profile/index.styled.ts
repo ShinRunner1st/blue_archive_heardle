@@ -731,6 +731,18 @@ export const Page = styled(Body)`
   }
 `;
 
+/**
+ * The Account tab, kept once opened and only hidden on the other tabs, so
+ * coming back to it doesn't ask the accounts Worker again.
+ */
+export const KeptTab = styled.div`
+  display: contents;
+
+  &[hidden] {
+    display: none;
+  }
+`;
+
 /** The titles, a row each. */
 export const TitleList = styled.div`
   display: flex;
