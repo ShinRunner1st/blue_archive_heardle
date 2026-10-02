@@ -1,4 +1,5 @@
 import React from "react";
+import styled from "styled-components";
 
 import { fetchVerified } from "../../helpers/accountClient";
 import { dateOfDay } from "../../helpers/daily";
@@ -170,13 +171,6 @@ export function VerifiedRecord({
 
   return (
     <>
-      <Styled.Note>
-        {view.since === null
-          ? "Nothing verified yet."
-          : `Verified since ${dayDate(view.since)}.`}{" "}
-        {note}
-      </Styled.Note>
-
       {view.since !== null && (
         <Styled.Tiles>
           <Tile label="Dailies played" value={number(totals.played)} />
@@ -195,6 +189,12 @@ export function VerifiedRecord({
           />
         </Styled.Tiles>
       )}
+      <Styled.Note>
+        {view.since === null
+          ? "Nothing verified yet."
+          : `Verified since ${dayDate(view.since)}.`}{" "}
+        {note}
+      </Styled.Note>
 
       {played.map((daily) => (
         <VerifiedGame key={daily} daily={daily} stats={view.dailies[daily]} />
@@ -202,6 +202,21 @@ export function VerifiedRecord({
     </>
   );
 }
+
+/**
+ * A game's tiles beside its spread: narrower than the profile's, so the
+ * four of a Students daily keep to one row.
+ */
+const GameTiles = styled(Styled.Tiles)`
+  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+`;
+
+/** The spread's heading level with the tiles beside it; over it on a phone. */
+const SpreadHeading = styled(Styled.SubHeading)`
+  @media (min-width: 760px) {
+    margin-top: 0;
+  }
+`;
 
 function VerifiedGame({
   daily,
@@ -222,55 +237,63 @@ function VerifiedGame({
   const most = Math.max(1, ...bars.map((bar) => bar.count));
   return (
     <Styled.Game>
-      <Styled.Heading>{dailyName(daily)}</Styled.Heading>
-      <Styled.Tiles>
-        <Tile
-          label="Played"
-          value={number(stats.played)}
-          sub={
-            stats.abandoned
-              ? `${stats.abandoned} not finished in time`
-              : undefined
-          }
-        />
-        <Tile label="Won" value={percent(stats.won, stats.played)} />
-        {stats.streak === undefined ? (
-          <Tile label="Best streak" value={String(stats.bestStreak)} />
-        ) : (
+      <Styled.Heading>
+        {dailyName(daily)}{" "}
+        <Styled.HeadingCount>
+          since {dayDate(stats.firstDay)}
+        </Styled.HeadingCount>
+      </Styled.Heading>
+      <Styled.GameColumns>
+        <GameTiles>
           <Tile
-            label="Streak"
-            value={String(stats.streak)}
-            sub={`best ${stats.bestStreak}`}
+            label="Played"
+            value={number(stats.played)}
+            sub={
+              stats.abandoned
+                ? `${stats.abandoned} not finished in time`
+                : undefined
+            }
           />
+          <Tile label="Won" value={percent(stats.won, stats.played)} />
+          {stats.streak === undefined ? (
+            <Tile label="Best streak" value={String(stats.bestStreak)} />
+          ) : (
+            <Tile
+              label="Streak"
+              value={String(stats.streak)}
+              sub={`best ${stats.bestStreak}`}
+            />
+          )}
+          {students && (
+            <Tile
+              label="Fastest find"
+              value={
+                stats.bestTime === null ? "–" : formatClock(stats.bestTime)
+              }
+            />
+          )}
+        </GameTiles>
+        {bars.length > 0 && (
+          <div>
+            <SpreadHeading>By {students ? "guesses" : "tries"}</SpreadHeading>
+            <Styled.Spread>
+              {bars.map((bar) => (
+                <Styled.SpreadRow key={bar.label}>
+                  <Styled.SpreadLabel>{bar.label}</Styled.SpreadLabel>
+                  <Styled.SpreadBar
+                    $lost={bar.lost}
+                    style={{
+                      width: `${Math.max(6, (bar.count / most) * 100)}%`,
+                    }}
+                  >
+                    {bar.count}
+                  </Styled.SpreadBar>
+                </Styled.SpreadRow>
+              ))}
+            </Styled.Spread>
+          </div>
         )}
-        {students && (
-          <Tile
-            label="Fastest find"
-            value={stats.bestTime === null ? "–" : formatClock(stats.bestTime)}
-          />
-        )}
-      </Styled.Tiles>
-      {bars.length > 0 && (
-        <>
-          <Styled.SubHeading>
-            By {students ? "guesses" : "tries"}
-          </Styled.SubHeading>
-          <Styled.Spread>
-            {bars.map((bar) => (
-              <Styled.SpreadRow key={bar.label}>
-                <Styled.SpreadLabel>{bar.label}</Styled.SpreadLabel>
-                <Styled.SpreadBar
-                  $lost={bar.lost}
-                  style={{ width: `${Math.max(6, (bar.count / most) * 100)}%` }}
-                >
-                  {bar.count}
-                </Styled.SpreadBar>
-              </Styled.SpreadRow>
-            ))}
-          </Styled.Spread>
-        </>
-      )}
-      <Styled.Note>Since {dayDate(stats.firstDay)}.</Styled.Note>
+      </Styled.GameColumns>
     </Styled.Game>
   );
 }
