@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 
 import type { ContentFiles } from "../content/types";
+import { shapePictures } from "../content/validate";
 import { deletePicture, fileUrl } from "./api";
 import { slugOf } from "./draft";
 import type { TabProps } from "./MissionsTab";
@@ -29,6 +30,11 @@ const FOLDERS = [
     id: "scenes",
     label: "Scenes",
     note: "Yours, made here, for banners and backgrounds",
+  },
+  {
+    id: "emblems",
+    label: "Emblems",
+    note: "Yours: a PNG or JPG for an emblem or a frame's corner",
   },
   { id: "seasons", label: "Seasons", note: "Made in the Seasons tab" },
   { id: "hub", label: "Hub cards", note: "Drawn by scripts/make-card.mjs" },
@@ -65,6 +71,12 @@ export function usesOf(files: ContentFiles, key: string): string[] {
   }
   for (const banner of files.cosmetics.banners) {
     if (banner.picture === key) uses.push(`Banner: ${banner.name}`);
+    if (shapePictures(banner).includes(key)) {
+      uses.push(`Banner's emblem: ${banner.name}`);
+    }
+  }
+  for (const frame of files.cosmetics.frames) {
+    if (shapePictures(frame).includes(key)) uses.push(`Frame: ${frame.name}`);
   }
   for (const background of files.cosmetics.backgrounds) {
     if (background.picture === key) uses.push(`Background: ${background.name}`);
@@ -89,9 +101,12 @@ export function PicturesTab({
   const [error, setError] = React.useState("");
   const shown = pictures.filter(({ key }) => key.startsWith(`${folder}/`));
   const picture = pictures.find(({ key }) => key === selected);
-  const own = folder === "scenes" || folder === "seasons";
+  const own =
+    folder === "scenes" || folder === "seasons" || folder === "emblems";
+  // A new picture's folder: the tool makes scenes and emblems.
+  const making = folder === "emblems" ? "emblems" : "scenes";
   const url = (entry: PictureEntry) => fileUrl(entry.path, pictureVersion);
-  const newPath = `pictures/scenes/${slugOf(name) || "new"}.webp`;
+  const newPath = `pictures/${making}/${slugOf(name) || "new"}.webp`;
   const unlisted = pictures.filter(({ listed }) => !listed).length;
 
   return (
@@ -122,7 +137,7 @@ export function PicturesTab({
 
         <Heading>
           In {folder}
-          {folder === "scenes" && (
+          {(folder === "scenes" || folder === "emblems") && (
             <Button onClick={() => setSelected(null)}>+ New</Button>
           )}
         </Heading>
@@ -185,6 +200,8 @@ export function PicturesTab({
                       ? picture.key.endsWith("-night")
                         ? ["backdrop-night"]
                         : ["backdrop-day"]
+                      : folder === "emblems"
+                      ? ["emblem"]
                       : ["scene", "banner", "backdrop-day", "backdrop-night"]
                   }
                   makeLabel="Replace it"
@@ -217,12 +234,14 @@ export function PicturesTab({
               </Hint>
             )}
           </>
-        ) : folder === "scenes" ? (
+        ) : folder === "scenes" || folder === "emblems" ? (
           <>
-            <Heading>New scene</Heading>
+            <Heading>
+              {folder === "emblems" ? "New emblem" : "New scene"}
+            </Heading>
             <Field
               label="Name"
-              hint="Small letters and hyphens: it's how rewards name it, scenes/<name>."
+              hint={`Small letters and hyphens: it's how rewards name it, ${making}/<name>.`}
             >
               <Input
                 name="picture-name"
@@ -238,10 +257,14 @@ export function PicturesTab({
             )}
             <PictureMaker
               target={newPath}
-              styles={["scene", "banner", "backdrop-day", "backdrop-night"]}
+              styles={
+                folder === "emblems"
+                  ? ["emblem"]
+                  : ["scene", "banner", "backdrop-day", "backdrop-night"]
+              }
               onMade={(list) => {
                 onPictures(list);
-                setSelected(`scenes/${slugOf(name) || "new"}`);
+                setSelected(`${making}/${slugOf(name) || "new"}`);
                 setName("");
               }}
             />

@@ -8,7 +8,7 @@ import styled from "styled-components";
 import { ICONS, iconNamed } from "../constants/icons";
 import { pictureFiles } from "../constants/pictureFiles";
 import { pictureUrl } from "../helpers/season";
-import { Button, Input, Row } from "./ui";
+import { Button, Field, IconButton, Input, Row } from "./ui";
 
 const Grid = styled.div<{ $cell: number }>`
   display: grid;
@@ -211,5 +211,54 @@ export function ColorField({
         }}
       />
     </Row>
+  );
+}
+
+/** A list of colours, each its own field, added to and taken from. */
+export function ColorList({
+  colors,
+  labels,
+  min,
+  name = "color",
+  onChange,
+}: {
+  colors: string[];
+  labels: (i: number) => string;
+  min: number;
+  /** Each field's name, before its place. */
+  name?: string;
+  onChange: (colors: string[]) => void;
+}) {
+  return (
+    <>
+      {colors.map((color, i) => (
+        <Field key={i} label={labels(i)}>
+          <Row style={{ flexWrap: "nowrap" }}>
+            <ColorField
+              name={`${name}-${i}`}
+              value={color}
+              onChange={(next) =>
+                onChange(colors.map((old, j) => (j === i ? next : old)))
+              }
+            />
+            <IconButton
+              aria-label="Remove colour"
+              disabled={colors.length <= min}
+              onClick={() => onChange(colors.filter((_, j) => j !== i))}
+            >
+              ✕
+            </IconButton>
+          </Row>
+        </Field>
+      ))}
+      <Button
+        style={{ marginBottom: 12 }}
+        onClick={() =>
+          onChange([...colors, colors[colors.length - 1] ?? "#FFFFFF"])
+        }
+      >
+        + Colour
+      </Button>
+    </>
   );
 }

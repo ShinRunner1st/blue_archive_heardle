@@ -93,7 +93,12 @@
     "snow",
     "silver",
     "gold",
-    "prism"
+    "prism",
+    "schedule",
+    "record-shelf",
+    "on-duty",
+    "unstoppable",
+    "chorus"
   ],
   "frames": ["schale", "sakura", "halo", "silver", "gold", "neon", "prism"],
   "backgrounds": [

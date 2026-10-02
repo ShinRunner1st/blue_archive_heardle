@@ -404,9 +404,10 @@ they need no more height than the OST, and every game fits a 1080p window.
   switching tabs neither resizes nor moves it. **Customize** sets the name (and the
   "Sensei" after it) and picture (a favourite student, or the name's
   letter), and picks the title, banner, frame and background, the locked
-  ones naming their mission; banners
-  and backgrounds are pictures already on the Worker, fetched only when
-  shown. In a room, everyone's card wears what they picked.
+  ones naming their mission. Banners are nameplates like the game's own
+  emblems: a picture or foil with the game's facets, a rim, a tag saying
+  what was done, and an emblem. Their pictures, emblem pictures and
+  backgrounds are on the Worker, fetched only when shown. In a room, everyone's card wears what they picked.
   Signed in, a **Verified** tab shows the record the account kept itself
   (`src/components/Profile/Verified.tsx`, read once as it opens): each
   daily played verified, its streak and spread, the fastest verified find,

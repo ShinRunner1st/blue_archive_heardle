@@ -6,7 +6,8 @@
 /**
  * How a picture is made: a blurred backdrop like the seasons' (by day or
  * night, dimmed to match), a sharp scene, a hub card's wide strip, a
- * banner's narrower one, or an album's square cover.
+ * banner's narrower one, an album's square cover, or an emblem's square,
+ * kept transparent.
  */
 export type PictureStyle =
   | "backdrop-day"
@@ -14,7 +15,8 @@ export type PictureStyle =
   | "scene"
   | "card"
   | "banner"
-  | "cover";
+  | "cover"
+  | "emblem";
 
 export interface PictureRequest {
   /** Where it goes, from the project's root. */
@@ -74,6 +76,10 @@ const TARGETS: Record<PictureStyle, [RegExp, string]> = {
   banner: [
     /^pictures\/scenes\/[a-z0-9-]+\.webp$/,
     "A banner's picture goes in pictures/scenes/",
+  ],
+  emblem: [
+    /^pictures\/emblems\/[a-z0-9-]+\.webp$/,
+    "An emblem's picture goes in pictures/emblems/",
   ],
   "backdrop-day": [BACKDROP_TARGET, BACKDROP_WHERE],
   "backdrop-night": [BACKDROP_TARGET, BACKDROP_WHERE],

@@ -83,22 +83,53 @@ export interface CharacterOption extends Cosmetic {
 
 export const CHARACTER_CHOICES = cosmeticData.characters as CharacterOption[];
 
+/** The patterns a nameplate can have over it, like the game's own plates. */
+export const BANNER_PATTERNS = ["facets", "grid", "lines"] as const;
+export type BannerPattern = (typeof BANNER_PATTERNS)[number];
+
 /**
- * The strip the player's title sits on, on the profile and its card: a
- * picture from the Worker (pictureFiles.ts) under a tint, or a foil of
- * colours, with an emblem (an icon from icons.ts) at its head.
+ * How an emblem sits on its plate: in a ring at the head, standing free as
+ * a crest, or as a picture down the left side, cut on a slant, as the
+ * game's plates show a student.
+ */
+export const EMBLEM_STYLES = ["ring", "crest", "side"] as const;
+export type EmblemStyle = (typeof EMBLEM_STYLES)[number];
+
+/**
+ * A nameplate's emblem: an icon from icons.ts, or shapes drawn in a 24×24
+ * box as a frame's ornament is (pictures among them), their colours from
+ * its own palette; a side emblem is one picture.
+ */
+export interface BannerEmblem {
+  style: EmblemStyle;
+  icon?: string;
+  shapes?: OrnamentShape[];
+  /** The palette the shapes take their colours from. */
+  colors?: string[];
+  /** A side emblem's picture, on the Worker (pictureFiles.ts). */
+  picture?: string;
+}
+
+/**
+ * The player's title on a nameplate, like the game's own emblems (its user
+ * titles): a plate of a picture from the Worker or a foil of colours, a
+ * pattern over it, a rim, the title on a soft band, an emblem and a small
+ * tag. Drawn by ProfileBanner.
  */
 export interface Banner extends Cosmetic {
   picture?: string;
   /** A gradient's colours, left to right, where there's no picture. */
   fill?: string[];
-  /** The picture's tint, under the title. */
-  tint?: string;
+  pattern?: BannerPattern;
+  /** A soft band behind the title, so its words read over a picture. */
+  band?: string;
   /** The title. */
   ink: string;
-  /** The emblem's ring and the stripes at the end. */
+  /** The plate's rim, and an emblem's ring. */
   accent: string;
-  emblem: string;
+  emblem?: BannerEmblem;
+  /** A few words in a pill at its foot, such as "30 DAYS". */
+  tag?: string;
 }
 
 /** A blank banner has no look of its own: ProfileBanner draws none. */
@@ -147,18 +178,26 @@ export interface FrameGlow {
   strength: number;
 }
 
-export const ORNAMENT_SHAPES = ["path", "circle", "ellipse"] as const;
+export const ORNAMENT_SHAPES = [
+  "path",
+  "circle",
+  "ellipse",
+  "picture",
+] as const;
 export type OrnamentShapeKind = (typeof ORNAMENT_SHAPES)[number];
 
 /**
- * One SVG shape of an ornament, in a 24×24 box drawn for the top-left
- * corner (the others are it turned): a path's `d`, a circle's `cx`, `cy`
- * and `r`, or an ellipse's `cx`, `cy`, `rx` and `ry`, filled, outlined or
- * both. `at` moves it, turns it and sizes it, as [x, y, degrees] or
- * [x, y, degrees, size], size 1 as drawn.
+ * One SVG shape of an ornament or emblem, in a 24×24 box (an ornament's
+ * drawn for the top-left corner, the others getting it turned): a path's
+ * `d`, a circle's `cx`, `cy` and `r`, or an ellipse's `cx`, `cy`, `rx` and
+ * `ry`, filled, outlined or both; or a picture, a square `r` from its
+ * middle at `cx`, `cy`. `at` moves it, turns it and sizes it, as
+ * [x, y, degrees] or [x, y, degrees, size], size 1 as drawn.
  */
 export interface OrnamentShape {
   shape: OrnamentShapeKind;
+  /** A picture's, on the Worker (pictureFiles.ts): "emblems/crest". */
+  picture?: string;
   d?: string;
   cx?: number;
   cy?: number;
@@ -180,6 +219,24 @@ export interface FrameOrnament {
   /** The corners it sits on: a halo floats on two, filigree fences four. */
   corners: FrameCorner[];
   shapes: OrnamentShape[];
+  /**
+   * Corners with an ornament of their own, in place of the shared one:
+   * drawn as they show there, not turned.
+   */
+  own?: Partial<Record<FrameCorner, OrnamentShape[]>>;
+}
+
+/** The shapes on a frame's corner, and whether they're turned to it. */
+export function cornerShapes(
+  ornament: FrameOrnament | undefined,
+  corner: FrameCorner
+): { shapes: OrnamentShape[]; turned: boolean } | null {
+  const own = ornament?.own?.[corner];
+  if (own) return { shapes: own, turned: false };
+  if (ornament?.corners.includes(corner)) {
+    return { shapes: ornament.shapes, turned: true };
+  }
+  return null;
 }
 
 export interface Frame extends Cosmetic {

@@ -12,6 +12,8 @@ export const STYLE_LABELS: Record<PictureStyle, string> = {
   card: "A hub card's scene, 720×320, sharp",
   banner: "A banner's picture, 640×160, sharp",
   cover: "An album cover, 256×256",
+  emblem:
+    "An emblem or a frame's corner, 256×256, fitted and kept transparent (a PNG keeps its clear parts)",
 };
 
 const Drop = styled.label<{ $over: boolean }>`
@@ -78,7 +80,9 @@ export function PictureMaker({
   );
   const [upload, setUpload] = React.useState<{ name: string; data: string }>();
   const [name, setName] = React.useState(background);
-  const [style, setStyle] = React.useState<PictureStyle>(styles[0]);
+  const [picked, setStyle] = React.useState<PictureStyle>(styles[0]);
+  // The one picked, while it's still offered: another folder offers others.
+  const style = styles.includes(picked) ? picked : styles[0];
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState("");
   const [over, setOver] = React.useState(false);

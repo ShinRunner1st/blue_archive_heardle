@@ -362,7 +362,7 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   their own key and the save file; a toast after the round that clears
   one. Multiplayer's from a local count of games finished and won. Some
   unlock cosmetics (`src/content/cosmetics.json`, drawn in code): Sensei
-  card titles and colours (picked on the card) and cursor effect colours
+  card titles (and colours, everyone's since 2026-10-03) and cursor effect colours
   (Settings), characters beside the game, and the profile's banners,
   frames and backgrounds (Customize). `COSMETIC_KINDS` lists every kind.
   A guest (no session, `isGuest`) sees and clears only the starter
@@ -370,10 +370,13 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   unlock now (`unlockedHere`: no former missions), with a note of what an
   account adds; whatever they cleared before outside them is locked.
 - **Profile** (☰ Profile, and on the hub's record): the player's card
-  (`src/components/Profile/`: their favourite student, title on a banner
-  with a picture or foil and an emblem, a frame drawn from the parts
-  its entry lists (a border, glows, corner ornaments as SVG shapes), a
-  background scene from the Worker) and their record from the saves
+  (`src/components/Profile/`: their favourite student, title on a
+  nameplate like the game's emblems (a picture or foil, the game's facets,
+  grid or lines, a rim, a band, a tag, an emblem in a ring, as a crest or
+  a picture down its side), a frame drawn from the parts its entry lists
+  (a border, glows, corner ornaments as SVG shapes or pictures, shared or
+  each corner's own), a background scene from the Worker; emblem and
+  corner pictures, PNG or JPG made small, in `pictures/emblems/`) and their record from the saves
   (`profileStats.ts`): totals, a table by game, and a tab per game with its
   ways to play, daily spread, tries, Time Attack or find times. Customize
   sets the name and picture and picks the cosmetics, the card kept in

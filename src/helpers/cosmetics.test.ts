@@ -34,12 +34,21 @@ beforeEach(() => {
 describe("cosmetics", () => {
   it("unlocks each with a mission that exists, the defaults with none", () => {
     const missions = new Set(MISSIONS.map(({ id }) => id));
-    for (const list of [CARD_TITLES, CARD_COLORS, CURSOR_COLORS]) {
+    for (const list of [CARD_TITLES, CURSOR_COLORS]) {
       expect(list[0].mission).toBeUndefined();
       for (const item of list.slice(1)) {
         expect(missions.has(item.mission!), item.id).toBe(true);
       }
     }
+  });
+
+  it("gives everyone every card colour", () => {
+    for (const colors of CARD_COLORS) {
+      expect(colors.mission, colors.id).toBeUndefined();
+      expect(isUnlocked(colors), colors.id).toBe(true);
+    }
+    setCardColors("gold");
+    expect(cardColors().id).toBe("gold");
   });
 
   it("starts everyone on the defaults", () => {
@@ -66,10 +75,10 @@ describe("cosmetics", () => {
   });
 
   it("falls back to the default if a save file takes the mission away", () => {
-    saveClearedMissions(["daily-30"]);
-    setCardColors("gold");
+    saveClearedMissions(["ost-timeattack-35"]);
+    setCardTitle("dj");
     saveClearedMissions([]);
-    expect(cardColors().id).toBe("schale");
+    expect(cardTitle().id).toBe("none");
   });
 
   it("makes a palette in a hue as bright as the blue", () => {

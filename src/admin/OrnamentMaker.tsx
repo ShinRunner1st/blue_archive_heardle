@@ -1,19 +1,43 @@
 /**
- * An ornament made by hand: ready-made shapes picked from a library, then
- * dragged into place on a big view of the card's corner, sized, turned
- * and coloured with the shapes picked (a click picks one, Shift adds).
+ * An ornament or emblem made by hand: ready-made shapes picked from a
+ * library, and pictures (a PNG or JPG made in Pictures), then dragged into
+ * place on a big view of the card's corner or the emblem's ring, sized,
+ * turned and coloured with the shapes picked (a click picks one, Shift
+ * adds).
  */
 import React from "react";
 import styled from "styled-components";
 
 import { OrnamentShapeView } from "../components/Profile/ProfileFrame";
-import type {
-  FrameColor,
-  FrameOrnament,
-  OrnamentShape,
-} from "../constants/cosmetics";
+import type { FrameColor, OrnamentShape } from "../constants/cosmetics";
+import { pictureFiles } from "../constants/pictureFiles";
+import { pictureUrl } from "../helpers/season";
 import { ORNAMENT_LIBRARY, placed } from "./ornamentLibrary";
 import { Button, Field, Hint, IconButton, Row } from "./ui";
+
+/** The pictures made for emblems and corners, in Pictures → Emblems. */
+export const EMBLEM_PICTURES = Object.keys(pictureFiles)
+  .filter((key) => key.startsWith("emblems/"))
+  .sort();
+
+/**
+ * What the board shows under the shapes: a card's corner, turned to the
+ * corner being drawn, or an emblem's box, round when it's in a ring.
+ */
+export type MakerGuide =
+  | { kind: "corner"; turn: number }
+  | { kind: "emblem"; ring: boolean };
+
+/** A shape as a path round it, to pick or catch: a picture is a square. */
+const outlineOf = (shape: OrnamentShape): OrnamentShape => {
+  if (shape.shape !== "picture") return shape;
+  const [x, y, r] = [shape.cx ?? 0, shape.cy ?? 0, shape.r ?? 0];
+  return {
+    shape: "path",
+    d: `M${x - r} ${y - r}h${r * 2}v${r * 2}h${-r * 2}Z`,
+    at: shape.at,
+  };
+};
 
 /** Where a shape is: x, y, degrees and size, filled in for one without. */
 type Place = [number, number, number, number];
@@ -151,14 +175,16 @@ function shared<T>(values: T[]): T | "mixed" {
 }
 
 export function OrnamentMaker({
-  ornament,
+  shapes,
+  guide,
   colors,
   picked,
   onPick,
   onChange,
   extra,
 }: {
-  ornament: FrameOrnament;
+  shapes: OrnamentShape[];
+  guide: MakerGuide;
   colors: string[];
   /** The shapes picked, by place in the list. */
   picked: number[];
@@ -172,8 +198,10 @@ export function OrnamentMaker({
     from: [number, number];
     places: Map<number, Place>;
   } | null>(null);
-  const { shapes } = ornament;
+  const [choosing, setChoosing] = React.useState(false);
   const chosen = picked.filter((i) => i < shapes.length);
+  const allPictures =
+    chosen.length > 0 && chosen.every((i) => shapes[i].shape === "picture");
 
   /** A pointer's place in the box's units. */
   const unitsAt = (event: React.PointerEvent): [number, number] => {
@@ -260,15 +288,83 @@ export function OrnamentMaker({
               {item.name}
             </LibraryButton>
           ))}
+          <LibraryButton
+            aria-pressed={choosing}
+            onClick={() => setChoosing(!choosing)}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect
+                x="3"
+                y="5"
+                width="18"
+                height="14"
+                rx="2"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.6"
+              />
+              <path
+                d="M5 17l5-5 4 4 2-2 3 3"
+                fill="none"
+                stroke="currentColor"
+              />
+              <circle cx="16" cy="9" r="1.6" fill="currentColor" />
+            </svg>
+            Picture
+          </LibraryButton>
           {extra}
         </LibraryGrid>
+        {choosing &&
+          (EMBLEM_PICTURES.length === 0 ? (
+            <Hint style={{ marginBottom: 12 }}>
+              No pictures yet: make one from a PNG or JPG in Pictures → Emblems.
+            </Hint>
+          ) : (
+            <LibraryGrid aria-label="Pictures">
+              {EMBLEM_PICTURES.map((key) => (
+                <LibraryButton
+                  key={key}
+                  title={key}
+                  onClick={() => {
+                    const r = guide.kind === "emblem" ? 12 : 8;
+                    onChange([
+                      ...shapes,
+                      {
+                        shape: "picture",
+                        picture: key,
+                        cx: 0,
+                        cy: 0,
+                        r,
+                        at: [12, 12, 0, 1],
+                      },
+                    ]);
+                    onPick([shapes.length]);
+                    setChoosing(false);
+                  }}
+                >
+                  <img
+                    src={pictureUrl(key)}
+                    alt=""
+                    width={30}
+                    height={30}
+                    style={{ objectFit: "contain" }}
+                  />
+                  {key.split("/")[1]}
+                </LibraryButton>
+              ))}
+            </LibraryGrid>
+          ))}
       </Field>
 
       <Row style={{ alignItems: "flex-start", marginBottom: 12, gap: 16 }}>
         <Board
           ref={board}
           viewBox="0 0 24 24"
-          aria-label="The ornament on the top left corner: drag a shape to move it"
+          aria-label={
+            guide.kind === "corner"
+              ? "The ornament on its corner: drag a shape to move it"
+              : "The emblem: drag a shape to move it"
+          }
           onPointerDown={() => onPick([])}
           onPointerMove={moveDrag}
           onPointerUp={() => (drag.current = null)}
@@ -280,15 +376,30 @@ export function OrnamentMaker({
               <line x1={0} y1={at} x2={24} y2={at} />
             </g>
           ))}
-          <path
-            d={`M${CARD_EDGE} 24V${
-              CARD_EDGE + CARD_ROUND
-            }a${CARD_ROUND} ${CARD_ROUND} 0 0 1 ${CARD_ROUND} -${CARD_ROUND}H24`}
-            fill="none"
-            stroke="rgba(255,255,255,0.35)"
-            strokeWidth={0.15}
-            strokeDasharray="0.6 0.4"
-          />
+          {guide.kind === "corner" ? (
+            <path
+              d={`M${CARD_EDGE} 24V${
+                CARD_EDGE + CARD_ROUND
+              }a${CARD_ROUND} ${CARD_ROUND} 0 0 1 ${CARD_ROUND} -${CARD_ROUND}H24`}
+              transform={`rotate(${guide.turn} 12 12)`}
+              fill="none"
+              stroke="rgba(255,255,255,0.35)"
+              strokeWidth={0.15}
+              strokeDasharray="0.6 0.4"
+            />
+          ) : (
+            <rect
+              x={0.2}
+              y={0.2}
+              width={23.6}
+              height={23.6}
+              rx={guide.ring ? 11.8 : 1}
+              fill="none"
+              stroke="rgba(255,255,255,0.35)"
+              strokeWidth={0.15}
+              strokeDasharray="0.6 0.4"
+            />
+          )}
           {shapes.map((shape, i) => (
             <g
               key={i}
@@ -299,7 +410,7 @@ export function OrnamentMaker({
               {/* A wide clear outline, so a thin line is easy to catch. */}
               <OrnamentShapeView
                 shape={{
-                  ...shape,
+                  ...outlineOf(shape),
                   fill: colors.length,
                   stroke: colors.length,
                   strokeWidth: 1.6 / placeOf(shape)[3],
@@ -312,7 +423,7 @@ export function OrnamentMaker({
             <g key={`picked-${i}`} pointerEvents="none">
               <OrnamentShapeView
                 shape={{
-                  ...shapes[i],
+                  ...outlineOf(shapes[i]),
                   fill: undefined,
                   stroke: colors.length,
                   strokeWidth: 0.35 / placeOf(shapes[i])[3],
@@ -326,10 +437,14 @@ export function OrnamentMaker({
         <div style={{ flex: 1, minWidth: 200 }}>
           {chosen.length === 0 || !place ? (
             <Hint>
-              Pick a shape above to add it, then drag it into place. Click one
-              to pick it, Shift-click to pick more and move them together. The
-              dashed line is the card&apos;s corner; the other corners get it
-              turned.
+              Pick a shape or a picture above to add it, then drag it into
+              place. Click one to pick it, Shift-click to pick more and move
+              them together.{" "}
+              {guide.kind === "corner"
+                ? "The dashed line is the card's corner."
+                : guide.ring
+                ? "The dashed circle is the ring's inside."
+                : "The dashed square is the crest's room on the plate."}
             </Hint>
           ) : (
             <>
@@ -412,50 +527,54 @@ export function OrnamentMaker({
                   }}
                 />
               </Field>
-              <PaintPick
-                label="Fill"
-                value={fill}
-                colors={colors}
-                onChange={(next) =>
-                  changePicked((shape) => ({ ...shape, fill: next }))
-                }
-              />
-              <PaintPick
-                label="Outline"
-                value={stroke}
-                colors={colors}
-                onChange={(next) =>
-                  changePicked((shape) => ({
-                    ...shape,
-                    stroke: next,
-                    strokeWidth:
-                      next === undefined
-                        ? undefined
-                        : shape.strokeWidth ?? strokeWidth ?? 1.2,
-                  }))
-                }
-              />
-              {stroke !== undefined && (
-                <Field
-                  label={`Outline width: ${strokeWidth ?? 1.2}`}
-                  hint="It grows and shrinks with the size, as the shape does."
-                >
-                  <Slider
-                    name="ornament-stroke-width"
-                    min={0.2}
-                    max={4}
-                    step={0.1}
-                    value={strokeWidth ?? 1.2}
-                    onChange={(event) => {
-                      const width = Number(event.target.value);
-                      changePicked((shape) =>
-                        shape.stroke === undefined
-                          ? shape
-                          : { ...shape, strokeWidth: width }
-                      );
-                    }}
+              {!allPictures && (
+                <>
+                  <PaintPick
+                    label="Fill"
+                    value={fill}
+                    colors={colors}
+                    onChange={(next) =>
+                      changePicked((shape) => ({ ...shape, fill: next }))
+                    }
                   />
-                </Field>
+                  <PaintPick
+                    label="Outline"
+                    value={stroke}
+                    colors={colors}
+                    onChange={(next) =>
+                      changePicked((shape) => ({
+                        ...shape,
+                        stroke: next,
+                        strokeWidth:
+                          next === undefined
+                            ? undefined
+                            : shape.strokeWidth ?? strokeWidth ?? 1.2,
+                      }))
+                    }
+                  />
+                  {stroke !== undefined && (
+                    <Field
+                      label={`Outline width: ${strokeWidth ?? 1.2}`}
+                      hint="It grows and shrinks with the size, as the shape does."
+                    >
+                      <Slider
+                        name="ornament-stroke-width"
+                        min={0.2}
+                        max={4}
+                        step={0.1}
+                        value={strokeWidth ?? 1.2}
+                        onChange={(event) => {
+                          const width = Number(event.target.value);
+                          changePicked((shape) =>
+                            shape.stroke === undefined
+                              ? shape
+                              : { ...shape, strokeWidth: width }
+                          );
+                        }}
+                      />
+                    </Field>
+                  )}
+                </>
               )}
               <Hint>Drag on the left to move; arrows nudge below.</Hint>
               <Row style={{ marginTop: 6 }}>

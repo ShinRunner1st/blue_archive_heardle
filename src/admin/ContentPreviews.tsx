@@ -57,15 +57,13 @@ export function PicturePreview({ view }: { view: View<"picture"> }) {
       </Panel>
     );
   }
+  // A banner with a picture of its own, its picture swapped for this one.
+  const banner = BANNERS.find(({ picture }) => picture) ?? BANNERS[1];
   const look: CardLook = {
     name: "Sensei",
     student: 10000,
     title: "",
-    banner: {
-      ...BANNERS[1],
-      picture: view.key,
-      tint: BANNERS[1].tint ?? "#1B2A4A",
-    },
+    banner: { ...banner, picture: view.key },
     frame: FRAMES[0],
     background: { ...BACKGROUNDS[0], picture: view.key },
   };

@@ -31,19 +31,34 @@ export const Frame = styled.div<{ $popUp?: boolean }>`
 `;
 
 const CORNER_PLACE = {
-  tl: "left: -7px; top: -7px; transform: rotate(0deg);",
-  tr: "right: -7px; top: -7px; transform: rotate(90deg);",
-  br: "right: -7px; bottom: -7px; transform: rotate(180deg);",
-  bl: "left: -7px; bottom: -7px; transform: rotate(270deg);",
+  tl: "left: -7px; top: -7px;",
+  tr: "right: -7px; top: -7px;",
+  br: "right: -7px; bottom: -7px;",
+  bl: "left: -7px; bottom: -7px;",
 };
 
-export const Ornament = styled.svg<{ $corner: keyof typeof CORNER_PLACE }>`
+/** How far the shared ornament turns, drawn for the top left, to a corner. */
+export const CORNER_TURN = { tl: 0, tr: 90, br: 180, bl: 270 };
+
+export const Ornament = styled.svg<{
+  $corner: keyof typeof CORNER_PLACE;
+  /** The shared ornament, turned to its corner; a corner's own isn't. */
+  $turned: boolean;
+  /**
+   * A picture may be sized past the small box, to show at all; shapes
+   * stay cut to it, as every frame was drawn for that.
+   */
+  $spill: boolean;
+}>`
   position: absolute;
   z-index: 2;
   width: 26px;
   height: 26px;
+  overflow: ${({ $spill }) => ($spill ? "visible" : "hidden")};
   pointer-events: none;
   ${({ $corner }) => CORNER_PLACE[$corner]}
+  transform: rotate(${({ $corner, $turned }) =>
+    $turned ? CORNER_TURN[$corner] : 0}deg);
 `;
 
 /** A colour at a strength, as #rrggbbaa. */
@@ -123,7 +138,21 @@ export const FrameInner = styled.div<{
   ${({ $frame, theme }) => frameLook($frame, theme.background1)}
 `;
 
-/* ---------- The banner ---------- */
+/* ---------- The banner: a nameplate, as the game's emblems are ---------- */
+
+/** A plate's size: the game's 558×106, about 5.25 wide to 1 high. */
+const PLATE = {
+  small: { width: 220, height: 42, font: "0.8rem" },
+  large: { width: 288, height: 55, font: "1rem" },
+};
+
+/** Whether a colour is dark enough for light words over it. */
+export const isDark = (color: string) => {
+  const [r, g, b] = [1, 3, 5].map((at) =>
+    parseInt(color.slice(at, at + 2), 16)
+  );
+  return 0.299 * r + 0.587 * g + 0.114 * b < 150;
+};
 
 export const Banner = styled.div<{
   $size: "small" | "large";
@@ -136,32 +165,31 @@ export const Banner = styled.div<{
 
   display: flex;
   align-items: center;
-  gap: 8px;
   flex-shrink: 0;
 
   box-sizing: border-box;
-  width: ${({ $size }) => ($size === "large" ? "280px" : "220px")};
+  width: ${({ $size }) => PLATE[$size].width}px;
   max-width: 100%;
-  height: ${({ $size }) => ($size === "large" ? "38px" : "30px")};
-  padding: 0 16px 0 4px;
+  height: ${({ $size }) => PLATE[$size].height}px;
 
   font-family: "Nunito Sans Variable";
-  font-size: ${({ $size }) => ($size === "large" ? "0.95rem" : "0.8rem")};
+  font-size: ${({ $size }) => PLATE[$size].font};
 
   background: ${({ $fill }) =>
     $fill ? `linear-gradient(100deg, ${$fill.join(", ")})` : "#22305a"};
-  /* A pill, its emblem's ring round at its head. */
-  border-radius: 999px;
+  border-radius: 6px;
+  /* A dark edge round the plate, as the game's sit on any ground. */
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35), 0 2px 5px rgba(0, 0, 0, 0.25);
 
-  /* A thin ring of the accent round its edge. */
+  /* The light rim inside its edge. */
   &::after {
     content: "";
     position: absolute;
     inset: 0;
-    border: 1.5px solid ${({ $accent }) => alpha($accent, 0.85)};
+    border: 2px solid ${({ $accent }) => alpha($accent, 0.9)};
     border-radius: inherit;
     pointer-events: none;
-    z-index: 2;
+    z-index: 4;
   }
 `;
 
@@ -174,21 +202,21 @@ export const PlainTitle = styled.span<{ $size: "small" | "large" }>`
   white-space: nowrap;
 
   font-family: "Nunito Sans Variable";
-  font-size: ${({ $size }) => ($size === "large" ? "0.95rem" : "0.8rem")};
+  font-size: ${({ $size }) => PLATE[$size].font};
   font-weight: 800;
   letter-spacing: 0.02em;
   opacity: 0.85;
 `;
 
-/** The blank banner in Customize: where a banner would be, dashed. */
+/** The blank banner in Customize: where a plate would be, dashed. */
 export const BlankBanner = styled.span`
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  width: 220px;
+  width: ${PLATE.small.width}px;
   max-width: 100%;
-  height: 30px;
+  height: ${PLATE.small.height}px;
 
   font-family: "Nunito Sans Variable";
   font-size: 0.8rem;
@@ -196,7 +224,7 @@ export const BlankBanner = styled.span`
   opacity: 0.75;
 
   border: 1.5px dashed currentColor;
-  border-radius: 999px;
+  border-radius: 6px;
 `;
 
 /** A picture filling its box, as a banner's or a card's scene. */
@@ -209,49 +237,126 @@ export const Cover = styled.img`
   object-fit: cover;
 `;
 
-export const BannerTint = styled.span<{ $tint: string }>`
+/** The facets over a plate, stretched to it. */
+export const BannerFacets = styled.svg`
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: ${({ $tint }) =>
-    `linear-gradient(90deg, ${$tint} 0%, ${alpha($tint, 0.85)} 50%, ${alpha(
-      $tint,
-      0.1
-    )} 100%)`};
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 `;
 
-/** Slanted stripes at the banner's tail. */
-export const BannerStripes = styled.span<{ $accent: string }>`
+/** Fine lines across a plate, or a grid of them. */
+export const BannerLines = styled.span<{ $grid: boolean; $accent: string }>`
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: ${({ $grid, $accent }) => {
+    const line = alpha($accent, 0.3);
+    const across = `repeating-linear-gradient(0deg, ${line} 0 1px, transparent 1px 7px)`;
+    return $grid
+      ? `${across}, repeating-linear-gradient(90deg, ${line} 0 1px, transparent 1px 7px)`
+      : across;
+  }};
+  /* Fading towards the head, where the emblem sits. */
+  mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.35), #000 40%);
+`;
+
+/**
+ * A side emblem: a picture down the plate's left, cut on a slant, with a
+ * line of the accent along the cut.
+ */
+export const SideEmblem = styled.span<{ $accent: string }>`
   position: absolute;
   top: 0;
-  right: 14px;
   bottom: 0;
-  width: 44px;
-  z-index: -1;
-  background: repeating-linear-gradient(
-    115deg,
-    ${({ $accent }) => alpha($accent, 0.55)} 0 4px,
-    transparent 4px 9px
-  );
-  mask-image: linear-gradient(90deg, transparent, #000);
+  left: 0;
+  z-index: 1;
+  width: 38%;
+  background: ${({ $accent }) => $accent};
+  clip-path: polygon(0 0, 100% 0, calc(100% - 14%) 100%, 0 100%);
+
+  & > img {
+    position: absolute;
+    inset: 0 3px 0 0;
+    width: calc(100% - 3px);
+    height: 100%;
+    object-fit: cover;
+    object-position: center 20%;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 14%) 100%, 0 100%);
+  }
 `;
 
-/** The banner's emblem, in a ring at its head. */
-export const Emblem = styled.span<{ $accent: string; $ink: string }>`
+/** An emblem: in a ring at the plate's head, or standing free as a crest. */
+export const Emblem = styled.span<{
+  $style: "ring" | "crest";
+  $accent: string;
+  $ink: string;
+}>`
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  height: calc(100% - 8px);
+  box-sizing: border-box;
   aspect-ratio: 1;
-
-  font-size: 0.85em;
   color: ${({ $ink }) => $ink};
 
-  background: rgba(0, 0, 0, 0.28);
-  border: 2px solid ${({ $accent }) => $accent};
-  border-radius: 50%;
-  box-sizing: border-box;
+  ${({ $style, $accent }) =>
+    $style === "ring"
+      ? css`
+          height: calc(100% - 10px);
+          margin-left: 6px;
+          padding: 3px;
+          font-size: 0.95em;
+          background: rgba(0, 0, 0, 0.28);
+          border: 2px solid ${$accent};
+          border-radius: 50%;
+        `
+      : css`
+          height: calc(100% - 6px);
+          margin-left: 6px;
+          font-size: 1.6em;
+          filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.35));
+        `}
+
+  & > svg {
+    width: 100%;
+    height: 100%;
+  }
+`;
+
+/** Where the title sits: the plate's middle, past a side emblem. */
+export const BannerText = styled.span<{ $side: boolean; $tag: boolean }>`
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Over a tag, the title sits a little above the middle. */
+  padding: ${({ $tag }) => ($tag ? "0 10px 0.6em 8px" : "0 10px 0 8px")};
+  margin-left: ${({ $side }) => ($side ? "30%" : "0")};
+`;
+
+/** A soft band behind the title, fading at both ends. */
+export const BannerBand = styled.span<{ $band: string; $tag: boolean }>`
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: ${({ $tag }) => ($tag ? "14%" : "22%")};
+  bottom: ${({ $tag }) => ($tag ? "calc(14% + 0.6em)" : "22%")};
+  z-index: -1;
+  background: ${({ $band }) =>
+    `linear-gradient(90deg, transparent, ${alpha($band, 0.78)} 18%, ${alpha(
+      $band,
+      0.78
+    )} 82%, transparent)`};
 `;
 
 export const BannerTitle = styled.span<{ $ink: string }>`
@@ -263,7 +368,31 @@ export const BannerTitle = styled.span<{ $ink: string }>`
   font-weight: 900;
   letter-spacing: 0.02em;
   color: ${({ $ink }) => $ink};
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+  /* Dark words get a light glow, light ones a shadow, to read over a picture. */
+  text-shadow: ${({ $ink }) =>
+    isDark($ink)
+      ? "0 0 3px rgba(255, 255, 255, 0.85)"
+      : "0 1px 2px rgba(0, 0, 0, 0.45)"};
+`;
+
+/** A tag at the plate's foot, in a pill of the title's colour. */
+export const BannerTag = styled.span<{ $ink: string }>`
+  position: absolute;
+  right: 10px;
+  bottom: 9%;
+  z-index: 3;
+  padding: 0 0.7em;
+
+  font-size: 0.52em;
+  font-weight: 900;
+  line-height: 1.6;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  color: ${({ $ink }) => (isDark($ink) ? "#FFFFFF" : "#1B2A4A")};
+  background: ${({ $ink }) => alpha($ink, 0.88)};
+  border-radius: 999px;
 `;
 
 /* ---------- The card ---------- */

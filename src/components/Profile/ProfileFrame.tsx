@@ -1,11 +1,14 @@
 import React from "react";
 
 import {
+  cornerShapes,
   Frame,
   FRAME_CORNERS,
   FrameCorner,
   OrnamentShape,
 } from "../../constants/cosmetics";
+import { backupUrlFor } from "../../helpers/audioUrl";
+import { pictureUrl } from "../../helpers/season";
 
 import * as Styled from "./index.styled";
 
@@ -29,6 +32,15 @@ export function OrnamentShapeView({
       : undefined,
   };
   switch (shape.shape) {
+    case "picture":
+      return (
+        <ShapePicture
+          key={shape.picture}
+          picture={shape.picture ?? ""}
+          box={[shape.cx ?? 0, shape.cy ?? 0, shape.r ?? 0]}
+          transform={paint.transform}
+        />
+      );
     case "path":
       return <path d={shape.d} {...paint} />;
     case "circle":
@@ -46,13 +58,57 @@ export function OrnamentShapeView({
   }
 }
 
-/** A corner's ornament, drawn for the top left and turned to its corner. */
-function Ornament({ frame, corner }: { frame: Frame; corner: FrameCorner }) {
-  const { ornament } = frame;
-  if (!ornament?.corners.includes(corner)) return null;
+/**
+ * A picture as a shape: a square on the Worker, or its copy on R2, gone if
+ * both fail (as WorkerPicture does for an <img>).
+ */
+function ShapePicture({
+  picture,
+  box: [cx, cy, r],
+  transform,
+}: {
+  picture: string;
+  box: [number, number, number];
+  transform?: string;
+}) {
+  const [src, setSrc] = React.useState<string | null>(() =>
+    pictureUrl(picture)
+  );
+  if (!src) return null;
   return (
-    <Styled.Ornament viewBox="0 0 24 24" aria-hidden="true" $corner={corner}>
-      {ornament.shapes.map((shape, i) => (
+    <image
+      href={src}
+      x={cx - r}
+      y={cy - r}
+      width={r * 2}
+      height={r * 2}
+      transform={transform}
+      // React listens for an <image>'s error as for an <img>'s.
+      // eslint-disable-next-line react/no-unknown-property
+      onError={() => {
+        const backup = backupUrlFor(src);
+        setSrc(backup && backup !== src ? backup : null);
+      }}
+    />
+  );
+}
+
+/**
+ * A corner's ornament: the shared one, drawn for the top left and turned
+ * to its corner, or the corner's own, drawn as it shows there.
+ */
+function Ornament({ frame, corner }: { frame: Frame; corner: FrameCorner }) {
+  const drawn = cornerShapes(frame.ornament, corner);
+  if (!drawn) return null;
+  return (
+    <Styled.Ornament
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      $corner={corner}
+      $turned={drawn.turned}
+      $spill={drawn.shapes.some(({ shape }) => shape === "picture")}
+    >
+      {drawn.shapes.map((shape, i) => (
         <OrnamentShapeView key={i} shape={shape} colors={frame.colors} />
       ))}
     </Styled.Ornament>

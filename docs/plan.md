@@ -1143,6 +1143,23 @@ admin`, on their PC only, nothing deployed or in the site's build),
      tool. **Emblems drawn inside banners**: SVG shapes like the frames'
      ornaments, or a PNG or JPG made into a small picture on the Worker.
      Card colours become everyone's, as rewards they didn't interest.
+     **Frame corners** (the user's ask, 2026-10-03): an ornament can be a
+     PNG or JPG too, by the same pictures as emblems, and each corner can
+     have its own ornament, not one copied to all four.
+     _Built on `feat/nameplates`, off `feat/guest-limits`: the game's 438
+     emblem pictures downloaded with BA-AD (`uis-01_common-43_emblem-`,
+     kept in `.cache/`) as the reference, plates 558×106 with facets, a
+     grid or lines, a light rim and a pill tag; banners are plates drawn
+     from parts (a picture or foil, pattern, rim, band, tag, an emblem in a
+     ring, as a crest or a picture down the side cut on a slant), the ten
+     there redrawn as plates, each with a tag saying what was done. Card
+     colours are everyone's; their five missions give new plates (Full
+     schedule, Full shelf, On duty, Unstoppable, Kivotos chorus). A shape
+     can be a picture (`pictures/emblems/`, a PNG or JPG fitted in 256×256,
+     transparent, a few KB, made in Pictures → Emblems), and a frame's
+     corner can have its own ornament, started from the shared one turned
+     to it. The tool's banner editor and the frame's corner tabs share one
+     shape editor. No emblem pictures ship yet; the user makes them._
   2. **Moving cosmetics, Blue Archive themed**: name effects (a new kind,
      on the card and in rooms: rooms and accounts change with it), moving
      backgrounds (petals, snow, sparks over the scene), banners (a light

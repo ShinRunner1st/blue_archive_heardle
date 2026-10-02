@@ -6,6 +6,9 @@
  */
 import { songs } from "../constants";
 import {
+  type Banner,
+  BANNER_PATTERNS,
+  EMBLEM_STYLES,
   type Frame,
   FRAME_CORNERS,
   FRAME_GRADIENTS,
@@ -143,7 +146,14 @@ export function ruleProblems(rule: MissionRule): string[] {
 /** An SVG path's commands and numbers, and nothing else. */
 const PATH = /^[MmLlHhVvCcSsQqTtAaZz0-9.,\s-]+$/;
 
-/** What's wrong with one shape of an ornament, `isColor` its palette's. */
+/** A picture's key on the Worker, as pictureFiles.ts names it. */
+const PICTURE_KEY = /^[a-z]+\/[a-z0-9-]+$/;
+
+/**
+ * What's wrong with one shape of an ornament or emblem, `isColor` its
+ * palette's. A picture's place on the Worker is checked with the rest of
+ * the files (see shapePictures).
+ */
 function shapeProblems(
   shape: OrnamentShape,
   isColor: (at: unknown) => boolean
@@ -167,6 +177,13 @@ function shapeProblems(
   }
   if (shape.shape === "circle")
     need(isBetween(shape.r, 0, 24), "a circle needs r, 0-24");
+  if (shape.shape === "picture") {
+    need(
+      typeof shape.picture === "string" && PICTURE_KEY.test(shape.picture),
+      "a picture needs its picture, as pictures/ names it"
+    );
+    need(isBetween(shape.r, 0.5, 24), "a picture needs r, 0.5-24");
+  }
   if (shape.shape === "ellipse") {
     need(
       isBetween(shape.rx, 0, 24) && isBetween(shape.ry, 0, 24),
@@ -175,7 +192,9 @@ function shapeProblems(
   }
   need(numbers(["cx", "cy"]), "cx and cy must be -48 to 48");
   need(
-    shape.fill !== undefined || shape.stroke !== undefined,
+    shape.shape === "picture" ||
+      shape.fill !== undefined ||
+      shape.stroke !== undefined,
     "a shape needs a fill, an outline or both"
   );
   if (shape.fill !== undefined)
@@ -258,17 +277,19 @@ export function frameProblems(frame: Frame): string[] {
   need((glows ?? []).length <= 4, "four glows at most");
   if (ornament) {
     const corners = Array.isArray(ornament.corners) ? ornament.corners : [];
+    const own = Object.entries(ornament.own ?? {});
+    const isCorner = (corner: string) =>
+      (FRAME_CORNERS as readonly string[]).includes(corner);
     need(
-      corners.length > 0 &&
+      corners.length + own.length > 0 &&
         new Set(corners).size === corners.length &&
-        corners.every((corner) =>
-          (FRAME_CORNERS as readonly string[]).includes(corner)
-        ),
+        corners.every(isCorner),
       "the ornament needs one corner or more, each once"
     );
     const shapes = Array.isArray(ornament.shapes) ? ornament.shapes : [];
+    // The shared shapes may go when every corner has its own.
     need(
-      shapes.length > 0 && shapes.length <= 40,
+      shapes.length <= 40 && (shapes.length > 0 || corners.length === 0),
       "the ornament needs 1-40 shapes"
     );
     shapes.forEach((shape, i) => {
@@ -276,7 +297,130 @@ export function frameProblems(frame: Frame): string[] {
         problems.push(`ornament shape ${i + 1}: ${problem}`);
       }
     });
+    for (const [corner, list] of own) {
+      if (!isCorner(corner)) {
+        problems.push(`${corner} isn't a corner (${FRAME_CORNERS.join(", ")})`);
+        continue;
+      }
+      need(
+        !(corners as string[]).includes(corner),
+        `the ${corner} corner has its own ornament, so isn't in corners`
+      );
+      const ownShapes = Array.isArray(list) ? list : [];
+      need(
+        ownShapes.length > 0 && ownShapes.length <= 40,
+        `the ${corner} corner's ornament needs 1-40 shapes`
+      );
+      ownShapes.forEach((shape, i) => {
+        for (const problem of shapeProblems(shape, isColor)) {
+          problems.push(`${corner} corner's shape ${i + 1}: ${problem}`);
+        }
+      });
+    }
   }
+  return problems;
+}
+
+/** Every picture a frame's ornament or a banner's emblem shows. */
+export function shapePictures(item: Frame | Banner): string[] {
+  const shapes =
+    "ornament" in item
+      ? [
+          ...(item.ornament?.shapes ?? []),
+          ...Object.values(item.ornament?.own ?? {}).flat(),
+        ]
+      : "emblem" in item
+      ? item.emblem?.shapes ?? []
+      : [];
+  return [
+    ...shapes.flatMap(({ shape, picture }) =>
+      shape === "picture" && picture ? [picture] : []
+    ),
+    ...("emblem" in item && item.emblem?.picture ? [item.emblem.picture] : []),
+  ];
+}
+
+/** The most a tag says, as it sits small at the plate's foot. */
+export const TAG_LENGTH = 20;
+
+/**
+ * What's wrong with a nameplate's parts: a picture or a foil, a pattern
+ * the plate knows, colours, its emblem, and a short tag.
+ */
+export function bannerProblems(banner: Banner): string[] {
+  const problems: string[] = [];
+  const need = (ok: boolean, problem: string) => ok || problems.push(problem);
+  if (!banner.picture) {
+    need(
+      (banner.fill?.length ?? 0) > 1,
+      "a picture, or two colours or more in fill"
+    );
+  }
+  need((banner.fill ?? []).every(isHex), "fill colours must be #rrggbb");
+  if (banner.pattern !== undefined) {
+    need(
+      (BANNER_PATTERNS as readonly string[]).includes(banner.pattern),
+      `a pattern is ${BANNER_PATTERNS.join(", ")}`
+    );
+  }
+  if (banner.band !== undefined)
+    need(isHex(banner.band), "band must be #rrggbb");
+  need(isHex(banner.ink), "ink must be #rrggbb");
+  need(isHex(banner.accent), "accent must be #rrggbb");
+  if (banner.tag !== undefined) {
+    need(
+      typeof banner.tag === "string" &&
+        banner.tag.trim().length > 0 &&
+        banner.tag.length <= TAG_LENGTH,
+      `a tag is 1-${TAG_LENGTH} letters`
+    );
+  }
+
+  const { emblem } = banner;
+  if (!emblem) return problems;
+  if (!(EMBLEM_STYLES as readonly string[]).includes(emblem.style)) {
+    return [...problems, `an emblem's style is ${EMBLEM_STYLES.join(", ")}`];
+  }
+  if (emblem.style === "side") {
+    need(
+      typeof emblem.picture === "string" && PICTURE_KEY.test(emblem.picture),
+      "a side emblem is a picture"
+    );
+    need(
+      emblem.icon === undefined && emblem.shapes === undefined,
+      "a side emblem is a picture alone"
+    );
+    return problems;
+  }
+  need(emblem.picture === undefined, "only a side emblem has a picture");
+  if (emblem.shapes === undefined) {
+    need(
+      typeof emblem.icon === "string" && emblem.icon in ICONS,
+      `emblem ${emblem.icon} isn't in icons.ts`
+    );
+    return problems;
+  }
+  need(emblem.icon === undefined, "an emblem is an icon or shapes, not both");
+  const colors = Array.isArray(emblem.colors) ? emblem.colors : [];
+  need(colors.every(isHex), "the emblem's colours must be #rrggbb");
+  const isColor = (at: unknown) =>
+    Number.isInteger(at) &&
+    (at as number) >= 0 &&
+    (at as number) < colors.length;
+  need(
+    emblem.shapes.length > 0 && emblem.shapes.length <= 40,
+    "the emblem needs 1-40 shapes"
+  );
+  emblem.shapes.forEach((shape, i) => {
+    for (const problem of shapeProblems(shape, isColor)) {
+      problems.push(
+        `emblem shape ${i + 1}: ${problem.replace(
+          "the frame's",
+          "the emblem's"
+        )}`
+      );
+    }
+  });
   return problems;
 }
 
@@ -576,35 +720,28 @@ export function checkContent(
     for (const banner of cosmetics.banners) {
       // The blank banner draws nothing, so has no look to check.
       if (banner.blank) continue;
-      if (banner.picture) {
+      for (const problem of bannerProblems(banner)) {
+        report(false, `banner ${banner.id}: ${problem}`);
+      }
+      for (const picture of [
+        ...(banner.picture ? [banner.picture] : []),
+        ...shapePictures(banner),
+      ]) {
         report(
-          env.pictureFiles[banner.picture],
-          `banner ${banner.id}: ${banner.picture} isn't on the Worker`
-        );
-        report(isHex(banner.tint), `banner ${banner.id}: tint must be #rrggbb`);
-      } else {
-        report(
-          (banner.fill?.length ?? 0) > 1,
-          `banner ${banner.id}: a picture, or two colours or more in fill`
-        );
-        report(
-          (banner.fill ?? []).every(isHex),
-          `banner ${banner.id}: fill colours must be #rrggbb`
+          env.pictureFiles[picture],
+          `banner ${banner.id}: ${picture} isn't on the Worker`
         );
       }
-      report(isHex(banner.ink), `banner ${banner.id}: ink must be #rrggbb`);
-      report(
-        isHex(banner.accent),
-        `banner ${banner.id}: accent must be #rrggbb`
-      );
-      report(
-        banner.emblem in ICONS,
-        `banner ${banner.id}: emblem ${banner.emblem} isn't in icons.ts`
-      );
     }
     for (const frame of cosmetics.frames) {
       for (const problem of frameProblems(frame)) {
         report(false, `frame ${frame.id}: ${problem}`);
+      }
+      for (const picture of shapePictures(frame)) {
+        report(
+          env.pictureFiles[picture],
+          `frame ${frame.id}: ${picture} isn't on the Worker`
+        );
       }
     }
     for (const background of cosmetics.backgrounds.slice(1)) {

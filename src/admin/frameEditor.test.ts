@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { Frame } from "../constants/cosmetics";
 import { frameProblems } from "../content/validate";
-import { withoutColor } from "./FrameEditor";
+import { turnedShapes, withoutColor } from "./FrameEditor";
 import { ORNAMENT_LIBRARY, placed } from "./ornamentLibrary";
 
 describe("withoutColor", () => {
@@ -17,14 +17,34 @@ describe("withoutColor", () => {
       ornament: {
         corners: ["tl"],
         shapes: [{ shape: "circle", r: 2, fill: 2, stroke: 0, strokeWidth: 1 }],
+        own: { br: [{ shape: "circle", r: 2, fill: 2 }] },
       },
     };
     const next = withoutColor(frame, 1);
+    expect(next.ornament?.own?.br?.[0]).toMatchObject({ fill: 1 });
     expect(next.colors).toEqual(["#000000", "#222222"]);
     expect(next.border?.colors).toEqual([0, 1]);
     expect(next.inner?.color).toBe(1);
     expect(next.glows?.[0].color).toBe(0);
     expect(next.ornament?.shapes[0]).toMatchObject({ fill: 1, stroke: 0 });
+  });
+});
+
+describe("turnedShapes", () => {
+  it("turns an ornament round the box's middle, as a corner shows it", () => {
+    const [half, back] = [90, 180].map((turn) =>
+      turnedShapes(
+        [
+          { shape: "circle", r: 2, fill: 0 },
+          { shape: "circle", r: 2, fill: 0, at: [4, 8, 30, 2] },
+        ],
+        turn
+      )
+    );
+    // The top left's (0, 0) goes to the top right, then the bottom right.
+    expect(half[0].at).toEqual([24, 0, 90, 1]);
+    expect(back[0].at).toEqual([24, 24, -180, 1]);
+    expect(half[1].at).toEqual([16, 4, 120, 2]);
   });
 });
 

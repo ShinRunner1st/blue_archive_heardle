@@ -1,18 +1,14 @@
 import React from "react";
 
-import type { Frame } from "../constants/cosmetics";
+import type { Banner, Frame } from "../constants/cosmetics";
+import { BannerFields } from "./BannerEditor";
 import type { Mission } from "../constants/missions";
 import type { CosmeticsFile, IdsLock } from "../content/types";
 import { freeId, moved, slugOf } from "./draft";
 import { FrameFields } from "./FrameEditor";
 import { isShipped } from "./lock";
 import type { TabProps } from "./MissionsTab";
-import {
-  ColorField,
-  IconPicker,
-  PicturePicker,
-  SCENE_PICTURES,
-} from "./pickers";
+import { ColorField, PicturePicker, SCENE_PICTURES } from "./pickers";
 import { PreviewPane } from "./PreviewPane";
 import {
   Badge,
@@ -71,9 +67,10 @@ function fresh(list: ListName, id: string): Reward {
       return {
         ...base,
         fill: ["#22305A", "#2E4A8C"],
+        pattern: "facets",
         ink: "#FFFFFF",
         accent: "#7FB0FF",
-        emblem: "IoStar",
+        emblem: { style: "ring", icon: "IoStar" },
       } as Reward;
     case "frames":
       return {
@@ -541,51 +538,6 @@ function RewardForm({
 }
 
 /** A list of colours, each its own field, with some to add or take away. */
-function ColorList({
-  colors,
-  labels,
-  min,
-  onChange,
-}: {
-  colors: string[];
-  labels: (i: number) => string;
-  min: number;
-  onChange: (colors: string[]) => void;
-}) {
-  return (
-    <>
-      {colors.map((color, i) => (
-        <Field key={i} label={labels(i)}>
-          <Row style={{ flexWrap: "nowrap" }}>
-            <ColorField
-              name={`color-${i}`}
-              value={color}
-              onChange={(next) =>
-                onChange(colors.map((old, j) => (j === i ? next : old)))
-              }
-            />
-            <IconButton
-              aria-label="Remove colour"
-              disabled={colors.length <= min}
-              onClick={() => onChange(colors.filter((_, j) => j !== i))}
-            >
-              ✕
-            </IconButton>
-          </Row>
-        </Field>
-      ))}
-      <Button
-        style={{ marginBottom: 12 }}
-        onClick={() =>
-          onChange([...colors, colors[colors.length - 1] ?? "#FFFFFF"])
-        }
-      >
-        + Colour
-      </Button>
-    </>
-  );
-}
-
 function LookFields({
   list,
   item,
@@ -717,68 +669,18 @@ function LookFields({
       );
     }
 
-    case "banners": {
-      const picture = item.picture as string | undefined;
-      if (item.blank) {
-        return (
-          <Hint>
-            The blank banner: no strip; a title picked shows as words alone.
-          </Hint>
-        );
-      }
-      return (
-        <>
-          <Field label="Behind the title">
-            <Select
-              name="banner-look"
-              value={picture ? "picture" : "foil"}
-              onChange={(event) =>
-                event.target.value === "picture"
-                  ? onChange({
-                      picture: SCENE_PICTURES[0],
-                      tint: "#1B2A4A",
-                      fill: undefined,
-                    })
-                  : onChange({
-                      picture: undefined,
-                      tint: undefined,
-                      fill: ["#22305A", "#2E4A8C"],
-                    })
-              }
-            >
-              <option value="picture">A picture under a tint</option>
-              <option value="foil">A foil of colours</option>
-            </Select>
-          </Field>
-          {picture ? (
-            <>
-              <Field label="Picture">
-                <PicturePicker
-                  value={picture}
-                  onChange={(key) => onChange({ picture: key })}
-                />
-              </Field>
-              {color("tint", "Tint", "Over the picture, under the title.")}
-            </>
-          ) : (
-            <ColorList
-              colors={(item.fill as string[]) ?? []}
-              min={2}
-              labels={(i) => `Foil colour ${i + 1}, left to right`}
-              onChange={(fill) => onChange({ fill })}
-            />
-          )}
-          {color("ink", "Title")}
-          {color("accent", "Emblem ring, stripes and the line along its foot")}
-          <Field label="Emblem">
-            <IconPicker
-              value={item.emblem as string}
-              onChange={(emblem) => onChange({ emblem })}
-            />
-          </Field>
-        </>
+    case "banners":
+      return item.blank ? (
+        <Hint>
+          The blank banner: no plate; a title picked shows as words alone.
+        </Hint>
+      ) : (
+        <BannerFields
+          banner={item as unknown as Banner}
+          others={others as unknown as Banner[]}
+          onChange={onChange}
+        />
       );
-    }
 
     case "frames":
       return (

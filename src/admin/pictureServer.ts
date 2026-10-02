@@ -125,7 +125,8 @@ export async function makePicture(
         from,
         request.style === "cover" ||
         request.style === "card" ||
-        request.style === "banner"
+        request.style === "banner" ||
+        request.style === "emblem"
           ? request.style
           : "scene",
         request.target,
@@ -147,7 +148,7 @@ export async function makePicture(
 
 /** The tool's own pictures on the Worker, which it may delete. */
 const WORKER_PICTURE =
-  /^pictures\/(scenes|seasons|hub|multiplayer)\/[a-z0-9-]+\.webp$/;
+  /^pictures\/(scenes|seasons|hub|multiplayer|emblems)\/[a-z0-9-]+\.webp$/;
 /** The site's own backgrounds it made, which it may delete too. */
 const SITE_PICTURE = /^src\/image\/backgrounds\/[a-z0-9-]+\.webp$/;
 
@@ -158,7 +159,7 @@ const SITE_PICTURE = /^src\/image\/backgrounds\/[a-z0-9-]+\.webp$/;
 export async function deletePicture(path: string): Promise<void> {
   if (!WORKER_PICTURE.test(path) && !SITE_PICTURE.test(path)) {
     throw new Error(
-      "Only a picture in pictures/scenes, seasons, hub, multiplayer or src/image/backgrounds can go."
+      "Only a picture in pictures/scenes, seasons, hub, multiplayer, emblems or src/image/backgrounds can go."
     );
   }
   rmSync(path, { force: true });

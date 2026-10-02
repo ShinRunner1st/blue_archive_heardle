@@ -1,8 +1,9 @@
 /**
  * A frame's parts, edited: its palette, a border, a line inside it, glows,
- * and an ornament of SVG shapes on its corners (typed in, or pasted from
- * an SVG drawn elsewhere). Every colour a part takes is a place in the
- * palette, so a style is recoloured by its palette alone.
+ * and an ornament of SVG shapes and pictures on its corners, shared and
+ * turned to each or a corner's own (made on a board, typed in, or pasted
+ * from an SVG drawn elsewhere). Every colour a part takes is a place in
+ * the palette, so a style is recoloured by its palette alone.
  */
 import React from "react";
 import styled from "styled-components";
@@ -18,8 +19,13 @@ import {
   type OrnamentShape,
   type OrnamentShapeKind,
 } from "../constants/cosmetics";
+import { CORNER_TURN } from "../components/Profile/card.styled";
 import { ORNAMENT_LIBRARY, placed } from "./ornamentLibrary";
-import { OrnamentMaker } from "./OrnamentMaker";
+import {
+  EMBLEM_PICTURES,
+  type MakerGuide,
+  OrnamentMaker,
+} from "./OrnamentMaker";
 import { ColorField } from "./pickers";
 import { shapesFromSvg } from "./svgImport";
 import {
@@ -50,6 +56,7 @@ const SHAPE_NAMES: Record<OrnamentShapeKind, string> = {
   path: "Path",
   circle: "Circle",
   ellipse: "Ellipse",
+  picture: "Picture",
 };
 
 /** Every place in the palette a part names. */
@@ -57,11 +64,57 @@ function usedColors(frame: Frame): Set<FrameColor> {
   const used = new Set<FrameColor>(frame.border.colors);
   if (frame.inner) used.add(frame.inner.color);
   frame.glows?.forEach(({ color }) => used.add(color));
-  frame.ornament?.shapes.forEach(({ fill, stroke }) => {
+  [
+    ...(frame.ornament?.shapes ?? []),
+    ...Object.values(frame.ornament?.own ?? {}).flat(),
+  ].forEach(({ fill, stroke }) => {
     if (fill !== undefined) used.add(fill);
     if (stroke !== undefined) used.add(stroke);
   });
   return used;
+}
+
+/** Shapes with their colours moved, by `at`. */
+export const recolored = (
+  shapes: OrnamentShape[],
+  at: (color?: FrameColor) => FrameColor | undefined
+) =>
+  shapes.map((shape) => ({
+    ...shape,
+    fill: at(shape.fill),
+    stroke: at(shape.stroke),
+  }));
+
+/**
+ * Shapes turned round the box's middle by `turn` degrees, as one ornament:
+ * the shared ornament as it shows on a corner, to start that corner's own.
+ */
+export function turnedShapes(
+  shapes: OrnamentShape[],
+  turn: number
+): OrnamentShape[] {
+  const angle = (turn * Math.PI) / 180;
+  const [cos, sin] = [Math.cos(angle), Math.sin(angle)];
+  // Rounded, and never -0.
+  const tidy = (value: number) => Math.round(value * 100) / 100 || 0;
+  return shapes.map((shape) => {
+    const [x, y, degrees, size] = [
+      shape.at?.[0] ?? 0,
+      shape.at?.[1] ?? 0,
+      shape.at?.[2] ?? 0,
+      shape.at?.[3] ?? 1,
+    ];
+    const [dx, dy] = [x - 12, y - 12];
+    return {
+      ...shape,
+      at: [
+        tidy(12 + dx * cos - dy * sin),
+        tidy(12 + dx * sin + dy * cos),
+        ((degrees + turn + 540) % 360) - 180,
+        size,
+      ],
+    };
+  });
 }
 
 /** The parts with a palette colour taken out, the ones after it moved up. */
@@ -76,11 +129,15 @@ export function withoutColor(frame: Frame, removed: FrameColor): Patch {
     glows: frame.glows?.map((glow) => ({ ...glow, color: at(glow.color) })),
     ornament: frame.ornament && {
       ...frame.ornament,
-      shapes: frame.ornament.shapes.map((shape) => ({
-        ...shape,
-        fill: maybe(shape.fill),
-        stroke: maybe(shape.stroke),
-      })),
+      shapes: recolored(frame.ornament.shapes, maybe),
+      ...(frame.ornament.own && {
+        own: Object.fromEntries(
+          Object.entries(frame.ornament.own).map(([corner, shapes]) => [
+            corner,
+            recolored(shapes, maybe),
+          ])
+        ),
+      }),
     },
   };
 }
@@ -334,6 +391,17 @@ function ShapeFields({
                 ? { shape: kind, d: shape.d ?? "M4 4h16" }
                 : kind === "circle"
                 ? { shape: kind, r: shape.r ?? 3, cx: shape.cx ?? 6 }
+                : kind === "picture"
+                ? {
+                    shape: kind,
+                    picture: EMBLEM_PICTURES[0],
+                    r: shape.r ?? 6,
+                    cx: shape.cx ?? 12,
+                    cy: shape.cy ?? 12,
+                    fill: undefined,
+                    stroke: undefined,
+                    strokeWidth: undefined,
+                  }
                 : {
                     shape: kind,
                     rx: shape.rx ?? 4,
@@ -344,7 +412,11 @@ function ShapeFields({
           }}
         >
           {ORNAMENT_SHAPES.map((kind) => (
-            <option key={kind} value={kind}>
+            <option
+              key={kind}
+              value={kind}
+              disabled={kind === "picture" && EMBLEM_PICTURES.length === 0}
+            >
               {SHAPE_NAMES[kind]}
             </option>
           ))}
@@ -371,7 +443,28 @@ function ShapeFields({
           ✕
         </IconButton>
       </Row>
-      {shape.shape === "path" ? (
+      {shape.shape === "picture" ? (
+        <>
+          <Field label="Picture" hint="Made in Pictures → Emblems.">
+            <Select
+              name={`shape-${index}-picture`}
+              value={shape.picture ?? ""}
+              onChange={(event) => set({ picture: event.target.value })}
+            >
+              {EMBLEM_PICTURES.map((key) => (
+                <option key={key} value={key}>
+                  {key}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Fields>
+            {num("cx", "Centre x")}
+            {num("cy", "Centre y")}
+            {num("r", "Half its width")}
+          </Fields>
+        </>
+      ) : shape.shape === "path" ? (
         <Field
           label="Path (d)"
           hint="SVG path commands in the 24×24 box, its top left the card's corner."
@@ -398,37 +491,39 @@ function ShapeFields({
           )}
         </Fields>
       )}
-      <Fields>
-        <ColorPick
-          label="Fill"
-          value={shape.fill}
-          colors={colors}
-          none="No fill"
-          onChange={(fill) => set({ fill })}
-        />
-        <ColorPick
-          label="Outline"
-          value={shape.stroke}
-          colors={colors}
-          none="No outline"
-          onChange={(stroke) =>
-            set({
-              stroke,
-              strokeWidth:
-                stroke === undefined ? undefined : shape.strokeWidth ?? 1.5,
-            })
-          }
-        />
-        {shape.stroke !== undefined && (
-          <NumberField
-            label="Outline width"
-            name={`shape-${index}-stroke-width`}
-            value={shape.strokeWidth}
-            step={0.1}
-            onChange={(strokeWidth) => set({ strokeWidth })}
+      {shape.shape !== "picture" && (
+        <Fields>
+          <ColorPick
+            label="Fill"
+            value={shape.fill}
+            colors={colors}
+            none="No fill"
+            onChange={(fill) => set({ fill })}
           />
-        )}
-      </Fields>
+          <ColorPick
+            label="Outline"
+            value={shape.stroke}
+            colors={colors}
+            none="No outline"
+            onChange={(stroke) =>
+              set({
+                stroke,
+                strokeWidth:
+                  stroke === undefined ? undefined : shape.strokeWidth ?? 1.5,
+              })
+            }
+          />
+          {shape.stroke !== undefined && (
+            <NumberField
+              label="Outline width"
+              name={`shape-${index}-stroke-width`}
+              value={shape.strokeWidth}
+              step={0.1}
+              onChange={(strokeWidth) => set({ strokeWidth })}
+            />
+          )}
+        </Fields>
+      )}
       <Check>
         <input
           type="checkbox"
@@ -482,10 +577,10 @@ export function FrameFields({
 }) {
   const { colors, border, inner, glows = [], ornament } = frame;
   const used = usedColors(frame);
-  const [pasted, setPasted] = React.useState("");
-  const [pasteNotes, setPasteNotes] = React.useState<string[]>([]);
-  // The ornament's shapes picked on its board, by place in the list.
-  const [picked, setPicked] = React.useState<number[]>([]);
+  // The ornament being drawn: the shared one, or a corner's.
+  const [editing, setEditing] = React.useState<"shared" | FrameCorner>(
+    "shared"
+  );
 
   const setBorder = (patch: Partial<Frame["border"]>) =>
     onChange({ border: { ...border, ...patch } });
@@ -495,23 +590,6 @@ export function FrameFields({
     onChange({
       glows: glows.map((glow, j) => (j === i ? { ...glow, ...patch } : glow)),
     });
-  const setShapes = (shapes: OrnamentShape[]) =>
-    ornament && onChange({ ornament: { ...ornament, shapes } });
-
-  /** An SVG's shapes added (or put in place of the rest), then picked. */
-  const addSvg = (text: string, replace = false) => {
-    if (!ornament) return;
-    const kept = replace ? [] : ornament.shapes;
-    const made = shapesFromSvg(text, colors, { room: 40 - kept.length });
-    setPasteNotes(made.notes);
-    if (made.shapes.length === 0) return;
-    onChange({
-      colors: made.colors,
-      ornament: { ...ornament, shapes: [...kept, ...made.shapes] },
-    });
-    setPicked(made.shapes.map((_, i) => kept.length + i));
-    setPasted("");
-  };
   const gradient =
     border.gradient ?? (border.colors.length > 1 ? "linear" : "");
 
@@ -778,7 +856,8 @@ export function FrameFields({
           type="checkbox"
           name="frame-ornament"
           checked={!!ornament}
-          onChange={(event) =>
+          onChange={(event) => {
+            setEditing("shared");
             onChange({
               ornament: event.target.checked
                 ? {
@@ -786,142 +865,317 @@ export function FrameFields({
                     shapes: placed(ORNAMENT_LIBRARY[0], colors, [11, 11]),
                   }
                 : undefined,
-            })
-          }
+            });
+          }}
         />
-        Shapes on the corners
+        Shapes and pictures on the corners
       </Check>
       {ornament && (
+        <OrnamentFields
+          ornament={ornament}
+          colors={colors}
+          editing={editing}
+          onEditing={setEditing}
+          onChange={onChange}
+        />
+      )}
+    </>
+  );
+}
+
+/** A frame's ornament: the shared one, turned to its corners, and each corner's own. */
+function OrnamentFields({
+  ornament,
+  colors,
+  editing,
+  onEditing,
+  onChange,
+}: {
+  ornament: NonNullable<Frame["ornament"]>;
+  colors: string[];
+  editing: "shared" | FrameCorner;
+  onEditing: (editing: "shared" | FrameCorner) => void;
+  onChange: (patch: Patch) => void;
+}) {
+  const own = ornament.own ?? {};
+  const setOrnament = (next: NonNullable<Frame["ornament"]>) => {
+    const { own: owned, ...rest } = next;
+    onChange({
+      ornament:
+        owned && Object.keys(owned).length > 0 ? { ...rest, own: owned } : rest,
+    });
+  };
+  const corner = editing === "shared" ? null : editing;
+  const ownShapes = corner ? own[corner] : undefined;
+
+  return (
+    <>
+      <Field
+        label="Draw"
+        hint="The shared ornament is drawn for the top left and turned to each corner it's on; a corner can have its own instead, drawn as it shows there."
+      >
+        <Row role="tablist" aria-label="Which ornament">
+          {(["shared", ...FRAME_CORNERS] as const).map((which) => (
+            <Button
+              key={which}
+              role="tab"
+              aria-selected={editing === which}
+              $variant={editing === which ? "primary" : undefined}
+              onClick={() => onEditing(which)}
+            >
+              {which === "shared"
+                ? "Shared"
+                : `${CORNER_NAMES[which]}${own[which] ? " ★" : ""}`}
+            </Button>
+          ))}
+        </Row>
+      </Field>
+
+      {corner === null ? (
         <>
           <Field label="On the corners">
             <Row>
-              {FRAME_CORNERS.map((corner) => (
-                <Check key={corner} style={{ marginBottom: 0 }}>
+              {FRAME_CORNERS.map((at) => (
+                <Check key={at} style={{ marginBottom: 0 }}>
                   <input
                     type="checkbox"
-                    name={`corner-${corner}`}
-                    checked={ornament.corners.includes(corner)}
+                    name={`corner-${at}`}
+                    disabled={!!own[at]}
+                    checked={ornament.corners.includes(at)}
                     onChange={(event) =>
-                      onChange({
-                        ornament: {
-                          ...ornament,
-                          corners: FRAME_CORNERS.filter((c) =>
-                            c === corner
-                              ? event.target.checked
-                              : ornament.corners.includes(c)
-                          ),
-                        },
+                      setOrnament({
+                        ...ornament,
+                        corners: FRAME_CORNERS.filter((c) =>
+                          c === at
+                            ? event.target.checked
+                            : ornament.corners.includes(c)
+                        ),
                       })
                     }
                   />
-                  {CORNER_NAMES[corner]}
+                  {CORNER_NAMES[at]}
+                  {own[at] && " (its own)"}
                 </Check>
               ))}
             </Row>
           </Field>
-          <OrnamentMaker
-            ornament={ornament}
+          <ShapesEditor
+            key="shared"
+            shapes={ornament.shapes}
             colors={colors}
-            picked={picked}
-            onPick={setPicked}
-            onChange={setShapes}
-            extra={
-              <SvgFileTile
-                onOpen={(text) => addSvg(text)}
-                onProblem={(problem) => setPasteNotes([problem])}
-              />
+            guide={{ kind: "corner", turn: 0 }}
+            onChange={(shapes, palette) =>
+              onChange({
+                ...(palette && { colors: palette }),
+                ornament: { ...ornament, shapes },
+              })
             }
           />
-          {pasteNotes.map((note) => (
-            <Note key={note} $tone="warn">
-              {note}
-            </Note>
-          ))}
-          <Details>
-            <summary>Exact numbers, shape by shape</summary>
-            {ornament.shapes.map((shape, i) => (
-              <ShapeFields
-                key={i}
-                shape={shape}
-                index={i}
-                count={ornament.shapes.length}
-                colors={colors}
-                onChange={(next) =>
-                  setShapes(ornament.shapes.map((s, j) => (j === i ? next : s)))
-                }
-                onMove={(to) => {
-                  const shapes = [...ornament.shapes];
-                  const [moving] = shapes.splice(i, 1);
-                  shapes.splice(to, 0, moving);
-                  setShapes(shapes);
-                }}
-                onCopy={() =>
-                  setShapes([
-                    ...ornament.shapes.slice(0, i + 1),
-                    structuredClone(shape),
-                    ...ornament.shapes.slice(i + 1),
-                  ])
-                }
-                onRemove={() =>
-                  setShapes(ornament.shapes.filter((_, j) => j !== i))
-                }
-              />
-            ))}
-            <Row style={{ marginBottom: 12 }}>
-              {ORNAMENT_SHAPES.map((kind) => (
-                <Button
-                  key={kind}
-                  onClick={() =>
-                    setShapes([
-                      ...ornament.shapes,
-                      kind === "path"
-                        ? {
-                            shape: kind,
-                            d: "M4 4h16",
-                            stroke: 0,
-                            strokeWidth: 2,
-                          }
-                        : kind === "circle"
-                        ? { shape: kind, cx: 6, cy: 6, r: 3, fill: 0 }
-                        : { shape: kind, cx: 10, cy: 6, rx: 6, ry: 3, fill: 0 },
-                    ])
-                  }
-                >
-                  + {SHAPE_NAMES[kind]}
-                </Button>
-              ))}
-            </Row>
-          </Details>
-          <Details>
-            <summary>Paste an SVG&apos;s code</summary>
-            <Field
-              label="SVG code"
-              hint="From a drawing app's Copy as SVG, or an .svg file opened in Notepad. Any size: it's fitted to the corner."
-            >
-              <TextArea
-                name="frame-svg"
-                data-own-undo
-                value={pasted}
-                spellCheck={false}
-                placeholder='<svg viewBox="0 0 512 512">…</svg>'
-                style={{ fontFamily: "monospace" }}
-                onChange={(event) => setPasted(event.target.value)}
-              />
-            </Field>
-            <Row style={{ marginBottom: 12 }}>
-              <Button disabled={!pasted.trim()} onClick={() => addSvg(pasted)}>
-                Add its shapes
-              </Button>
-              <Button
-                disabled={!pasted.trim()}
-                onClick={() => addSvg(pasted, true)}
-              >
-                Replace the shapes
-              </Button>
-            </Row>
-          </Details>
         </>
+      ) : ownShapes ? (
+        <>
+          <Row style={{ marginBottom: 12 }}>
+            <Hint style={{ flex: 1 }}>
+              The {CORNER_NAMES[corner].toLowerCase()} corner has its own
+              ornament, drawn as it shows there.
+            </Hint>
+            <Button
+              onClick={() => {
+                const rest = Object.fromEntries(
+                  Object.entries(own).filter(([at]) => at !== corner)
+                );
+                setOrnament({
+                  ...ornament,
+                  corners: FRAME_CORNERS.filter(
+                    (c) => c === corner || ornament.corners.includes(c)
+                  ),
+                  own: rest,
+                });
+              }}
+            >
+              Use the shared one again
+            </Button>
+          </Row>
+          <ShapesEditor
+            key={corner}
+            shapes={ownShapes}
+            colors={colors}
+            guide={{ kind: "corner", turn: CORNER_TURN[corner] }}
+            onChange={(shapes, palette) =>
+              onChange({
+                ...(palette && { colors: palette }),
+                ornament: { ...ornament, own: { ...own, [corner]: shapes } },
+              })
+            }
+          />
+        </>
+      ) : (
+        <Card>
+          <Hint style={{ marginBottom: 8 }}>
+            {ornament.corners.includes(corner)
+              ? `The ${CORNER_NAMES[
+                  corner
+                ].toLowerCase()} corner shows the shared ornament, turned.`
+              : `Nothing on the ${CORNER_NAMES[corner].toLowerCase()} corner.`}
+          </Hint>
+          <Button
+            $variant="primary"
+            onClick={() =>
+              setOrnament({
+                ...ornament,
+                corners: ornament.corners.filter((c) => c !== corner),
+                own: {
+                  ...own,
+                  [corner]: ornament.corners.includes(corner)
+                    ? turnedShapes(ornament.shapes, CORNER_TURN[corner])
+                    : placed(ORNAMENT_LIBRARY[0], colors, [11, 11]),
+                },
+              })
+            }
+          >
+            Give it its own
+          </Button>
+        </Card>
       )}
+    </>
+  );
+}
+
+/**
+ * Shapes and pictures, edited on the board, number by number, or pasted
+ * from an SVG: a frame's ornament or a nameplate's emblem. An SVG's
+ * colours join the palette, so `onChange` may bring a new one.
+ */
+export function ShapesEditor({
+  shapes,
+  colors,
+  guide,
+  onChange,
+}: {
+  shapes: OrnamentShape[];
+  colors: string[];
+  guide: MakerGuide;
+  onChange: (shapes: OrnamentShape[], colors?: string[]) => void;
+}) {
+  const [pasted, setPasted] = React.useState("");
+  const [pasteNotes, setPasteNotes] = React.useState<string[]>([]);
+  // The shapes picked on the board, by place in the list.
+  const [picked, setPicked] = React.useState<number[]>([]);
+  const setShapes = (next: OrnamentShape[]) => onChange(next);
+
+  /** An SVG's shapes added (or put in place of the rest), then picked. */
+  const addSvg = (text: string, replace = false) => {
+    const kept = replace ? [] : shapes;
+    const made = shapesFromSvg(text, colors, { room: 40 - kept.length });
+    setPasteNotes(made.notes);
+    if (made.shapes.length === 0) return;
+    onChange([...kept, ...made.shapes], made.colors);
+    setPicked(made.shapes.map((_, i) => kept.length + i));
+    setPasted("");
+  };
+
+  return (
+    <>
+      <OrnamentMaker
+        shapes={shapes}
+        guide={guide}
+        colors={colors}
+        picked={picked}
+        onPick={setPicked}
+        onChange={setShapes}
+        extra={
+          <SvgFileTile
+            onOpen={(text) => addSvg(text)}
+            onProblem={(problem) => setPasteNotes([problem])}
+          />
+        }
+      />
+      {pasteNotes.map((note) => (
+        <Note key={note} $tone="warn">
+          {note}
+        </Note>
+      ))}
+      <Details>
+        <summary>Exact numbers, shape by shape</summary>
+        {shapes.map((shape, i) => (
+          <ShapeFields
+            key={i}
+            shape={shape}
+            index={i}
+            count={shapes.length}
+            colors={colors}
+            onChange={(next) =>
+              setShapes(shapes.map((s, j) => (j === i ? next : s)))
+            }
+            onMove={(to) => {
+              const moved = [...shapes];
+              const [moving] = moved.splice(i, 1);
+              moved.splice(to, 0, moving);
+              setShapes(moved);
+            }}
+            onCopy={() =>
+              setShapes([
+                ...shapes.slice(0, i + 1),
+                structuredClone(shape),
+                ...shapes.slice(i + 1),
+              ])
+            }
+            onRemove={() => setShapes(shapes.filter((_, j) => j !== i))}
+          />
+        ))}
+        <Row style={{ marginBottom: 12 }}>
+          {ORNAMENT_SHAPES.filter((kind) => kind !== "picture").map((kind) => (
+            <Button
+              key={kind}
+              onClick={() =>
+                setShapes([
+                  ...shapes,
+                  kind === "path"
+                    ? {
+                        shape: kind,
+                        d: "M4 4h16",
+                        stroke: 0,
+                        strokeWidth: 2,
+                      }
+                    : kind === "circle"
+                    ? { shape: kind, cx: 6, cy: 6, r: 3, fill: 0 }
+                    : { shape: kind, cx: 10, cy: 6, rx: 6, ry: 3, fill: 0 },
+                ])
+              }
+            >
+              + {SHAPE_NAMES[kind]}
+            </Button>
+          ))}
+        </Row>
+      </Details>
+      <Details>
+        <summary>Paste an SVG&apos;s code</summary>
+        <Field
+          label="SVG code"
+          hint="From a drawing app's Copy as SVG, or an .svg file opened in Notepad. Any size: it's fitted to the box."
+        >
+          <TextArea
+            name="frame-svg"
+            data-own-undo
+            value={pasted}
+            spellCheck={false}
+            placeholder='<svg viewBox="0 0 512 512">…</svg>'
+            style={{ fontFamily: "monospace" }}
+            onChange={(event) => setPasted(event.target.value)}
+          />
+        </Field>
+        <Row style={{ marginBottom: 12 }}>
+          <Button disabled={!pasted.trim()} onClick={() => addSvg(pasted)}>
+            Add its shapes
+          </Button>
+          <Button
+            disabled={!pasted.trim()}
+            onClick={() => addSvg(pasted, true)}
+          >
+            Replace the shapes
+          </Button>
+        </Row>
+      </Details>
     </>
   );
 }

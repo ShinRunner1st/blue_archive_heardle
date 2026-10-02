@@ -179,7 +179,10 @@ describe("checkContent", () => {
     const frame = content.cosmetics.frames[1];
     Object.assign(frame, { colors: ["red"] });
     const banner = content.cosmetics.banners.find(({ id }) => id === "schale")!;
-    Object.assign(banner, { emblem: "IoNothing", picture: "nowhere" });
+    Object.assign(banner, {
+      emblem: { style: "ring", icon: "IoNothing" },
+      picture: "nowhere",
+    });
     expect(messages(content, "cosmetics")).toEqual(
       expect.arrayContaining([
         `frame ${frame.id}: colours must be #rrggbb`,
@@ -219,7 +222,7 @@ describe("checkContent", () => {
         "ornament shape 1: an outline needs its width, 0.1-12",
         "ornament shape 2: a circle needs r, 0-24",
         "ornament shape 2: a shape needs a fill, an outline or both",
-        "ornament shape 3: star isn't a shape (path, circle, ellipse)",
+        "ornament shape 3: star isn't a shape (path, circle, ellipse, picture)",
       ].map((problem) => `frame gold: ${problem}`)
     );
   });
@@ -243,6 +246,63 @@ describe("checkContent", () => {
       "the hub's voice card: hub/nothing isn't on the Worker",
       "Multiplayer by day:  isn't on the Worker",
       "Multiplayer's Make a room: hub/gone isn't on the Worker",
+    ]);
+  });
+
+  it("checks a nameplate's parts and its emblem", () => {
+    const content = copy();
+    const plate = (id: string) =>
+      content.cosmetics.banners.find((banner) => banner.id === id)!;
+    Object.assign(plate("schedule"), {
+      pattern: "dots",
+      band: "navy",
+      tag: "a tag far too long to read",
+    });
+    plate("schedule").emblem!.shapes![0].fill = 5;
+    plate("chorus").emblem = { style: "side", icon: "IoMic" };
+    plate("record-shelf").emblem = {
+      style: "ring",
+      icon: "IoDisc",
+      shapes: [{ shape: "picture", picture: "emblems/none", r: 12 }],
+      colors: [],
+    };
+    expect(messages(content, "cosmetics")).toEqual([
+      "banner schedule: a pattern is facets, grid, lines",
+      "banner schedule: band must be #rrggbb",
+      "banner schedule: a tag is 1-20 letters",
+      "banner schedule: emblem shape 1: its fill isn't a colour of the emblem's",
+      "banner record-shelf: an emblem is an icon or shapes, not both",
+      "banner record-shelf: emblems/none isn't on the Worker",
+      "banner chorus: a side emblem is a picture",
+      "banner chorus: a side emblem is a picture alone",
+    ]);
+  });
+
+  it("lets each corner have its own ornament, pictures too", () => {
+    const content = copy();
+    const frame = content.cosmetics.frames.find(({ id }) => id === "gold")!;
+    const shared = frame.ornament!.shapes;
+    frame.ornament = {
+      corners: [],
+      shapes: [],
+      own: {
+        tl: shared,
+        br: [
+          { shape: "picture", picture: "emblems/none", r: 8, cx: 12, cy: 12 },
+        ],
+      },
+    };
+    expect(messages(content, "cosmetics")).toEqual([
+      "frame gold: emblems/none isn't on the Worker",
+    ]);
+
+    frame.ornament.corners = ["tl"];
+    frame.ornament.own!.br = [{ shape: "picture", r: 30 }];
+    expect(messages(content, "cosmetics")).toEqual([
+      "frame gold: the ornament needs 1-40 shapes",
+      "frame gold: the tl corner has its own ornament, so isn't in corners",
+      "frame gold: br corner's shape 1: a picture needs its picture, as pictures/ names it",
+      "frame gold: br corner's shape 1: a picture needs r, 0.5-24",
     ]);
   });
 

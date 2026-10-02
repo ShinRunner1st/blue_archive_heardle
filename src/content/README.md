@@ -118,19 +118,33 @@ Lists, each starting with the default everyone has (no `mission`):
 - `titles`: a title on the Sensei card. `{ "id", "name", "mission" }`.
 - `cardColors`: the Sensei card's colours, as `#rrggbb`: `band` (left to right),
   `body` (top to bottom), `ink` (names and numbers), `muted` (labels),
-  `accent` (the address, title and tiles).
+  `accent` (the address, title and tiles). Everyone's (`"free": true`)
+  since 2026-10-03: as rewards they didn't interest.
 - `cursorColors`: the cursor's flash and trail. `hue` is 0-359 (the game's
   blue has none); one with `"rainbow": true` changes hue with every tap.
   `swatch` is the colour (or CSS gradient) shown in Settings.
 - `characters`: who stands beside the game. Each also needs its sprite in
   `public/spine/` and its set-up in `characters.json`.
-- `banners`: the strip the title sits on, on the profile and its card.
-  `picture` is a picture on the Worker (a key in
-  `src/constants/pictureFiles.ts`, such as `seasons/beach-day`) under
-  `tint`; or, with no picture, `fill`, two or more colours for a foil.
-  `ink` is the title's colour, `accent` the emblem's ring, the stripes and
-  the line along its foot, and `emblem` an icon from
-  `src/constants/icons.ts`.
+- `banners`: the nameplate the title sits on, on the profile, its card and
+  in rooms, like the game's own emblems (its user titles; the game's plates
+  are 558×106, these about the same shape):
+  - `picture`, a picture on the Worker (a key in
+    `src/constants/pictureFiles.ts`, such as `scenes/banner-beach`); or,
+    with no picture, `fill`, two or more colours for a foil.
+  - `pattern` (optional): `facets` (pale triangles, as most of the
+    game's plates), `grid` (as its default plate) or `lines`, drawn in
+    the `accent`.
+  - `accent`, the rim (and an emblem's ring); `ink`, the title.
+  - `band` (optional): a soft band behind the title, so it reads over a
+    picture.
+  - `tag` (optional): up to 20 letters in a pill at the plate's foot,
+    such as "30 days", shown in capitals: what was done, for others to see.
+  - `emblem` (optional): its `style`, `ring` (in a ring at the head),
+    `crest` (standing free there) or `side` (a `picture` down the left,
+    cut on a slant, as the game shows a student); a ring or crest is an
+    `icon` from `src/constants/icons.ts`, or `shapes` as a frame's
+    ornament has them (pictures too) in a 24×24 box, their colours from
+    the emblem's own `colors`.
 - `frames`: the frame round the profile's card, drawn from parts, so a
   new style is only an entry. `colors` is its palette, and every colour
   a part takes is a place in it (0 the first), so recolouring a style is
@@ -148,11 +162,15 @@ Lists, each starting with the default everyone has (no `mission`):
     out from the card's corner, and turned for the others. Each shape is a
     `path` (`d`), `circle` (`cx`, `cy`, `r`) or `ellipse` (`cx`, `cy`,
     `rx`, `ry`), with a `fill`, a `stroke` and `strokeWidth`, or both,
-    `evenOdd` to cut holes as an icon's inner shapes do, and
-    `at`, [x, y, degrees] or [x, y, degrees, size], to move, turn and
-    size it. In the admin tool they're picked from a library of ready-made
-    shapes and dragged into place, or taken from an SVG of any size (a
-    file, or its code pasted), fitted to the corner.
+    `evenOdd` to cut holes as an icon's inner shapes do; or a `picture`
+    (a key on the Worker, from `pictures/emblems/`), a square `r` from
+    its middle at `cx`, `cy`, which may show past the box. `at`,
+    [x, y, degrees] or [x, y, degrees, size], moves, turns and sizes a
+    shape. `own` gives a corner its own shapes in place of the shared
+    ones, drawn as they show there, not turned (that corner is then left
+    out of `corners`). In the admin tool they're picked from a library of
+    ready-made shapes and pictures and dragged into place, or taken from
+    an SVG of any size (a file, or its code pasted), fitted to the corner.
 - `backgrounds`: the scene behind the profile's card, a `picture` on the
   Worker as banners name theirs. Pictures already there cost nothing more;
   a new one goes in `pictures/` and up with `npm run songs`.
@@ -270,6 +288,9 @@ writes the files as Prettier would, so the diff is only what changed.
   players, you wearing the one edited and the others a mix.
   A released reward keeps its mission while that mission is live; once it's
   retired, a new one can take over and the old is kept as a former one.
+- **Emblem pictures**, for a banner's emblem or a frame's corner, go in
+  `pictures/emblems/`: a PNG or JPG fitted in 256×256 and kept transparent
+  round it (Pictures → Emblems, a few KB each).
 - **Pictures** for banners and backgrounds go in `pictures/scenes/`, made
   from a file dropped in or one of the game's backgrounds (by its wiki
   name): a sharp 960×540 scene (`scripts/make-picture.mjs`, about 70 KB) or

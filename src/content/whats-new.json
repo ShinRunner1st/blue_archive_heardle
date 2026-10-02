@@ -21,12 +21,17 @@
       {
         "icon": "IoGift",
         "title": "More missions, higher goals",
-        "text": "59 missions now, each with a reward of its own, from easy starters to goals that take months: a 100-day streak, every song, 25 room wins. New titles, a red cursor, Echo card colours and silver and prism foil banners. The rewards were all arranged again, so some may need clearing again."
+        "text": "59 missions now, each with a reward of its own, from easy starters to goals that take months: a 100-day streak, every song, 25 room wins. New titles, a red cursor and new banners. The rewards were all arranged again, so some may need clearing again."
       },
       {
         "icon": "IoImage",
-        "title": "Sharper banners",
-        "text": "Banners with a scene behind them now show it sharp, not blurred."
+        "title": "Banners as nameplates",
+        "text": "Banners are nameplates now, like the emblems in the game: a scene or a foil, the game's facets, an emblem, and a tag saying what you did to earn it, for everyone in a room to see. Five new ones, and the scenes behind them are sharp."
+      },
+      {
+        "icon": "IoColorPalette",
+        "title": "Card colours for everyone",
+        "text": "Every Sensei card colour is yours from the start: no mission needed."
       }
     ]
   },
