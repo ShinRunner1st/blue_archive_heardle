@@ -9,7 +9,10 @@ import { ROOM_PASS_MS } from "../types/room";
 import { AccountsEnv, handle, pageToReturnTo, SITE_ORIGINS } from "./api";
 import { signValue } from "./crypto";
 import { tidyAccounts } from "./privacy";
+import { verifiedAnswer } from "../helpers/verifiedDaily";
+import { makeRoomReceipt, newRoomGameId } from "./roomReceipt";
 import { readRoomPass } from "./roomPass";
+import { dayInZone } from "./verified";
 
 const WORKER = "http://localhost:8788";
 const SITE = "http://localhost:3000";
@@ -1011,6 +1014,10 @@ describe("deleting and downloading an account", () => {
     "progress",
     "progress_backups",
     "missions_cleared",
+    "verified_clock",
+    "verified_daily",
+    "verified_summary",
+    "verified_room",
   ];
   const rows = () =>
     Object.fromEntries(
@@ -1061,6 +1068,44 @@ describe("deleting and downloading an account", () => {
       );
     expect((await put(0)).status).toBe(200);
     expect((await put(1, true)).status).toBe(200);
+    // A verified daily played, and a room's result counted.
+    const zone = "UTC";
+    const day = dayInZone(zone, now);
+    const started = await call("POST", "/verified", {
+      token,
+      body: { action: "start", game: "ost", day, zone },
+    });
+    const { attempt } = (await started.json()) as { attempt: string };
+    const finished = await call("POST", "/verified", {
+      token,
+      body: {
+        action: "finish",
+        attempt,
+        guesses: [verifiedAnswer("ost", day)],
+      },
+    });
+    expect(finished.status).toBe(200);
+    env.roomPassKey = "test-pass-key";
+    const { publicId } = (await me(token)).body as { publicId: string };
+    const receipt = await makeRoomReceipt(
+      {
+        gameId: newRoomGameId(),
+        publicId,
+        game: "voice",
+        answers: "choice",
+        rounds: 10,
+        players: 3,
+        place: 2,
+        score: 6,
+        endedAt: now,
+      },
+      env.roomPassKey
+    );
+    const room = await call("POST", "/verified", {
+      token,
+      body: { action: "room", receipt },
+    });
+    expect(room.status).toBe(200);
     // A sign-in half done: its one-time code is still waiting.
     await answer("google", await startSignIn(), { code: `fake:${who}` });
     return token;

@@ -10,6 +10,12 @@
 import { AccountsEnv, handle } from "../src/accounts/api";
 import { measured, Tally } from "../src/accounts/measure";
 import { tidyAccounts } from "../src/accounts/privacy";
+import { makeRoomReceipt, newRoomGameId } from "../src/accounts/roomReceipt";
+import {
+  isDay,
+  isVerifiedDaily,
+  verifiedAnswer,
+} from "../src/helpers/verifiedDaily";
 
 interface Env {
   DB: D1Database;
@@ -38,6 +44,10 @@ interface Env {
    * "yes" only from `npm run accounts:measure`: each answer says what it
    * cost D1 (rows read and written) in headers, for the measurements in
    * docs/accounts.md, section 6. On localhost only, like FAKE_SIGN_IN.
+   * With it, and only with it, a request may set the clock
+   * (`X-Measure-Now`), `/__measure/answer` gives a daily's answer to win
+   * with and `/__measure/receipt` signs a room's receipt, to
+   * measure verified stats (docs/verified-stats.md, section 12).
    */
   MEASURE?: string;
   /** Sign-ins, and the rest, per address a minute. */
@@ -98,9 +108,45 @@ export default {
     const tally: Tally = { read: 0, written: 0, queries: 0, each: [] };
     const measuring = env.MEASURE === "yes" && local;
     const db = measuring ? measured(env.DB, tally) : env.DB;
+    // Measuring only: the clock can be set, to measure a late finish or a
+    // closed attempt days later, and a room's receipt made, as the rooms
+    // will (docs/verified-stats.md).
+    const setClock = Number(request.headers.get("X-Measure-Now"));
+    const now =
+      measuring && Number.isSafeInteger(setClock) && setClock > 0
+        ? () => setClock
+        : undefined;
     if (measuring && new URL(request.url).pathname === "/__measure/tidy") {
       await tidyAccounts(db, Date.now());
       return tallied(new Response(null, { status: 204 }), tally);
+    }
+    if (measuring && new URL(request.url).pathname === "/__measure/answer") {
+      // A daily's answer, for the measuring script to play a win with.
+      const params = new URL(request.url).searchParams;
+      const game = params.get("game");
+      const day = Number(params.get("day"));
+      if (!isVerifiedDaily(game) || !isDay(day)) {
+        return new Response(null, { status: 400 });
+      }
+      return Response.json(verifiedAnswer(game, day));
+    }
+    if (measuring && new URL(request.url).pathname === "/__measure/receipt") {
+      const params = new URL(request.url).searchParams;
+      const receipt = await makeRoomReceipt(
+        {
+          gameId: params.get("game") ?? newRoomGameId(),
+          publicId: params.get("public") ?? "",
+          game: "ost",
+          answers: "typed",
+          rounds: 10,
+          players: 4,
+          place: Number(params.get("place") ?? 1),
+          score: 7,
+          endedAt: now ? now() : Date.now(),
+        },
+        env.ROOM_PASS_KEY ?? ""
+      );
+      return new Response(receipt);
     }
     const accounts: AccountsEnv = {
       db,
@@ -113,6 +159,7 @@ export default {
       signInLimit: limiter(env.SIGN_IN_LIMIT),
       apiLimit: limiter(env.API_LIMIT),
       limitKey: await counterKey(request),
+      now,
     };
     try {
       const response = await handle(request, accounts);

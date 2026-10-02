@@ -4,5 +4,5 @@
     "lib": ["esnext"],
     "types": ["@cloudflare/workers-types"]
   },
-  "include": ["index.ts", "../src/types/build.d.ts"]
+  "include": ["index.ts", "env.d.ts", "../src/types/build.d.ts"]
 }

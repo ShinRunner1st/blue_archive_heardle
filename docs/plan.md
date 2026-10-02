@@ -958,7 +958,10 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   `docs/verified-stats.md`; nothing is built until the user approves it.
   _Drafted on `docs/verified-stats`, off `main`. Step 1, the shared
   rules (each daily's answer and the judge, the hooks playing with the
-  same functions), on `feat/verified-rules`, off `docs/verified-stats`._
+  same functions), on `feat/verified-rules`, off `docs/verified-stats`.
+  Step 2, the accounts Worker (the four tables, `/verified`, the zone and
+  day rules, late finishes, lazy closing, streaks, room receipts'
+  checks), on `feat/verified-worker`, off `feat/verified-rules`._
 - **Levels, with accounts** (asked for 2026-10-01): an account level
   from the rounds and missions it has played, shown on the card.
 - **Other players' profiles and cosmetics in rooms, with accounts**:

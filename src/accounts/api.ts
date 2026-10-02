@@ -22,6 +22,8 @@ import {
   ProviderError,
   ProviderKeys,
 } from "./providers";
+import { MAX_VERIFIED_BODY } from "../types/verified";
+import { readRoomReceipt, recordRoomResult } from "./roomReceipt";
 import { makeRoomPass } from "./roomPass";
 import {
   accountView,
@@ -36,6 +38,7 @@ import {
   takeSignInCode,
   unlinkIdentity,
 } from "./store";
+import { finishDaily, readVerified, startDaily } from "./verified";
 
 /**
  * The accounts Worker's requests (accounts-worker/ is only its glue):
@@ -68,6 +71,10 @@ import {
  *   signed with the key the rooms Worker shares; good for 12 hours.
  * - `GET /me/data`: everything kept for the account, for the player to
  *   download; `DELETE /me` deletes it all (step 5, the privacy policy).
+ * - `/verified` (docs/verified-stats.md): `POST` with `{ action }` "start"
+ *   or "finish" for a verified daily, or "room" for a room's receipt, and
+ *   `GET` for the account's verified record. One address for all, so a
+ *   page's preflight is asked once.
  *
  * The token is a credential: it only ever travels in that header, and
  * nothing here logs a header, a body, a token or a code (docs/accounts.md,
@@ -371,6 +378,12 @@ export async function handle(
     const made = await makeRoomPass(env.db, account, env.roomPassKey, now);
     return made ? json(origin, 200, made) : json(origin, 401, {});
   }
+  if (path === "/verified" && request.method === "GET") {
+    return json(origin, 200, await readVerified(env.db, account, now));
+  }
+  if (path === "/verified" && request.method === "POST") {
+    return verified(request, env, origin, account, now);
+  }
   if (path === "/auth/link-ticket" && request.method === "POST") {
     return json(origin, 200, {
       ticket: await signValue(
@@ -403,7 +416,52 @@ const isApiPath = (path: string) =>
   path === "/me/profile" ||
   path === "/me/progress" ||
   path === "/room-pass" ||
+  path === "/verified" ||
   /^\/me\/identities\/\w+$/.test(path);
+
+/** `POST /verified`: a daily started or finished, or a room's receipt. */
+async function verified(
+  request: Request,
+  env: AccountsEnv,
+  origin: string,
+  account: string,
+  now: number
+): Promise<Response> {
+  const bytes = new Uint8Array(await request.arrayBuffer());
+  if (bytes.length > MAX_VERIFIED_BODY) {
+    return json(origin, 413, { error: "tooBig" });
+  }
+  let body: Record<string, unknown> | null = null;
+  try {
+    const value: unknown = JSON.parse(new TextDecoder().decode(bytes));
+    if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+      body = value as Record<string, unknown>;
+    }
+  } catch {
+    body = null;
+  }
+  if (!body) return json(origin, 400, { error: "bad" });
+
+  if (body.action === "start" || body.action === "finish") {
+    const answer = await (body.action === "start" ? startDaily : finishDaily)(
+      env.db,
+      account,
+      body,
+      now
+    );
+    return json(origin, answer.status, answer.body);
+  }
+  if (body.action === "room") {
+    if (!env.roomPassKey) return json(origin, 503, { error: "unavailable" });
+    const receipt = await readRoomReceipt(body.receipt, env.roomPassKey, now);
+    if (!receipt) return json(origin, 400, { error: "receipt" });
+    const status = await recordRoomResult(env.db, account, receipt);
+    return status === "notYours"
+      ? json(origin, 403, { error: "notYours" })
+      : json(origin, 200, { status });
+  }
+  return json(origin, 400, { error: "bad" });
+}
 
 async function readJson(
   request: Request

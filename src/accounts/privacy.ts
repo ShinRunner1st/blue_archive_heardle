@@ -12,6 +12,10 @@ import { Db, dayOf } from "./store";
  * is named too, so a deletion never rests on that alone.
  */
 const ACCOUNT_TABLES = [
+  "verified_room",
+  "verified_summary",
+  "verified_daily",
+  "verified_clock",
   "missions_cleared",
   "progress_backups",
   "progress",

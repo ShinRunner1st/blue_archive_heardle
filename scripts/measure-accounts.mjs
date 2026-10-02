@@ -20,8 +20,21 @@ const RUN = Date.now().toString(36);
 const rows = [];
 let requests = 0;
 
+// The Worker takes 60 calls a minute from one address (API_LIMIT): a
+// minute's rest before going over, so no answer is the limit's 429.
+let sinceRest = 0;
+let restedAt = Date.now();
+async function paced() {
+  if (++sinceRest < 55) return;
+  const wait = restedAt + 61_000 - Date.now();
+  if (wait > 0) await new Promise((resolve) => setTimeout(resolve, wait));
+  sinceRest = 1;
+  restedAt = Date.now();
+}
+
 /** One request; its cost noted under `what`. */
 async function call(what, method, path, { token, body, raw, extra } = {}) {
+  await paced();
   const headers = { Origin: SITE, ...extra };
   if (token) headers.Authorization = `Bearer ${token}`;
   if (body !== undefined && !raw) headers["Content-Type"] = "application/json";
@@ -172,6 +185,126 @@ await call("Merge: merged up, backed up", "PUT", "/me/progress", {
   extra: { "X-Base": "4", "X-Format": "2", "X-Backup": "1" },
   token,
   raw: save(1040),
+});
+
+// Verified stats (docs/verified-stats.md, section 12): dailies started and
+// finished, late, closed, room receipts and the record, over a week and a
+// streak, on the Worker's clock set by X-Measure-Now (measuring only).
+const DAY = 24 * 60 * 60_000;
+const T0 = Date.UTC(
+  new Date().getUTCFullYear(),
+  new Date().getUTCMonth(),
+  new Date().getUTCDate(),
+  12
+);
+const at = (days) => ({ "X-Measure-Now": String(T0 + days * DAY) });
+const verified = (what, days, body) =>
+  call(what, "POST", "/verified", { token, body, extra: at(days) });
+const answerOf = async (game, day) =>
+  (await fetch(`${WORKER}/__measure/answer?game=${game}&day=${day}`)).json();
+const zone = "UTC";
+
+const refused = await verified("Verified: start, wrong day (409)", 0, {
+  action: "start",
+  game: "ost",
+  day: 1,
+  zone,
+});
+const day0 = (await refused.json()).day;
+/** Starts a daily on its day; returns its attempt. */
+async function startOn(what, days, game) {
+  const response = await verified(what, days, {
+    action: "start",
+    game,
+    day: day0 + days,
+    zone,
+  });
+  const body = await response.json();
+  // A start the measure meant to issue: anything else is worth seeing.
+  if (!body.attempt && body.status !== "done") {
+    throw new Error(`${what}: ${response.status} ${JSON.stringify(body)}`);
+  }
+  return body.attempt;
+}
+/** Wins an attempt, sent `days` in: its own day's answer, from its token. */
+const winOn = async (what, days, game, attempt) =>
+  verified(what, days, {
+    action: "finish",
+    attempt,
+    guesses: [await answerOf(game, Number(attempt.split("~")[0]))],
+  });
+
+let attempt = await startOn("Verified: first start (sets zone)", 0, "ost");
+await winOn("Verified: finish, won", 0, "ost", attempt);
+await winOn("Verified: finish sent again", 0, "ost", attempt);
+await startOn("Verified: start, played already", 0, "ost");
+attempt = await startOn("Verified: start, another daily", 0, "voice.global");
+await verified("Verified: finish, lost", 0, {
+  action: "finish",
+  attempt,
+  guesses: [0, 0, 0, 0],
+});
+await call("Verified: record", "GET", "/verified", { token, extra: at(0) });
+
+attempt = await startOn("Verified: day 2, start", 1, "ost");
+await winOn("Verified: day 2, finish (streak 2)", 1, "ost", attempt);
+await startOn("Verified: day 2, start, left open", 1, "lore.global");
+attempt = await startOn("Verified: day 4, start (closes 1)", 3, "ost");
+await winOn("Verified: day 4, finish", 3, "ost", attempt);
+attempt = await startOn(
+  "Verified: day 4, start, to finish late",
+  3,
+  "gameplay.global"
+);
+await winOn("Verified: day 5, late finish", 4, "gameplay.global", attempt);
+attempt = await startOn("Verified: day 5, start", 4, "halo.global");
+await verified("Verified: day 7, finish too late (409)", 6, {
+  action: "finish",
+  attempt,
+  guesses: [0, 0, 0, 0],
+});
+await call("Verified: record after a week", "GET", "/verified", {
+  token,
+  extra: at(6),
+});
+
+await paced();
+const { publicId } = await (
+  await fetch(`${WORKER}/me`, {
+    headers: { Origin: SITE, Authorization: `Bearer ${token}` },
+  })
+).json();
+const receipt = await (
+  await fetch(`${WORKER}/__measure/receipt?public=${publicId}&place=2`, {
+    headers: at(6),
+  })
+).text();
+await verified("Verified: room receipt", 6, { action: "room", receipt });
+await verified("Verified: room receipt again", 6, { action: "room", receipt });
+const theirs = await (
+  await fetch(`${WORKER}/__measure/receipt?public=aaaaaaaaaaaaaaaa`, {
+    headers: at(6),
+  })
+).text();
+await verified("Verified: another's receipt (403)", 6, {
+  action: "room",
+  receipt: theirs,
+});
+
+// A 30-day streak, then what its last win and the record cost.
+const quiet = rows.length;
+const counted = requests;
+for (let days = 7; days < 36; days++) {
+  const each = await startOn("streak", days, "ost");
+  await winOn("streak", days, "ost", each);
+}
+rows.splice(quiet);
+requests = counted;
+attempt = await startOn("Verified: day 37, start", 36, "ost");
+await winOn("Verified: day 37, finish (streak 30)", 36, "ost", attempt);
+await call("Verified: record, 30-day streak", "GET", "/verified", {
+  token,
+  extra: at(36),
 });
 
 // Signing in again on a second device, and the Account tab.

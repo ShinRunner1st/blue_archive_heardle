@@ -324,6 +324,42 @@ preview, before any release.
 | Read verified stats           | 1 per profile opening                    | about 11 summaries and a few recent rows a game: 20-40 | 0 (2 when it closes an abandoned attempt)   |
 | The preflight for `/verified` | at most 1 per page session               | 0                                                      | 0                                           |
 
+### Verified, measured locally (step 2)
+
+`npm run accounts:measure` and `scripts/measure-accounts.mjs`, on D1's own
+engine in `wrangler dev`, over a week of dailies and a 30-day streak on the
+Worker's clock (set by `X-Measure-Now`, measuring only). Each row is the
+whole request: its session check is 2 rows read, and the first request of
+a UTC day also writes the session's and the account's day (2 rows), as
+every account request does.
+
+| Request                                             | Rows read | Rows written |
+| --------------------------------------------------- | --------- | ------------ |
+| Start, refused (the page's day isn't the account's) | 2         | 0            |
+| First start (the zone set)                          | 4         | 2            |
+| Start                                               | 6         | 1            |
+| Start, played already                               | 7         | 0            |
+| Start that closes an abandoned attempt (new day)    | 14        | 5            |
+| Finish, won (short streak)                          | 7         | 2            |
+| Finish, lost                                        | 6         | 2            |
+| Finish sent again                                   | 3         | 0            |
+| Finish the next day (late; new day)                 | 13        | 3            |
+| Finish past its deadline (closed; new day)          | 8         | 4            |
+| Finish, won, on day 30 of a streak                  | 45        | 2            |
+| Record: 3 dailies                                   | 8         | 0            |
+| Record: a week, 6 dailies and rooms                 | 19        | 0            |
+| Record: a 30-day streak                             | 49        | 0            |
+| Room receipt                                        | 3         | 2            |
+| Room receipt again, or another account's (403)      | 3         | 0            |
+| Delete account, with about 40 verified rows         | 130       | 63           |
+
+So an attempt costs one row written to start and two to finish (the
+attempt and its summary), a receipt two, and nothing is written twice.
+Reading a streak back reads every daily the account played on those days
+(the key is account, day, daily), a week at a time and then twice as many,
+so a short streak costs a few rows and a 30-day one about 40. Deleting an
+account costs a row written for each of its rows, the verified ones too.
+
 ### Rooms (estimates)
 
 - **Rooms Worker requests**: none added.
@@ -385,7 +421,15 @@ Each step only once the user approves it, on its own stacked branch:
 2. **The accounts Worker**: the migration, `/verified`, the time zone
    rules, uniqueness, late finishes, lazy closing, receipts and every
    check in section 8, with tests; then `accounts:measure` for each row of
-   section 12.
+   section 12. _Built on `feat/verified-worker`: migration
+   `0005_verified.sql` (the four tables of section 10); `/verified` in
+   `src/accounts/api.ts`; the day, the zone, start, finish, lazy closing,
+   streaks and the record in `src/accounts/verified.ts`; the receipt's
+   format and checks in `src/accounts/roomReceipt.ts`, for the rooms to
+   sign with in step 3. An attempt's token carries its day and daily
+   (`16~ost~…`), so finishing finds it by key. The four tables go with
+   the account (Delete account, the two-year cleanup); Download my data
+   gains them with the policy in step 5. Measured above._
 3. **The rooms**: the game id and the receipts, `PROTOCOL` bumped.
 4. **The page**: start and finish around each daily (signed in only), the
    kept finishes and receipts, the Verified section.
