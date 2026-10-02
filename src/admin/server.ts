@@ -23,7 +23,7 @@ import {
   listCachedSprites,
   sendCachedSprite,
 } from "./characterServer";
-import { nextLock } from "./lock";
+import { nextLock, withoutWithdrawn } from "./lock";
 import {
   deletePicture,
   listScenePictures,
@@ -96,7 +96,7 @@ export function readShipped(current: IdsLock): IdsLock {
       ["show", `main:${CONTENT_DIR}/${CONTENT_FILE_PATHS.idsLock}`],
       { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }
     );
-    return JSON.parse(text) as IdsLock;
+    return withoutWithdrawn(JSON.parse(text) as IdsLock, current);
   } catch {
     return current;
   }

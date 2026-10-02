@@ -111,5 +111,18 @@
     "plaza",
     "students-200",
     "roll-call"
-  ]
+  ],
+  "withdrawn": {
+    "missions": [
+      "daily-14",
+      "ost-100",
+      "ost-200",
+      "voice-100",
+      "voice-timeattack-25",
+      "picture-100",
+      "students-100",
+      "students-quick-10",
+      "students-200"
+    ]
+  }
 }

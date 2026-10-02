@@ -105,8 +105,18 @@ export interface PagePicturesFile {
   roomCards: Record<RoomCard, string>;
 }
 
+/** The lists whose ids the lock keeps. */
+export type LockList = "missions" | keyof CosmeticsFile;
+
 /** Every mission and cosmetic id ever shipped, by list. */
-export type IdsLock = Record<"missions" | keyof CosmeticsFile, string[]>;
+export type IdsLock = Record<LockList, string[]> & {
+  /**
+   * Ids released, then taken back before anyone but the maker had them
+   * (the user's word, 2026-10-03: only they played). Gone from the lists
+   * and the content, on purpose; never used again.
+   */
+  withdrawn?: Partial<Record<LockList, string[]>>;
+};
 
 /** Every content file, by its name in src/content/. */
 export interface ContentFiles {

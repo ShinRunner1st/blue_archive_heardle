@@ -5,12 +5,12 @@
  * id added since (on a branch, or in this session) has reached nobody, so
  * it can still be renamed or deleted, and the lock follows the files.
  */
-import type { ContentFiles, IdsLock } from "../content/types";
+import type { ContentFiles, IdsLock, LockList } from "../content/types";
 
 /** The lists the lock keeps, each with the items whose ids it holds. */
 export function lockedLists(
   files: ContentFiles
-): Record<keyof IdsLock, Array<{ id: string }>> {
+): Record<LockList, Array<{ id: string }>> {
   const { missions, cosmetics } = files;
   return {
     missions: missions.missions,
@@ -27,12 +27,13 @@ export function lockedLists(
 /**
  * The lock to write with the files: every shipped id, in its order, then
  * every other id the files have, in theirs. A shipped id gone from the
- * files stays in the lock, so the content check refuses the save.
+ * files stays in the lock, so the content check refuses the save, unless
+ * the lock lists it as withdrawn (see readShipped).
  */
 export function nextLock(shipped: IdsLock, files: ContentFiles): IdsLock {
   const lists = lockedLists(files);
   const lock = {} as IdsLock;
-  for (const list of Object.keys(lists) as Array<keyof IdsLock>) {
+  for (const list of Object.keys(lists) as LockList[]) {
     const kept = shipped[list] ?? [];
     const known = new Set(kept);
     lock[list] = [
@@ -40,13 +41,30 @@ export function nextLock(shipped: IdsLock, files: ContentFiles): IdsLock {
       ...lists[list].map(({ id }) => id).filter((id) => !known.has(id)),
     ];
   }
+  const withdrawn = files.idsLock?.withdrawn;
+  if (withdrawn) lock.withdrawn = withdrawn;
   return lock;
+}
+
+/**
+ * What `main` released, less the ids this branch's lock withdraws: taken
+ * back before anyone had them, they're no longer the tool's to keep.
+ */
+export function withoutWithdrawn(released: IdsLock, current: IdsLock): IdsLock {
+  const shipped = { ...released };
+  for (const [list, ids] of Object.entries(current.withdrawn ?? {})) {
+    const gone = new Set(ids);
+    shipped[list as LockList] = (released[list as LockList] ?? []).filter(
+      (id) => !gone.has(id)
+    );
+  }
+  return shipped;
 }
 
 /** Whether an id has reached players, so can only be retired. */
 export function isShipped(
   shipped: IdsLock,
-  list: keyof IdsLock,
+  list: LockList,
   id: string
 ): boolean {
   return (shipped[list] ?? []).includes(id);

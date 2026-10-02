@@ -28,7 +28,7 @@ import {
   type ContentFileName,
   type ContentFiles,
   type CosmeticsFile,
-  type IdsLock,
+  type LockList,
 } from "./types";
 
 export interface ContentProblem {
@@ -312,7 +312,7 @@ function daysFrom(from: number[], to: number[]): string[] {
 const shippedLists = ({
   missions,
   cosmetics,
-}: ContentFiles): Record<keyof IdsLock, Array<{ id: string }>> => ({
+}: ContentFiles): Record<LockList, Array<{ id: string }>> => ({
   missions: missions.missions,
   titles: cosmetics.titles,
   cardColors: cosmetics.cardColors,
@@ -399,10 +399,9 @@ export function checkContent(
   {
     const report = check("idsLock");
     const shipped = shippedLists(content);
-    for (const [list, ids] of Object.entries(idsLock)) {
-      const there = new Set(
-        (shipped[list as keyof IdsLock] ?? []).map(({ id }) => id)
-      );
+    for (const list of Object.keys(shipped) as LockList[]) {
+      const ids = idsLock[list] ?? [];
+      const there = new Set(shipped[list].map(({ id }) => id));
       for (const id of ids) {
         report(
           there.has(id),
@@ -411,8 +410,13 @@ export function checkContent(
       }
     }
     for (const [list, items] of Object.entries(shipped)) {
-      const locked = new Set(idsLock[list as keyof IdsLock]);
+      const locked = new Set(idsLock[list as LockList]);
+      const withdrawn = new Set(idsLock.withdrawn?.[list as LockList]);
       for (const { id } of items) {
+        report(
+          !withdrawn.has(id),
+          `${list}: "${id}" was withdrawn, so it's never used again`
+        );
         report(
           locked.has(id),
           `${list}: add "${id}" to src/content/ids.lock.json`

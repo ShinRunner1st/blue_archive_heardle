@@ -68,6 +68,26 @@ describe("checkContent", () => {
     expect(messages(content, "idsLock")).toHaveLength(2);
   });
 
+  it("lets a withdrawn id go, and never come back", () => {
+    const content = copy();
+    content.missions.missions = content.missions.missions.filter(
+      ({ id }) => id !== "ost-150"
+    );
+    content.idsLock = {
+      ...content.idsLock,
+      missions: content.idsLock.missions.filter((id) => id !== "ost-150"),
+      withdrawn: { missions: ["ost-150"] },
+    };
+    content.cosmetics.banners.find(({ id }) => id === "beach")!.mission =
+      "ost-50";
+    expect(messages(content)).toEqual([]);
+
+    content.idsLock.withdrawn = { missions: ["ost-50"] };
+    expect(messages(content, "idsLock")).toEqual([
+      `missions: "ost-50" was withdrawn, so it's never used again`,
+    ]);
+  });
+
   it("asks for a new id in the lock", () => {
     const content = copy();
     content.cosmetics.titles.push({
