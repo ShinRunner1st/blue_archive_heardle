@@ -976,8 +976,6 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   release 2026-10-02; the release docs on `docs/verified-release`.
   Released 2026-10-02 (fast-forward of `docs/verified-release`, main
   ff43d5d)._
-- **Levels, with accounts** (asked for 2026-10-01): an account level
-  from the rounds and missions it has played, shown on the card.
 - **Other players' profiles and cosmetics in rooms, with accounts**:
   tapping a card opens their profile, and cards show their cosmetics.
   The user chose to wait for accounts (2026-10-01): without them a room
@@ -1000,13 +998,20 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   `feat/profile-page`. Step 5, measured on the Cloudflare preview with
   its own accounts Worker and database (their config still only on
   `chore/accounts-preview`), the figures on `docs/profile-measured`, off
-  `docs/profile-privacy`. The release waits for the user._
+  `docs/profile-privacy`. The release waits for the user (not yet, they
+  said on 2026-10-02)._
 - **Missions for the new rewards**: more missions, so each banner,
   background and frame has one to unlock it, in `missions.json` and
   `cosmetics.json` as now; ids never renamed. With the cosmetics above.
 
 ## Future
 
+Ideas only, with no plan to build them yet. Don't start one, or plan it,
+until the user brings it back.
+
+- **Levels, with accounts** (asked for 2026-10-01; postponed to an idea
+  on 2026-10-02): an account level from the rounds and missions it has
+  played, shown on the card.
 - **An admin page** (raised 2026-10-01, maybe): for the user or staff to
   add, upload and edit songs, missions, badges, cosmetics and characters
   without the code. The site has no server for its content, so it would
@@ -1014,7 +1019,8 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   and pictures, as the weekly Action does, the full check and a review
   still before anything goes live; the content files already make it
   possible.
-- **Chat and emotes** in rooms (asked for 2026-10-01). Emotes first: a
+- **Chat and emotes** in rooms (asked for 2026-10-01; emotes postponed
+  to an idea on 2026-10-02 too). Emotes first: a
   fixed set, each one message (incoming messages count 20 to a request),
   a few seconds apart at most, shown on the sender's card. Free-text
   chat needs a filter and a way to report or mute, so it waits.
