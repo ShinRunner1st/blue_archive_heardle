@@ -190,8 +190,13 @@ export function picturePool(
  * students the picture belongs to, so a round is won when its last guess is
  * the answer, as in Voice mode.
  */
-export function asGuess(kind: PictureKind, round: PictureRound, id: number) {
-  return id !== SKIPPED && answerOf(kind, id)?.lead === round.answer
+export function asGuess(
+  kind: PictureKind,
+  round: PictureRound,
+  id: number,
+  server: Server = getServer()
+) {
+  return id !== SKIPPED && answerOf(kind, id, server)?.lead === round.answer
     ? round.answer
     : id;
 }
@@ -244,14 +249,18 @@ const ORDERS: Record<Server, ByKind<number[]>> = {
  * The daily puzzle, the same for every player: the picture from a
  * checked-in schedule, only ever appended to (see guessDailyOrder.ts).
  */
-export function dailyPicture(kind: PictureKind, day: number): number {
-  const answers = pictureAnswers(kind);
-  const order = ORDERS[getServer()][kind];
+export function dailyPicture(
+  kind: PictureKind,
+  day: number,
+  server: Server = getServer()
+): number {
+  const answers = pictureAnswers(kind, server);
+  const order = ORDERS[server][kind];
   if (order.length === 0) return answers[0]?.lead ?? 0;
   const index = (((day - 1) % order.length) + order.length) % order.length;
   const scheduled = order[index];
   // The scheduled picture is gone: this day only falls back.
-  return answerOf(kind, scheduled)?.lead === scheduled
+  return answerOf(kind, scheduled, server)?.lead === scheduled
     ? scheduled
     : answers[index % answers.length].lead;
 }

@@ -9,6 +9,7 @@ import {
   loadVoiceRounds,
   saveVoiceRounds,
 } from "../helpers/storage";
+import { guessName } from "../helpers/roundRules";
 import { calStreaks } from "../helpers/streaks";
 import { studentById } from "../helpers/studentRounds";
 import {
@@ -19,7 +20,6 @@ import {
   knownVoiceRounds,
   makeVoiceChoices,
   pickVoice,
-  triesOf,
   VOICE_TRIES,
   voiceRecordText,
   voiceTally,
@@ -125,14 +125,7 @@ export function useVoiceGame(mode: VoiceRoundMode) {
   /** Guesses a student, or skips the try with SKIPPED. */
   const guess = React.useCallback(
     (id: number) => {
-      updateCurrent((current) => {
-        if (isOver(current)) return current;
-        if (id === SKIPPED ? triesOf(current) === 1 : !studentById.has(id)) {
-          return current;
-        }
-        if (id !== SKIPPED && current.guesses.includes(id)) return current;
-        return { ...current, guesses: [...current.guesses, id] };
-      });
+      updateCurrent((current) => guessName(current, id));
     },
     [updateCurrent]
   );

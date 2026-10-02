@@ -1,4 +1,6 @@
-import { songs } from "../constants";
+// From its own file, not the constants index, which brings the page's
+// pictures: the accounts Worker reads the daily too (verifiedDaily.ts).
+import { songs } from "../constants/songs";
 import { dailyOrder } from "../constants/dailyOrder";
 import { DAILY_EPOCH } from "../constants/game";
 import { Song } from "../types/song";

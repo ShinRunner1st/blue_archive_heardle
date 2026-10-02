@@ -61,6 +61,7 @@ import {
   VoiceStyle,
 } from "../types/voice";
 import { obscure, reveal } from "./obscure";
+import { emptyGuesses } from "./roundRules";
 
 /** Each mode keeps its own history, so stats and bags never mix. */
 const ROUNDS_KEYS: Record<GameMode, string> = {
@@ -161,14 +162,8 @@ function stampOf(round: Record<string, unknown> | RoundStamp): RoundStamp {
   };
 }
 
-export function emptyGuesses(): GuessType[] {
-  // Built fresh each call so no two slots share an object reference.
-  return Array.from({ length: MAX_TRIES }, () => ({
-    song: undefined,
-    skipped: false,
-    isCorrect: undefined,
-  }));
-}
+// Kept with the other round rules, which verified dailies share.
+export { emptyGuesses };
 
 /**
  * Coerces a persisted entry into a usable Round, or returns null when it is too

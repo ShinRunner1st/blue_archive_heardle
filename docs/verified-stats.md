@@ -374,7 +374,14 @@ Each step only once the user approves it, on its own stacked branch:
 
 1. **Shared rules**: one module per game that gives a day's daily answer
    and judges a list of guesses, used by the page and the Worker, tested
-   against the page's own results for every daily.
+   against the page's own results for every daily. _Built on
+   `feat/verified-rules`: `roundRules.ts` holds what a guess, skip or
+   give-up does in each game, which the hooks now play with;
+   `verifiedDaily.ts` lists the 11 dailies, gives each one's answer from
+   its schedule with its server named (never the page's setting), and
+   judges a round's saved moves through the same functions, refusing any
+   move the game would ignore (`day`, `shape`, `ignored`, `over`). About
+   34 KB gzipped bundled for a Worker; not in the page's bundle yet._
 2. **The accounts Worker**: the migration, `/verified`, the time zone
    rules, uniqueness, late finishes, lazy closing, receipts and every
    check in section 8, with tests; then `accounts:measure` for each row of

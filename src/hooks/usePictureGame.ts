@@ -5,7 +5,6 @@ import { useServer } from "./useServer";
 import { dayNumber } from "../helpers/daily";
 import { dailyOutcomes } from "../helpers/dailyCalendar";
 import {
-  asGuess,
   dailyPicture,
   knownPictureRounds,
   makePictureChoices,
@@ -18,13 +17,12 @@ import {
   loadPictureRounds,
   savePictureRounds,
 } from "../helpers/storage";
+import { guessPicture } from "../helpers/roundRules";
 import { calStreaks } from "../helpers/streaks";
-import { studentById } from "../helpers/studentRounds";
 import {
   asRound,
   isOver,
   isWon,
-  triesOf,
   VOICE_TRIES,
   voiceTally,
 } from "../helpers/voiceRounds";
@@ -156,17 +154,7 @@ export function usePictureGame(kind: PictureKind, mode: PictureRoundMode) {
   /** Guesses a student, or skips the try with SKIPPED. */
   const guess = React.useCallback(
     (picked: number) => {
-      updateCurrent((current) => {
-        if (isOver(current)) return current;
-        if (
-          picked === SKIPPED ? triesOf(current) === 1 : !studentById.has(picked)
-        ) {
-          return current;
-        }
-        const id = asGuess(kind, current, picked);
-        if (id !== SKIPPED && current.guesses.includes(id)) return current;
-        return { ...current, guesses: [...current.guesses, id] };
-      });
+      updateCurrent((current) => guessPicture(kind, current, picked));
     },
     [kind, updateCurrent]
   );

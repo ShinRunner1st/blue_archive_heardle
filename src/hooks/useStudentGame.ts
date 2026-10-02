@@ -9,6 +9,7 @@ import {
   loadStudentRounds,
   saveStudentRounds,
 } from "../helpers/storage";
+import { giveUpStudent, guessStudent } from "../helpers/roundRules";
 import { calStreaks } from "../helpers/streaks";
 import {
   asRound,
@@ -19,7 +20,6 @@ import {
   isWon,
   knownRounds,
   pickAnswer,
-  studentById,
   studentTally,
 } from "../helpers/studentRounds";
 import {
@@ -156,14 +156,8 @@ export function useStudentGame(game: StudentGame, mode: StudentMode) {
     (id: number) => {
       const now = Date.now();
       updateCurrent((current) => {
-        if (
-          isOver(current) ||
-          current.guesses.includes(id) ||
-          !studentById.has(id)
-        ) {
-          return current;
-        }
-        const next = { ...current, guesses: [...current.guesses, id] };
+        const next = guessStudent(current, id);
+        if (next === current) return current;
         // A find on the first guess never started the clock: it stays
         // untimed, rather than a 0:00 no search could beat.
         if (isWon(next)) return stopClock(next, now);
@@ -175,9 +169,10 @@ export function useStudentGame(game: StudentGame, mode: StudentMode) {
 
   const giveUp = React.useCallback(() => {
     const now = Date.now();
-    updateCurrent((current) =>
-      isOver(current) ? current : stopClock({ ...current, gaveUp: true }, now)
-    );
+    updateCurrent((current) => {
+      const next = giveUpStudent(current);
+      return next === current ? current : stopClock(next, now);
+    });
   }, [updateCurrent]);
 
   const next = React.useCallback(() => {

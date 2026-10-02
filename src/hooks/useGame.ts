@@ -16,6 +16,7 @@ import { songs } from "../constants";
 import { makeChoices } from "../helpers/choices";
 import { dailySong, dayNumber } from "../helpers/daily";
 import { isBagEmpty, pickSong } from "../helpers/pickSong";
+import { guessSong, skipSong } from "../helpers/roundRules";
 import {
   clearRounds,
   emptyGuesses,
@@ -144,39 +145,14 @@ export function useGame(mode: RoundMode) {
   );
 
   const guess = React.useCallback(
-    (song: Song) => {
-      updateCurrent((round) => {
-        if (isFinished(round)) return round;
-
-        const isCorrect = song.themeNo === round.solution.themeNo;
-        const guesses = [...round.guesses];
-        guesses[round.currentTry] = { song, skipped: false, isCorrect };
-
-        return {
-          ...round,
-          guesses,
-          currentTry: round.currentTry + 1,
-          didGuess: isCorrect,
-        };
-      });
-    },
+    (song: Song) => updateCurrent((round) => guessSong(round, song)),
     [updateCurrent]
   );
 
-  const skip = React.useCallback(() => {
-    updateCurrent((round) => {
-      if (isFinished(round)) return round;
-
-      const guesses = [...round.guesses];
-      guesses[round.currentTry] = {
-        song: undefined,
-        skipped: true,
-        isCorrect: undefined,
-      };
-
-      return { ...round, guesses, currentTry: round.currentTry + 1 };
-    });
-  }, [updateCurrent]);
+  const skip = React.useCallback(
+    () => updateCurrent(skipSong),
+    [updateCurrent]
+  );
 
   /**
    * Picks the 4-Choice clip length: for this round too, if it isn't over, and
