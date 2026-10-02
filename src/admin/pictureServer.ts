@@ -33,7 +33,14 @@ import {
 export type { PictureEntry, PictureRequest };
 
 /** Folders of pictures cards and banners can use, and which are the tool's. */
-const SCENE_FOLDERS = ["scenes", "seasons", "hub", "multiplayer"];
+const SCENE_FOLDERS = [
+  "scenes",
+  "plates",
+  "emblems",
+  "seasons",
+  "hub",
+  "multiplayer",
+];
 
 function run(args: string[]): Promise<string> {
   return new Promise((done, fail) =>
@@ -126,6 +133,7 @@ export async function makePicture(
         request.style === "cover" ||
         request.style === "card" ||
         request.style === "banner" ||
+        request.style === "plate" ||
         request.style === "emblem"
           ? request.style
           : "scene",
@@ -148,7 +156,7 @@ export async function makePicture(
 
 /** The tool's own pictures on the Worker, which it may delete. */
 const WORKER_PICTURE =
-  /^pictures\/(scenes|seasons|hub|multiplayer|emblems)\/[a-z0-9-]+\.webp$/;
+  /^pictures\/(scenes|seasons|hub|multiplayer|emblems|plates)\/[a-z0-9-]+\.webp$/;
 /** The site's own backgrounds it made, which it may delete too. */
 const SITE_PICTURE = /^src\/image\/backgrounds\/[a-z0-9-]+\.webp$/;
 
@@ -159,7 +167,7 @@ const SITE_PICTURE = /^src\/image\/backgrounds\/[a-z0-9-]+\.webp$/;
 export async function deletePicture(path: string): Promise<void> {
   if (!WORKER_PICTURE.test(path) && !SITE_PICTURE.test(path)) {
     throw new Error(
-      "Only a picture in pictures/scenes, seasons, hub, multiplayer, emblems or src/image/backgrounds can go."
+      "Only a picture in pictures/scenes, seasons, hub, multiplayer, plates, emblems or src/image/backgrounds can go."
     );
   }
   rmSync(path, { force: true });

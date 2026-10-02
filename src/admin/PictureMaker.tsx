@@ -12,8 +12,9 @@ export const STYLE_LABELS: Record<PictureStyle, string> = {
   card: "A hub card's scene, 720×320, sharp",
   banner: "A banner's picture, 640×160, sharp",
   cover: "An album cover, 256×256",
+  plate: "A nameplate, 558×106 as the game's own plates, cropped to fill",
   emblem:
-    "An emblem or a frame's corner, 256×256, fitted and kept transparent (a PNG keeps its clear parts)",
+    "An emblem or a frame's corner, fitted in 256×256, its shape kept (a PNG keeps its clear parts)",
 };
 
 const Drop = styled.label<{ $over: boolean }>`

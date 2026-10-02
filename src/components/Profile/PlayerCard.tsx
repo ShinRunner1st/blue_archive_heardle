@@ -169,7 +169,11 @@ export function PlayerCard({
               {you && variant === "wide" && <small> (you)</small>}
             </Styled.CardName>
             {banner && (
-              <ProfileBanner banner={look.banner} title={look.title} />
+              <ProfileBanner
+                banner={look.banner}
+                title={look.title}
+                size={variant === "tall" ? "tiny" : "card"}
+              />
             )}
             {line}
           </Styled.CardText>

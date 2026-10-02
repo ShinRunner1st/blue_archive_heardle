@@ -1159,7 +1159,20 @@ admin`, on their PC only, nothing deployed or in the site's build),
      transparent, a few KB, made in Pictures → Emblems), and a frame's
      corner can have its own ornament, started from the shared one turned
      to it. The tool's banner editor and the frame's corner tabs share one
-     shape editor. No emblem pictures ship yet; the user makes them._
+     shape editor._ After the user's feedback (2026-10-03): the new plates
+     looked plain, so plates are now built as the game builds its emblems,
+     from its own art: its plate pictures (`pictures/plates/`, the three
+     favour plates with their "FAVOR RANK" label painted out) and its
+     cut-out faces and bosses as side emblems, shown as drawn (Yuuka,
+     Shiroko riding, Mari, Perorozilla; a photo can still be cut on a
+     slant). Silver, gold and prism foil take the game's N, SR and SSR
+     plates, Schale its default plate. 13 pictures, about 100 KB, for the
+     Worker and R2 before release. Plates come in four sizes (podium,
+     card, choice, profile head), smaller on cards and the podium; faces
+     sit in the middle of their ring (the box counted the ring inside the
+     picture's size); Pictures lists Plates and Emblems (a new one was
+     made but not shown); the tool no longer scrolls as a whole (an
+     SVG tile's hidden input sat outside its column).
   2. **Moving cosmetics, Blue Archive themed**: name effects (a new kind,
      on the card and in rooms: rooms and accounts change with it), moving
      backgrounds (petals, snow, sparks over the scene), banners (a light

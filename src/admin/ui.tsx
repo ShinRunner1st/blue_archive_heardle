@@ -13,7 +13,7 @@ export const Shell = styled.div`
   }
 
   display: grid;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto auto minmax(0, 1fr);
   height: 100vh;
   background: ${({ theme }) => theme.background1};
   color: ${({ theme }) => theme.text};
@@ -69,6 +69,9 @@ export const Tab = styled.button<{ $active: boolean }>`
 export const Body = styled.div`
   display: grid;
   grid-template-columns: 300px minmax(380px, 1fr) minmax(420px, 1.15fr);
+  /* One row the window's height, so each column scrolls on its own, however
+     long its form: an auto row grew to the longest and scrolled the page. */
+  grid-template-rows: minmax(0, 1fr);
   min-height: 0;
 `;
 

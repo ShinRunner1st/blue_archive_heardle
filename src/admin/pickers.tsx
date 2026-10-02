@@ -115,7 +115,7 @@ export function IconPicker({
  * games' sheets or the students' pictures.
  */
 export const SCENE_PICTURES = Object.keys(pictureFiles)
-  .filter((key) => !/^(guess|students|voices|portraits)\//.test(key))
+  .filter((key) => !/^(guess|students|voices|portraits|emblems)\//.test(key))
   .sort();
 
 /** A picture on the Worker, from thumbnails. */

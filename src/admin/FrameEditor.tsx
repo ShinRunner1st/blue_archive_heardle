@@ -277,6 +277,9 @@ const Fields = styled(Row)`
 const SVG_FILE_LIMIT = 200 * 1024;
 
 const FileTile = styled.label`
+  /* Holds its hidden input: placed by the page, it scrolled the whole tool. */
+  position: relative;
+  overflow: hidden;
   display: grid;
   place-items: center;
   align-content: center;

@@ -108,6 +108,11 @@ export interface BannerEmblem {
   colors?: string[];
   /** A side emblem's picture, on the Worker (pictureFiles.ts). */
   picture?: string;
+  /**
+   * A side picture cut on a slant with a line of the rim along it, for a
+   * photo; without, it shows as drawn, as the game's cut-out faces are.
+   */
+  cut?: boolean;
 }
 
 /**

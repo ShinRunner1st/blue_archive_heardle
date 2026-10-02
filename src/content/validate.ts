@@ -390,9 +390,16 @@ export function bannerProblems(banner: Banner): string[] {
       emblem.icon === undefined && emblem.shapes === undefined,
       "a side emblem is a picture alone"
     );
+    need(
+      emblem.cut === undefined || emblem.cut === true,
+      "cut is true, or left out"
+    );
     return problems;
   }
-  need(emblem.picture === undefined, "only a side emblem has a picture");
+  need(
+    emblem.picture === undefined && emblem.cut === undefined,
+    "only a side emblem has a picture"
+  );
   if (emblem.shapes === undefined) {
     need(
       typeof emblem.icon === "string" && emblem.icon in ICONS,

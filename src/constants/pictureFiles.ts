@@ -6,6 +6,10 @@
  * GENERATED FILE - do not edit by hand. Run `npm run songs`.
  */
 export const pictureFiles: Record<string, string> = {
+  "emblems/mari": "pictures/mari.09749a5e.webp",
+  "emblems/perorozilla": "pictures/perorozilla.0d7cc663.webp",
+  "emblems/shiroko-riding": "pictures/shiroko-riding.cd499b22.webp",
+  "emblems/yuuka": "pictures/yuuka.4f9a45af.webp",
   "guess/halos": "pictures/halos.a9681667.webp",
   "guess/halo-shapes": "pictures/halo-shapes.a174d01b.webp",
   "guess/weapons": "pictures/weapons.929eb7e5.webp",
@@ -17,6 +21,15 @@ export const pictureFiles: Record<string, string> = {
   "hub/voice": "pictures/voice.05e54679.webp",
   "multiplayer/backdrop-day": "pictures/backdrop-day.181c3eff.webp",
   "multiplayer/backdrop-night": "pictures/backdrop-night.ca7e0011.webp",
+  "plates/default": "pictures/default.b4da8151.webp",
+  "plates/favor-blue": "pictures/favor-blue.b5511c9b.webp",
+  "plates/favor-gold": "pictures/favor-gold.6ba04b89.webp",
+  "plates/favor-pink": "pictures/favor-pink.0b1cda36.webp",
+  "plates/rarity-n": "pictures/rarity-n.4e7619e4.webp",
+  "plates/rarity-sr": "pictures/rarity-sr.f3e7dce5.webp",
+  "plates/rarity-ssr": "pictures/rarity-ssr.d80efadf.webp",
+  "plates/starry-night": "pictures/starry-night.36afb8ba.webp",
+  "plates/sunset-clouds": "pictures/sunset-clouds.9977df47.webp",
   "scenes/banner-autumn": "pictures/banner-autumn.f4bd49ff.webp",
   "scenes/banner-beach": "pictures/banner-beach.a53a27c1.webp",
   "scenes/banner-cherry-blossom":

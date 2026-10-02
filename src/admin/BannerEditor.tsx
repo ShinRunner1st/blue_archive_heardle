@@ -150,6 +150,7 @@ export function BannerFields({
             event.target.value === "picture"
               ? onChange({
                   picture:
+                    SCENE_PICTURES.find((key) => key.startsWith("plates/")) ??
                     SCENE_PICTURES.find((key) => key.includes("banner-")) ??
                     SCENE_PICTURES[0],
                   band: banner.band ?? "#1B2A4A",
@@ -168,7 +169,7 @@ export function BannerFields({
       {banner.picture ? (
         <Field
           label="Picture"
-          hint="A banner's picture (made 640×160 in Pictures) fits best."
+          hint="A plate (558×106, Pictures → Plates) fits best; a banner's picture (640×160) works too."
         >
           <PicturePicker
             value={banner.picture}
@@ -268,7 +269,7 @@ export function BannerFields({
       {emblem?.style === "side" && (
         <Field
           label="Picture"
-          hint="Shown down the plate's left, its middle and top kept: a face works well."
+          hint="Shown down the plate's left: a cut-out face, as the game's, works best."
         >
           <Pictures role="radiogroup" aria-label="Emblem picture">
             {EMBLEM_PICTURES.map((key) => (
@@ -285,6 +286,17 @@ export function BannerFields({
               </PictureChoice>
             ))}
           </Pictures>
+          <Check>
+            <input
+              type="checkbox"
+              name="banner-emblem-cut"
+              checked={!!emblem.cut}
+              onChange={(event) =>
+                setEmblem({ ...emblem, cut: event.target.checked || undefined })
+              }
+            />
+            Cut on a slant, with a line of the rim along it (for a photo)
+          </Check>
         </Field>
       )}
       {emblem && emblem.style !== "side" && (

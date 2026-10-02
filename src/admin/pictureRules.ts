@@ -16,6 +16,7 @@ export type PictureStyle =
   | "card"
   | "banner"
   | "cover"
+  | "plate"
   | "emblem";
 
 export interface PictureRequest {
@@ -76,6 +77,10 @@ const TARGETS: Record<PictureStyle, [RegExp, string]> = {
   banner: [
     /^pictures\/scenes\/[a-z0-9-]+\.webp$/,
     "A banner's picture goes in pictures/scenes/",
+  ],
+  plate: [
+    /^pictures\/plates\/[a-z0-9-]+\.webp$/,
+    "A nameplate's picture goes in pictures/plates/",
   ],
   emblem: [
     /^pictures\/emblems\/[a-z0-9-]+\.webp$/,

@@ -129,8 +129,10 @@ Lists, each starting with the default everyone has (no `mission`):
   in rooms, like the game's own emblems (its user titles; the game's plates
   are 558×106, these about the same shape):
   - `picture`, a picture on the Worker (a key in
-    `src/constants/pictureFiles.ts`, such as `scenes/banner-beach`); or,
-    with no picture, `fill`, two or more colours for a foil.
+    `src/constants/pictureFiles.ts`): a plate, `plates/rarity-sr` (the
+    game's own plate art, 558×106, in `pictures/plates/`), or a scene such as
+    `scenes/banner-beach`; or, with no picture, `fill`, two or more colours
+    for a foil.
   - `pattern` (optional): `facets` (pale triangles, as most of the
     game's plates), `grid` (as its default plate) or `lines`, drawn in
     the `accent`.
@@ -141,7 +143,9 @@ Lists, each starting with the default everyone has (no `mission`):
     such as "30 days", shown in capitals: what was done, for others to see.
   - `emblem` (optional): its `style`, `ring` (in a ring at the head),
     `crest` (standing free there) or `side` (a `picture` down the left,
-    cut on a slant, as the game shows a student); a ring or crest is an
+    as drawn, as the game's cut-out student faces and bosses are, or with
+    `"cut": true` cut on a slant with the rim's colour along it, for a
+    photo); a ring or crest is an
     `icon` from `src/constants/icons.ts`, or `shapes` as a frame's
     ornament has them (pictures too) in a 24×24 box, their colours from
     the emblem's own `colors`.
@@ -288,9 +292,12 @@ writes the files as Prettier would, so the diff is only what changed.
   players, you wearing the one edited and the others a mix.
   A released reward keeps its mission while that mission is live; once it's
   retired, a new one can take over and the old is kept as a former one.
-- **Emblem pictures**, for a banner's emblem or a frame's corner, go in
-  `pictures/emblems/`: a PNG or JPG fitted in 256×256 and kept transparent
-  round it (Pictures → Emblems, a few KB each).
+- **Plates and emblem pictures**: a nameplate's picture goes in
+  `pictures/plates/` (558×106, the game's plate size, Pictures → Plates);
+  a banner's emblem or a frame's corner in `pictures/emblems/` (a PNG or
+  JPG fitted in 256×256, its shape kept and its clear parts clear,
+  Pictures → Emblems). A few KB each. The game's own plates and icons are
+  in `.cache/game/emblems/` once downloaded (BA-AD, `uis-01_common-43_emblem-`).
 - **Pictures** for banners and backgrounds go in `pictures/scenes/`, made
   from a file dropped in or one of the game's backgrounds (by its wiki
   name): a sharp 960×540 scene (`scripts/make-picture.mjs`, about 70 KB) or

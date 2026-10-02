@@ -258,11 +258,12 @@ describe("checkContent", () => {
       band: "navy",
       tag: "a tag far too long to read",
     });
-    plate("schedule").emblem!.shapes![0].fill = 5;
+    plate("record-shelf").emblem!.shapes![0].fill = 5;
     plate("chorus").emblem = { style: "side", icon: "IoMic" };
-    plate("record-shelf").emblem = {
+    plate("on-duty").emblem = {
       style: "ring",
-      icon: "IoDisc",
+      icon: "IoTime",
+      cut: true,
       shapes: [{ shape: "picture", picture: "emblems/none", r: 12 }],
       colors: [],
     };
@@ -270,9 +271,10 @@ describe("checkContent", () => {
       "banner schedule: a pattern is facets, grid, lines",
       "banner schedule: band must be #rrggbb",
       "banner schedule: a tag is 1-20 letters",
-      "banner schedule: emblem shape 1: its fill isn't a colour of the emblem's",
-      "banner record-shelf: an emblem is an icon or shapes, not both",
-      "banner record-shelf: emblems/none isn't on the Worker",
+      "banner record-shelf: emblem shape 1: its fill isn't a colour of the emblem's",
+      "banner on-duty: only a side emblem has a picture",
+      "banner on-duty: an emblem is an icon or shapes, not both",
+      "banner on-duty: emblems/none isn't on the Worker",
       "banner chorus: a side emblem is a picture",
       "banner chorus: a side emblem is a picture alone",
     ]);

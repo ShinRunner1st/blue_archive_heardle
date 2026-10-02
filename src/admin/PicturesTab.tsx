@@ -7,7 +7,7 @@ import { deletePicture, fileUrl } from "./api";
 import { slugOf } from "./draft";
 import type { TabProps } from "./MissionsTab";
 import { PictureMaker } from "./PictureMaker";
-import type { PictureEntry } from "./pictureRules";
+import type { PictureEntry, PictureStyle } from "./pictureRules";
 import { PreviewPane } from "./PreviewPane";
 import {
   Badge,
@@ -30,6 +30,11 @@ const FOLDERS = [
     id: "scenes",
     label: "Scenes",
     note: "Yours, made here, for banners and backgrounds",
+  },
+  {
+    id: "plates",
+    label: "Plates",
+    note: "Yours: a nameplate's picture, 558×106 as the game's",
   },
   {
     id: "emblems",
@@ -101,10 +106,16 @@ export function PicturesTab({
   const [error, setError] = React.useState("");
   const shown = pictures.filter(({ key }) => key.startsWith(`${folder}/`));
   const picture = pictures.find(({ key }) => key === selected);
-  const own =
-    folder === "scenes" || folder === "seasons" || folder === "emblems";
-  // A new picture's folder: the tool makes scenes and emblems.
-  const making = folder === "emblems" ? "emblems" : "scenes";
+  const own = ["scenes", "seasons", "emblems", "plates"].includes(folder);
+  // A new picture's folder: the tool makes scenes, plates and emblems.
+  const making =
+    folder === "emblems" || folder === "plates" ? folder : "scenes";
+  const madeAs = (): PictureStyle[] =>
+    folder === "emblems"
+      ? ["emblem"]
+      : folder === "plates"
+      ? ["plate"]
+      : ["scene", "banner", "backdrop-day", "backdrop-night"];
   const url = (entry: PictureEntry) => fileUrl(entry.path, pictureVersion);
   const newPath = `pictures/${making}/${slugOf(name) || "new"}.webp`;
   const unlisted = pictures.filter(({ listed }) => !listed).length;
@@ -137,7 +148,9 @@ export function PicturesTab({
 
         <Heading>
           In {folder}
-          {(folder === "scenes" || folder === "emblems") && (
+          {(folder === "scenes" ||
+            folder === "emblems" ||
+            folder === "plates") && (
             <Button onClick={() => setSelected(null)}>+ New</Button>
           )}
         </Heading>
@@ -200,9 +213,7 @@ export function PicturesTab({
                       ? picture.key.endsWith("-night")
                         ? ["backdrop-night"]
                         : ["backdrop-day"]
-                      : folder === "emblems"
-                      ? ["emblem"]
-                      : ["scene", "banner", "backdrop-day", "backdrop-night"]
+                      : madeAs()
                   }
                   makeLabel="Replace it"
                   onMade={onPictures}
@@ -234,10 +245,14 @@ export function PicturesTab({
               </Hint>
             )}
           </>
-        ) : folder === "scenes" || folder === "emblems" ? (
+        ) : making === folder ? (
           <>
             <Heading>
-              {folder === "emblems" ? "New emblem" : "New scene"}
+              {folder === "emblems"
+                ? "New emblem"
+                : folder === "plates"
+                ? "New plate"
+                : "New scene"}
             </Heading>
             <Field
               label="Name"
@@ -257,11 +272,7 @@ export function PicturesTab({
             )}
             <PictureMaker
               target={newPath}
-              styles={
-                folder === "emblems"
-                  ? ["emblem"]
-                  : ["scene", "banner", "backdrop-day", "backdrop-night"]
-              }
+              styles={madeAs()}
               onMade={(list) => {
                 onPictures(list);
                 setSelected(`${making}/${slugOf(name) || "new"}`);

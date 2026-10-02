@@ -21,7 +21,7 @@ export function ProfileBanner({
 }: {
   banner: Banner;
   title: string;
-  size?: "small" | "large";
+  size?: Styled.PlateSize;
 }) {
   // No banner: the title alone, as a line of words, or nothing.
   if (banner.blank) {
@@ -43,7 +43,11 @@ export function ProfileBanner({
         <BannerPattern pattern={banner.pattern} accent={banner.accent} />
       )}
       {emblem?.style === "side" && emblem.picture && (
-        <Styled.SideEmblem $accent={banner.accent} aria-hidden="true">
+        <Styled.SideEmblem
+          $accent={banner.accent}
+          $cut={!!emblem.cut}
+          aria-hidden="true"
+        >
           <WorkerPicture key={emblem.picture} picture={emblem.picture} />
         </Styled.SideEmblem>
       )}
@@ -57,13 +61,20 @@ export function ProfileBanner({
           <EmblemArt emblem={emblem} />
         </Styled.Emblem>
       )}
-      <Styled.BannerText $side={emblem?.style === "side"} $tag={!!banner.tag}>
+      <Styled.BannerText
+        $side={emblem?.style !== "side" ? null : emblem.cut ? "cut" : "drawn"}
+        $tag={!!banner.tag && size !== "tiny"}
+      >
         {banner.band && (
-          <Styled.BannerBand $band={banner.band} $tag={!!banner.tag} />
+          <Styled.BannerBand
+            $band={banner.band}
+            $tag={!!banner.tag && size !== "tiny"}
+          />
         )}
         <Styled.BannerTitle $ink={banner.ink}>{title}</Styled.BannerTitle>
       </Styled.BannerText>
-      {banner.tag && (
+      {/* Too small to read on a podium's plate. */}
+      {banner.tag && size !== "tiny" && (
         <Styled.BannerTag $ink={banner.ink}>{banner.tag}</Styled.BannerTag>
       )}
     </Styled.Banner>

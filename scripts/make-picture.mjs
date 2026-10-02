@@ -15,9 +15,11 @@
  * most 288x55, so this is twice that with room for the crop, about a fifth
  * of a scene's bytes.
  * cover: 256x256, cropped to fill, like the albums' covers.
- * emblem: 256x256, fitted inside and kept transparent round it: a picture
- * for a nameplate's emblem or a frame's corner (shown at most about 110
- * pixels, twice that for phones' screens).
+ * plate: 558x106, cropped to fill, a nameplate's picture at the game's own
+ * plates' size (they show at most 288x55, so about twice that).
+ * emblem: fitted inside 256x256, its own shape kept, transparent where the
+ * picture is: a nameplate's emblem or a frame's corner (shown at most
+ * about 145 pixels wide, twice that for phones' screens).
  *
  * Compressed by itself, as the site's pictures were by hand: made the size
  * it's shown at, then WebP at the lowest quality that still looks the same.
@@ -57,6 +59,7 @@ const KINDS = {
   card: { width: 720, height: 320, same: 0.95, lowest: 40, highest: 72 },
   banner: { width: 640, height: 160, same: 0.95, lowest: 40, highest: 72 },
   cover: { width: 256, height: 256, same: 0.985, lowest: 30, highest: 92 },
+  plate: { width: 558, height: 106, same: 0.985, lowest: 30, highest: 92 },
   emblem: {
     width: 256,
     height: 256,
@@ -70,7 +73,7 @@ const KINDS = {
 const [from, kind, output] = process.argv.slice(2);
 if (!from || !(kind in KINDS) || !output) {
   console.error(
-    "Usage: node scripts/make-picture.mjs <file or BG name> <scene|card|banner|cover|emblem> <output.webp>"
+    "Usage: node scripts/make-picture.mjs <file or BG name> <scene|card|banner|plate|cover|emblem> <output.webp>"
   );
   process.exit(1);
 }
@@ -102,12 +105,12 @@ try {
   else await downloadBackground(from, source);
 
   // The picture at its size, without loss: what each try is held to.
-  // Cropped to fill, or fitted inside with clear room round it.
+  // Cropped to fill, or fitted inside, keeping its own shape.
   const sized = join(dir, "sized.png");
   await run("ffmpeg", [
     ...["-v", "error", "-y", "-i", source, "-frames:v", "1", "-vf"],
     fit
-      ? `format=rgba,scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:color=black@0`
+      ? `format=rgba,scale=${width}:${height}:force_original_aspect_ratio=decrease`
       : `scale=${width}:${height}:force_original_aspect_ratio=increase,crop=${width}:${height},format=rgba`,
     sized,
   ]);

@@ -142,9 +142,16 @@ export const FrameInner = styled.div<{
 
 /** A plate's size: the game's 558×106, about 5.25 wide to 1 high. */
 const PLATE = {
+  /* On a podium's narrow card. */
+  tiny: { width: 150, height: 29, font: "0.68rem" },
+  /* On a card: the lobby's, Customize's and the profile's. */
+  card: { width: 184, height: 35, font: "0.72rem" },
   small: { width: 220, height: 42, font: "0.8rem" },
-  large: { width: 288, height: 55, font: "1rem" },
+  large: { width: 252, height: 48, font: "0.9rem" },
 };
+
+/** A nameplate's sizes, the game's shape at each. */
+export type PlateSize = keyof typeof PLATE;
 
 /** Whether a colour is dark enough for light words over it. */
 export const isDark = (color: string) => {
@@ -155,7 +162,7 @@ export const isDark = (color: string) => {
 };
 
 export const Banner = styled.div<{
-  $size: "small" | "large";
+  $size: PlateSize;
   $fill?: string[];
   $accent: string;
 }>`
@@ -194,7 +201,7 @@ export const Banner = styled.div<{
 `;
 
 /** A title with no banner: its words alone, where the banner would be. */
-export const PlainTitle = styled.span<{ $size: "small" | "large" }>`
+export const PlainTitle = styled.span<{ $size: PlateSize }>`
   display: block;
   max-width: 100%;
   overflow: hidden;
@@ -265,28 +272,45 @@ export const BannerLines = styled.span<{ $grid: boolean; $accent: string }>`
 `;
 
 /**
- * A side emblem: a picture down the plate's left, cut on a slant, with a
- * line of the accent along the cut.
+ * A side emblem: a picture down the plate's left, as drawn (the game's
+ * faces come cut out), or cut on a slant with a line of the accent along
+ * the cut, for a photo.
  */
-export const SideEmblem = styled.span<{ $accent: string }>`
+export const SideEmblem = styled.span<{ $accent: string; $cut: boolean }>`
   position: absolute;
   top: 0;
   bottom: 0;
-  left: 0;
+  left: ${({ $cut }) => ($cut ? "0" : "1.5%")};
   z-index: 1;
-  width: 38%;
-  background: ${({ $accent }) => $accent};
-  clip-path: polygon(0 0, 100% 0, calc(100% - 14%) 100%, 0 100%);
+  /* As drawn, a picture keeps its shape: a face, or a boss as wide as the
+     game's (342×91 on a 558 plate), up to most of the plate. */
+  width: ${({ $cut }) => ($cut ? "38%" : "64%")};
 
   & > img {
     position: absolute;
-    inset: 0 3px 0 0;
-    width: calc(100% - 3px);
+    left: 0;
+    bottom: 0;
+    width: auto;
+    max-width: 100%;
     height: 100%;
-    object-fit: cover;
-    object-position: center 20%;
-    clip-path: polygon(0 0, 100% 0, calc(100% - 14%) 100%, 0 100%);
+    object-fit: contain;
+    object-position: left bottom;
   }
+
+  ${({ $cut, $accent }) =>
+    $cut &&
+    css`
+      background: ${$accent};
+      clip-path: polygon(0 0, 100% 0, calc(100% - 14%) 100%, 0 100%);
+
+      & > img {
+        inset: 0 3px 0 0;
+        width: calc(100% - 3px);
+        object-fit: cover;
+        object-position: center 20%;
+        clip-path: polygon(0 0, 100% 0, calc(100% - 14%) 100%, 0 100%);
+      }
+    `}
 `;
 
 /** An emblem: in a ring at the plate's head, or standing free as a crest. */
@@ -319,7 +343,7 @@ export const Emblem = styled.span<{
       : css`
           height: calc(100% - 6px);
           margin-left: 6px;
-          font-size: 1.6em;
+          font-size: 1.25em;
           filter: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.35));
         `}
 
@@ -330,7 +354,11 @@ export const Emblem = styled.span<{
 `;
 
 /** Where the title sits: the plate's middle, past a side emblem. */
-export const BannerText = styled.span<{ $side: boolean; $tag: boolean }>`
+export const BannerText = styled.span<{
+  /** A side emblem, which the title clears: cut, or as drawn (wider). */
+  $side: "cut" | "drawn" | null;
+  $tag: boolean;
+}>`
   position: relative;
   z-index: 2;
   flex: 1;
@@ -341,7 +369,8 @@ export const BannerText = styled.span<{ $side: boolean; $tag: boolean }>`
   justify-content: center;
   /* Over a tag, the title sits a little above the middle. */
   padding: ${({ $tag }) => ($tag ? "0 10px 0.6em 8px" : "0 10px 0 8px")};
-  margin-left: ${({ $side }) => ($side ? "30%" : "0")};
+  margin-left: ${({ $side }) =>
+    $side === "cut" ? "30%" : $side === "drawn" ? "36%" : "0"};
 `;
 
 /** A soft band behind the title, fading at both ends. */
@@ -383,7 +412,7 @@ export const BannerTag = styled.span<{ $ink: string }>`
   z-index: 3;
   padding: 0 0.7em;
 
-  font-size: 0.52em;
+  font-size: 0.56em;
   font-weight: 900;
   line-height: 1.6;
   letter-spacing: 0.06em;
@@ -529,12 +558,17 @@ export const CardArt = styled.img<{ $variant: CardVariant }>`
       : "linear-gradient(90deg, transparent, #000 70%)"};
 `;
 
+/** The ring round a face, in px: the picture sits inside it, whole. */
+const faceRing = (size: number) => (size >= 48 ? 3 : 2);
+
 export const Face = styled.div<{ $size: number }>`
   position: relative;
   flex-shrink: 0;
-  width: ${({ $size }) => $size}px;
-  height: ${({ $size }) => $size}px;
-  padding: ${({ $size }) => ($size >= 48 ? 3 : 2)}px;
+  box-sizing: border-box;
+  /* The picture's size and its ring each side, so it sits in the middle. */
+  width: ${({ $size }) => $size + faceRing($size) * 2}px;
+  height: ${({ $size }) => $size + faceRing($size) * 2}px;
+  padding: ${({ $size }) => faceRing($size)}px;
   background-color: ${({ theme }) => theme.background1};
   border-radius: 50%;
 
