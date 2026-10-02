@@ -31,7 +31,6 @@ import {
 import { Switch } from "../Switch";
 
 import { ResetStats, ResetTarget } from "./ResetStats";
-import { SaveFile } from "./SaveFile";
 import * as Styled from "./index.styled";
 
 interface Props {
@@ -162,8 +161,6 @@ export function SettingsPopUp({ onClose, reset }: Props) {
             />
           </Styled.Stack>
         </PopUpCard>
-
-        <SaveFile />
 
         {reset && <ResetStats target={reset} />}
       </PopUpBody>

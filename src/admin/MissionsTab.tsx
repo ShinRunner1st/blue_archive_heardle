@@ -12,11 +12,8 @@ import {
   missionFacts,
   missionValue,
 } from "../helpers/missions";
-import {
-  MAX_SAVE_FILE_BYTES,
-  readSaveFile,
-  type SaveFile,
-} from "../helpers/saveFile";
+import type { SaveFile } from "../helpers/saveFile";
+import { MAX_DATA_BYTES, saveFromAccountData } from "./accountSave";
 import { freeId, moved, replaced, slugOf, stepped } from "./draft";
 import type { ContentState } from "./api";
 import { isShipped } from "./lock";
@@ -135,12 +132,12 @@ export function MissionsTab({ draft, update, shipped, problems }: TabProps) {
 
   const openSave = (file: File | undefined) => {
     if (!file) return;
-    if (file.size > MAX_SAVE_FILE_BYTES) {
-      setSaveError("That file is far bigger than any save.");
+    if (file.size > MAX_DATA_BYTES) {
+      setSaveError("That file is far bigger than any account's data.");
       return;
     }
     file.text().then((text) => {
-      const result = readSaveFile(text);
+      const result = saveFromAccountData(text);
       if (result.ok) {
         setSave({ name: file.name, save: result.save });
         setSaveError("");
@@ -465,12 +462,12 @@ export function MissionsTab({ draft, update, shipped, problems }: TabProps) {
                 <>
                   <label>
                     <Button as="span" role="button">
-                      Preview a player&apos;s save…
+                      Preview a player&apos;s progress…
                     </Button>
                     <input
                       type="file"
                       name="preview-save"
-                      accept=".txt,text/plain"
+                      accept=".json,application/json"
                       style={{ display: "none" }}
                       onChange={(event) => {
                         openSave(event.target.files?.[0]);
@@ -479,9 +476,9 @@ export function MissionsTab({ draft, update, shipped, problems }: TabProps) {
                     />
                   </label>
                   <Hint>
-                    A file from Settings → Export: each mission&apos;s progress
-                    from its rounds, the draft&apos;s new ones too. It stays on
-                    this PC.
+                    A Download my data file (☰ Profile, Account, signed in):
+                    each mission&apos;s progress from its rounds, the
+                    draft&apos;s new ones too. It stays on this PC.
                   </Hint>
                 </>
               )}

@@ -66,8 +66,7 @@ export function ResetStats({ target }: { target: ResetTarget }) {
         ) : confirming ? (
           <>
             <Styled.Notice role="status">
-              This can&apos;t be undone. Export a save file first to keep a
-              copy.
+              This can&apos;t be undone.
             </Styled.Notice>
             <Styled.Actions>
               <Styled.Action type="button" $tone="red" onClick={reset}>

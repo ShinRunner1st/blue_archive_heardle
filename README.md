@@ -381,7 +381,7 @@ they need no more height than the OST, and every game fits a 1080p window.
   `src/constants/missions.ts`), so rounds played before missions came
   count; a "Mission cleared!" toast shows after the round that clears one
   (the first check on a device shows one toast with the count). A cleared
-  mission is also kept in its own key and the save file, so a reset never
+  mission is also kept in its own key and the save, so a reset never
   takes it back; ids are never renamed. Multiplayer's count the games this
   browser saw to their standings and its first places, kept here only.
   Some unlock a cosmetic (`src/content/cosmetics.json`, all drawn in code):
@@ -421,23 +421,22 @@ they need no more height than the OST, and every game fits a 1080p window.
   stands beside the game and reacts to your guesses. Hold her to make her look
   at you, stroke her head, or tap her. ☰ → Settings swaps in Mari or turns
   her off.
-- **Save file** - ☰ → Settings exports your progress in every mode to a
-  file, scrambled like the saves, and imports it in another browser or on
-  another device. The file is made and read on the device; nothing is
-  uploaded. An import is checked like a save, shows what's in it and asks
-  before it replaces the progress there. Since format 2 every round in it
-  has an id and when it was dealt (`src/helpers/roundId.ts`), so two
-  copies of the same progress can be put together without counting a
-  round twice (`src/helpers/saveMerge.ts`, ready for accounts), an OST
-  song is written as its theme number, and multiplayer games are listed
-  one by one. The page gives older rounds their ids once, when it first
-  loads (`upgradeSaves`), the same ids a format 1 file gets on import, and
-  format 1 files still import.
+- **The save's format** (`src/helpers/saveFile.ts`): every mode's rounds,
+  both servers', the missions and multiplayer games, as an account keeps
+  them. There's no save file to export or import any more (Guest limits in
+  `docs/plan.md`): an account is what keeps or moves progress. Since
+  format 2 every round has an id and when it was dealt
+  (`src/helpers/roundId.ts`), so two devices' copies of an account's
+  progress can be put together without counting a round twice
+  (`src/helpers/saveMerge.ts`), an OST song is written as its theme
+  number, and multiplayer games are listed one by one. The page gives
+  older rounds their ids once, when it first loads (`upgradeSaves`), and
+  format 1 data still reads.
 - **Sensei card** - Sensei card on the profile draws the player's record
   across every mode (songs and students found, badges, best streaks, Time
   Attack best, rounds played) on a Schale licence, with the player name and
   favourite student from Customize, remembered like settings and not in the
-  save file; closing it goes back to the profile. Share or Download it. The card's code and the portrait list
+  save; closing it goes back to the profile. Share or Download it. The card's code and the portrait list
   load only when it opens, and only the favourite's portrait is fetched.
 - **What's new** - after an update, returning players see what was added,
   once, with the two updates before it for anyone who missed them. It stays
@@ -911,7 +910,7 @@ shows wherever the build has an accounts address.
   device, synced as a signed-in page opens and after Customize saves; and
   its summary, the totals worked out from the saves, sent as a cache and
   never read back. Then the **progress** (`src/helpers/progressSync.ts`):
-  the save, as the save file's format 2, kept in the account too,
+  the save, in its format 2, kept in the account too,
   revision by revision. An account starts fresh: the first sign-in in a
   browser deletes the progress it had as a guest (the Account tab says
   so first, if any rounds, missions or room games were played) and takes
@@ -957,7 +956,7 @@ shows wherever the build has an accounts address.
   with the Account tab only).
 - **The session token** is kept in localStorage and sent only in an
   `Authorization` header to the Worker; D1 keeps its SHA-256. Never in an
-  address, a log (the Worker's logs are off), the page or a save file. No
+  address, a log (the Worker's logs are off), the page or a save. No
   cookies anywhere, and the site's Content-Security-Policy (its own
   scripts only) is what keeps the token from other scripts.
 - **Locally**, `npm run accounts` applies the migrations to a local copy of
@@ -1115,7 +1114,7 @@ follows JP's soundtrack either way.
 - **Own schedules and saves.** Each server has its own daily schedules
   (`GAMEPLAY_JP`, `LORE_JP`, `VOICES_JP`, `HALOS_JP`, `WEAPONS_JP`), only ever
   appended to, and its own rounds: JP's are saved under Global's keys with
-  `.jp` after them, and in a `jp` field of the save file, so a switch never
+  `.jp` after them, and in a `jp` field of the save, so a switch never
   touches the other server's.
 - **A switch reloads only the games.** Each student game's hook loads the
   new server's saves as it next renders, and their screens are keyed by the
@@ -1310,7 +1309,7 @@ keeps the student game's four (Gameplay and Lore, daily and endless).
 `useVoiceGame` keeps Voice mode's Daily, Classic, No hints and 4-Choice, and
 `useVoiceTimeAttack` its runs. Everything read back from storage is validated, so a
 corrupted or outdated save starts a fresh game instead of breaking the page.
-Save files (`src/helpers/saveFile.ts`) go through the same checks.
+An account's save (`src/helpers/saveFile.ts`) goes through the same checks.
 
 ## Deploying
 

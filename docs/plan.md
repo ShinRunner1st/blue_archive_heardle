@@ -1161,7 +1161,11 @@ admin`, on their PC only, nothing deployed or in the site's build),
      against the local accounts Worker: guest progress gone at sign-in,
      what was played signed in back after signing out and in again_;
   4. the save file out of Settings, the tool's preview from Download my
-     data;
+     data; _built: the Settings card and the export and import code are
+     gone (`saveFile.ts` keeps the format the accounts use, its tests now
+     reading saves as the account keeps them), the reset no longer says to
+     export first, and the Missions tab's preview reads the `progress` of
+     a Download my data file (`src/admin/accountSave.ts`)_;
   5. What's new, the full check and screenshots.
      _Before it, on the same branch: banners show sharp pictures of their
      scenes (`pictures/scenes/banner-*`, 640×160, a new banner size in the

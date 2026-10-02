@@ -6,17 +6,12 @@ import { Server } from "../types/server";
 import { STUDENT_SLOTS, StudentRound, StudentSlot } from "../types/student";
 import { VOICE_MODES, VoiceMode, VoiceRound } from "../types/voice";
 import { PICTURE_SLOTS, PictureRound, PictureSlot } from "../types/picture";
-import { dateStamp } from "./daily";
-import { downloadBlob } from "./download";
 import {
   loadClearedMissions,
   loadLegacyRoomRecord,
   loadRoomGames,
   RoomGame,
   RoomRecord,
-  saveClearedMissions,
-  saveRoomGames,
-  saveRoomRecord,
   toClearedMissions,
   toRoomGames,
   toRoomRecord,
@@ -39,7 +34,6 @@ import {
   toStudentRounds,
   toVoiceRounds,
 } from "./storage";
-import { obscure, reveal } from "./obscure";
 
 /** Marks a file as ours, so a stray text file is turned away by name. */
 const SAVE_APP = "baheardle";
@@ -109,12 +103,6 @@ function unpackRound(value: unknown): unknown {
     guesses: Array.isArray(round.guesses) ? round.guesses.map(unpackGuess) : [],
   };
 }
-
-/**
- * Bigger than any real save: localStorage itself holds about 5 MB. Checked
- * before reading, so a wrong pick (a video, say) can't stall the page.
- */
-export const MAX_SAVE_FILE_BYTES = 8 * 1024 * 1024;
 
 /** One server's student game, Voice and picture rounds. */
 export interface ServerSave {
@@ -225,15 +213,6 @@ export type SaveFileResult =
   | { ok: false; error: string };
 
 /**
- * Every mode's rounds in one file, the student, Voice and picture games' too,
- * scrambled like the saves themselves, so the answer to a round in progress
- * isn't readable in a text editor either.
- */
-export function buildSaveFile(now: Date = new Date()): string {
-  return obscure(JSON.stringify(saveData(currentSave(), now)));
-}
-
-/**
  * This browser's progress, as a save holds it: every round with an id (a
  * round saved without one, by a page from before the upgrade, gets the one
  * it would have had), both servers', the missions and multiplayer games.
@@ -280,29 +259,7 @@ export function saveData(
   };
 }
 
-/** For example baheardle-save-2026-09-28.txt, dated by the player's calendar. */
-export function saveFileName(now: Date = new Date()): string {
-  return `baheardle-save-${dateStamp(now)}.txt`;
-}
-
 const NOT_A_SAVE = "That file isn't a Blue Archive Heardle save.";
-
-/**
- * Reads a save file back, checking it the same way the saves are checked on
- * load. Never throws: anything wrong comes back as a message for the player.
- */
-export function readSaveFile(text: string): SaveFileResult {
-  const json = reveal(text.trim());
-  if (json === null) return { ok: false, error: NOT_A_SAVE };
-
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(json);
-  } catch {
-    return { ok: false, error: NOT_A_SAVE };
-  }
-  return readSaveData(parsed);
-}
 
 /**
  * A save's data back, from a file or the account, checked the same way the
@@ -383,37 +340,9 @@ export function readSaveData(
 }
 
 /**
- * Brings a save file's missions in: a mission cleared on either device stays
- * cleared, as missions are for good. Multiplayer games since version 2 are
- * joined by id, so a game is never counted twice; the counts from before
- * keep the larger of each, as they can't tell one device's games from
- * another's.
- */
-export function mergeMissions(save: SaveFile): void {
-  saveClearedMissions([
-    ...new Set([...loadClearedMissions(), ...save.missions]),
-  ]);
-  const here = loadLegacyRoomRecord();
-  saveRoomRecord({
-    games: Math.max(here.games, save.roomRecord.games),
-    wins: Math.max(here.wins, save.roomRecord.wins),
-  });
-  const games = loadRoomGames();
-  const known = new Set(games.map((game) => game.id));
-  saveRoomGames([
-    ...games,
-    ...save.roomGames.filter((game) => !known.has(game.id)),
-  ]);
-}
-
-/** Downloads the save file. */
-export function downloadText(fileName: string, text: string): void {
-  downloadBlob(fileName, new Blob([text], { type: "text/plain" }));
-}
-
-/**
  * The game holds its rounds in memory and writes them back as they change, so
- * after an import the page starts over and reads the new save fresh.
+ * after the saves change under it (signing in or out) the page starts over
+ * and reads them fresh.
  */
 export function reloadPage(): void {
   window.location.reload();

@@ -20,7 +20,7 @@ type State =
 const ABOUT =
   "Verified results are dailies your account started before you played " +
   "and judged itself, and room games the room signed: apart from this " +
-  "browser's record, never from a save file or an import. They stop " +
+  "browser's record, never from your saves. They stop " +
   "made-up and replayed results, not looking an answer up.";
 
 const GAME_NAMES: Record<string, string> = {

@@ -3,22 +3,14 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { DAILY_STORAGE_KEY, STORAGE_KEY } from "../constants/game";
 import { PICTURE_SLOTS } from "../types/picture";
 import { Song } from "../types/song";
-import { obscure, reveal } from "./obscure";
+import { obscure } from "./obscure";
 import {
-  loadClearedMissions,
-  loadRoomGames,
-  loadRoomRecord,
   recordRoomGame,
   saveClearedMissions,
   saveRoomRecord,
 } from "./missions";
 import { isRoundId, withoutStamp } from "./roundId";
-import {
-  buildSaveFile,
-  mergeMissions,
-  readSaveFile,
-  saveFileName,
-} from "./saveFile";
+import { currentSave, readSaveData, saveData } from "./saveFile";
 import { upgradeSaves } from "./saveFormat";
 import {
   emptyGuesses,
@@ -79,11 +71,15 @@ function bare<T>(value: T): T {
   ) as T;
 }
 
-function file(contents: Record<string, unknown>): string {
-  return obscure(JSON.stringify({ app: "baheardle", version: 1, ...contents }));
-}
+/** This browser's save there and back, as the account keeps it. */
+const there = (now?: Date) =>
+  readSaveData(JSON.parse(JSON.stringify(saveData(currentSave(), now))));
 
-describe("save files", () => {
+/** An older save's data, read as the account's would be. */
+const read = (contents: Record<string, unknown>) =>
+  readSaveData({ app: "baheardle", version: 1, ...contents });
+
+describe("a save, as the account keeps it", () => {
   beforeEach(() => {
     localStorage.clear();
   });
@@ -93,7 +89,7 @@ describe("save files", () => {
     saveRounds([round()], "endless");
 
     const now = new Date("2026-09-28T10:00:00Z");
-    const result = readSaveFile(buildSaveFile(now));
+    const result = there(now);
 
     expect(bare(result)).toEqual({
       ok: true,
@@ -118,20 +114,18 @@ describe("save files", () => {
     const rounds = [{ answer: 10005, guesses: [10000], day: 2 }];
     saveStudentRounds("lore-daily", rounds);
 
-    const result = readSaveFile(buildSaveFile());
+    const result = there();
     expect(bare(result.ok && result.save.students["lore-daily"])).toEqual(
       rounds
     );
-    expect(buildSaveFile()).not.toContain("10005");
   });
 
   it("carries Voice mode's rounds too", () => {
     const rounds = [{ answer: 10005, line: 2, guesses: [0, 10000], day: 2 }];
     saveVoiceRounds("daily", rounds);
 
-    const result = readSaveFile(buildSaveFile());
+    const result = there();
     expect(bare(result.ok && result.save.voices.daily)).toEqual(rounds);
-    expect(buildSaveFile()).not.toContain("10005");
   });
 
   it("carries the picture game's rounds too", () => {
@@ -141,65 +135,53 @@ describe("save files", () => {
     ];
     savePictureRounds("weapon-daily", rounds);
 
-    const result = readSaveFile(buildSaveFile());
+    const result = there();
     expect(bare(result.ok && result.save.pictures["weapon-daily"])).toEqual(
       rounds
     );
-    expect(buildSaveFile()).not.toContain("10005");
   });
 
   it("reads a save from before the picture game, and one with only it", () => {
-    const old = readSaveFile(file({ rounds: { endless: [round()] } }));
+    const old = read({ rounds: { endless: [round()] } });
     expect(old.ok && old.save.pictures).toEqual(NO_PICTURES);
 
-    const pictures = readSaveFile(
-      file({ pictures: { "halo-choice": [{ answer: 1, guesses: [] }] } })
-    );
+    const pictures = read({
+      pictures: { "halo-choice": [{ answer: 1, guesses: [] }] },
+    });
     expect(pictures.ok && pictures.save.pictures["halo-choice"]).toHaveLength(
       1
     );
   });
 
   it("reads a save from before Voice mode, and one with only it", () => {
-    const old = readSaveFile(file({ rounds: { endless: [round()] } }));
+    const old = read({ rounds: { endless: [round()] } });
     expect(old.ok && old.save.voices).toEqual(NO_VOICES);
 
-    const voices = readSaveFile(
-      file({ voices: { nohint: [{ answer: 1, line: 0, guesses: [] }] } })
-    );
+    const voices = read({
+      voices: { nohint: [{ answer: 1, line: 0, guesses: [] }] },
+    });
     expect(voices.ok && voices.save.voices.nohint).toHaveLength(1);
   });
 
   it("reads a save from before the student game, and one with only it", () => {
-    const old = readSaveFile(file({ rounds: { endless: [round()] } }));
+    const old = read({ rounds: { endless: [round()] } });
     expect(old.ok && old.save.students["gameplay-endless"]).toEqual([]);
 
-    const students = readSaveFile(
-      file({ students: { "gameplay-endless": [{ answer: 1, guesses: [] }] } })
-    );
+    const students = read({
+      students: { "gameplay-endless": [{ answer: 1, guesses: [] }] },
+    });
     expect(students.ok).toBe(true);
   });
 
-  it("keeps the answer out of plain sight", () => {
-    saveRounds([round()], "endless");
-    expect(buildSaveFile()).not.toContain("Constant Moderato");
-  });
-
-  it("allows a trailing newline an editor might add", () => {
-    saveRounds([round()], "endless");
-    expect(readSaveFile(`${buildSaveFile()}\n`).ok).toBe(true);
-  });
-
-  it("turns away files that aren't saves", () => {
-    for (const text of [
-      "",
+  it("turns away what isn't a save", () => {
+    for (const data of [
+      null,
       "hello",
-      obscure("not json"),
-      obscure("[]"),
-      file({ app: "something else" }),
-      JSON.stringify({ app: "baheardle", version: 1 }),
+      [],
+      { app: "something else", version: 1 },
+      { app: "baheardle" },
     ]) {
-      expect(readSaveFile(text)).toEqual({
+      expect(readSaveData(data)).toEqual({
         ok: false,
         error: "That file isn't a Blue Archive Heardle save.",
       });
@@ -207,17 +189,15 @@ describe("save files", () => {
   });
 
   it("refuses a save from a newer game rather than half reading it", () => {
-    const result = readSaveFile(
-      file({ version: 3, rounds: { endless: [round()] } })
-    );
+    const result = read({ version: 3, rounds: { endless: [round()] } });
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.error).toContain("newer version");
   });
 
   it("drops damaged rounds and refuses a save with none left", () => {
-    const result = readSaveFile(
-      file({ rounds: { daily: [round(), { solution: 5 }], endless: "x" } })
-    );
+    const result = read({
+      rounds: { daily: [round(), { solution: 5 }], endless: "x" },
+    });
     expect(bare(result)).toEqual({
       ok: true,
       save: {
@@ -236,23 +216,15 @@ describe("save files", () => {
       },
     });
 
-    expect(readSaveFile(file({ rounds: { daily: [{}] } }))).toEqual({
+    expect(read({ rounds: { daily: [{}] } })).toEqual({
       ok: false,
       error: "That save has no rounds in it.",
     });
   });
 
   it("leaves the date out when it can't be read", () => {
-    const result = readSaveFile(
-      file({ exported: "soon", rounds: { endless: [round()] } })
-    );
+    const result = read({ exported: "soon", rounds: { endless: [round()] } });
     expect(result).toMatchObject({ ok: true, save: { exported: "" } });
-  });
-
-  it("names the file by the player's own date", () => {
-    expect(saveFileName(new Date(2026, 8, 3, 23, 30))).toBe(
-      "baheardle-save-2026-09-03.txt"
-    );
   });
 
   it("carries the JP server's rounds apart from Global's", () => {
@@ -260,7 +232,7 @@ describe("save files", () => {
     saveStudentRounds("lore-daily", [jpRound], "jp");
     saveVoiceRounds("endless", [{ answer: 10150, line: 1, guesses: [] }], "jp");
 
-    const result = readSaveFile(buildSaveFile());
+    const result = there();
 
     expect(bare(result.ok && result.save.jp.students["lore-daily"])).toEqual([
       jpRound,
@@ -270,7 +242,7 @@ describe("save files", () => {
   });
 
   it("reads an older file, with no JP rounds, as JP starting fresh", () => {
-    const result = readSaveFile(file({ rounds: { endless: [round()] } }));
+    const result = read({ rounds: { endless: [round()] } });
 
     expect(result.ok && result.save.jp).toEqual(NO_SERVER);
   });
@@ -279,7 +251,7 @@ describe("save files", () => {
     saveRounds([round()], "endless");
     saveClearedMissions(["jp", "room-first"]);
     saveRoomRecord({ games: 3, wins: 1 });
-    const result = readSaveFile(buildSaveFile());
+    const result = there();
     expect(result).toMatchObject({
       ok: true,
       save: {
@@ -289,26 +261,12 @@ describe("save files", () => {
     });
   });
 
-  it("merges missions in, never adding a game twice", () => {
-    saveClearedMissions(["jp"]);
-    saveRoomRecord({ games: 5, wins: 0 });
-    saveRounds([round()], "endless");
-    const result = readSaveFile(buildSaveFile());
-    if (!result.ok) throw new Error(result.error);
-
-    saveClearedMissions(["birthday"]);
-    saveRoomRecord({ games: 2, wins: 1 });
-    mergeMissions(result.save);
-    expect(loadClearedMissions().sort()).toEqual(["birthday", "jp"]);
-    expect(loadRoomRecord()).toEqual({ games: 5, wins: 1 });
-  });
-
   it("gives every round an id, the same each time for an old one", () => {
     saveRounds([round({ day: 1 }), round({ day: 2 })], "daily");
     saveStudentRounds("lore-endless", [{ answer: 10005, guesses: [10005] }]);
 
-    const first = readSaveFile(buildSaveFile());
-    const again = readSaveFile(buildSaveFile());
+    const first = there();
+    const again = there();
     if (!first.ok || !again.ok) throw new Error("not read");
     const ids = first.save.rounds.daily.map((each) => each.id);
     expect(ids.every(isRoundId)).toBe(true);
@@ -319,7 +277,7 @@ describe("save files", () => {
 
   it("reads a version 1 file's rounds with the ids its browser gives them", () => {
     const daily = [round({ day: 1 }), round({ day: 2 })];
-    const old = readSaveFile(file({ rounds: { daily } }));
+    const old = read({ rounds: { daily } });
 
     saveRounds(daily, "daily");
     upgradeSaves();
@@ -332,7 +290,7 @@ describe("save files", () => {
 
   it("keeps a round's own id and time", () => {
     saveRounds([round({ id: "0123456789ab", at: 1000 })], "endless");
-    const result = readSaveFile(buildSaveFile());
+    const result = there();
     expect(result.ok && result.save.rounds.endless[0]).toMatchObject({
       id: "0123456789ab",
       at: 1000,
@@ -350,8 +308,7 @@ describe("save files", () => {
     guessed[2] = { song, skipped: false, isCorrect: true };
     saveRounds([round({ guesses: guessed, currentTry: 3 })], "endless");
 
-    const text = buildSaveFile();
-    const json = JSON.parse(reveal(text)!);
+    const json = JSON.parse(JSON.stringify(saveData(currentSave())));
     expect(json.version).toBe(2);
     expect(json.rounds.endless[0].solution).toBe("1");
     expect(json.rounds.endless[0].guesses).toEqual([
@@ -360,7 +317,7 @@ describe("save files", () => {
       ["1", true],
     ]);
 
-    const result = readSaveFile(text);
+    const result = readSaveData(json);
     if (!result.ok) throw new Error(result.error);
     const back = result.save.rounds.endless[0];
     expect(back.solution.themeNo).toBe("1");
@@ -376,43 +333,33 @@ describe("save files", () => {
   });
 
   it("drops a version 2 round whose song the game doesn't have", () => {
-    const result = readSaveFile(
-      obscure(
-        JSON.stringify({
-          app: "baheardle",
-          version: 2,
-          rounds: {
-            endless: [
-              { ...round(), solution: "1", guesses: [] },
-              { ...round(), solution: "no such song", guesses: [] },
-            ],
-          },
-        })
-      )
-    );
+    const result = readSaveData({
+      app: "baheardle",
+      version: 2,
+      rounds: {
+        endless: [
+          { ...round(), solution: "1", guesses: [] },
+          { ...round(), solution: "no such song", guesses: [] },
+        ],
+      },
+    });
     expect(result.ok && result.save.rounds.endless).toHaveLength(1);
   });
 
-  it("carries multiplayer games one by one, never adding one twice", () => {
+  it("carries multiplayer games one by one", () => {
     saveRounds([round()], "endless");
     saveRoomRecord({ games: 4, wins: 1 });
     recordRoomGame(true, 5000);
-    const result = readSaveFile(buildSaveFile());
+    const result = there();
     if (!result.ok) throw new Error(result.error);
     expect(result.save.roomRecord).toEqual({ games: 4, wins: 1 });
     expect(result.save.roomGames).toMatchObject([{ at: 5000, won: true }]);
-
-    // The same file in again, and another game here meanwhile.
-    recordRoomGame(false, 6000);
-    mergeMissions(result.save);
-    expect(loadRoomGames()).toHaveLength(2);
-    expect(loadRoomRecord()).toEqual({ games: 6, wins: 2 });
   });
 
-  it("exports nothing it wasn't given", () => {
+  it("keeps nothing it wasn't given", () => {
     localStorage.setItem(STORAGE_KEY, "garbage");
     localStorage.setItem(DAILY_STORAGE_KEY, obscure("[]"));
-    expect(readSaveFile(buildSaveFile())).toEqual({
+    expect(there()).toEqual({
       ok: false,
       error: "That save has no rounds in it.",
     });

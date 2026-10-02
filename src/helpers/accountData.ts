@@ -39,7 +39,7 @@ export async function downloadAccountData(): Promise<boolean> {
   if (!data) return false;
   const file = {
     about:
-      "Everything Blue Archive Heardle keeps for your account (baheardle.com/privacy). Your progress is the save itself; a save file made from it imports in Settings. Verified is the record the server kept itself: your daily time zone, each verified daily with its moves and result, and your room results; it never imports into a save.",
+      "Everything Blue Archive Heardle keeps for your account (baheardle.com/privacy). Your progress is the save itself, as your account keeps it. Verified is the record the server kept itself: your daily time zone, each verified daily with its moves and result, and your room results, never part of your progress.",
     downloaded: new Date().toISOString(),
     ...data,
     progress: await opened(data.progress),

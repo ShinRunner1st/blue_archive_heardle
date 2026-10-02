@@ -86,7 +86,7 @@ describe("downloadAccountData", () => {
         ],
       },
     });
-    expect(file.about).toContain("never imports into a save");
+    expect(file.about).toContain("never part of your progress");
     expect(JSON.stringify(file)).not.toContain("gzipBase64");
   });
 
