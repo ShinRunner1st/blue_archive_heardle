@@ -873,7 +873,15 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   own cosmetics with it (decision 1, the user's go-ahead 2026-10-02).
   Step 5, privacy, on `feat/privacy`, off `feat/room-passes`, its
   contact privacy@baheardle.com (Cloudflare Email Routing to the user's
-  inbox, no mailbox of its own). The next step waits for the user._
+  inbox, no mailbox of its own). Step 6, measuring: what each request
+  costs D1, and accounts at api.baheardle.com, on `feat/accounts-open`,
+  off `feat/privacy`; a cheaper sync (nothing sent for an unchanged
+  save, no read before an upload, one upload address) on
+  `feat/cheaper-sync`; the real Cloudflare preview (the D1 database, the
+  Worker and its Custom Domain, Google and Discord in testing, the
+  preview's own rooms) measured with the user's sign-ins on
+  `feat/preview-measure` (`docs/accounts.md` section 6). The release
+  waits for the user._
 - **Room feedback** (2026-10-01): Skip back in a round (Pass, renamed);
   the host picks OST albums to deal from (any number) and title calls
   only for Voice (`PROTOCOL` 4, `BA2` preset codes); the Jukebox's own

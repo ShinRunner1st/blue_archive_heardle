@@ -365,59 +365,46 @@ and the rooms use few of those: one per connection, about 8 to 10 for an
 8-player game, reconnects included. Their messages, the 50 to 75 requests
 a game in `docs/multiplayer.md`, are **Durable Object** requests, a quota
 the accounts never touch. D1 and the rooms' storage are separate too.
-To be confirmed on the dashboard when it's measured (below).
+Confirmed on Cloudflare (below): a 2-player game's two connections were
+two rooms Worker requests, and the rooms Worker made no D1 call.
 
 Past a limit, Cloudflare refuses, never bills, and it resets at 00:00 UTC.
+**Every quota is a UTC day**, so a day's use is added up from 00:00 to
+24:00 UTC: `wrangler d1 info`'s `*_24h` figures are a rolling 24 hours,
+and the dashboard shows whatever range is picked, so neither is a quota
+day unless it's set to one.
 The page then plays on from its own copy and syncs the next day; nothing
 depends on the Worker being there.
 
-**A signed-in player's day, estimated:**
+**How it was measured** (2026-10-02, step 6), two ways:
 
-| What                               | Worker requests | D1 rows read | D1 rows written  |
-| ---------------------------------- | --------------- | ------------ | ---------------- |
-| Opening the site (`/me`)           | 1               | 3            | 0-1 (once a day) |
-| Downloading progress (new only)    | 0-1             | 1            | 0                |
-| Syncing, about 3 times             | 3               | 6            | 3-6              |
-| A room pass, per Multiplayer visit | 0-1             | 40           | 0                |
-| **A usual day**                    | **about 5**     | **about 50** | **about 5**      |
-| Signing in (rarely)                | 3               | 3            | 3-5              |
+1. **Locally**, the real Worker on D1's local engine (workerd), which
+   reports each query's rows in its `meta`: `npm run accounts:measure`,
+   then `node scripts/measure-accounts.mjs` (`EACH=Sign-in` prints every
+   query), and a production build in Chrome counting every request the
+   Worker answered.
+2. **On Cloudflare**, on the preview (the accounts Worker at its
+   workers.dev address, its own D1 database, the preview's own rooms),
+   with the user signing in and playing through each case in turn in
+   Chrome, while:
 
-So the free plan holds about:
+   - D1's own analytics were read **per minute** (the same figures as
+     the dashboard and `wrangler d1 info`), so each case's rows are its
+     minutes' rows;
+   - the Workers' invocations were read per minute and version, and the
+     Durable Objects' by event type;
+   - `wrangler tail` noted each request's time, method, path and status
+     only (no headers, no query), to say which requests made each
+     minute. It's best-effort: it dropped 1 of about 95, and wasn't
+     running for an hour;
+   - the zone's analytics gave the paths that reached `api.baheardle.com`.
 
-- **Worker requests:** _superseded by the measurements below: a
-  browser's day was about 25 requests with step 3's sync and is about 10
-  with step 6's cheaper one; see "The Worker-request quota, in theory"
-  there._
-- **D1 writes:** 100,000 ÷ 5 = **20,000** players a day; measured below
-  at 4-8 a day.
-- **D1 reads:** 5,000,000 ÷ 50 = **100,000** players a day; measured
-  below at 35-64 a day, still far inside.
-- **D1 storage:** the developer save (every song, every mode on both
-  servers, about 4,300 rounds) is **66 KB gzipped in format 2**, against
-  505 KB as a save file (measured 2026-10-02). Without ids it would be
-  25 KB: the ids are most of it, about 9 bytes a round, as random digits
-  don't compress; the theme numbers in place of whole songs saved a fifth
-  of the rest. A keen player of 1,000 rounds is about 15 KB, so 500 MB
-  holds about **25,000 to 30,000 accounts**; a second database, or Workers
-  Paid ($5 a month, 10 GB a database), comes after that. Measured again on
-  real saves before it opens.
-- **Durable Object requests:** unchanged by accounts; still the rooms'
-  own limit, as in `docs/multiplayer.md`.
+   `wrangler d1 insights` was left out: its per-statement figures missed
+   whole statements and counted more runs than were made, so it only
+   shows which statements ran, not how many rows.
 
-**Measured before it opens:** the preview build runs a script that signs
-in, syncs, merges and asks for passes, and logs each D1 query's `meta`
-(rows read and written) and the dashboard's counts. If the numbers are
-higher than above, this section and the sync rules change before
-anything goes public.
-
-_Measured locally, 2026-10-02 (step 6). Two ways, both against the real
-Worker on D1's local engine (workerd), which reports each query's rows in
-its `meta`; still to be checked against Cloudflare's own counts on the
-preview (`wrangler d1 insights`, the dashboard) once it's set up._
-
-**1. Each request's D1 cost** (`npm run accounts:measure`, then `node
-scripts/measure-accounts.mjs`; `EACH=Sign-in` prints every query). A save
-of 1,000 rounds, 10 to 11 missions:
+**1. Each request's D1 cost, locally.** A save of 1,000 rounds, 10 to 11
+missions:
 
 | What                                    | Requests | Rows read                                       | Rows written                            |
 | --------------------------------------- | -------- | ----------------------------------------------- | --------------------------------------- |
@@ -433,6 +420,34 @@ of 1,000 rounds, 10 to 11 missions:
 | Download my data                        | 1        | 37                                              | 0                                       |
 | Delete account                          | 1        | 41                                              | 18                                      |
 | The daily run                           | 0        | about one per account, session and sign-in code | the deletions                           |
+
+**2. The same on Cloudflare** (the preview, 2026-10-02, UTC). Requests
+include CORS preflights; the accounts were new, with a save of a few
+rounds and one or two missions, so the costs that grow with missions
+(the room pass, a mission's write, the download and the delete) were at
+their small end:
+
+| Case (minutes, UTC)                                                                                               | Requests (preflights) | Rows read | Rows written | Against table 1                                                 |
+| ----------------------------------------------------------------------------------------------------------------- | --------------------- | --------- | ------------ | --------------------------------------------------------------- |
+| A. Two new accounts (Discord, then Google after a sign-out), each with its first upload and profile (23:13-23:14) | 24 (5)                | 53        | 33           | 12 + 2 + 2 each, and 1 for the sign-out: 33                     |
+| B. A returning Discord sign-in, that account deleted, a returning Google sign-in, Discord linked (23:23-23:24)    | 24 (1)                | 81        | 23           | 6 each returning; the link's identity 3; the small delete 5     |
+| C. Two openings, three tab switches with nothing played (23:29)                                                   | 2 (0)                 | 8         | 0            | 4 an opening; **0 requests** for the switches                   |
+| D. A sync after two rounds, then a profile change with a mission cleared (23:34-23:35)                            | 3 (0)                 | 12        | 3            | the sync 4 and 1; the profile 1 and the mission 1               |
+| E. A second browser's returning sign-in and sync, then this one's upload refused (409) and merged (23:40-23:42)   | 21 (6)                | 58        | 14           | the merge alone: 4 requests and a preflight, 17 read, 3 written |
+| F. The page's state and a room pass, then a 2-player game of 5 rounds (23:46-23:48)                               | 7 (3)                 | 16        | 1            | the room pass 0 written; the rooms no D1 at all                 |
+| G. The Account tab, Download my data, Delete account (00:54)                                                      | 5 (2)                 | 51        | 11           | under the full account's 37 + 41 read and 18 written            |
+| A signed-in tab's first requests of a new UTC day (00:53, not itemised: the tail wasn't running)                  | 7                     | 21        | 5            | includes the day's "last used" write                            |
+
+Every case is at or under table 1, and the writes match it row for row
+where they can be told apart. The rooms side of F, from the Durable
+Objects' own figures: **2 rooms Worker requests** (one per connection),
+and **49 Durable Object invocations**, 2 connections and 47 hibernation
+events (45 messages and 2 closes). The quota counts incoming messages 20
+to a request (Cloudflare's pricing page), so that's about **4-6 Durable
+Object requests** (closes aren't documented either way, so they're
+counted); the dashboard shows only the 49 raw invocations, so the 20 to 1
+is documented, not measured. `docs/multiplayer.md` already counts that
+way.
 
 **Signing in's writes, statement by statement.** D1 counts a row written
 for the row and one for each index entry the statement adds; every table
@@ -456,25 +471,44 @@ each `CREATE INDEX`. Measured, per statement:
 | **Returning**              |                                                   |                                                              | **2 + 4 = 6 (7)**       |
 
 The plan's 3-5 counted rows, not index entries. So the real cost is **12
-for a new account and 6 (7 on a new day) for a returning one**, which is
-what the capacity notes below use. (Making `sessions` and
-`sign_in_codes` `WITHOUT ROWID` would drop their key entries, 12 to 10
-and 6 to 4; it needs a rebuilt table, so it isn't worth a migration now.)
+for a new account and 6 (7 on a new day) for a returning one**, locally
+and on Cloudflare (A and B above). (Making `sessions` and `sign_in_codes`
+`WITHOUT ROWID` would drop their key entries, 12 to 10 and 6 to 4; it
+needs a rebuilt table, so it isn't worth a migration now.)
 
-**2. What a browser really sends** (a production build pointed at the
-local Worker, in Chrome, counting every request the Worker answered,
-CORS preflights included; syncs with play were driven on the dev server,
-whose StrictMode doubles only what runs as a page opens). First as built
-in step 3, then with the cheaper sync (below), built in step 6:
+**3. What a browser sends**, in requests, preflights included. First as
+built in step 3 (locally), then with the cheaper sync (below), built in
+step 6, locally and on the preview:
 
-| What the player does                     | Requests, step 3  | Requests now      | Why, now                                                                                     |
-| ---------------------------------------- | ----------------- | ----------------- | -------------------------------------------------------------------------------------------- |
-| Signs in (new account, Account tab open) | 12 (4 preflights) | 12 (4 preflights) | the two redirects, the session, the account's state, the first upload and profile, `GET /me` |
-| Opens the site                           | 1, or 2           | 1, or 2           | the account's state; its preflight once the browser's 2 hours (its cap) are up               |
-| Switches tab, nothing played             | 1                 | **0**             | nothing changed since the last upload, so nothing is sent                                    |
-| A sync with something to send            | 3 (1 preflight)   | **1**             | the upload alone; its address is fixed, so its preflight is reused for 2 hours               |
-| Opens Multiplayer                        | 3 (1 preflight)   | 3 (1 preflight)   | the page's state read, the room pass and its preflight                                       |
-| Another device wrote first (rare)        | 3 + preflight     | 4                 | the upload refused (409), the state, the download, the merged upload                         |
+| What the player does                     | Step 3            | Now, locally      | Now, on Cloudflare                                      | Why, now                                                                                     |
+| ---------------------------------------- | ----------------- | ----------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Signs in (new account, Account tab open) | 12 (4 preflights) | 12 (4 preflights) | 12 (4 preflights); 8 with the preflights already kept   | the two redirects, the session, the account's state, the first upload and profile, `GET /me` |
+| Signs in, returning                      | -                 | -                 | 8, or 12 with its 4 preflights                          | the same, with the save downloaded in place of the first upload                              |
+| Opens the site                           | 1, or 2           | 1, or 2           | 1 (the preflight kept)                                  | the account's state; its preflight once the browser no longer keeps it                       |
+| Switches tab, nothing played             | 1                 | **0**             | **0**                                                   | nothing changed since the last upload, so nothing is sent                                    |
+| A sync with something to send            | 3 (1 preflight)   | **1**             | **1**                                                   | the upload alone; its address is fixed, so its preflight is reused                           |
+| Opens Multiplayer                        | 3 (1 preflight)   | 3 (1 preflight)   | 2 (1 preflight), with the state read as the page opened | the room pass and its preflight                                                              |
+| Another device wrote first (rare)        | 3 + preflight     | 4                 | 4, and a preflight                                      | the upload refused (409), the state, the download, the merged upload                         |
+| Links a second provider                  | -                 | -                 | 6 (1 preflight)                                         | the link ticket, the two redirects, the state, `GET /me`                                     |
+
+**Preflights.** The Worker answers a preflight with
+`Access-Control-Max-Age: 7200`, two hours, browsers' cap, so a page asks
+once per address, not each call; every request, the check included,
+counts against the free plan. Measured on the preview in Chrome 154 (headless, a dummy
+token, each preflight counted at the Worker): one preflight per address,
+then none for repeated calls, a plain reload, a hard reload, a new tab,
+`keepalive` uploads, an upload from a hidden tab, and calls 5 and 15
+minutes after the first. **Whether it's still reused after 30 minutes or
+more was not observed** (the test was stopped first). In the user's own
+Chrome, the session's 86 requests had 17 preflights: 12 were an
+address's first in that browser, and 5 repeated an address the same
+window had asked about under two hours before (4 to 101 minutes
+earlier). Their cause wasn't found: the page's requests and the Worker's
+answers were the same each time, and none of the cases tried repeats
+them, so they're taken as the browser not keeping its own cache, not as
+something the page does. The usual day below counts a preflight for the
+opening, the uploads and the room pass, 3 of its 10 requests; the
+session's share was 20%.
 
 **The cheaper sync** (step 6, the user's go-ahead), `progressSync.ts`:
 once this browser is joined and nothing waits to be merged, a sync with
@@ -492,59 +526,124 @@ no longer notices between openings: another device's write while this
 tab sends nothing; it's taken in as the page next opens, as a merge
 already was.
 
-So a **usual day** (opening the site with its preflight, 3 syncs with
-play and the upload's one preflight, any number of tab switches, a
-summary, a Multiplayer visit) is about **2 + 4 + 0 + 1 + 3 = 10 Worker
-requests**, where it was about 25. D1 per request is unchanged (the
-Worker runs the same queries); a day reads less, as the state reads
-before each sync and on every tab switch are gone: about **35-64 rows
-read** (the room pass most of it) and **4-8 written**.
+**A usual signed-in day**: opening the site, 3 syncs with play, any
+number of tab switches, a summary change, a Multiplayer visit. Each part
+is measured; how often a player does each is a guess.
 
-**The Worker-request quota, in theory.** This is a theoretical ceiling
-from these measurements, **not a capacity target**: it holds only if
-nothing else used the quota, and how often players open the site or play
-is a guess.
+| Part                         | Worker requests | D1 rows read                  | D1 rows written            |
+| ---------------------------- | --------------- | ----------------------------- | -------------------------- |
+| Opening, with its preflight  | 2               | 2-4 (4 on Cloudflare)         | 0, or 1-2 on a new UTC day |
+| 3 syncs, and one preflight   | 4               | 12                            | 3                          |
+| Tab switches, nothing played | 0               | 0                             | 0                          |
+| A summary change             | 1               | 4 (15 with a new mission)     | 1 (2 with a new mission)   |
+| A Multiplayer visit          | 3               | the room pass: 16 to about 44 | 0                          |
+| **The day**                  | **about 10**    | **35-64, measured range**     | **4-8, measured range**    |
+| **For planning**             | **10**          | **50, the range's middle**    | **6, the range's middle**  |
 
-- Quota: **100,000 Worker requests a day**, for all our Workers' code
+The ranges are measured: each part's cost is measured, and the day is
+their sum. Reads: 35 at the low end (an account of 10 missions, the
+opening's smaller read) to 64 (all 39 missions in the room pass); a day
+that clears a mission reads about 11 more. Writes: 4 (the same UTC day,
+no mission) to 8 (a new UTC day's 2 and two new missions). The preview's
+new accounts, with one or two missions, read less, as their room pass
+was small. The planning values are the ranges' middles, a choice for the
+sums below, not a measurement.
+
+**Exceptional flows**, counted apart from the usual day, as how often
+they happen is unknown. The daily cleanup's first run on Cloudflare
+(2026-10-02, 04:23 UTC) wasn't observed, so its cost there is
+unmeasured; table 1 has only the local run.
+
+| Flow                             | Worker requests                                                           | D1 rows read          | D1 rows written                                      |
+| -------------------------------- | ------------------------------------------------------------------------- | --------------------- | ---------------------------------------------------- |
+| Signing in, a new account        | 12 (8 with preflights kept)                                               | 4, and its first sync | **12**, and 12 for a first profile's missions (once) |
+| Signing in, returning            | 8 (12 with its preflights)                                                | 5                     | **6** (7 on a new UTC day)                           |
+| A conflict: 409, download, merge | 4, a preflight, and 1 more as the page next opens (it takes the merge in) | 11-17, and 1-2 then   | 3 (the merged save and its backup)                   |
+| A room pass                      | 1, and a preflight once                                                   | 16 to about 44        | 0                                                    |
+| Linking a second provider        | 6 (1 preflight)                                                           | a few                 | 3                                                    |
+| Download my data                 | 1, and a preflight                                                        | up to 37              | 0                                                    |
+| Delete account                   | 1                                                                         | up to 41              | up to 18                                             |
+| The daily cleanup (04:23 UTC)    | **unmeasured** on Cloudflare                                              | **unmeasured**        | **unmeasured**                                       |
+
+**Traffic nobody asked for.** Taken from the same Worker-request quota,
+and counted on its own line: scanners. Within minutes of
+`api.baheardle.com` getting its certificate (which goes into the public
+certificate logs scanners read), and through the workers.dev address
+too, about **180 requests in the first 2.5 hours** asked for `/.env`,
+`/.git/config`, `/config.json`, `/CLAUDE.md`, `/AGENTS.md`, `setup.php`
+and the like, from the Netherlands, Germany and the US. Each got a 404
+and cost D1 nothing, but each was a Worker request (10 more were
+redirected or answered by Cloudflare itself and never reached it). How
+many come in a usual day once the address is older is **not yet
+measured**; the dashboard's invocations, all versions, are the figure to
+watch after the release.
+
+**The Worker-request quota, in theory.** This is a theoretical
+calculation from these measurements, **not a production capacity**: it
+holds only if nothing else used the quota, and how often players open
+the site or play is a guess.
+
+- Quota: **100,000 Worker requests a UTC day**, for all our Workers' code
   together (the accounts and the rooms Workers; the site, audio, pictures
   and Now in Global are static files and don't count).
-- Used: **R × N**, R the requests of a signed-in player's day (about 10
-  measured as above; more for a player who opens the site more often,
-  each opening 1-2), N the signed-in players that day.
-- Headroom: **100,000 - R × N - everything excluded below**.
+- Used: **R × N + rooms + exceptional flows + unsolicited traffic**, R
+  the requests of a signed-in player's usual day (10 for planning; more
+  for a player who opens the site more often, each opening 1-2), N the
+  signed-in players that day.
+- Headroom: **100,000 - all of it**.
 
-| Signed-in players a day (N) | At R = 10 | Left of 100,000, before the exclusions | At R = 25 (step 3's sync) |
-| --------------------------- | --------- | -------------------------------------- | ------------------------- |
-| 1,000                       | 10,000    | 90,000                                 | 25,000 used               |
-| 2,000                       | 20,000    | 80,000                                 | 50,000 used               |
-| 5,000                       | 50,000    | 50,000                                 | over the quota            |
-| 10,000                      | 100,000   | 0: the ceiling, with nothing else      | over the quota            |
+| Signed-in players a day (N) | R × N at R = 10 | Left of 100,000, before the other lines | At R = 25 (step 3's sync) |
+| --------------------------- | --------------- | --------------------------------------- | ------------------------- |
+| 1,000                       | 10,000          | 90,000                                  | 25,000 used               |
+| 2,000                       | 20,000          | 80,000                                  | 50,000 used               |
+| 5,000                       | 50,000          | 50,000                                  | over the quota            |
+| 10,000                      | 100,000         | 0: the ceiling, with nothing else       | over the quota            |
 
-Left out of R, and taken from the same 100,000:
+The other lines, from the same 100,000:
 
 - **the rooms Worker:** one request per connection, reconnects included,
   for guests and signed-in players alike (about 8-10 for an 8-player
   game, so a busy day of 1,000 games is about 10,000);
-- **sign-ins:** about 12 requests each (measured for a new account; a
-  returning one is a few fewer), however rare;
-- **merges** (4 requests each), the Account tab (`GET /me` and its
-  preflight), Download my data, Delete account;
-- **more openings** of the site than assumed, 1-2 requests each;
-- the daily cron (one a day, if it counts at all).
+- **exceptional flows** (above): sign-ins, conflicts, links, the Account
+  tab, downloads and deletions, the daily cleanup;
+- **unsolicited traffic** (above): scanners, at a daily rate not yet
+  measured;
+- **more openings** of the site than assumed, 1-2 requests each.
 
-Guests cost the accounts Worker nothing: they never call it. They cost
-the Worker-request quota only through the rooms.
+Guests cost the accounts Worker nothing: they never call it (confirmed
+on Cloudflare: the page check's visit to every page of the preview made
+no accounts request). They cost the Worker-request quota only through
+the rooms.
 
 So the earlier "about 16,000 signed-in players a day" from 6 requests
 was wrong in two ways: it counted API calls only, and it read a
 theoretical ceiling as a capacity. With step 3's sync the ceiling was
 about 4,000; **with the cheaper sync it is about 10,000 signed-in
-players a day with no rooms and nothing else** - a ceiling, not a
-production capacity, and still to be checked against Cloudflare's own
-counts on the preview.
+players a day, theoretically, before the rooms, the exceptional flows
+and the unsolicited traffic take their share** - a calculation, not a
+production capacity.
+
+**The other quotas, in theory**, with the planning values and the same
+caveat:
+
+- **D1 writes:** 100,000 ÷ 6 = about **16,000** usual days, before
+  sign-ins (12 or 6-7 each) and the other flows.
+- **D1 reads:** 5,000,000 ÷ 50 = about **100,000** usual days; far
+  inside.
+- **D1 storage:** the developer save (every song, every mode on both
+  servers, about 4,300 rounds) is **66 KB gzipped in format 2**, against
+  505 KB as a save file (measured 2026-10-02). Without ids it would be
+  25 KB: the ids are most of it, about 9 bytes a round, as random digits
+  don't compress; the theme numbers in place of whole songs saved a fifth
+  of the rest. A keen player of 1,000 rounds is about 15 KB, so 500 MB
+  holds about **25,000 to 30,000 accounts**; a second database, or Workers
+  Paid ($5 a month, 10 GB a database), comes after that. Measured again on
+  real saves before it opens.
+- **Durable Object requests:** unchanged by accounts; still the rooms'
+  own limit, as in `docs/multiplayer.md`.
 
 **Rate limits:** as for the rooms, the Worker's rate-limit binding, per
-address (hashed): 10 sign-ins and 30 syncs a minute.
+address (hashed): 10 sign-ins and 60 other calls a minute.
 
 ## 7. Profiles and cosmetics in rooms
 
@@ -861,6 +960,11 @@ favourite student, title, banner, frame, background, expiry}` with
      new link._
 6. **Measured and opened:** the preview's numbers against section 6, then,
    when the user says so, the release with everything held since 4a460a1.
+   _Measured on `feat/preview-measure`, 2026-10-02, on the preview with the
+   user's own Google and Discord sign-ins (section 6): every case at or
+   under the local figures, and scanners found, given their own line in
+   the quota. Not yet observed: a preflight's reuse past 15 minutes, and
+   the daily cleanup on Cloudflare. The release waits for the user._
 
 ## Decisions (settled 2026-10-02)
 
