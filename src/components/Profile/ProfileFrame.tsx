@@ -10,6 +10,7 @@ import {
 import { backupUrlFor } from "../../helpers/audioUrl";
 import { pictureUrl } from "../../helpers/season";
 
+import { DriftLayer, paletteColors } from "./Drift";
 import * as Styled from "./index.styled";
 
 /** One shape of an ornament, its colours from the frame's palette. */
@@ -118,7 +119,8 @@ function Ornament({ frame, corner }: { frame: Frame; corner: FrameCorner }) {
 /**
  * A profile's frame around its card, or round the whole profile pop-up,
  * drawn from its parts: a border, a line inside it, glows and an ornament
- * on the corners.
+ * on the corners, and what moves: the border turning, the glows
+ * breathing, things twinkling round its edge.
  */
 export function ProfileFrame({
   frame,
@@ -132,9 +134,18 @@ export function ProfileFrame({
 }) {
   return (
     <Styled.Frame $popUp={popUp}>
+      {frame.border.spin && <Styled.FrameTurnProperty />}
       {FRAME_CORNERS.map((corner) => (
         <Ornament key={corner} frame={frame} corner={corner} />
       ))}
+      {frame.drift && (
+        <DriftLayer
+          drift={frame.drift}
+          colors={paletteColors(frame.colors, frame.drift.colors)}
+          seed={`frame:${frame.id}`}
+          edge
+        />
+      )}
       <Styled.FrameInner $frame={frame} $popUp={popUp}>
         {children}
       </Styled.FrameInner>

@@ -1,7 +1,8 @@
 import React from "react";
 
 import { ProfileBanner, WorkerPicture } from "./ProfileBanner";
-import { CardLook, Face } from "./PlayerCard";
+import { NameInk } from "./Drift";
+import { BackgroundDrift, CardLook, Face } from "./PlayerCard";
 import * as Styled from "./index.styled";
 
 /**
@@ -28,6 +29,9 @@ export function ProfileHero({
             picture={look.background.picture}
           />
         )}
+        {look.background.picture && (
+          <BackgroundDrift background={look.background} />
+        )}
       </Styled.HeroScene>
       <Styled.HeroActions>{actions}</Styled.HeroActions>
       <Styled.HeroBody>
@@ -35,7 +39,9 @@ export function ProfileHero({
           <Face student={look.student} name={look.name} size={face} />
         </Styled.HeroFace>
         <Styled.HeroText>
-          <Styled.HeroName>{look.name}</Styled.HeroName>
+          <Styled.HeroName>
+            <NameInk effect={look.nameEffect}>{look.name}</NameInk>
+          </Styled.HeroName>
           <ProfileBanner banner={look.banner} title={look.title} size="large" />
           {children}
         </Styled.HeroText>

@@ -21,6 +21,7 @@ export function lockedLists(
     banners: cosmetics.banners,
     frames: cosmetics.frames,
     backgrounds: cosmetics.backgrounds,
+    nameEffects: cosmetics.nameEffects,
   };
 }
 

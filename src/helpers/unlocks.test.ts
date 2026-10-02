@@ -81,6 +81,7 @@ describe("a retired mission", () => {
           banner: BANNERS[0].id,
           frame: "schale",
           background: "cherry",
+          nameEffect: "none",
         },
         ["first-daily"]
       ).background

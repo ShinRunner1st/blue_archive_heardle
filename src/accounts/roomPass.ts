@@ -52,7 +52,13 @@ export async function makeRoomPass(
       p: row.public_id,
       n: profile?.name ?? "",
       s: profile?.student ?? null,
-      l: [look.title, look.banner, look.frame, look.background],
+      l: [
+        look.title,
+        look.banner,
+        look.frame,
+        look.background,
+        look.nameEffect,
+      ],
       e: expires,
       // Its profile hidden from the room (docs/room-profiles.md): the room
       // neither marks its card nor signs a ticket for it.
@@ -82,19 +88,20 @@ export async function readRoomPass(
     typeof n !== "string" ||
     !(s === null || (typeof s === "number" && Number.isSafeInteger(s))) ||
     !Array.isArray(l) ||
-    l.length !== 4 ||
+    // Four before name effects: a pass from then wears the plain one.
+    (l.length !== 4 && l.length !== 5) ||
     typeof e !== "number" ||
     e < now ||
     (h !== undefined && h !== 1)
   ) {
     return null;
   }
-  const [title, banner, frame, background] = l as unknown[];
+  const [title, banner, frame, background, nameEffect] = l as unknown[];
   return {
     publicId: p,
     name: n,
     student: s,
-    look: cleanLook({ title, banner, frame, background }),
+    look: cleanLook({ title, banner, frame, background, nameEffect }),
     expires: e,
     ...(h === 1 ? { hidden: true as const } : {}),
   };

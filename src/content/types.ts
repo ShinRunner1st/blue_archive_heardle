@@ -10,6 +10,7 @@ import type {
   CharacterOption,
   CursorColor,
   Frame,
+  NameEffect,
   ProfileBackground,
 } from "../constants/cosmetics";
 import type { Mission, MissionGroup } from "../constants/missions";
@@ -32,6 +33,7 @@ export interface CosmeticsFile {
   banners: Banner[];
   frames: Frame[];
   backgrounds: ProfileBackground[];
+  nameEffects: NameEffect[];
 }
 
 /** An OST album, as badges.json writes it. */

@@ -26,6 +26,7 @@ import {
   type MakerGuide,
   OrnamentMaker,
 } from "./OrnamentMaker";
+import { DriftFields } from "./MotionEditor";
 import { ColorField } from "./pickers";
 import { shapesFromSvg } from "./svgImport";
 import {
@@ -64,6 +65,7 @@ function usedColors(frame: Frame): Set<FrameColor> {
   const used = new Set<FrameColor>(frame.border.colors);
   if (frame.inner) used.add(frame.inner.color);
   frame.glows?.forEach(({ color }) => used.add(color));
+  frame.drift?.colors.forEach((color) => used.add(color));
   [
     ...(frame.ornament?.shapes ?? []),
     ...Object.values(frame.ornament?.own ?? {}).flat(),
@@ -127,6 +129,10 @@ export function withoutColor(frame: Frame, removed: FrameColor): Patch {
     border: { ...frame.border, colors: frame.border.colors.map(at) },
     inner: frame.inner && { ...frame.inner, color: at(frame.inner.color) },
     glows: frame.glows?.map((glow) => ({ ...glow, color: at(glow.color) })),
+    drift: frame.drift && {
+      ...frame.drift,
+      colors: frame.drift.colors.map(at),
+    },
     ornament: frame.ornament && {
       ...frame.ornament,
       shapes: recolored(frame.ornament.shapes, maybe),
@@ -169,7 +175,7 @@ const SwatchButton = styled.button.attrs({ type: "button" })<{
 `;
 
 /** One of the palette's colours, by its number, or none. */
-function ColorPick({
+export function ColorPick({
   label,
   value,
   colors,
@@ -215,7 +221,7 @@ function ColorPick({
 }
 
 /** A number typed in, kept as text while it isn't one yet. */
-function NumberField({
+export function NumberField({
   label,
   name,
   value,
@@ -266,7 +272,7 @@ const Details = styled.details`
 `;
 
 /** Fields side by side. */
-const Fields = styled(Row)`
+export const Fields = styled(Row)`
   align-items: flex-start;
   gap: 12px;
 `;
@@ -614,7 +620,9 @@ export function FrameFields({
               border: copy.border,
               inner: copy.inner,
               glows: copy.glows,
+              pulse: copy.pulse,
               ornament: copy.ornament,
+              drift: copy.drift,
             });
           }}
         >
@@ -696,6 +704,15 @@ export function FrameFields({
               step={5}
               onChange={(angle) => setBorder({ angle })}
             />
+            <NumberField
+              label="Turns once in, s (0: still)"
+              name="border-spin"
+              value={border.spin ?? 0}
+              step={1}
+              onChange={(spin) =>
+                setBorder({ spin: spin > 0 ? spin : undefined })
+              }
+            />
           </>
         )}
       </Fields>
@@ -725,6 +742,7 @@ export function FrameFields({
                   colors: next,
                   gradient: next.length > 1 ? border.gradient : undefined,
                   angle: next.length > 1 ? border.angle : undefined,
+                  spin: next.length > 1 ? border.spin : undefined,
                 });
               }}
             >
@@ -806,7 +824,11 @@ export function FrameFields({
               aria-label={`Remove glow ${i + 1}`}
               onClick={() => {
                 const next = glows.filter((_, j) => j !== i);
-                onChange({ glows: next.length > 0 ? next : undefined });
+                // A pulse breathes the glows: none left, nothing to breathe.
+                onChange({
+                  glows: next.length > 0 ? next : undefined,
+                  ...(next.length === 0 ? { pulse: undefined } : {}),
+                });
               }}
             >
               ✕
@@ -852,6 +874,55 @@ export function FrameFields({
       >
         + Glow
       </Button>
+      {glows.length > 0 && (
+        <>
+          <Check>
+            <input
+              type="checkbox"
+              name="frame-pulse"
+              checked={!!frame.pulse}
+              onChange={(event) =>
+                onChange({
+                  pulse: event.target.checked
+                    ? { seconds: 3, low: 0.35 }
+                    : undefined,
+                })
+              }
+            />
+            The glows breathe, growing and fading
+          </Check>
+          {frame.pulse && (
+            <Fields>
+              <NumberField
+                label="One breath, s"
+                name="pulse-seconds"
+                value={frame.pulse.seconds}
+                step={0.5}
+                onChange={(seconds) =>
+                  frame.pulse &&
+                  onChange({ pulse: { ...frame.pulse, seconds } })
+                }
+              />
+              <NumberField
+                label="At their faintest, 0-1"
+                name="pulse-low"
+                value={frame.pulse.low}
+                step={0.05}
+                onChange={(low) =>
+                  frame.pulse && onChange({ pulse: { ...frame.pulse, low } })
+                }
+              />
+            </Fields>
+          )}
+        </>
+      )}
+
+      <DriftFields
+        drift={frame.drift}
+        palette={colors}
+        hint="Things twinkling round the edge, or falling or rising down its sides"
+        onChange={(drift) => onChange({ drift })}
+      />
 
       <Heading as="h3">Ornament</Heading>
       <Check>

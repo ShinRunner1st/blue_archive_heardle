@@ -9,7 +9,7 @@
       "paragraphs": [
         "Your scores, streaks, missions, profile and settings are saved only in this browser. Nothing about them is sent anywhere. There's no save file to move them: clearing this browser's data, or playing on another device, starts again.",
         "As a guest you can clear a few starter missions, and wear what they unlock; every other mission and reward, and verified results, need an account.",
-        "In Multiplayer, a room gets the name and picture from your profile (or the student you pick for it), the title, banner, frame and background you picked, and your answers, and shows them to the other players in it. When the room closes, everything about it is deleted. Your browser keeps a random key for each room you were in, for a few hours, so a tab closed by mistake can go back in as you."
+        "In Multiplayer, a room gets the name and picture from your profile (or the student you pick for it), the title, banner, frame, background and name effect you picked, and your answers, and shows them to the other players in it. When the room closes, everything about it is deleted. Your browser keeps a random key for each room you were in, for a few hours, so a tab closed by mistake can go back in as you."
       ]
     },
     {
@@ -21,7 +21,7 @@
       ],
       "list": [
         "your Google or Discord account's id: a number that tells us it's you, not your email, name or picture there;",
-        "the name and favourite student you set in your profile, and the title, banner, frame, background and Sensei card colours you picked;",
+        "the name and favourite student you set in your profile, and the title, banner, frame, background, name effect and Sensei card colours you picked;",
         "your progress: your rounds in every game and mode, your multiplayer games and the missions you've cleared, as a copy of your save, and the copy from before the last time two of your devices' progress was joined;",
         "a summary of your record (rounds played, wins, best streaks and the like), worked out from your progress;",
         "your verified results, and your daily time zone: see Verified results below;",
@@ -64,7 +64,7 @@
       "id": "who",
       "title": "Who sees what",
       "paragraphs": [
-        "Other players in a room see your name, picture, title, banner, frame and background while you're in it.",
+        "Other players in a room see your name, picture, title, banner, frame, background and name effect while you're in it.",
         "Signed in, players in a room with you, guests too, can also tap your card to see your profile: the totals of your verified results (for each daily played, how many and how many won, your best streak and fastest verified find; your room games and places; since when) and the summary of your own saves (rounds and days played, dailies won, best streaks, songs guessed, students found, missions, OST badges, room games), shown as from your own saves, not verified. Only while they're in the same room as you: the room hands their page a ticket for your profile that works for a few minutes, and never your account's id.",
         "They never see your Google or Discord account, your time zone, your dailies one by one or your guesses, and nobody can look you up outside a room. To hide your profile: ☰ Profile, Account, Your profile in rooms; it takes effect at once.",
         "Nobody else sees your progress. If others can ever see more, this page will say so first."

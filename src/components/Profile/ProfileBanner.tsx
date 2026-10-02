@@ -5,6 +5,7 @@ import { iconNamed } from "../../constants/icons";
 import { backupUrlFor } from "../../helpers/audioUrl";
 import { pictureUrl } from "../../helpers/season";
 
+import { DriftLayer } from "./Drift";
 import * as Styled from "./index.styled";
 import { OrnamentShapeView } from "./ProfileFrame";
 
@@ -12,7 +13,8 @@ import { OrnamentShapeView } from "./ProfileFrame";
  * The player's title on its nameplate, as the game shows its emblems (user
  * titles): a plate of a picture or a foil, the game's facets, grid or lines
  * over it, a light rim, the title on a soft band, an emblem in a ring, as a
- * crest or down the side, and a tag at its foot. All from its entry.
+ * crest or down the side, and a tag at its foot; and what moves: a light
+ * across it, its picture panning, things drifting. All from its entry.
  */
 export function ProfileBanner({
   banner,
@@ -35,12 +37,27 @@ export function ProfileBanner({
       $size={size}
       $fill={banner.picture ? undefined : banner.fill}
       $accent={banner.accent}
+      $pan={banner.picture ? banner.pan : undefined}
     >
       {banner.picture && (
         <WorkerPicture key={banner.picture} picture={banner.picture} />
       )}
       {banner.pattern && (
         <BannerPattern pattern={banner.pattern} accent={banner.accent} />
+      )}
+      {banner.drift && (
+        <DriftLayer
+          drift={banner.drift}
+          colors={banner.drift.colors}
+          seed={`banner:${banner.id}`}
+        />
+      )}
+      {banner.shine && (
+        <Styled.BannerShine
+          $color={banner.shine.color}
+          $seconds={banner.shine.seconds}
+          aria-hidden="true"
+        />
       )}
       {emblem?.style === "side" && emblem.picture && (
         <Styled.SideEmblem

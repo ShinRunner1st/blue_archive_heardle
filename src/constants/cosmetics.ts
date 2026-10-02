@@ -83,6 +83,47 @@ export interface CharacterOption extends Cosmetic {
 
 export const CHARACTER_CHOICES = cosmeticData.characters as CharacterOption[];
 
+/*
+ * Moving parts, shared by banners, frames and backgrounds: things drifting
+ * over them, each a few spans the browser moves by itself (transforms and
+ * fades only), placed the same way on every page from the cosmetic's id.
+ */
+
+/** What drifts: petals, snow, sparks, stars, leaves or bubbles. */
+export const DRIFT_SHAPES = [
+  "petal",
+  "snow",
+  "spark",
+  "star",
+  "leaf",
+  "bubble",
+] as const;
+export type DriftShape = (typeof DRIFT_SHAPES)[number];
+
+/** How they move: falling across, rising, or twinkling where they are. */
+export const DRIFT_WAYS = ["fall", "rise", "twinkle"] as const;
+export type DriftWay = (typeof DRIFT_WAYS)[number];
+
+/**
+ * Things drifting over a cosmetic. Its colours are hex on a banner or a
+ * background, and places in the palette on a frame, as a frame's are.
+ */
+export interface Drift<C = string> {
+  shape: DriftShape;
+  way: DriftWay;
+  /** How many at once. */
+  count: number;
+  /** Seconds for one to cross, or to twinkle once. */
+  seconds: number;
+  /** Each one's size, in px. */
+  size: number;
+  /** Each takes one in turn. */
+  colors: C[];
+}
+
+/** The most a cosmetic has drifting, so eight cards in a room stay light. */
+export const MAX_DRIFT = 24;
+
 /** The patterns a nameplate can have over it, like the game's own plates. */
 export const BANNER_PATTERNS = ["facets", "grid", "lines"] as const;
 export type BannerPattern = (typeof BANNER_PATTERNS)[number];
@@ -135,6 +176,17 @@ export interface Banner extends Cosmetic {
   emblem?: BannerEmblem;
   /** A few words in a pill at its foot, such as "30 DAYS". */
   tag?: string;
+  /** A light sweeping across the plate now and then, as over foil. */
+  shine?: BannerShine;
+  /** Seconds for its picture to pan slowly across and back. */
+  pan?: number;
+  drift?: Drift;
+}
+
+export interface BannerShine {
+  color: string;
+  /** Seconds from one sweep to the next. */
+  seconds: number;
 }
 
 /** A blank banner has no look of its own: ProfileBanner draws none. */
@@ -164,6 +216,8 @@ export interface FrameBorder {
   gradient?: (typeof FRAME_GRADIENTS)[number];
   /** In degrees. */
   angle?: number;
+  /** Seconds for a gradient to turn once round. */
+  spin?: number;
 }
 
 /** A thin line inside the border, the page's colour between them. */
@@ -250,7 +304,18 @@ export interface Frame extends Cosmetic {
   border: FrameBorder;
   inner?: FrameInnerLine;
   glows?: FrameGlow[];
+  /** The glows growing and fading, as a breath. */
+  pulse?: FramePulse;
   ornament?: FrameOrnament;
+  /** Things drifting or twinkling round its edge. */
+  drift?: Drift<FrameColor>;
+}
+
+export interface FramePulse {
+  /** Seconds for one breath. */
+  seconds: number;
+  /** How strong the glows are at their faintest, 0 to 1 of their own. */
+  low: number;
 }
 
 export const FRAMES = cosmeticData.frames as unknown as Frame[];
@@ -258,6 +323,38 @@ export const FRAMES = cosmeticData.frames as unknown as Frame[];
 /** A scene behind the profile and its card: a picture on the Worker. */
 export interface ProfileBackground extends Cosmetic {
   picture?: string;
+  /** Things drifting over the scene: petals, snow, sparks. */
+  drift?: Drift;
 }
 
 export const BACKGROUNDS = cosmeticData.backgrounds as ProfileBackground[];
+
+/** How a name's letters move: their colours flowing, a light, a breath. */
+export const NAME_MOTIONS = ["flow", "shine", "pulse", "flicker"] as const;
+export type NameMotion = (typeof NAME_MOTIONS)[number];
+
+export interface NameMotionPart {
+  kind: NameMotion;
+  /** Seconds for one round of it. */
+  seconds: number;
+  /** A shine's light, from the palette; white with none. */
+  color?: FrameColor;
+}
+
+/**
+ * How the player's name is drawn on their card, in rooms too: its letters'
+ * colours (one, or a gradient across), a glow, and a motion. Colours are
+ * places in its palette, as a frame's are. Drawn by NameInk.
+ */
+export interface NameEffect extends Cosmetic {
+  colors: string[];
+  /** The letters' colours, left to right; the page's own with none. */
+  fill?: FrameColor[];
+  /** A gradient's angle, in degrees. */
+  angle?: number;
+  glow?: { color: FrameColor; blur: number; strength: number };
+  motion?: NameMotionPart;
+}
+
+/** The first is plain: the name as it ever was. */
+export const NAME_EFFECTS = cosmeticData.nameEffects as unknown as NameEffect[];

@@ -8,12 +8,19 @@ import { songs } from "../constants";
 import {
   type Banner,
   BANNER_PATTERNS,
+  type Drift,
+  DRIFT_SHAPES,
+  DRIFT_WAYS,
   EMBLEM_STYLES,
   type Frame,
   FRAME_CORNERS,
   FRAME_GRADIENTS,
+  MAX_DRIFT,
+  NAME_MOTIONS,
+  type NameEffect,
   ORNAMENT_SHAPES,
   type OrnamentShape,
+  type ProfileBackground,
 } from "../constants/cosmetics";
 import { ICONS } from "../constants/icons";
 import {
@@ -225,6 +232,39 @@ function shapeProblems(
 }
 
 /**
+ * What's wrong with things drifting over a cosmetic: a shape and a way the
+ * page draws, few enough to keep a room of cards light, and colours.
+ */
+export function driftProblems(
+  drift: Drift<unknown>,
+  isColor: (color: unknown) => boolean
+): string[] {
+  const problems: string[] = [];
+  const need = (ok: boolean, problem: string) => ok || problems.push(problem);
+  need(
+    (DRIFT_SHAPES as readonly string[]).includes(drift.shape),
+    `drift: a shape is ${DRIFT_SHAPES.join(", ")}`
+  );
+  need(
+    (DRIFT_WAYS as readonly string[]).includes(drift.way),
+    `drift: a way is ${DRIFT_WAYS.join(", ")}`
+  );
+  need(
+    Number.isInteger(drift.count) && isBetween(drift.count, 1, MAX_DRIFT),
+    `drift: a count of 1-${MAX_DRIFT}`
+  );
+  need(isBetween(drift.seconds, 0.5, 60), "drift: 0.5-60 seconds");
+  need(isBetween(drift.size, 1, 24), "drift: a size of 1-24 px");
+  need(
+    Array.isArray(drift.colors) &&
+      drift.colors.length > 0 &&
+      drift.colors.every(isColor),
+    "drift: one colour or more"
+  );
+  return problems;
+}
+
+/**
  * What's wrong with a frame's parts: each colour a part names must be in
  * its palette, and every size within what a card can carry.
  */
@@ -239,7 +279,7 @@ export function frameProblems(frame: Frame): string[] {
     (at as number) >= 0 &&
     (at as number) < colors.length;
 
-  const { border, inner, glows, ornament } = frame;
+  const { border, inner, glows, pulse, drift, ornament } = frame;
   if (!border) return [...problems, "no border"];
   need(isBetween(border.width, 0.5, 8), "the border's width must be 0.5-8");
   need(
@@ -256,6 +296,16 @@ export function frameProblems(frame: Frame): string[] {
   }
   if (border.angle !== undefined)
     need(isBetween(border.angle, -360, 360), "the angle must be -360 to 360");
+  if (border.spin !== undefined) {
+    need(isBetween(border.spin, 1, 60), "a turn takes 1-60 seconds");
+    need(border.colors.length > 1, "only a gradient turns");
+  }
+  if (pulse) {
+    need(isBetween(pulse.seconds, 0.5, 20), "a pulse takes 0.5-20 seconds");
+    need(isBetween(pulse.low, 0, 1), "a pulse's low must be 0-1");
+    need((glows ?? []).length > 0, "a pulse needs a glow");
+  }
+  if (drift) problems.push(...driftProblems(drift, isColor));
   if (inner) {
     need(isBetween(inner.gap, 0, 12), "the inner line's gap must be 0-12");
     need(
@@ -376,6 +426,16 @@ export function bannerProblems(banner: Banner): string[] {
     );
   }
 
+  if (banner.shine) {
+    need(isHex(banner.shine.color), "shine: its colour must be #rrggbb");
+    need(isBetween(banner.shine.seconds, 1, 30), "shine: 1-30 seconds");
+  }
+  if (banner.pan !== undefined) {
+    need(isBetween(banner.pan, 4, 120), "a pan takes 4-120 seconds");
+    need(!!banner.picture, "only a picture pans");
+  }
+  if (banner.drift) problems.push(...driftProblems(banner.drift, isHex));
+
   const { emblem } = banner;
   if (!emblem) return problems;
   if (!(EMBLEM_STYLES as readonly string[]).includes(emblem.style)) {
@@ -431,6 +491,57 @@ export function bannerProblems(banner: Banner): string[] {
   return problems;
 }
 
+/** What's wrong with a background's parts: its drift, if it has one. */
+export function backgroundProblems(background: ProfileBackground): string[] {
+  return background.drift ? driftProblems(background.drift, isHex) : [];
+}
+
+/**
+ * What's wrong with a name effect: colours of its palette, a glow and a
+ * motion the page draws, and a motion that has what it moves (a flow, a
+ * gradient; a pulse, a glow).
+ */
+export function nameEffectProblems(effect: NameEffect): string[] {
+  const problems: string[] = [];
+  const need = (ok: boolean, problem: string) => ok || problems.push(problem);
+  const colors = Array.isArray(effect.colors) ? effect.colors : [];
+  need(colors.length > 0, "no colours");
+  need(colors.every(isHex), "colours must be #rrggbb");
+  const isColor = (at: unknown) =>
+    Number.isInteger(at) &&
+    (at as number) >= 0 &&
+    (at as number) < colors.length;
+  const { fill, glow, motion } = effect;
+  if (fill !== undefined) {
+    need(
+      Array.isArray(fill) && fill.length > 0 && fill.every(isColor),
+      "the fill's colours must be colours of the effect's"
+    );
+  }
+  if (effect.angle !== undefined)
+    need(isBetween(effect.angle, -360, 360), "the angle must be -360 to 360");
+  if (glow) {
+    need(isColor(glow.color), "the glow's colour isn't the effect's");
+    need(isBetween(glow.blur, 0, 16), "the glow's blur must be 0-16");
+    need(isBetween(glow.strength, 0, 1), "the glow's strength must be 0-1");
+  }
+  need(!!(fill || glow), "a fill, a glow or both");
+  if (motion) {
+    need(
+      (NAME_MOTIONS as readonly string[]).includes(motion.kind),
+      `a motion is ${NAME_MOTIONS.join(", ")}`
+    );
+    need(isBetween(motion.seconds, 0.5, 30), "a motion takes 0.5-30 seconds");
+    if (motion.color !== undefined)
+      need(isColor(motion.color), "the shine's colour isn't the effect's");
+    if (motion.kind === "flow")
+      need((fill?.length ?? 0) > 1, "a flow needs two fill colours or more");
+    if (motion.kind === "pulse" || motion.kind === "flicker")
+      need(!!glow, `a ${motion.kind} needs a glow`);
+  }
+  return problems;
+}
+
 /** Days in a month of a leap year, so 29 February counts. */
 const daysIn = (month: number) => new Date(2028, month, 0).getDate();
 
@@ -472,6 +583,7 @@ const shippedLists = ({
   banners: cosmetics.banners,
   frames: cosmetics.frames,
   backgrounds: cosmetics.backgrounds,
+  nameEffects: cosmetics.nameEffects,
 });
 
 export function checkContent(
@@ -749,6 +861,18 @@ export function checkContent(
           env.pictureFiles[picture],
           `frame ${frame.id}: ${picture} isn't on the Worker`
         );
+      }
+    }
+    for (const background of cosmetics.backgrounds) {
+      for (const problem of backgroundProblems(background)) {
+        report(false, `background ${background.id}: ${problem}`);
+      }
+    }
+    for (const effect of cosmetics.nameEffects ?? []) {
+      // The plain one draws the name as ever, so has no look to check.
+      if (effect.blank) continue;
+      for (const problem of nameEffectProblems(effect)) {
+        report(false, `name effect ${effect.id}: ${problem}`);
       }
     }
     for (const background of cosmetics.backgrounds.slice(1)) {

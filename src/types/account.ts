@@ -78,6 +78,7 @@ export interface AccountProfile {
   banner: string;
   frame: string;
   background: string;
+  nameEffect: string;
   cardColors: string;
   /** When the picks were last changed, on the page that changed them. */
   editedAt: number;

@@ -44,6 +44,7 @@ describe("the lock", () => {
         banners: [],
         frames: [],
         backgrounds: [],
+        nameEffects: [],
       },
     } as unknown as ContentFiles);
   const shipped = { missions: ["a", "b"], titles: ["t"] } as IdsLock;

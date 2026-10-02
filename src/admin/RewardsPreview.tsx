@@ -1,6 +1,7 @@
 /**
  * The rewards in the preview frame, each where players meet it: titles and
- * colours on the Sensei card, banners, frames and backgrounds in Customize
+ * colours on the Sensei card, banners, frames, backgrounds and name effects
+ * in Customize
  * and on the cards rooms show, cursor colours and characters in Settings.
  * All drawn by the game's own components from the draft.
  */
@@ -22,6 +23,7 @@ import type {
   Cosmetic,
   CursorColor,
   Frame,
+  NameEffect,
   ProfileBackground,
 } from "../constants/cosmetics";
 import { students } from "../constants/students";
@@ -86,6 +88,7 @@ export function RewardsPreview({
     banner: pickOf<Banner>("banners", cosmetics.banners),
     frame: pickOf<Frame>("frames", cosmetics.frames),
     background: pickOf<ProfileBackground>("backgrounds", cosmetics.backgrounds),
+    nameEffect: pickOf<NameEffect>("nameEffects", cosmetics.nameEffects),
   };
 
   switch (list) {
@@ -173,6 +176,8 @@ export function RewardsPreview({
           ? "banner"
           : list === "frames"
           ? "frame"
+          : list === "nameEffects"
+          ? "nameEffect"
           : "background";
       return (
         // As the profile shows them: its head with the background and the
@@ -215,6 +220,8 @@ export function RewardsPreview({
                       ? "Banner"
                       : kind === "frame"
                       ? "Frame"
+                      : kind === "nameEffect"
+                      ? "Name effect"
                       : "Background"}
                   </ProfileStyled.SubHeading>
                 </ProfileStyled.SectionHead>

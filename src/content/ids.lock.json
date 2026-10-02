@@ -117,6 +117,15 @@
     "students-200",
     "roll-call"
   ],
+  "nameEffects": [
+    "none",
+    "halo-gold",
+    "sky",
+    "neon",
+    "sakura",
+    "prism",
+    "ember"
+  ],
   "withdrawn": {
     "missions": [
       "daily-14",

@@ -7,6 +7,8 @@ import {
   CARD_TITLES,
   Frame,
   FRAMES,
+  NAME_EFFECTS,
+  NameEffect,
   ProfileBackground,
   titleText,
 } from "../../constants/cosmetics";
@@ -17,6 +19,7 @@ import { useMediaQuery } from "../../hooks/useMediaQuery";
 import { RoomLook } from "../../types/room";
 import { Portrait, usePortraits } from "../Portrait";
 
+import { DriftLayer, NameInk } from "./Drift";
 import { ProfileBanner, WorkerPicture } from "./ProfileBanner";
 import { ProfileFrame } from "./ProfileFrame";
 import * as Styled from "./card.styled";
@@ -30,6 +33,8 @@ export interface CardLook {
   banner: Banner;
   frame: Frame;
   background: ProfileBackground;
+  /** How the name is drawn: its colours, glow and motion. */
+  nameEffect: NameEffect;
 }
 
 /** The card as the player has it now, as Customize dresses it. */
@@ -42,6 +47,7 @@ export function currentLook(): CardLook {
     banner: pickedOf("banner"),
     frame: pickedOf("frame"),
     background: pickedOf("background"),
+    nameEffect: pickedOf("nameEffect"),
   };
 }
 
@@ -71,6 +77,7 @@ export function roomLook(
     banner: byId(BANNERS, look?.banner),
     frame: byId(FRAMES, look?.frame),
     background: byId(BACKGROUNDS, look?.background),
+    nameEffect: byId(NAME_EFFECTS, look?.nameEffect),
   };
 }
 
@@ -165,7 +172,7 @@ export function PlayerCard({
               $you={you}
               title={look.name}
             >
-              {look.name}
+              <NameInk effect={look.nameEffect}>{look.name}</NameInk>
               {you && variant === "wide" && <small> (you)</small>}
             </Styled.CardName>
             {banner && (
@@ -211,11 +218,27 @@ function CardBack({
           key={look.background.picture}
           picture={look.background.picture}
         />
+        <BackgroundDrift background={look.background} />
       </Styled.CardScene>
     );
   }
   const art = look.student === null ? undefined : portraits.get(look.student);
   return art ? <CardArt key={art} url={art} variant={variant} /> : null;
+}
+
+/** Things drifting over a background's scene, if it has them. */
+export function BackgroundDrift({
+  background,
+}: {
+  background: ProfileBackground;
+}) {
+  return background.drift ? (
+    <DriftLayer
+      drift={background.drift}
+      colors={background.drift.colors}
+      seed={`background:${background.id}`}
+    />
+  ) : null;
 }
 
 /**

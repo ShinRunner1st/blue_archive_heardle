@@ -1176,6 +1176,20 @@ admin`, on their PC only, nothing deployed or in the site's build),
      backgrounds (petals, snow, sparks over the scene), banners (a light
      across foil, a slow pan) and frames (pulsing glows, a turning border,
      drifting sparkles), each made from parts in the tool.
+     _Built on `feat/moving-cosmetics`, off `feat/nameplates`: name
+     effects (`nameEffects`, a palette with the letters' colours, a glow
+     and a motion: flow, shine, pulse or flicker), in Customize, on every
+     card and the profile's head, in rooms (`PROTOCOL` 8), the account
+     (migration 0007, `name_effect`), room passes (an old pass of four
+     still reads, plain) and Download my data, the policy first. Six,
+     everyone's (`"free": true`) until step 4 gives them missions. A
+     `drift` part (petals, snow, sparks, stars, leaves, bubbles; falling,
+     rising or twinkling, 24 at most) on backgrounds, banners and round a
+     frame's edge, laid out from the id; a banner's `shine` and `pan`; a
+     frame's `border.spin` and `pulse`. All CSS, no script while they
+     move. Given to the cosmetics they suit (foils shine, the prism frame
+     turns, neon and halo breathe, petals, snow and sparks on their
+     scenes). Each part edited in the tool, previewed moving._
   3. **More characters**: the most popular in the official polls of 2025
      and 2026, their sprites from the game's files (downloading what's
      missing with BA-AD), a basic set-up each for the user to check.

@@ -2,6 +2,7 @@ import {
   BACKGROUNDS,
   BANNERS,
   FRAMES,
+  NAME_EFFECTS,
   CARD_COLORS,
   CARD_TITLES,
   CHARACTER_CHOICES,
@@ -16,6 +17,7 @@ import {
   CARD_COLORS_KEY,
   CARD_TITLE_KEY,
   CURSOR_COLOR_KEY,
+  NAME_EFFECT_KEY,
   PROFILE_BACKGROUND_KEY,
   PROFILE_BANNER_KEY,
   PROFILE_FRAME_KEY,
@@ -129,6 +131,11 @@ export const COSMETIC_KINDS = {
     label: "Background",
     list: BACKGROUNDS,
     key: PROFILE_BACKGROUND_KEY,
+  },
+  nameEffect: {
+    label: "Name effect",
+    list: NAME_EFFECTS,
+    key: NAME_EFFECT_KEY,
   },
 } satisfies Record<string, { label: string; list: Cosmetic[]; key: string }>;
 
@@ -285,6 +292,7 @@ const KIND_LISTS: Record<
   banner: "banners",
   frame: "frames",
   background: "backgrounds",
+  nameEffect: "nameEffects",
 };
 
 /**

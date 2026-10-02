@@ -8,7 +8,7 @@ import { Server } from "./server";
  * whenever a message changes, and a page on an older version is told to
  * reload.
  */
-export const PROTOCOL = 7;
+export const PROTOCOL = 8;
 
 /** The games a room can play: songs, students by voice, or by picture. */
 export type RoomGame = "ost" | "voice" | "picture";
@@ -193,6 +193,7 @@ export interface RoomLook {
   banner: string;
   frame: string;
   background: string;
+  nameEffect: string;
 }
 
 /**

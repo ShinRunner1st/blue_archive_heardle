@@ -10,6 +10,7 @@ const lock = (missions: string[], withdrawn?: string[]): IdsLock => ({
   cursorColors: [],
   characters: [],
   banners: [],
+  nameEffects: [],
   frames: [],
   backgrounds: [],
   ...(withdrawn && { withdrawn: { missions: withdrawn } }),

@@ -56,6 +56,28 @@ describe("the content files", () => {
 });
 
 describe("checkContent", () => {
+  it("checks what moves: drifts, shines, turns, pulses and name effects", () => {
+    const content = copy();
+    const { banners, frames, backgrounds, nameEffects } = content.cosmetics;
+    backgrounds.find(({ id }) => id === "lodge")!.drift!.count = 200;
+    banners.find(({ id }) => id === "gold")!.pan = 18;
+    const neon = frames.find(({ id }) => id === "neon")!;
+    neon.glows = undefined;
+    frames.find(({ id }) => id === "schale")!.border.spin = 8;
+    const sky = nameEffects.find(({ id }) => id === "sky")!;
+    sky.fill = [0];
+    const neonName = nameEffects.find(({ id }) => id === "neon")!;
+    neonName.glow = undefined;
+    expect(messages(content, "cosmetics")).toEqual([
+      "banner gold: only a picture pans",
+      "frame schale: only a gradient turns",
+      "frame neon: a pulse needs a glow",
+      "background lodge: drift: a count of 1-24",
+      "name effect sky: a flow needs two fill colours or more",
+      "name effect neon: a flicker needs a glow",
+    ]);
+  });
+
   it("keeps every shipped id: retire one, never remove it", () => {
     const content = copy();
     content.missions.missions = content.missions.missions.filter(

@@ -14,6 +14,7 @@ import { Standings } from "../components/Multiplayer/Standings";
 import { songs } from "../constants";
 import {
   BACKGROUNDS,
+  NAME_EFFECTS,
   BANNERS,
   CARD_TITLES,
   FRAMES,
@@ -43,6 +44,7 @@ const KINDS: Array<{
   { list: "banners", look: "banner", kind: "banner" },
   { list: "frames", look: "frame", kind: "frame" },
   { list: "backgrounds", look: "background", kind: "background" },
+  { list: "nameEffects", look: "nameEffect", kind: "nameEffect" },
 ];
 
 /** Whether a list's rewards show on the cards rooms draw. */
@@ -106,6 +108,7 @@ function wearDraftLists(cosmetics: CosmeticsFile) {
   swap(BANNERS, cosmetics.banners);
   swap(FRAMES, cosmetics.frames);
   swap(BACKGROUNDS, cosmetics.backgrounds);
+  swap(NAME_EFFECTS, cosmetics.nameEffects);
 }
 
 /** A made-up room of eight, at the screen asked for. */

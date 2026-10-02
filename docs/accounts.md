@@ -914,7 +914,8 @@ accounts`, localhost only), so the whole flow is tried without
    - _**The pass:** `GET /room-pass` reads the account's public id, its
      profile and its missions (one session read and three small
      queries, about 40 rows, no write) and signs `{public id, name,
-favourite student, title, banner, frame, background, expiry}` with
+favourite student, title, banner, frame, background, name effect,
+expiry}` with
      `ROOM_PASS_KEY` (HMAC-SHA-256, its own kind, so a sign-in's state
      can't pass for one), good for 12 hours. Each cosmetic is the
      profile's pick only if one of the account's missions unlocks it,

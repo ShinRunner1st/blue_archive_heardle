@@ -15,7 +15,8 @@ import {
 } from "../constants/cosmetics";
 import { pictureUrl } from "../helpers/season";
 import { TAG_LENGTH } from "../content/validate";
-import { ShapesEditor } from "./FrameEditor";
+import { Fields, NumberField, ShapesEditor } from "./FrameEditor";
+import { DriftFields } from "./MotionEditor";
 import { ORNAMENT_LIBRARY, placed } from "./ornamentLibrary";
 import { EMBLEM_PICTURES } from "./OrnamentMaker";
 import {
@@ -80,6 +81,9 @@ const LOOK = [
   "ink",
   "accent",
   "emblem",
+  "shine",
+  "pan",
+  "drift",
 ] as const;
 
 /** An emblem of a style, from the one there: what it can keep, it does. */
@@ -158,6 +162,7 @@ export function BannerFields({
                 })
               : onChange({
                   picture: undefined,
+                  pan: undefined,
                   fill: banner.fill ?? ["#22305A", "#2E4A8C"],
                 })
           }
@@ -354,6 +359,74 @@ export function BannerFields({
           )}
         </>
       )}
+
+      <Heading as="h3">Shine</Heading>
+      <Check>
+        <input
+          type="checkbox"
+          name="banner-shine"
+          checked={!!banner.shine}
+          onChange={(event) =>
+            onChange({
+              shine: event.target.checked
+                ? { color: "#FFFFFF", seconds: 5 }
+                : undefined,
+            })
+          }
+        />
+        A light sweeping across now and then, as over foil
+      </Check>
+      {banner.shine && (
+        <Fields>
+          <Field label="Its light">
+            <ColorField
+              name="banner-shine-color"
+              value={banner.shine.color}
+              onChange={(color) =>
+                banner.shine && onChange({ shine: { ...banner.shine, color } })
+              }
+            />
+          </Field>
+          <NumberField
+            label="Once every, s"
+            name="banner-shine-seconds"
+            value={banner.shine.seconds}
+            step={0.5}
+            onChange={(seconds) =>
+              banner.shine && onChange({ shine: { ...banner.shine, seconds } })
+            }
+          />
+        </Fields>
+      )}
+      {banner.picture && (
+        <>
+          <Check>
+            <input
+              type="checkbox"
+              name="banner-pan"
+              checked={banner.pan !== undefined}
+              onChange={(event) =>
+                onChange({ pan: event.target.checked ? 18 : undefined })
+              }
+            />
+            The picture pans slowly across and back
+          </Check>
+          {banner.pan !== undefined && (
+            <NumberField
+              label="Across and back, s"
+              name="banner-pan-seconds"
+              value={banner.pan}
+              onChange={(pan) => onChange({ pan })}
+            />
+          )}
+        </>
+      )}
+
+      <DriftFields
+        drift={banner.drift}
+        hint="Things drifting over the plate, under the title"
+        onChange={(drift) => onChange({ drift })}
+      />
     </>
   );
 }

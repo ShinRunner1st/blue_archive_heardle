@@ -1358,6 +1358,7 @@ describe("signed-in players, by their room pass", () => {
     banner: "sakura",
     frame: "gold",
     background: "cherry",
+    nameEffect: "sky",
   };
   const passOf = (publicId: string, name: string): RoomPass => ({
     publicId,
@@ -1589,6 +1590,7 @@ describe("signed-in players, by their room pass", () => {
       banner: longest(cosmetics.banners),
       frame: longest(cosmetics.frames),
       background: longest(cosmetics.backgrounds),
+      nameEffect: longest(cosmetics.nameEffects),
     };
     const { game, players } = room(
       { albums: badges.map(({ number }) => number), maxPlayers: 8 },

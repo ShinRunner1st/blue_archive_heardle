@@ -332,3 +332,5 @@ export const CURSOR_COLOR_KEY = "cursorColor";
 export const PROFILE_BANNER_KEY = "profileBanner";
 export const PROFILE_FRAME_KEY = "profileFrame";
 export const PROFILE_BACKGROUND_KEY = "profileBackground";
+/** How the name is drawn on the card, picked in Customize. */
+export const NAME_EFFECT_KEY = "nameEffect";

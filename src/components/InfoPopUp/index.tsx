@@ -287,18 +287,18 @@ export function InfoPopUp({
             </PopUpCardText>
             <PopUpCardText>
               In Multiplayer, the room gets the name and picture from your
-              profile (or the student you pick for it), the title, banner, frame
-              and background you picked, and your answers, and shows them to the
-              others in it. It keeps them only while it&apos;s open: when it
-              closes, everything about it is deleted. This browser keeps a
-              random key for each room you were in, for a few hours, so a tab
-              closed by mistake can go back in as you. To stop anyone making
-              rooms or signing in by the hundred, Cloudflare&apos;s rate limiter
-              counts requests from each address in one-minute windows, given a
-              hashed form of the address rather than the address itself. The
-              site never stores your IP address, in its database, the rooms or
-              logs; Cloudflare doesn&apos;t say how long its limiter keeps a
-              count.
+              profile (or the student you pick for it), the title, banner,
+              frame, background and name effect you picked, and your answers,
+              and shows them to the others in it. It keeps them only while
+              it&apos;s open: when it closes, everything about it is deleted.
+              This browser keeps a random key for each room you were in, for a
+              few hours, so a tab closed by mistake can go back in as you. To
+              stop anyone making rooms or signing in by the hundred,
+              Cloudflare&apos;s rate limiter counts requests from each address
+              in one-minute windows, given a hashed form of the address rather
+              than the address itself. The site never stores your IP address, in
+              its database, the rooms or logs; Cloudflare doesn&apos;t say how
+              long its limiter keeps a count.
             </PopUpCardText>
             <PopUpCardText>
               Like any website, the service that delivers it — Cloudflare, for

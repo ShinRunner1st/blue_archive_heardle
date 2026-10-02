@@ -5,6 +5,7 @@ import {
   Banner,
   Frame,
   Cosmetic,
+  NameEffect,
   ProfileBackground,
   titleText,
 } from "../../constants/cosmetics";
@@ -39,12 +40,24 @@ import { StudentSearch } from "../StudentGame/StudentSearch";
 import { Switch } from "../Switch";
 
 import { ProfileBanner, WorkerPicture } from "./ProfileBanner";
-import { CardLook, currentLook, PlayerCard } from "./PlayerCard";
+import { NameInk } from "./Drift";
+import {
+  BackgroundDrift,
+  CardLook,
+  currentLook,
+  PlayerCard,
+} from "./PlayerCard";
 import { ProfileFrame } from "./ProfileFrame";
 import * as Styled from "./index.styled";
 
 /** The kinds Customize offers, in order. Another is an entry here. */
-const SECTIONS = ["title", "banner", "frame", "background"] as const;
+const SECTIONS = [
+  "title",
+  "nameEffect",
+  "banner",
+  "frame",
+  "background",
+] as const;
 type Section = (typeof SECTIONS)[number];
 
 /**
@@ -76,9 +89,16 @@ function Swatch({ kind, item }: { kind: Section; item: Cosmetic }) {
       return (
         <Styled.SceneSwatch>
           {picture && <WorkerPicture key={picture} picture={picture} />}
+          <BackgroundDrift background={item as ProfileBackground} />
         </Styled.SceneSwatch>
       );
     }
+    case "nameEffect":
+      return (
+        <Styled.NameSwatch>
+          <NameInk effect={item as NameEffect}>Sensei</NameInk>
+        </Styled.NameSwatch>
+      );
   }
 }
 
@@ -113,6 +133,7 @@ export function CustomizePopUp({ onClose }: { onClose: () => void }) {
     banner: pickedOf("banner").id,
     frame: pickedOf("frame").id,
     background: pickedOf("background").id,
+    nameEffect: pickedOf("nameEffect").id,
   }));
   const [draft, setDraft] = React.useState(start);
   const [who, setWho] = React.useState<Who>(() => ({
@@ -133,6 +154,7 @@ export function CustomizePopUp({ onClose }: { onClose: () => void }) {
     banner: find("banner", draft.banner) as Banner,
     frame: find("frame", draft.frame) as Frame,
     background: find("background", draft.background) as ProfileBackground,
+    nameEffect: find("nameEffect", draft.nameEffect) as NameEffect,
   };
 
   const save = () => {

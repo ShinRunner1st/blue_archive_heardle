@@ -710,6 +710,21 @@ export const SceneSwatch = styled.div`
   }
 `;
 
+/** A name effect's choice: a name in it, on the card's own colour. */
+export const NameSwatch = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+
+  font-family: "Nunito Sans Variable";
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: ${({ theme }) => theme.text};
+  background-color: ${({ theme }) => theme.background1};
+  border-radius: 10px;
+`;
+
 /** The pop-up's whole width: its body centres what's narrower. */
 export const Body = styled.div`
   box-sizing: border-box;

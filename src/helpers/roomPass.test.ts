@@ -97,6 +97,7 @@ describe("ownLook", () => {
       banner: "none",
       frame: "schale",
       background: "none",
+      nameEffect: "none",
     });
   });
 });

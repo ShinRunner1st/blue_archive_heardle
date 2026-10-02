@@ -39,6 +39,7 @@ const IDS = {
   banner: cosmetics.banners.map((item) => item.id),
   frame: cosmetics.frames.map((item) => item.id),
   background: cosmetics.backgrounds.map((item) => item.id),
+  nameEffect: cosmetics.nameEffects.map((item) => item.id),
   cardColors: cosmetics.cardColors.map((item) => item.id),
 };
 
@@ -69,6 +70,7 @@ export function cleanProfile(
     banner: pickOf("banner", body.banner),
     frame: pickOf("frame", body.frame),
     background: pickOf("background", body.background),
+    nameEffect: pickOf("nameEffect", body.nameEffect),
     cardColors: pickOf("cardColors", body.cardColors),
     // A page's clock can be off; never later than the Worker's day ahead.
     editedAt:
@@ -111,6 +113,7 @@ interface ProfileRow {
   banner: string;
   frame: string;
   background: string;
+  name_effect: string;
   card_colors: string;
   edited_at: number;
 }
@@ -123,7 +126,7 @@ export async function readProfile(
   const row = await db
     .prepare(
       `SELECT name, sensei, student, title, banner, frame, background,
-              card_colors, edited_at
+              name_effect, card_colors, edited_at
        FROM profiles WHERE account_id = ?`
     )
     .bind(account)
@@ -137,6 +140,7 @@ export async function readProfile(
     banner: row.banner,
     frame: row.frame,
     background: row.background,
+    nameEffect: row.name_effect,
     cardColors: row.card_colors,
     editedAt: row.edited_at,
   };
@@ -160,8 +164,9 @@ export async function writeProfile(
   await db
     .prepare(
       `INSERT INTO profiles (account_id, name, sensei, student, title, banner,
-         frame, background, card_colors, summary, edited_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         frame, background, name_effect, card_colors, summary, edited_at,
+         updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
        ON CONFLICT (account_id) DO UPDATE SET
          ${[
            "name",
@@ -171,6 +176,7 @@ export async function writeProfile(
            "banner",
            "frame",
            "background",
+           "name_effect",
            "card_colors",
          ]
            .map(keep)
@@ -188,6 +194,7 @@ export async function writeProfile(
       profile.banner,
       profile.frame,
       profile.background,
+      profile.nameEffect,
       profile.cardColors,
       JSON.stringify(profile.summary),
       profile.editedAt,

@@ -21,6 +21,7 @@ export function ownLook(): RoomLook {
     banner: pickedOf("banner").id,
     frame: pickedOf("frame").id,
     background: pickedOf("background").id,
+    nameEffect: pickedOf("nameEffect").id,
   };
 }
 

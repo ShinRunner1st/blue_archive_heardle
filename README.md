@@ -254,8 +254,8 @@ After the last round come the standings, the top three on a podium, and
 every answer with who named it. Every player shows on the profile's card
 throughout (wide with the banner in the lobby, small in the rounds, stood
 up with the banner on the podium, a row under it), with the student they
-picked. Every card wears its player's title, banner, frame and background
-from Customize: a guest's page sends the ones unlocked in its browser
+picked. Every card wears its player's title, banner, frame, background
+and name effect from Customize: a guest's page sends the ones unlocked in its browser
 (the room checks only that each exists), and a signed-in player's come
 from their room pass, only what their account has unlocked. Each player
 goes back to the lobby when
@@ -388,7 +388,8 @@ they need no more height than the OST, and every game fits a 1080p window.
   a title and colours for the Sensei card, picked on the card, and a colour
   for the cursor's flash and trail (pink, gold, green, violet or a
   rainbow, each tap the next hue), picked in Settings, a student beside the
-  game, and the profile's banner, frame and background. The hub's record
+  game, and the profile's banner, frame, background and name effect. The
+  hub's record
   and the card's footer count them.
 - **Profile** - ☰ → Profile (or Profile on the hub's record): the player's
   card at its head (their favourite student, name, title on its banner,
@@ -403,10 +404,18 @@ they need no more height than the OST, and every game fits a 1080p window.
   only the tab's page scrolls, the panel one height whatever the tab, so
   switching tabs neither resizes nor moves it. **Customize** sets the name (and the
   "Sensei" after it) and picture (a favourite student, or the name's
-  letter), and picks the title, banner, frame and background, the locked
-  ones naming their mission. Banners are nameplates like the game's own
-  emblems: a picture or foil with the game's facets, a rim, a tag saying
-  what was done, and an emblem. Their pictures, emblem pictures and
+  letter), and picks the title, name effect, banner, frame and
+  background, the locked ones naming their mission. Banners are nameplates
+  like the game's own emblems: a picture or foil with the game's facets, a
+  rim, a tag saying what was done, and an emblem. A name effect draws the
+  name in its colours (a gradient, flowing or with a light across it) and
+  a glow that can breathe or flicker. Some cosmetics move, all in CSS with
+  no script running: petals, snow, sparks, stars, leaves or bubbles
+  drifting over a background, a banner or round a frame's edge, a light
+  sweeping across a foil banner, a banner's picture panning, a frame's
+  gradient turning and its glows breathing; each is a part of the
+  cosmetic's entry, laid out from its id so it moves the same on every
+  page. Their pictures, emblem pictures and
   backgrounds are on the Worker, fetched only when shown. In a room, everyone's card wears what they picked.
   Signed in, a **Verified** tab shows the record the account kept itself
   (`src/components/Profile/Verified.tsx`, read once as it opens): each

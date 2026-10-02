@@ -50,6 +50,7 @@ const PROFILE_FIELDS = [
   "banner",
   "frame",
   "background",
+  "nameEffect",
   "cardColors",
 ] as const;
 
@@ -63,6 +64,7 @@ export function localProfile(): AccountProfile {
     banner: storedPick("banner"),
     frame: storedPick("frame"),
     background: storedPick("background"),
+    nameEffect: storedPick("nameEffect"),
     cardColors: storedPick("cardColors"),
     editedAt: profileEditedAt(),
   };
@@ -78,6 +80,7 @@ export function applyProfile(profile: AccountProfile): void {
     storeAccountPick("banner", profile.banner);
     storeAccountPick("frame", profile.frame);
     storeAccountPick("background", profile.background);
+    storeAccountPick("nameEffect", profile.nameEffect);
     storeAccountPick("cardColors", profile.cardColors);
   });
   setProfileEditedAt(profile.editedAt);

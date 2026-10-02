@@ -292,6 +292,14 @@
       "emblem": {
         "style": "ring",
         "icon": "IoHeart"
+      },
+      "drift": {
+        "shape": "petal",
+        "way": "fall",
+        "count": 6,
+        "seconds": 7,
+        "size": 5,
+        "colors": ["#FFD1E3", "#FFB3D1"]
       }
     },
     {
@@ -305,7 +313,8 @@
       "emblem": {
         "style": "ring",
         "icon": "IoMusicalNotes"
-      }
+      },
+      "pan": 18
     },
     {
       "id": "festival",
@@ -318,6 +327,14 @@
       "emblem": {
         "style": "ring",
         "icon": "IoSparkles"
+      },
+      "drift": {
+        "shape": "spark",
+        "way": "rise",
+        "count": 7,
+        "seconds": 5,
+        "size": 3,
+        "colors": ["#FFD36B", "#FF9F43"]
       }
     },
     {
@@ -331,6 +348,14 @@
       "emblem": {
         "style": "ring",
         "icon": "IoMoon"
+      },
+      "drift": {
+        "shape": "star",
+        "way": "twinkle",
+        "count": 6,
+        "seconds": 2.6,
+        "size": 6,
+        "colors": ["#FFB86B", "#D6A0FF"]
       }
     },
     {
@@ -344,6 +369,14 @@
       "emblem": {
         "style": "ring",
         "icon": "IoSearch"
+      },
+      "drift": {
+        "shape": "leaf",
+        "way": "fall",
+        "count": 5,
+        "seconds": 8,
+        "size": 5,
+        "colors": ["#FFB061", "#E2702A"]
       }
     },
     {
@@ -357,6 +390,14 @@
       "emblem": {
         "style": "ring",
         "icon": "IoSnow"
+      },
+      "drift": {
+        "shape": "snow",
+        "way": "fall",
+        "count": 9,
+        "seconds": 9,
+        "size": 3,
+        "colors": ["#FFFFFF"]
       }
     },
     {
@@ -370,6 +411,10 @@
       "emblem": {
         "style": "ring",
         "icon": "IoCamera"
+      },
+      "shine": {
+        "color": "#FFFFFF",
+        "seconds": 5
       }
     },
     {
@@ -383,6 +428,10 @@
       "emblem": {
         "style": "ring",
         "icon": "IoTrophy"
+      },
+      "shine": {
+        "color": "#FFFBE6",
+        "seconds": 4.5
       }
     },
     {
@@ -396,6 +445,10 @@
       "emblem": {
         "style": "ring",
         "icon": "IoSparkles"
+      },
+      "shine": {
+        "color": "#FFFFFF",
+        "seconds": 4
       }
     },
     {
@@ -478,6 +531,10 @@
             "fill": 0
           }
         ]
+      },
+      "shine": {
+        "color": "#F2C14E",
+        "seconds": 6
       }
     },
     {
@@ -539,6 +596,14 @@
             "fill": 1
           }
         ]
+      },
+      "drift": {
+        "shape": "spark",
+        "way": "rise",
+        "count": 8,
+        "seconds": 3.5,
+        "size": 3,
+        "colors": ["#FFD36B", "#FF8A3D"]
       }
     },
     {
@@ -559,6 +624,14 @@
             "fill": 0
           }
         ]
+      },
+      "drift": {
+        "shape": "star",
+        "way": "twinkle",
+        "count": 5,
+        "seconds": 3,
+        "size": 5,
+        "colors": ["#FFFFFF", "#A68BF2"]
       }
     }
   ],
@@ -669,6 +742,14 @@
             "at": [17.2, 7, 30, 1]
           }
         ]
+      },
+      "drift": {
+        "shape": "petal",
+        "way": "fall",
+        "count": 6,
+        "seconds": 6,
+        "size": 5,
+        "colors": [0, 1]
       }
     },
     {
@@ -707,6 +788,18 @@
             "strokeWidth": 1.6
           }
         ]
+      },
+      "pulse": {
+        "seconds": 3.2,
+        "low": 0.4
+      },
+      "drift": {
+        "shape": "star",
+        "way": "twinkle",
+        "count": 6,
+        "seconds": 2.8,
+        "size": 6,
+        "colors": [1]
       }
     },
     {
@@ -747,6 +840,14 @@
             "fill": 1
           }
         ]
+      },
+      "drift": {
+        "shape": "star",
+        "way": "twinkle",
+        "count": 4,
+        "seconds": 3,
+        "size": 5,
+        "colors": [1]
       }
     },
     {
@@ -787,6 +888,14 @@
             "fill": 1
           }
         ]
+      },
+      "drift": {
+        "shape": "spark",
+        "way": "twinkle",
+        "count": 6,
+        "seconds": 2.2,
+        "size": 3,
+        "colors": [1]
       }
     },
     {
@@ -813,7 +922,11 @@
           "color": 0,
           "strength": 0.6
         }
-      ]
+      ],
+      "pulse": {
+        "seconds": 2.4,
+        "low": 0.35
+      }
     },
     {
       "id": "prism",
@@ -831,7 +944,8 @@
         "width": 3,
         "colors": [0, 1, 2, 3, 4, 0],
         "gradient": "conic",
-        "angle": 30
+        "angle": 30,
+        "spin": 8
       },
       "ornament": {
         "corners": ["tl", "tr", "br", "bl"],
@@ -854,55 +968,127 @@
       "id": "cherry",
       "name": "Cherry blossom",
       "mission": "first-daily",
-      "picture": "scenes/bg-cherry-blossom"
+      "picture": "scenes/bg-cherry-blossom",
+      "drift": {
+        "shape": "petal",
+        "way": "fall",
+        "count": 10,
+        "seconds": 9,
+        "size": 6,
+        "colors": ["#FFD1E3", "#FFB3D1", "#FFFFFF"]
+      }
     },
     {
       "id": "valentine",
       "name": "Dessert café",
       "mission": "birthday",
-      "picture": "scenes/bg-dessert-cafe"
+      "picture": "scenes/bg-dessert-cafe",
+      "drift": {
+        "shape": "star",
+        "way": "twinkle",
+        "count": 8,
+        "seconds": 3,
+        "size": 5,
+        "colors": ["#FFC2DA", "#FFFFFF"]
+      }
     },
     {
       "id": "beach",
       "name": "Beach",
       "mission": "ost-choice",
-      "picture": "scenes/bg-beach"
+      "picture": "scenes/bg-beach",
+      "drift": {
+        "shape": "bubble",
+        "way": "rise",
+        "count": 8,
+        "seconds": 8,
+        "size": 7,
+        "colors": ["#FFFFFF"]
+      }
     },
     {
       "id": "festival",
       "name": "Summer festival",
       "mission": "voice-50",
-      "picture": "scenes/bg-summer-festival"
+      "picture": "scenes/bg-summer-festival",
+      "drift": {
+        "shape": "spark",
+        "way": "rise",
+        "count": 10,
+        "seconds": 6,
+        "size": 3,
+        "colors": ["#FFD36B", "#FF9F43", "#FFFFFF"]
+      }
     },
     {
       "id": "carnival",
       "name": "Night carnival",
       "mission": "halo-shape",
-      "picture": "scenes/bg-night-carnival"
+      "picture": "scenes/bg-night-carnival",
+      "drift": {
+        "shape": "star",
+        "way": "twinkle",
+        "count": 10,
+        "seconds": 2.6,
+        "size": 5,
+        "colors": ["#FFB86B", "#D6A0FF"]
+      }
     },
     {
       "id": "autumn",
       "name": "Autumn road",
       "mission": "students-50",
-      "picture": "scenes/bg-autumn-road"
+      "picture": "scenes/bg-autumn-road",
+      "drift": {
+        "shape": "leaf",
+        "way": "fall",
+        "count": 8,
+        "seconds": 10,
+        "size": 7,
+        "colors": ["#FFB061", "#E2702A", "#C9481E"]
+      }
     },
     {
       "id": "lodge",
       "name": "Winter lodge",
       "mission": "streak-30",
-      "picture": "scenes/bg-winter-lodge"
+      "picture": "scenes/bg-winter-lodge",
+      "drift": {
+        "shape": "snow",
+        "way": "fall",
+        "count": 16,
+        "seconds": 10,
+        "size": 4,
+        "colors": ["#FFFFFF"]
+      }
     },
     {
       "id": "shrine",
       "name": "New Year shrine",
       "mission": "jp",
-      "picture": "scenes/bg-new-year-shrine"
+      "picture": "scenes/bg-new-year-shrine",
+      "drift": {
+        "shape": "snow",
+        "way": "fall",
+        "count": 10,
+        "seconds": 11,
+        "size": 3,
+        "colors": ["#FFFFFF"]
+      }
     },
     {
       "id": "arcade",
       "name": "Arcade",
       "mission": "room-first",
-      "picture": "hub/multiplayer"
+      "picture": "hub/multiplayer",
+      "drift": {
+        "shape": "spark",
+        "way": "twinkle",
+        "count": 10,
+        "seconds": 1.8,
+        "size": 3,
+        "colors": ["#00E5FF", "#FF4FA3", "#B04CFF"]
+      }
     },
     {
       "id": "gamedev",
@@ -914,7 +1100,15 @@
       "id": "plaza",
       "name": "Anniversary plaza",
       "mission": "jp-100",
-      "picture": "scenes/bg-anniversary-plaza"
+      "picture": "scenes/bg-anniversary-plaza",
+      "drift": {
+        "shape": "star",
+        "way": "twinkle",
+        "count": 10,
+        "seconds": 2.4,
+        "size": 6,
+        "colors": ["#FFE58F", "#FFFFFF"]
+      }
     },
     {
       "id": "students-200",
@@ -927,6 +1121,106 @@
       "name": "Roll call",
       "mission": "voice-timeattack",
       "picture": "hub/voice"
+    }
+  ],
+  "nameEffects": [
+    {
+      "id": "none",
+      "name": "Plain",
+      "blank": true,
+      "colors": []
+    },
+    {
+      "id": "halo-gold",
+      "name": "Halo gold",
+      "free": true,
+      "colors": ["#D9961C", "#FFD86B", "#FFF8DC"],
+      "fill": [0, 1, 0],
+      "angle": 90,
+      "glow": {
+        "color": 1,
+        "blur": 6,
+        "strength": 0.45
+      },
+      "motion": {
+        "kind": "shine",
+        "seconds": 3.2,
+        "color": 2
+      }
+    },
+    {
+      "id": "sky",
+      "name": "Kivotos sky",
+      "free": true,
+      "colors": ["#128AFA", "#3FC6FF", "#7FE3FF"],
+      "fill": [0, 1, 2],
+      "angle": 90,
+      "motion": {
+        "kind": "flow",
+        "seconds": 6
+      }
+    },
+    {
+      "id": "neon",
+      "name": "Arcade neon",
+      "free": true,
+      "colors": ["#FF4FA3", "#FFD6EA"],
+      "fill": [1],
+      "glow": {
+        "color": 0,
+        "blur": 8,
+        "strength": 0.9
+      },
+      "motion": {
+        "kind": "flicker",
+        "seconds": 4
+      }
+    },
+    {
+      "id": "sakura",
+      "name": "Sakura",
+      "free": true,
+      "colors": ["#FF6FA8", "#FFB3D1"],
+      "fill": [0, 1],
+      "angle": 90,
+      "glow": {
+        "color": 0,
+        "blur": 5,
+        "strength": 0.5
+      },
+      "motion": {
+        "kind": "pulse",
+        "seconds": 3
+      }
+    },
+    {
+      "id": "prism",
+      "name": "Prism",
+      "free": true,
+      "colors": ["#FF6B6B", "#FFC93D", "#4CC46A", "#4D96FF", "#B04CFF"],
+      "fill": [0, 1, 2, 3, 4],
+      "angle": 90,
+      "motion": {
+        "kind": "flow",
+        "seconds": 4
+      }
+    },
+    {
+      "id": "ember",
+      "name": "Gehenna ember",
+      "free": true,
+      "colors": ["#C0182B", "#FF7A2E", "#FFD36B"],
+      "fill": [0, 1, 2],
+      "angle": 0,
+      "glow": {
+        "color": 1,
+        "blur": 6,
+        "strength": 0.6
+      },
+      "motion": {
+        "kind": "pulse",
+        "seconds": 2.4
+      }
     }
   ]
 }

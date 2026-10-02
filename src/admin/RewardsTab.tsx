@@ -1,15 +1,17 @@
 import React from "react";
 
-import type { Banner, Frame } from "../constants/cosmetics";
+import type { Banner, Drift, Frame, NameEffect } from "../constants/cosmetics";
 import { BannerFields } from "./BannerEditor";
 import type { Mission } from "../constants/missions";
 import type { CosmeticsFile, IdsLock } from "../content/types";
 import { freeId, moved, slugOf } from "./draft";
 import { FrameFields } from "./FrameEditor";
+import { DriftFields, NameEffectFields } from "./MotionEditor";
 import { isShipped } from "./lock";
 import type { TabProps } from "./MissionsTab";
 import { ColorField, PicturePicker, SCENE_PICTURES } from "./pickers";
 import { PreviewPane } from "./PreviewPane";
+import { SHOWN_IN_ROOMS } from "./RoomPreview";
 import {
   Badge,
   Button,
@@ -45,6 +47,10 @@ const LISTS: Record<ListName, { label: string; where: string }> = {
   banners: { label: "Banners", where: "the profile and its card" },
   frames: { label: "Frames", where: "the profile and its card" },
   backgrounds: { label: "Backgrounds", where: "the profile and its card" },
+  nameEffects: {
+    label: "Name effects",
+    where: "the player's name on their card, in rooms too",
+  },
   characters: { label: "Characters", where: "Settings" },
 };
 
@@ -80,6 +86,13 @@ function fresh(list: ListName, id: string): Reward {
       } as Reward;
     case "backgrounds":
       return { ...base, picture: SCENE_PICTURES[0] } as Reward;
+    case "nameEffects":
+      return {
+        ...base,
+        colors: ["#128AFA", "#7FE3FF"],
+        fill: [0, 1],
+        motion: { kind: "flow", seconds: 5 },
+      } as Reward;
     default:
       return base as Reward;
   }
@@ -292,7 +305,7 @@ export function RewardsTab({ draft, update, shipped, problems }: TabProps) {
         view={view}
         extra={
           <>
-            {["titles", "banners", "frames", "backgrounds"].includes(list) && (
+            {SHOWN_IN_ROOMS.has(list) && (
               <Row style={{ marginBottom: 6 }}>
                 <Hint>Where:</Hint>
                 {(
@@ -697,12 +710,29 @@ function LookFields({
           No scene: the favourite student&apos;s portrait shows faded in.
         </Hint>
       ) : (
-        <Field label="Scene">
-          <PicturePicker
-            value={item.picture as string}
-            onChange={(key) => onChange({ picture: key })}
+        <>
+          <Field label="Scene">
+            <PicturePicker
+              value={item.picture as string}
+              onChange={(key) => onChange({ picture: key })}
+            />
+          </Field>
+          <DriftFields
+            drift={item.drift as Drift | undefined}
+            hint="Things drifting over the scene: petals, snow, sparks"
+            onChange={(drift) => onChange({ drift })}
           />
-        </Field>
+        </>
+      );
+
+    case "nameEffects":
+      return item.blank ? (
+        <Hint>The plain name: as it&apos;s always been drawn.</Hint>
+      ) : (
+        <NameEffectFields
+          effect={item as unknown as NameEffect}
+          onChange={onChange}
+        />
       );
 
     case "characters":

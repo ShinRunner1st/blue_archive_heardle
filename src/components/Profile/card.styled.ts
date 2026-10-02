@@ -1,7 +1,12 @@
-import styled, { css } from "styled-components";
+import styled, { createGlobalStyle, css, keyframes } from "styled-components";
 import "@fontsource-variable/nunito-sans";
 
-import type { Frame as FrameParts } from "../../constants/cosmetics";
+import type {
+  DriftShape,
+  DriftWay,
+  Frame as FrameParts,
+  NameEffect,
+} from "../../constants/cosmetics";
 
 /**
  * The player's card, its frame and its banner: shared by the profile,
@@ -67,11 +72,29 @@ const alpha = (color: string, amount: number) =>
     .toString(16)
     .padStart(2, "0")}`;
 
-/** A frame's border, inner line and glows, as CSS. */
-function frameLook(frame: FrameParts, ground: string) {
-  const { colors, border, inner, glows = [] } = frame;
-  const paint = border.colors.map((at) => colors[at]);
-  const shadows = [
+/**
+ * A turning gradient turns this angle, which the browser only moves
+ * smoothly once it knows it's an angle: registered where a frame turns
+ * (ProfileFrame).
+ */
+export const FrameTurnProperty = createGlobalStyle`
+  @property --frame-turn {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+  }
+`;
+
+const turn = keyframes`
+  to {
+    --frame-turn: 360deg;
+  }
+`;
+
+/** A frame's shadows: its inner line, then its glows at a strength. */
+function frameShadows(frame: FrameParts, ground: string, glowAt = 1) {
+  const { colors, inner, glows = [] } = frame;
+  return [
     ...(inner
       ? [
           `inset 0 0 0 ${inner.gap}px ${ground}`,
@@ -83,17 +106,63 @@ function frameLook(frame: FrameParts, ground: string) {
       : []),
     ...glows.map(
       ({ blur, spread, color, strength }) =>
-        `0 0 ${blur}px ${spread}px ${alpha(colors[color], strength)}`
+        `0 0 ${blur * (0.5 + glowAt / 2)}px ${spread}px ${alpha(
+          colors[color],
+          strength * glowAt
+        )}`
     ),
   ];
+}
+
+/** A frame's border, inner line and glows, as CSS, turning and breathing. */
+function frameLook(frame: FrameParts, ground: string) {
+  const { colors, border, pulse } = frame;
+  const paint = border.colors.map((at) => colors[at]);
+  const shadows = frameShadows(frame, ground);
+  const spin = border.spin && paint.length > 1 ? border.spin : 0;
   // A gradient is the border-box's background, under the padding-box's.
   const gradient =
     border.gradient === "conic"
-      ? `conic-gradient(from ${border.angle ?? 0}deg, ${paint.join(", ")})`
+      ? `conic-gradient(from ${
+          spin
+            ? `calc(${border.angle ?? 0}deg + var(--frame-turn))`
+            : `${border.angle ?? 0}deg`
+        }, ${paint.join(", ")})`
       : border.gradient === "linear" || paint.length > 1
-      ? `linear-gradient(${border.angle ?? 90}deg, ${paint.join(", ")})`
+      ? `linear-gradient(${
+          spin
+            ? `calc(${border.angle ?? 90}deg + var(--frame-turn))`
+            : `${border.angle ?? 90}deg`
+        }, ${paint.join(", ")})`
+      : null;
+  const breath =
+    pulse &&
+    keyframes`
+      from {
+        box-shadow: ${shadows.join(", ")};
+      }
+      to {
+        box-shadow: ${frameShadows(frame, ground, pulse.low).join(", ")};
+      }
+    `;
+  const animation =
+    spin && breath
+      ? css`
+          animation: ${turn} ${spin}s linear infinite,
+            ${breath} ${pulse.seconds / 2}s ease-in-out infinite alternate;
+        `
+      : spin
+      ? css`
+          animation: ${turn} ${spin}s linear infinite;
+        `
+      : breath
+      ? css`
+          animation: ${breath} ${pulse.seconds / 2}s ease-in-out infinite
+            alternate;
+        `
       : null;
   return css`
+    ${animation}
     ${gradient
       ? css`
           border: ${border.width}px solid transparent;
@@ -165,10 +234,20 @@ export const Banner = styled.div<{
   $size: PlateSize;
   $fill?: string[];
   $accent: string;
+  /** Seconds for its picture to pan across and back. */
+  $pan?: number;
 }>`
   position: relative;
   overflow: hidden;
   isolation: isolate;
+
+  ${({ $pan }) =>
+    $pan &&
+    css`
+      & > img {
+        animation: ${pan} ${$pan / 2}s ease-in-out infinite alternate;
+      }
+    `}
 
   display: flex;
   align-items: center;
@@ -712,4 +791,287 @@ export const CardCorner = styled.div`
     top: 5px;
     right: 6px;
   }
+`;
+
+/* ---------- Moving parts: things drifting, a shine, a name's ink ---------- */
+
+/** Over its cosmetic, letting presses through, cut to its rounded box. */
+export const DriftBox = styled.span<{ $edge?: boolean }>`
+  position: absolute;
+  inset: ${({ $edge }) => ($edge ? "-3px" : "0")};
+  z-index: ${({ $edge }) => ($edge ? 3 : 0)};
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+`;
+
+const fall = keyframes`
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(100% + var(--size) * 2));
+  }
+`;
+
+const rise = keyframes`
+  from {
+    transform: translateY(calc(100% + var(--size) * 2));
+  }
+  to {
+    transform: translateY(0);
+  }
+`;
+
+const sway = keyframes`
+  0%,
+  100% {
+    transform: translateX(calc(var(--sway) * -1)) rotate(0deg);
+  }
+  50% {
+    transform: translateX(var(--sway)) rotate(calc(var(--turn) / 2));
+  }
+`;
+
+const twinkle = keyframes`
+  0%,
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1) rotate(45deg);
+  }
+`;
+
+/**
+ * A falling or rising thing's lane, as tall as the box, so moving it by
+ * its own height carries the thing from one end to the other.
+ */
+export const DriftLane = styled.span<{ $way: DriftWay }>`
+  position: absolute;
+  top: 0;
+  width: 0;
+  height: 100%;
+  animation: ${({ $way }) => ($way === "rise" ? rise : fall)} var(--seconds)
+    linear var(--delay) infinite;
+`;
+
+const SHAPES: Record<DriftShape, ReturnType<typeof css>> = {
+  petal: css`
+    height: calc(var(--size) * 0.7);
+    border-radius: 100% 0 100% 0;
+    opacity: 0.9;
+  `,
+  leaf: css`
+    height: calc(var(--size) * 0.55);
+    border-radius: 0 100% 0 100%;
+    opacity: 0.95;
+  `,
+  snow: css`
+    border-radius: 50%;
+    box-shadow: 0 0 calc(var(--size) / 2) var(--color);
+    opacity: 0.9;
+  `,
+  spark: css`
+    border-radius: 50%;
+    box-shadow: 0 0 var(--size) var(--color),
+      0 0 calc(var(--size) * 2) var(--color);
+  `,
+  star: css`
+    clip-path: polygon(
+      50% 0,
+      61% 39%,
+      100% 50%,
+      61% 61%,
+      50% 100%,
+      39% 61%,
+      0 50%,
+      39% 39%
+    );
+  `,
+  bubble: css`
+    border-radius: 50%;
+    background: radial-gradient(
+      circle at 32% 30%,
+      rgba(255, 255, 255, 0.85) 0 14%,
+      transparent 32%
+    );
+    box-shadow: inset 0 0 0 1px var(--color);
+    opacity: 0.75;
+  `,
+};
+
+/** One thing drifting: its shape in its colour, at its size. */
+export const Mote = styled.span<{ $shape: DriftShape; $way: DriftWay }>`
+  position: absolute;
+  width: var(--size);
+  height: var(--size);
+  background: var(--color);
+
+  ${({ $way }) =>
+    $way === "twinkle"
+      ? css`
+          left: var(--x);
+          top: var(--y);
+          opacity: 0;
+          animation: ${twinkle} var(--seconds) ease-in-out var(--delay) infinite;
+        `
+      : css`
+          left: calc(var(--size) / -2);
+          top: calc(var(--size) * -1);
+          animation: ${sway} calc(var(--seconds) / 2) ease-in-out var(--delay)
+            infinite;
+        `}
+
+  ${({ $shape }) => SHAPES[$shape]}
+`;
+
+const sweep = keyframes`
+  0% {
+    transform: translateX(-120%) skewX(-20deg);
+  }
+  35%,
+  100% {
+    transform: translateX(320%) skewX(-20deg);
+  }
+`;
+
+/** A light across a plate now and then, as over foil. */
+export const BannerShine = styled.span<{ $color: string; $seconds: number }>`
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 3;
+  width: 32%;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    ${({ $color }) => alpha($color, 0.55)} 50%,
+    transparent
+  );
+  animation: ${sweep} ${({ $seconds }) => $seconds}s ease-in-out infinite;
+`;
+
+/** A plate's picture panning slowly across and back. */
+export const pan = keyframes`
+  from {
+    transform: scale(1.18) translateX(-6%);
+  }
+  to {
+    transform: scale(1.18) translateX(6%);
+  }
+`;
+
+/* What keeps a name readable on any card, under its glow. */
+const nameShadow = "drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.5))";
+
+const glowOf = (effect: NameEffect, strength = 1, blurAt = 1) =>
+  effect.glow
+    ? ` drop-shadow(0 0 ${effect.glow.blur * blurAt}px ${alpha(
+        effect.colors[effect.glow.color],
+        effect.glow.strength * strength
+      )})`
+    : "";
+
+/** The letters' colours, as background layers to clip to them. */
+function nameInk(effect: NameEffect): { image: string; size: string } {
+  const fill = effect.fill?.map((at) => effect.colors[at]);
+  const angle = effect.angle ?? 90;
+  // A flow runs two rounds of its colours across twice the name, so
+  // moving it by the name's width brings the first round back.
+  const ground = !fill
+    ? {
+        image: "linear-gradient(currentColor, currentColor)",
+        size: "100% 100%",
+      }
+    : effect.motion?.kind === "flow" && fill.length > 1
+    ? {
+        image: `linear-gradient(90deg, ${[...fill, ...fill, fill[0]].join(
+          ", "
+        )})`,
+        size: "200% 100%",
+      }
+    : fill.length === 1
+    ? { image: `linear-gradient(${fill[0]}, ${fill[0]})`, size: "100% 100%" }
+    : {
+        image: `linear-gradient(${angle}deg, ${fill.join(", ")})`,
+        size: "100% 100%",
+      };
+  if (effect.motion?.kind !== "shine") return ground;
+  const light =
+    effect.motion.color === undefined
+      ? "#FFFFFF"
+      : effect.colors[effect.motion.color];
+  return {
+    image: `linear-gradient(105deg, transparent 42%, ${alpha(
+      light,
+      0.95
+    )} 50%, transparent 58%), ${ground.image}`,
+    size: `250% 100%, ${ground.size}`,
+  };
+}
+
+/** How each motion moves the letters. */
+function nameMotion(effect: NameEffect) {
+  const { motion } = effect;
+  if (!motion) return null;
+  const lit = `${nameShadow}${glowOf(effect)}`;
+  switch (motion.kind) {
+    case "flow":
+      return css`
+        animation: ${keyframes`
+          from { background-position: 0% 0; }
+          to { background-position: 100% 0; }
+        `} ${motion.seconds}s linear infinite;
+      `;
+    case "shine":
+      return css`
+        animation: ${keyframes`
+          0% { background-position: 150% 0, 0 0; }
+          40%, 100% { background-position: -50% 0, 0 0; }
+        `} ${motion.seconds}s ease-in-out infinite;
+      `;
+    case "pulse":
+      return css`
+        animation: ${keyframes`
+          from { filter: ${lit}; }
+          to { filter: ${nameShadow}${glowOf(effect, 0.25, 0.4)}; }
+        `} ${motion.seconds / 2}s ease-in-out infinite alternate;
+      `;
+    case "flicker":
+      return css`
+        animation: ${keyframes`
+          0%, 18%, 22%, 25%, 53%, 57%, 100% { filter: ${lit}; opacity: 1; }
+          20%, 24%, 55% { filter: ${nameShadow}; opacity: 0.6; }
+        `} ${motion.seconds}s linear infinite;
+      `;
+  }
+}
+
+/** A name in its effect's colours, glowing and moving as it says. */
+export const NameInk = styled.span<{ $effect: NameEffect }>`
+  /* Inline, so a long name ends in the card's own "…". */
+  display: inline;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+
+  ${({ $effect }) => {
+    const ink = nameInk($effect);
+    return css`
+      color: transparent;
+      background-image: ${ink.image};
+      background-size: ${ink.size};
+      background-repeat: no-repeat;
+      -webkit-background-clip: text;
+      background-clip: text;
+      text-shadow: none;
+      filter: ${nameShadow}${glowOf($effect)};
+    `;
+  }}
+
+  ${({ $effect }) => nameMotion($effect)}
 `;

@@ -148,6 +148,12 @@ Lists, each starting with the default everyone has (no `mission`):
     `icon` from `src/constants/icons.ts`, or `shapes` as a frame's
     ornament has them (pictures too) in a 24×24 box, their colours from
     the emblem's own `colors`.
+  - `shine` (optional): a light sweeping across now and then, as over
+    foil, its `color` and `seconds` from one sweep to the next.
+  - `pan` (optional, a picture only): seconds for the picture to pan
+    slowly across and back.
+  - `drift` (optional): things drifting over the plate, under the title
+    (see `drift` below).
 - `frames`: the frame round the profile's card, drawn from parts, so a
   new style is only an entry. `colors` is its palette, and every colour
   a part takes is a place in it (0 the first), so recolouring a style is
@@ -174,9 +180,32 @@ Lists, each starting with the default everyone has (no `mission`):
     out of `corners`). In the admin tool they're picked from a library of
     ready-made shapes and pictures and dragged into place, or taken from
     an SVG of any size (a file, or its code pasted), fitted to the corner.
+  - `border.spin` (optional, a gradient only): seconds for it to turn
+    once round.
+  - `pulse` (optional, with glows): the glows breathing, `seconds` for one
+    breath and `low`, how strong they are at their faintest (0 to 1).
+  - `drift` (optional): things twinkling round the edge, or falling or
+    rising down its sides, their `colors` places in the palette.
 - `backgrounds`: the scene behind the profile's card, a `picture` on the
   Worker as banners name theirs. Pictures already there cost nothing more;
-  a new one goes in `pictures/` and up with `npm run songs`.
+  a new one goes in `pictures/` and up with `npm run songs`. `drift`
+  (optional): things drifting over the scene.
+- `nameEffects`: how the player's name is drawn on their card, in rooms
+  too; the first, `"blank": true`, is the plain name. `colors` is its
+  palette, and the parts name places in it, as a frame's do: `fill`, the
+  letters' colours left to right (one, or more for a gradient at `angle`
+  degrees, 90 across; none keeps the page's own), `glow` (`color`, `blur`
+  px, `strength` 0 to 1), and `motion`, its `kind` and `seconds` for one
+  round: `flow` (the gradient runs across; two fill colours or more),
+  `shine` (a light sweeps over the letters, `color` or white), `pulse`
+  (the glow breathes) or `flicker` (as a neon sign; both need a glow).
+
+`drift`, on a banner, frame or background: `shape` (`petal`, `snow`,
+`spark`, `star`, `leaf` or `bubble`), `way` (`fall`, `rise` or `twinkle`
+in place), `count` (1 to 24, so a room of eight cards stays light),
+`seconds` to cross or twinkle once, `size` in px and `colors`, taken in
+turn. They're placed from the cosmetic's id, so they move the same way on
+every page; the browser moves them, with no script running.
 
 `mission` is the id of the mission that unlocks it. `"free": true` makes one
 everyone's from the start without being the default (Schale's banner); any
@@ -286,7 +315,8 @@ writes the files as Prettier would, so the diff is only what changed.
   frame and the cards rooms show, cursor colours in Settings with the
   effects running, characters in Settings. "As a player who has unlocked
   everything", or off, as a new player, with the locks and their missions.
-  Titles, banners, frames and backgrounds can also be seen in a room: the
+  Titles, banners, frames, backgrounds and name effects can also be seen
+  in a room: the
   game's own lobby, a round's reveal and the standings, with eight made-up
   players, you wearing the one edited and the others a mix.
   A released reward keeps its mission while that mission is live; once it's

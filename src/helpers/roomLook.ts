@@ -4,7 +4,7 @@ import { Unlockable, unlockedBy } from "./unlocks";
 
 /**
  * The cosmetics a player's card wears in a room (docs/accounts.md, section
- * 7): its title, banner, frame and background, by id. Read from the
+ * 7): its title, banner, frame, background and name effect, by id. Read from the
  * content file itself, as the rooms and accounts Workers can't load the
  * pictures src/constants/cosmetics.ts brings along.
  */
@@ -15,6 +15,7 @@ const LISTS: Record<keyof RoomLook, ({ id: string } & Unlockable)[]> = {
   banner: cosmetics.banners,
   frame: cosmetics.frames,
   background: cosmetics.backgrounds,
+  nameEffect: cosmetics.nameEffects,
 };
 
 export const LOOK_KINDS = Object.keys(LISTS) as (keyof RoomLook)[];

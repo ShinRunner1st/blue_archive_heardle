@@ -9,7 +9,12 @@ import { PopUp } from "../components/PopUp";
 import ProfilePopUp from "../components/Profile";
 import { CardLook, PlayerCard } from "../components/Profile/PlayerCard";
 import { ProfileHero } from "../components/Profile/ProfileCard";
-import { BACKGROUNDS, BANNERS, FRAMES } from "../constants/cosmetics";
+import {
+  BACKGROUNDS,
+  BANNERS,
+  FRAMES,
+  NAME_EFFECTS,
+} from "../constants/cosmetics";
 import { pictureUrl } from "../helpers/season";
 import type { PreviewView } from "./messages";
 
@@ -66,6 +71,7 @@ export function PicturePreview({ view }: { view: View<"picture"> }) {
     banner: { ...banner, picture: view.key },
     frame: FRAMES[0],
     background: { ...BACKGROUNDS[0], picture: view.key },
+    nameEffect: NAME_EFFECTS[0],
   };
   return (
     <>

@@ -171,6 +171,7 @@ export async function exportAccount(db: Db, account: string) {
     banner: profile.banner,
     frame: profile.frame,
     background: profile.background,
+    nameEffect: profile.name_effect,
     cardColors: profile.card_colors,
     summary: JSON.parse(String(profile.summary)) as unknown,
     editedAt: iso(Number(profile.edited_at)),

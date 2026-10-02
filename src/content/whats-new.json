@@ -29,6 +29,16 @@
         "text": "Banners are nameplates now, like the emblems in the game: a scene or a foil, the game's facets and an emblem, for everyone in a room to see. Five new ones, and the scenes behind them are sharp."
       },
       {
+        "icon": "IoSparkles",
+        "title": "Name effects",
+        "text": "Your name on your card can shine gold, flow in Kivotos blue or glow like an arcade sign. Pick one in Customize; everyone in a room sees it."
+      },
+      {
+        "icon": "IoSnow",
+        "title": "Cosmetics that move",
+        "text": "Petals fall on the cherry blossom, snow on the winter lodge and sparks rise at the festival. Foil banners catch the light, the prism frame turns and the neon one glows."
+      },
+      {
         "icon": "IoColorPalette",
         "title": "Card colours for everyone",
         "text": "Every Sensei card colour is yours from the start: no mission needed."

@@ -579,6 +579,7 @@ describe("the profile", () => {
     banner: "sakura",
     frame: "gold",
     background: "cherry",
+    nameEffect: "sky",
     cardColors: "night",
     editedAt: now,
     summary: { roundsPlayed: 12, songsGuessed: 3, server: "jp" },
@@ -855,6 +856,7 @@ describe("missions and room passes", () => {
     banner: "sakura", // daily-14
     frame: "gold", // daily-30
     background: "cherry", // first-daily
+    nameEffect: "sky", // everyone's for now
     cardColors: "schale",
     editedAt: now,
     summary: {},
@@ -925,6 +927,7 @@ describe("missions and room passes", () => {
         banner: "none",
         frame: "schale",
         background: "cherry",
+        nameEffect: "sky",
       },
       expires: now + ROOM_PASS_MS,
     });
@@ -950,6 +953,27 @@ describe("missions and room passes", () => {
       "p",
       "s",
     ]);
+  });
+
+  it("still reads a pass from before name effects, in the plain one", async () => {
+    const old = await signValue(
+      "room",
+      {
+        p: "vw5qu7wkjgl37yz6",
+        n: "Shin",
+        s: 10004,
+        l: ["dependable", "none", "schale", "cherry"],
+        e: now + ROOM_PASS_MS,
+      },
+      KEY
+    );
+    expect((await readRoomPass(old, KEY, now))?.look).toEqual({
+      title: "dependable",
+      banner: "none",
+      frame: "schale",
+      background: "cherry",
+      nameEffect: "none",
+    });
   });
 
   it("gives defaults to an account with no profile yet", async () => {

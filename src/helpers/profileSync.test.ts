@@ -38,6 +38,7 @@ const account = (overrides: Partial<AccountProfile> = {}): AccountProfile => ({
   banner: "sakura",
   frame: "schale",
   background: "none",
+  nameEffect: "none",
   cardColors: "schale",
   editedAt: 5000,
   ...overrides,
