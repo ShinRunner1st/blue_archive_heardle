@@ -958,8 +958,14 @@ shows wherever the build has an accounts address.
   a name; the same name is the same account), so it all works without
   them. The stand-in is only ever on localhost.
 - **The preview** is built in Vite's `preview` mode (`.env.preview`, with
-  its own rooms; its accounts are `api.baheardle.com`'s, the Worker's only
-  address, as it has no workers.dev one).
+  its own rooms). Built from `main`, its accounts are production's,
+  `api.baheardle.com`. A separate preview accounts stack,
+  `ba-heardle-accounts-preview` on its own D1 database and keys, measured
+  verified stats before their release; its config is kept only on the
+  unreleased branch `chore/accounts-preview`, and a preview built from
+  that branch uses it instead. Its room key is the preview rooms', not
+  production's, so a preview built from `main` shows signed-in players
+  in the preview's rooms as guests.
 - **Which pages it takes:** deployed, only the site's own (baheardle.com,
   its test address and its preview, `SITE_ORIGINS`) may call it or be
   sent back to after a sign-in; a local dev server's only with `npm run

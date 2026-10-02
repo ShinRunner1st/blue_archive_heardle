@@ -120,9 +120,15 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   localStorage, travels only in an Authorization header, and is never
   logged or put in an address. On wherever the build has an accounts
   address: baheardle.com (`api.baheardle.com`, `.env.production`), the
-  preview (`.env.preview`, also `api.baheardle.com`: the Worker has no
-  workers.dev address) and the dev server (`npm run accounts`, with
-  stand-in sign-in pages). Deployed, it takes only the site's own pages
+  preview built from `main` (`.env.preview`, also production's
+  `api.baheardle.com`, which has no workers.dev address) and the dev
+  server (`npm run accounts`, with stand-in sign-in pages). For measuring
+  unreleased account changes on Cloudflare, a separate preview stack
+  exists: `ba-heardle-accounts-preview` (workers.dev) on its own D1
+  database `ba-heardle-accounts-preview`, with its own keys, sharing its
+  room key with `ba-heardle-rooms-preview`. Its config lives only on the
+  unreleased branch `chore/accounts-preview` (a preview site built from
+  that branch uses it); it was never released. Deployed, it takes only the site's own pages
   (`SITE_ORIGINS`); localhost only with `npm run accounts` (`LOCAL_DEV`).
   An empty `DISCORD_CLIENT_ID` or `GOOGLE_CLIENT_ID` turns that sign-in off. CI deploys it from
   `main` before the rooms and the site (`npm run deploy:accounts`: Time
@@ -365,6 +371,20 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   wear: a guest's as their page sent it (each checked to exist), a
   signed-in player's from their room pass. Tapping a card for their
   profile waits for after the accounts release.
+- **Verified stats** (`docs/verified-stats.md`, Phase 1), signed in only:
+  a record the server keeps itself, apart from the saves. Each of the 11
+  dailies (OST; Voice, Halo, Weapon, Gameplay, Lore on Global and JP)
+  asks `POST /verified` to issue its attempt as it first plays and sends
+  its moves at the end, judged by the shared rules
+  (`src/helpers/verifiedDaily.ts`, `roundRules.ts`) on the account's
+  daily time zone; late finishes up to the next day, abandoned ones
+  closed lazily, verified streaks. Rooms sign a `room-result` receipt for
+  each signed-in player's finished game, on their own connection only
+  (`PROTOCOL` 6), which the page brings to the account. The page's side
+  is `verifiedPlay.ts`/`verifiedSync.ts` (its own `verified` key, never in
+  a save, sync or merge), a line under each daily's result, and the
+  profile's Verified tab. Endless, Time Attack, missions and leaderboards
+  stay out; verified isn't cheat-proof, as the policy says.
 - **What's new** pop-up after updates, the welcome/How to play pop-up, About
   with a privacy notice and a Ko-fi card.
 - **Keyboard play**: type anywhere to search, Space plays, Enter picks/submits,

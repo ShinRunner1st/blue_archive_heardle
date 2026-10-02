@@ -969,7 +969,11 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   the profile's Verified tab), on `feat/verified-page`, off
   `feat/verified-rooms`. Step 5, privacy (the policy, About, the README,
   What's new, and the verified record in Download my data), on
-  `docs/verified-privacy`, off `feat/verified-page`._
+  `docs/verified-privacy`, off `feat/verified-page`. Step 6, measured on
+  the Cloudflare preview with its own accounts Worker and database (their
+  config on `chore/accounts-preview`, not released), the figures on
+  `docs/verified-measured`, off `docs/verified-privacy`. Approved for
+  release 2026-10-02; the release docs on `docs/verified-release`._
 - **Levels, with accounts** (asked for 2026-10-01): an account level
   from the rounds and missions it has played, shown on the card.
 - **Other players' profiles and cosmetics in rooms, with accounts**:

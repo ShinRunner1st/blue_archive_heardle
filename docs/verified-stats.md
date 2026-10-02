@@ -545,5 +545,6 @@ Each step only once the user approves it, on its own stacked branch:
 6. **Measured on the preview**, as accounts' step 6 was, before any
    release. _Measured on 2026-10-02 (section 12), on a preview accounts
    Worker and database of its own (`accounts-worker/wrangler.preview.jsonc`,
-   on `chore/accounts-preview`), as production's accounts serve real
-   players now; the figures are recorded on `docs/verified-measured`._
+   on the branch `chore/accounts-preview`, kept out of the release), as
+   production's accounts serve real players now; the figures are recorded
+   on `docs/verified-measured`. Approved for release the same day._
