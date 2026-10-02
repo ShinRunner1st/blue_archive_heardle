@@ -5,10 +5,7 @@ import { CharacterId, spineCharacters } from "../constants/characters";
  * the colour scheme ("auto"), one of the others, or nobody ("off"). Which
  * of the others a player may pick is in src/content/cosmetics.json.
  */
-export type CharacterChoice =
-  | "auto"
-  | "off"
-  | Exclude<CharacterId, "arona" | "plana">;
+export type CharacterChoice = "auto" | "off" | CharacterId;
 
 /** Every character but the pair "auto" stands for. */
 const OTHERS: string[] = Object.keys(spineCharacters).filter(

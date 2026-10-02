@@ -46,19 +46,19 @@ export function Character(props: Props) {
   if (wide && !shown) setShown(true);
   if (!shown || choice === "off") return null;
 
-  const character =
-    choice !== "auto"
-      ? spineCharacters[choice]
-      : scheme === "dark"
-      ? spineCharacters.plana
-      : spineCharacters.arona;
+  // A pick the content no longer has falls back to the pair.
+  const own = choice === "auto" ? undefined : spineCharacters[choice];
+  const character = own
+    ? own
+    : scheme === "dark"
+    ? spineCharacters.plana
+    : spineCharacters.arona;
 
-  const partner =
-    choice === "auto"
-      ? scheme === "dark"
-        ? spineCharacters.arona
-        : spineCharacters.plana
-      : null;
+  const partner = !own
+    ? scheme === "dark"
+      ? spineCharacters.arona
+      : spineCharacters.plana
+    : null;
 
   return (
     <Stage {...props} character={character} partner={partner} hidden={!wide} />

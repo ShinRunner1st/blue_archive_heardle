@@ -5,7 +5,6 @@
  * entry, worded as what to do about it.
  */
 import { songs } from "../constants";
-import { spineCharacters } from "../constants/characters";
 import { FRAME_KINDS } from "../constants/cosmetics";
 import { ICONS } from "../constants/icons";
 import { MISSION_FACTS } from "../constants/missions";
@@ -342,13 +341,12 @@ export function checkContent(
       cosmetics.characters[0]?.id === "auto",
       `characters: the first must be "auto"`
     );
-    for (const character of cosmetics.characters.slice(1)) {
-      // Typed as the characters there are, but the admin tool can write
-      // any id; Arona and Plana come together, as "auto".
-      const id: string = character.id;
+    const setups = new Set(content.characters.map(({ id }) => id));
+    for (const { id } of cosmetics.characters.slice(1)) {
+      // Arona and Plana come together, as "auto".
       report(
-        id in spineCharacters && id !== "arona" && id !== "plana",
-        `${id}: needs an entry in src/constants/characters.ts`
+        setups.has(id) && id !== "arona" && id !== "plana",
+        `${id}: needs a set-up in characters.json`
       );
     }
   }
@@ -395,6 +393,89 @@ export function checkContent(
           `${update.id}: icon ${item.icon} isn't in icons.ts`
         );
         report(item.title && item.text, `${update.id}: an item with no words`);
+      }
+    }
+  }
+
+  // characters.json
+  {
+    const report = check("characters");
+    const { characters } = content;
+    unique(
+      report,
+      characters.map(({ id }) => id),
+      "character"
+    );
+    const ids = new Set(characters.map(({ id }) => id));
+    report(ids.has("arona") && ids.has("plana"), "Arona and Plana are needed");
+    const isName = (name: unknown) => typeof name === "string" && name !== "";
+    const isNumber = (n: unknown) =>
+      typeof n === "number" && Number.isFinite(n);
+    for (const character of characters) {
+      const { id, moods, touch } = character;
+      report(character.name, `${id}: name is empty`);
+      for (const file of [character.skel, character.atlas]) {
+        report(
+          env.exists(`public/spine/${file}`),
+          `${id}: public/spine/${file} isn't there`
+        );
+      }
+      report(isNumber(character.centerX), `${id}: centerX must be a number`);
+      report(isNumber(character.eyes), `${id}: eyes must be a number`);
+      report(isName(character.idle), `${id}: idle is empty`);
+      for (const mood of ["idle", "listening", "wrong", "lost"] as const) {
+        report(isName(moods[mood]), `${id}: no face for ${mood}`);
+      }
+      // A face for each try: nervous after tries 1 to 5, won on 1 to 6.
+      report(
+        moods.nervous.length === 5 && moods.nervous.every(isName),
+        `${id}: nervous needs a face for each of tries 1-5`
+      );
+      report(
+        moods.won.length === 6 && moods.won.every(isName),
+        `${id}: won needs a face for each of tries 1-6`
+      );
+      report(
+        moods.tapped.length > 1 && moods.tapped.every(isName),
+        `${id}: tapped needs two faces or more`
+      );
+      // At ease she blinks: the idle face must be one a blink suits.
+      report(
+        !character.blink || character.blinkable.includes(moods.idle),
+        `${id}: the idle face ${moods.idle} must be one that blinks`
+      );
+      if (touch) {
+        report(
+          isName(touch.point) && isName(touch.eye),
+          `${id}: touch needs its point and eye bones`
+        );
+        report(
+          touch.pointSetup.length === 2 && touch.pointSetup.every(isNumber),
+          `${id}: touch's pointSetup is x and y`
+        );
+        report(
+          touch.pat.length === 3 &&
+            touch.pat.every(isNumber) &&
+            touch.pat[2] > 0,
+          `${id}: touch's pat is x, y and a radius above 0`
+        );
+        report(
+          touch.lookMax > 0 && touch.patMax > 0,
+          `${id}: lookMax and patMax must be above 0`
+        );
+        report(
+          touch.lookEyes >= 0 && touch.lookEyes <= 1,
+          `${id}: lookEyes is a share, 0 to 1`
+        );
+        report(
+          [
+            touch.look.loop,
+            touch.look.end,
+            touch.stroke.loop,
+            touch.stroke.end,
+          ].every((names) => names.length > 0 && names.every(isName)),
+          `${id}: touch's look and stroke need their animations`
+        );
       }
     }
   }

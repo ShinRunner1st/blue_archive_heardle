@@ -13,8 +13,8 @@ copy of the files to show it fires.
 The admin tool, `npm run admin`, edits these files on this PC, with previews
 drawn by the game's own components, and saves only once the checks pass
 (writing `ids.lock.json` too); see the tool below. Its tabs so far:
-Missions, Rewards (every list in `cosmetics.json`), Pictures, Seasons, OST
-badges and What's new.
+Missions, Rewards (every list in `cosmetics.json`), Characters, Pictures,
+Seasons, OST badges and What's new.
 
 After any change: `npm test`. After a change with pictures (a season, a
 badge cover): `npm run songs` too, before merging.
@@ -120,6 +120,20 @@ wears it and sees it in the list. A default is never retired. A new kind of cosm
 is its list here, an entry in `COSMETIC_KINDS` (`src/helpers/cosmetics.ts`)
 and, for Customize, its swatch and place in
 `src/components/Profile/Customize.tsx`.
+
+## Characters (`characters.json`)
+
+Who can stand beside the game, each a Spine sprite in `public/spine/<id>/`
+(made by `scripts/build-spine.py`): `skel` and `atlas` under it; `centerX`
+and `eyes`, where her middle and her eyes are in skeleton units, so every
+face sits at the same height; `idle` and `blink`, animations; `blinkable`,
+the faces a blink suits (the one at rest among them); `moods`, a face for
+each moment of a round (`idle`, `listening`, `wrong`, `lost`; `nervous` after
+tries 1 to 5, `won` on tries 1 to 6; `tapped`, picked from at random); and
+`touch`, her bones for being held and stroked, or `null` for taps only.
+`note` says why her faces were picked. Arona and Plana are the pair "auto"
+stands for; any other is offered in Settings once she's in `characters` in
+`cosmetics.json`. The admin tool edits and adds them, with her drawn.
 
 ## Ids for good (`ids.lock.json`)
 

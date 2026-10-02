@@ -1218,28 +1218,30 @@ She moves the way she does in the game's memorial lobby. Holding her moves her
 `Touch_Point` and `Touch_Eye` bones, which her head, hair and eyes follow;
 stroking her head plays the pat animation; a tap picks a random expression.
 Her expressions for each moment of a round are chosen in
-`src/constants/characters.ts`. She pauses while the colour scheme switches and
+`src/content/characters.json`, with where she stands and her touch bones
+(the admin tool's Characters tab edits them, with her drawn as in the
+game). She pauses while the colour scheme switches and
 draws at most 60 frames a second.
 
 Arona, Plana and Mari are everyone's; Shiroko, Hoshino, Hina and Aris (the
 students' own `_spr` sprites, tap only, 0.7-0.9 MB each) are unlocked by a
 mission each, listed with the others in `src/content/cosmetics.json`.
 
-To add a character, export her from the game (Spine 4.2 `.skel`, `.atlas` and
-`.png`; a student's `<DevName>_spr` is in `.cache/game/sprites/` once the
-game's files have been fetched), then:
+To add a character, use the admin tool (`npm run admin`, Characters, New
+character): pick a student's sprite from `.cache/game/sprites/` (there once
+the game's files have been fetched; a student's is `<DevName>_spr`), seen in
+the preview first, or drop in her Spine 4.2 `.skel`, `.atlas` and `.png`.
+It runs `python scripts/build-spine.py <path to .skel> <id>` (Python 3 and
+Pillow), which copies her into `public/spine/<id>/` with the texture as
+WebP, and adds her set-up and a Rewards entry. Then, in the tool:
 
-1. Run `python scripts/build-spine.py <path to .skel> <id>` (needs Python 3
-   and Pillow). It copies her into `public/spine/<id>/` with the texture as
-   WebP.
-2. Add her to `src/constants/characters.ts` and `CharacterId`: her eye
-   height (`eyes`, so her face sits where everyone's does: compare a
-   screenshot of her with Arona's), her touch bones if she has them, and
-   which expression fits each moment (render each of her animations to
-   choose; a student's sprite has `00` to about `30`, `99`, `Idle_01` and
-   `Eye_Close_01`, and its blink suits only the face it was drawn on).
-3. List her in `characters` in `src/content/cosmetics.json`, with the
-   mission that unlocks her, or none.
+1. Her eye height (`eyes`), so the gold guide runs through her eyes and her
+   face sits where everyone's does, and her middle (`centerX`).
+2. Which face fits each moment (a student's sprite has `00` to about `30`,
+   `99`, `Idle_01` and `Eye_Close_01`; click each to see it), and which
+   faces her blink suits (only the one it was drawn on, as a rule).
+3. Her touch bones, if she has them, with the pat circle drawn over her.
+4. In Rewards › Characters, the mission that unlocks her, or none.
 
 ### Link preview and icons
 

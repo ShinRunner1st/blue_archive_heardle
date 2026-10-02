@@ -4,6 +4,7 @@
  * would see it.
  */
 import type { ColorScheme } from "../constants/theme";
+import type { SpineCharacter } from "../constants/characters";
 import type {
   BadgeEntry,
   CosmeticsFile,
@@ -55,12 +56,28 @@ export type PreviewView =
       /** The album being edited, and how many of its songs are guessed. */
       selected: number;
       found: number;
+    }
+  | {
+      kind: "character";
+      character: SpineCharacter;
+      /** The face to wear. */
+      face: string;
+      /** Lines for her eyes and middle, and her pat circle. */
+      guides: boolean;
     };
 
 export interface PreviewMessage {
   type: "admin-preview";
   scheme: ColorScheme;
   view: PreviewView;
+}
+
+/** What a sprite has, for the character tab's pickers. */
+export interface CharacterInfo {
+  type: "admin-character-info";
+  skel: string;
+  animations: string[];
+  bones: string[];
 }
 
 /** The frame asks for the view once it's ready for it. */

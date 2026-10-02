@@ -14,8 +14,9 @@ import type {
 } from "../constants/cosmetics";
 import type { Mission, MissionGroup } from "../constants/missions";
 import type { SeasonEntry } from "../constants/seasons";
+import type { SpineCharacter } from "../constants/characters";
 
-export type { SeasonEntry };
+export type { SeasonEntry, SpineCharacter };
 
 export interface MissionsFile {
   /** The Missions pop-up's tabs, in order. */
@@ -74,6 +75,8 @@ export interface ContentFiles {
   whatsNew: NewsEntry[];
   privacy: PrivacyFile;
   idsLock: IdsLock;
+  /** Each character's set-up: her sprite, framing, faces and touch. */
+  characters: SpineCharacter[];
 }
 
 export type ContentFileName = keyof ContentFiles;
@@ -87,4 +90,5 @@ export const CONTENT_FILE_PATHS: Record<ContentFileName, string> = {
   whatsNew: "whats-new.json",
   privacy: "privacy.json",
   idsLock: "ids.lock.json",
+  characters: "characters.json",
 };

@@ -9,6 +9,7 @@ import { nextLock } from "./lock";
 import type { PictureEntry } from "./pictureRules";
 import { MissionsTab } from "./MissionsTab";
 import { BadgesTab } from "./BadgesTab";
+import { CharactersTab } from "./CharactersTab";
 import { PicturesTab } from "./PicturesTab";
 import { RewardsTab } from "./RewardsTab";
 import { SeasonsTab } from "./SeasonsTab";
@@ -18,6 +19,7 @@ import { WhatsNewTab } from "./WhatsNewTab";
 const TABS = {
   missions: { label: "Missions", Component: MissionsTab },
   rewards: { label: "Rewards", Component: RewardsTab },
+  characters: { label: "Characters", Component: CharactersTab },
   pictures: { label: "Pictures", Component: PicturesTab },
   seasons: { label: "Seasons", Component: SeasonsTab },
   badges: { label: "OST badges", Component: BadgesTab },

@@ -17,6 +17,7 @@ import { applyColorSchemeToDocument } from "../helpers/colorScheme";
 import { unlocksOf } from "../helpers/cosmetics";
 import { goalOf } from "../helpers/missions";
 import type { PreviewMessage, PreviewView } from "./messages";
+import { CharacterPreview } from "./CharacterPreview";
 import { RewardsPreview } from "./RewardsPreview";
 import {
   BadgesPreview,
@@ -36,6 +37,7 @@ const nothing = () => {};
 
 function View({ view, night }: { view: PreviewView; night: boolean }) {
   if (view.kind === "picture") return <PicturePreview view={view} />;
+  if (view.kind === "character") return <CharacterPreview view={view} />;
   if (view.kind === "season")
     return <SeasonPreview view={view} night={night} />;
   if (view.kind === "badges") return <BadgesPreview view={view} />;

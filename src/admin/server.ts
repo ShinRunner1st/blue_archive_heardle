@@ -17,6 +17,12 @@ import {
   type IdsLock,
 } from "../content/types";
 import type { ContentEnv, ContentProblem } from "../content/validate";
+import {
+  addCharacter,
+  type CharacterRequest,
+  listCachedSprites,
+  sendCachedSprite,
+} from "./characterServer";
 import { nextLock } from "./lock";
 import {
   deletePicture,
@@ -134,7 +140,10 @@ export function pictureUses(files: ContentFiles, key: string): string[] {
 export function existingFiles(): string[] {
   const list = (dir: string) =>
     existsSync(dir) ? readdirSync(dir).map((name) => `${dir}/${name}`) : [];
-  return [...list("pictures/seasons"), ...list("src/image/badges")];
+  const spine = existsSync("public/spine")
+    ? readdirSync("public/spine").flatMap((id) => list(`public/spine/${id}`))
+    : [];
+  return [...list("pictures/seasons"), ...list("src/image/badges"), ...spine];
 }
 
 /**
@@ -267,6 +276,41 @@ export function adminApi(): AdminPlugin {
         ) {
           send(res, 404, { error: "No such picture." });
         }
+      });
+
+      // The game's cached sprites, for the preview's Spine runtime, which
+      // asks for them under /spine/ like the characters in public/.
+      server.middlewares.use("/spine/_cache", (req, res) => {
+        const file = (req.url ?? "").replace(/^\//, "").split("?")[0];
+        if (!isOwnRequest(req.headers, false) || !sendCachedSprite(res, file)) {
+          send(res, 404, { error: "No such sprite." });
+        }
+      });
+
+      server.middlewares.use("/api/sprites", (req, res) => {
+        if (!isOwnRequest(req.headers, false)) {
+          return send(res, 403, { error: "Only the admin page can ask." });
+        }
+        send(res, 200, { sprites: listCachedSprites() });
+      });
+
+      server.middlewares.use("/api/character", (req, res) => {
+        if (!isOwnRequest(req.headers, true) || req.method !== "POST") {
+          return send(res, 403, { error: "Only the admin page can ask." });
+        }
+        readBody(req)
+          .then(async (text) =>
+            send(
+              res,
+              200,
+              await addCharacter(JSON.parse(text) as CharacterRequest)
+            )
+          )
+          .catch((error: unknown) =>
+            send(res, 400, {
+              error: error instanceof Error ? error.message : String(error),
+            })
+          );
       });
 
       server.middlewares.use("/api/picture", (req, res) => {

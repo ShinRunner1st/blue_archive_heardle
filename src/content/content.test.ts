@@ -13,6 +13,7 @@ import badges from "./badges.json";
 import cosmetics from "./cosmetics.json";
 import idsLock from "./ids.lock.json";
 import missions from "./missions.json";
+import characters from "./characters.json";
 import privacy from "./privacy.json";
 import seasons from "./seasons.json";
 import type { ContentFileName, ContentFiles } from "./types";
@@ -27,6 +28,7 @@ const files = {
   whatsNew,
   privacy,
   idsLock,
+  characters,
 } as unknown as ContentFiles;
 
 const env = { pictureFiles, exists: existsSync };
@@ -141,6 +143,30 @@ describe("checkContent", () => {
       "seasons/nothing-day: run npm run songs",
       "seasons/nothing-night.webp: run npm run seasons",
       "seasons/nothing-night: run npm run songs",
+    ]);
+  });
+
+  it("checks each character's sprite, faces and touch", () => {
+    const content = copy();
+    const mari = content.characters.find(({ id }) => id === "mari")!;
+    mari.skel = "mari/none.skel";
+    mari.moods.nervous.pop();
+    mari.moods.idle = "02";
+    const arona = content.characters.find(({ id }) => id === "arona")!;
+    arona.touch!.pat[2] = 0;
+    expect(messages(content, "characters")).toEqual([
+      "arona: touch's pat is x, y and a radius above 0",
+      "mari: public/spine/mari/none.skel isn't there",
+      "mari: nervous needs a face for each of tries 1-5",
+      "mari: the idle face 02 must be one that blinks",
+    ]);
+  });
+
+  it("keeps the characters a reward names", () => {
+    const content = copy();
+    content.characters = content.characters.filter(({ id }) => id !== "hina");
+    expect(messages(content, "cosmetics")).toEqual([
+      "hina: needs a set-up in characters.json",
     ]);
   });
 

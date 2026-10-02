@@ -1,3 +1,4 @@
+import characterData from "../content/characters.json";
 import { Moods } from "../helpers/characterMood";
 
 /** Head-touch set-up for characters whose skeleton has the touch bones. */
@@ -25,19 +26,17 @@ export interface Touch {
   stroke: { loop: string[]; end: string[] };
 }
 
-/** Every character with a sprite in public/spine/. */
-export type CharacterId =
-  | "arona"
-  | "plana"
-  | "mari"
-  | "shiroko"
-  | "hoshino"
-  | "hina"
-  | "aris";
+/**
+ * A character with a sprite in public/spine/, by her id in
+ * src/content/characters.json: data, so the admin tool can add one.
+ */
+export type CharacterId = string;
 
 export interface SpineCharacter {
   id: CharacterId;
   name: string;
+  /** Why her faces were picked as they were, for whoever edits them. */
+  note?: string;
   /** Under public/spine/, made by scripts/build-spine.py. */
   skel: string;
   atlas: string;
@@ -80,238 +79,15 @@ export const FRAME = {
 };
 
 /**
- * From the game's own character data (see the README). Expression numbers
- * were picked by looking at each one.
+ * The characters, from src/content/characters.json (the game's own
+ * character data, see the README): where each stands, her faces for each
+ * moment of a round, and her touch bones if she has them. Expression
+ * numbers were picked by looking at each one; the admin tool shows them.
  */
-export const spineCharacters: Record<SpineCharacter["id"], SpineCharacter> = {
-  arona: {
-    id: "arona",
-    name: "Arona",
-    skel: "arona/arona_spr.skel",
-    atlas: "arona/arona_spr.atlas",
-    centerX: 0,
-    eyes: 874,
-    idle: "Idle_01",
-    blink: "Eye_Close_01",
-    blinkable: [
-      "00",
-      "01",
-      "02",
-      "04",
-      "05",
-      "06",
-      "07",
-      "08",
-      "09",
-      "15",
-      "16",
-      "19",
-      "20",
-    ],
-    touch: {
-      point: "Touch_Point",
-      eye: "Touch_Eye",
-      pointSetup: [26, 967],
-      pat: [0, 1040, 210],
-      lookMax: 100,
-      patMax: 60,
-      lookEyes: 0.4,
-      look: {
-        loop: ["Look_01_M", "Look_01_A"],
-        end: ["LookEnd_01_M", "LookEnd_01_A"],
-      },
-      stroke: {
-        loop: ["Pat_01_M", "Pat_01_A"],
-        end: ["PatEnd_01_M", "PatEnd_01_A"],
-      },
-    },
-    moods: {
-      idle: "00",
-      listening: "03",
-      wrong: "28",
-      nervous: ["01", "04", "07", "06", "29"],
-      won: ["21", "12", "11", "32", "23", "03"],
-      lost: "10",
-      tapped: [
-        "02",
-        "03",
-        "08",
-        "09",
-        "11",
-        "12",
-        "16",
-        "18",
-        "19",
-        "21",
-        "25",
-        "32",
-      ],
-    },
-  },
-  plana: {
-    id: "plana",
-    name: "Plana",
-    skel: "plana/NP0035_spr.skel",
-    atlas: "plana/NP0035_spr.atlas",
-    centerX: -20,
-    eyes: 910,
-    idle: "Idle_01",
-    blink: "Eye_Close_01",
-    blinkable: [
-      "00",
-      "01",
-      "02",
-      "03",
-      "04",
-      "05",
-      "06",
-      "07",
-      "08",
-      "10",
-      "11",
-      "12",
-      "15",
-      "18",
-      "20",
-    ],
-    touch: {
-      point: "Touch_Point",
-      eye: "Touch_Eye",
-      pointSetup: [-38, 1014],
-      pat: [-15, 1060, 215],
-      lookMax: 100,
-      patMax: 60,
-      lookEyes: 0.4,
-      look: { loop: ["Look_01_M"], end: ["LookEnd_01_M", "LookEnd_01_A"] },
-      stroke: {
-        loop: ["Pat_01_M", "Pat_01_A"],
-        end: ["PatEnd_01_M", "PatEnd_01_A"],
-      },
-    },
-    moods: {
-      idle: "00",
-      listening: "17",
-      wrong: "05",
-      nervous: ["02", "04", "07", "12", "13"],
-      won: ["09", "16", "18", "15", "15", "17"],
-      lost: "19",
-      tapped: ["05", "09", "10", "14", "15", "16", "18", "20"],
-    },
-  },
-  mari: {
-    id: "mari",
-    name: "Mari",
-    skel: "mari/CH0273_spr.skel",
-    atlas: "mari/CH0273_spr.atlas",
-    centerX: 0,
-    eyes: 965,
-    idle: "Idle_01",
-    blink: "Eye_Close_01",
-    // Her sprite has one closed-eye face, and a blink swaps her whole face
-    // for it: her gentle smile (01) with her eyes shut. Only on that smile
-    // does a blink look right.
-    blinkable: ["01"],
-    touch: null,
-    moods: {
-      idle: "01",
-      listening: "99",
-      wrong: "06",
-      nervous: ["16", "02", "04", "05", "08"],
-      won: ["10", "03", "03", "13", "13", "01"],
-      lost: "09",
-      tapped: ["00", "03", "10", "11", "12", "13"],
-    },
-  },
-  shiroko: {
-    id: "shiroko",
-    name: "Shiroko",
-    skel: "shiroko/shiroko_spr.skel",
-    atlas: "shiroko/shiroko_spr.atlas",
-    centerX: 0,
-    eyes: 1000,
-    idle: "Idle_01",
-    blink: "Eye_Close_01",
-    // Calm as she is in the game: her faces change a little, so a win is her
-    // small smile (03).
-    blinkable: ["00"],
-    touch: null,
-    moods: {
-      idle: "00",
-      listening: "99",
-      wrong: "06",
-      nervous: ["05", "01", "13", "16", "17"],
-      won: ["03", "03", "03", "03", "03", "03"],
-      lost: "15",
-      tapped: ["02", "04", "08", "10", "12", "14"],
-    },
-  },
-  hoshino: {
-    id: "hoshino",
-    name: "Hoshino",
-    skel: "hoshino/hoshino_spr.skel",
-    atlas: "hoshino/hoshino_spr.atlas",
-    centerX: 0,
-    eyes: 920,
-    idle: "Idle_01",
-    blink: "Eye_Close_01",
-    // At rest her calm face (01), the one her blink suits; her sleepy wink
-    // (00) is for taps, and she dozes while the clip plays (99).
-    blinkable: ["01"],
-    touch: null,
-    moods: {
-      idle: "01",
-      listening: "99",
-      wrong: "04",
-      nervous: ["05", "13", "16", "06", "17"],
-      won: ["03", "02", "08", "07", "14", "15"],
-      lost: "12",
-      tapped: ["00", "02", "07", "09", "10", "11", "14"],
-    },
-  },
-  hina: {
-    id: "hina",
-    name: "Hina",
-    skel: "hina/hina_spr.skel",
-    atlas: "hina/hina_spr.atlas",
-    centerX: 0,
-    eyes: 929,
-    idle: "Idle_01",
-    blink: "Eye_Close_01",
-    // The prefect: stern at rest, a sweat drop as the tries go, her rare smile (08) for a quick win and the gloom (15) for a loss.
-    blinkable: ["00"],
-    touch: null,
-    moods: {
-      idle: "00",
-      listening: "99",
-      wrong: "06",
-      nervous: ["04", "12", "05", "20", "13"],
-      won: ["08", "16", "17", "18", "02", "01"],
-      lost: "15",
-      tapped: ["07", "09", "10", "11", "17", "18", "25"],
-    },
-  },
-  aris: {
-    id: "aris",
-    name: "Aris",
-    skel: "aris/aris_spr.skel",
-    atlas: "aris/aris_spr.atlas",
-    centerX: 0,
-    eyes: 968,
-    idle: "Idle_01",
-    blink: "Eye_Close_01",
-    // Only Aris's own faces: the pink-eyed ones (12, 14-19) are Kei's. Her
-    // open mouth (03) reads as excited and her squeezed eyes (08) as tears,
-    // so neither follows a guess.
-    blinkable: ["00"],
-    touch: null,
-    moods: {
-      idle: "00",
-      listening: "99",
-      wrong: "04",
-      nervous: ["01", "02", "05", "06", "09"],
-      won: ["07", "07", "010", "010", "11", "00"],
-      lost: "10",
-      tapped: ["00", "03", "07", "010", "11"],
-    },
-  },
-};
+export const spineCharacters: Record<CharacterId, SpineCharacter> =
+  Object.fromEntries(
+    (characterData as SpineCharacter[]).map((character) => [
+      character.id,
+      character,
+    ])
+  );

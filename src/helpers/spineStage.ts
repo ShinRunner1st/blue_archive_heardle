@@ -19,6 +19,16 @@ export interface Stage {
   setExpression(name: string): void;
   /** Called once a character is on screen. */
   onReady(listener: () => void): void;
+  /**
+   * What the sprite on screen has, for the admin tool's pickers: its
+   * animations and bones; null before one is drawn.
+   */
+  inspect(): { animations: string[]; bones: string[] } | null;
+  /**
+   * Where a point in skeleton units is on the canvas, in CSS pixels from
+   * its top left: the admin tool's guides for the eyes and the pat.
+   */
+  project(x: number, y: number): [number, number] | null;
   dispose(): void;
 }
 
@@ -496,6 +506,21 @@ export function createStage(canvas: HTMLCanvasElement): Stage {
     },
     onReady(listener) {
       readyListeners.push(listener);
+    },
+    inspect() {
+      if (!current) return null;
+      const { data } = current.skeleton;
+      return {
+        animations: data.animations.map(({ name }) => name),
+        bones: data.bones.map(({ name }) => name),
+      };
+    },
+    project(x, y) {
+      if (!current || !canvas.clientWidth) return null;
+      const box = canvas.getBoundingClientRect();
+      const v = new spine.Vector3(x, y, 0);
+      spineCanvas.renderer.camera.worldToScreen(v, box.width, box.height);
+      return [v.x, box.height - v.y];
     },
     dispose() {
       canvas.removeEventListener("pointerdown", onDown);

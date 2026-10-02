@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 
-import { spineCharacters } from "../constants/characters";
 import { Moods, pickExpression } from "./characterMood";
 
 const moods: Moods = {
@@ -78,21 +77,5 @@ describe("pickExpression", () => {
         playing: true,
       })
     ).toBe("w2");
-  });
-});
-
-describe("spineCharacters", () => {
-  it("gives every character a face for every moment of a round", () => {
-    for (const { moods: faces } of Object.values(spineCharacters)) {
-      expect(faces.nervous).toHaveLength(5);
-      expect(faces.won).toHaveLength(6);
-      expect(faces.tapped.length).toBeGreaterThan(1);
-    }
-  });
-
-  it("lets every character blink while at ease", () => {
-    for (const character of Object.values(spineCharacters)) {
-      expect(character.blinkable).toContain(character.moods.idle);
-    }
   });
 });

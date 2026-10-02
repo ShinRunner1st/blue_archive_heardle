@@ -1,6 +1,8 @@
 /** The admin page's calls to its server (server.ts), on the same address. */
 import type { ContentFiles } from "../content/types";
 import type { ContentProblem } from "../content/validate";
+import type { CharacterRequest } from "./characterRules";
+import type { CachedSprite } from "./characterServer";
 import type { PictureEntry, PictureRequest } from "./pictureRules";
 import type { ContentState } from "./server";
 
@@ -63,3 +65,33 @@ export const makePicture = (request: PictureRequest) =>
 
 /** Deletes one of the tool's pictures; the list comes back. */
 export const deletePicture = (path: string) => pictureCall("DELETE", { path });
+
+/** The game's sprites cached on this PC, by name without _spr. */
+export async function loadSprites(): Promise<CachedSprite[]> {
+  const response = await fetch("/api/sprites", { cache: "no-store" });
+  if (!response.ok) return [];
+  return ((await response.json()) as { sprites: CachedSprite[] }).sprites;
+}
+
+/** Adds a character's sprite to public/spine/<id>/ with build-spine.py. */
+export async function addCharacter(
+  request: CharacterRequest
+): Promise<
+  | { ok: true; skel: string; atlas: string; kb: number }
+  | { ok: false; error: string }
+> {
+  const response = await fetch("/api/character", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(request),
+  });
+  const data = (await response.json()) as {
+    skel: string;
+    atlas: string;
+    kb: number;
+    error?: string;
+  };
+  return response.ok
+    ? { ok: true, ...data }
+    : { ok: false, error: data.error ?? `Failed: ${response.status}` };
+}

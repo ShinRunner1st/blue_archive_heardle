@@ -1052,6 +1052,14 @@ admin`, on their PC only, nothing deployed or in the site's build),
      makes a new one's sprite from the game's files (`build-spine.py`)
      and shows any character in a Spine preview, to frame her and set
      her faces (each mood, which faces blink) and her pat and look.
+     _Built on `feat/admin-tool`: `src/content/characters.json` (byte for
+     byte the old set-ups, checked, with a note each), the validator's
+     checks for them (the old characterMood test's too), and a Characters
+     tab: the game's Spine stage in the preview where the game puts her,
+     guides for her eyes, middle and pat, every face to click, a face per
+     moment, blinks and touch; new ones from the 268 sprites in
+     `.cache/game/sprites/` (previewed first) or dropped-in files, through
+     `build-spine.py`. Tried with Hinata, then taken out._
   6. Frame styles from parts (a line, a glow, corner ornaments as SVG
      shapes in the content), so a new style needs no code; the six there
      redrawn from parts, checked pixel for pixel against today's.
