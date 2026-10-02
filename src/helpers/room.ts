@@ -25,6 +25,7 @@
  * file's name, a salted hash, or its picture's cell in a shuffled sheet,
  * and its four answers in 4-Choice.
  */
+import { newRoomGameId, RoomReceipt } from "../accounts/roomReceipt";
 import { audioClips } from "../constants/audioClips";
 import badges from "../content/badges.json";
 import { PICTURE_KINDS } from "../constants/guessSheets";
@@ -71,6 +72,7 @@ import { cleanLook, DEFAULT_LOOK } from "./roomLook";
 import { songFile, voiceFile } from "./audioFiles";
 import { makeChoices } from "./choices";
 import { answerOf, makePictureChoices, pictureAnswers } from "./pictureRounds";
+import { places } from "./roomPlaces";
 import {
   hasTitleCall,
   lineCount,
@@ -152,8 +154,48 @@ export interface Live {
   vote: { by: string; yes: string[]; no: string[]; until: number } | null;
 }
 
+/**
+ * A signed-in player in a game's standings as it was played to its end:
+ * their place (ties shared) and score, for their receipt.
+ */
+export interface Finisher {
+  id: string;
+  /** Their account's public id, from their room pass. */
+  account: string;
+  place: number;
+  score: number;
+}
+
+/** A game played to its end: when, and who stood in its standings. */
+export interface Ended {
+  /** When its standings began, on the room's clock. */
+  at: number;
+  /** Everyone in the standings, here or away. */
+  players: number;
+  finishers: Finisher[];
+}
+
+/** A result for the Worker to sign and send on one connection. */
+export interface ReceiptToSend {
+  token: string;
+  receipt: RoomReceipt;
+}
+
 /** A game, from its start to the lobby after it, in storage. */
 export interface Game {
+  /**
+   * The game's random id (128 bits), made as it starts, which its receipts
+   * carry so an account counts the game once. Absent in a record from
+   * before PROTOCOL 6, whose game then gives no receipts.
+   */
+  id?: string;
+  /**
+   * Set as its last round's reveal gives way to the standings; never for a
+   * game ended early by a vote, nor one with fewer than MIN_PLAYERS left in
+   * its standings or nobody signed in. Kept in the write the standings make
+   * anyway, so a restart or a player coming back gets the same result.
+   */
+  ended?: Ended;
   deal: RoundDeal[];
   results: RoundResult[];
   /**
@@ -182,6 +224,13 @@ export interface PlayerRecord {
    * while the room is open, as everything here is. Never sent to a page.
    */
   account?: string;
+  /**
+   * Their connection now said hello with that account's own pass, which the
+   * Worker checked: only then is it sent their receipt. A page back by its
+   * token without the pass keeps its account (kicks and locks still know
+   * it) but gets no receipt.
+   */
+  passed?: true;
   /** When they joined, which orders the list and picks the next host. */
   joined: number;
   score: number;
@@ -624,6 +673,11 @@ export class Room {
   closing: RoomError | null = null;
   /** Tokens whose connections must close: players the host took out. */
   kicks: string[] = [];
+  /**
+   * Signed-in players' results to sign and send, each on its player's own
+   * connection, once the room's state is stored.
+   */
+  receipts: ReceiptToSend[] = [];
 
   constructor(
     public readonly code: string,
@@ -663,7 +717,7 @@ export class Room {
     const { phase, round } = saved.live;
     if (phase === "reveal") {
       if (round + 1 < saved.game.deal.length) room.load(round + 1, now);
-      else room.finish(now);
+      else room.finish(now, true);
     } else if (phase === "loading" || phase === "playing")
       room.load(round, now);
     return room;
@@ -716,6 +770,25 @@ export class Room {
      * time; null for a guest, or a pass that didn't check out.
      */
     pass: RoomPass | null = null
+  ): Hello {
+    const result = this.join(message, now, mayMake, pass);
+    if ("player" in result) {
+      const { player } = result;
+      // Whichever way they came in, this connection's own pass decides.
+      if (pass !== null && pass.publicId === player.account) {
+        player.passed = true;
+      } else delete player.passed;
+      // Back at the standings of a game they played: their receipt again.
+      this.giveReceipt(player);
+    }
+    return result;
+  }
+
+  private join(
+    message: Extract<ClientMessage, { t: "hello" }>,
+    now: number,
+    mayMake: boolean,
+    pass: RoomPass | null
   ): Hello {
     if (message.v !== PROTOCOL) return { error: "version" };
     // Taken out by the host: not by this tab, nor another in the browser,
@@ -1092,6 +1165,8 @@ export class Room {
       player.returned = false;
     }
     this.game = {
+      // From WebCrypto, not the room's random, which tests seed.
+      id: newRoomGameId(),
       deal: dealRounds(live.settings, this.random),
       results: [],
       // Only those here play: anyone away from the last game is let go.
@@ -1183,16 +1258,84 @@ export class Room {
     if (live.round + 1 < this.game!.deal.length) {
       this.play(live.round + 1, now);
     } else {
-      this.finish(now);
+      this.finish(now, true);
     }
   }
 
-  /** The standings, for OVER_MS, then everyone is back in the lobby. */
-  private finish(now: number) {
+  /**
+   * The standings, for OVER_MS, then everyone is back in the lobby. Only a
+   * game `played` to its last reveal gives receipts, not one a vote ended.
+   */
+  private finish(now: number, played = false) {
     this.change({ phase: "over", vote: null });
     this.clearClocks();
     this.change({ endsAt: now + OVER_MS });
     this.save = true;
+    if (played) this.markEnded(now);
+  }
+
+  /**
+   * Keeps the game's end with it, in the write its standings make anyway:
+   * when, how many stand in them, and each signed-in player's place and
+   * score as the standings show them. Then each of them here gets their
+   * receipt.
+   */
+  private markEnded(now: number) {
+    const game = this.game!;
+    const everyone = this.everyone;
+    if (!game.id || everyone.length < MIN_PLAYERS) return;
+    const place = places(everyone);
+    const finishers = everyone.flatMap((p) =>
+      p.account
+        ? [
+            {
+              id: p.id,
+              account: p.account,
+              place: place.get(p.id)!,
+              score: p.score,
+            },
+          ]
+        : []
+    );
+    if (finishers.length === 0) return;
+    this.game = {
+      ...game,
+      ended: { at: now, players: everyone.length, finishers },
+    };
+    for (const player of this.players) this.giveReceipt(player);
+  }
+
+  /**
+   * A player's receipt for the game they played to its end, while its
+   * standings show: only for the account they had in it, and only on a
+   * connection that came with that account's pass. None for a guest, nor
+   * for anyone who arrived at the standings after the end.
+   */
+  private giveReceipt(player: PlayerRecord) {
+    const live = this.live;
+    const game = this.game;
+    const ended = game?.ended;
+    if (!live || live.phase !== "over" || !game?.id || !ended) return;
+    if (!player.account || !player.passed) return;
+    const mine = ended.finishers.find(
+      (f) => f.id === player.id && f.account === player.account
+    );
+    if (!mine) return;
+    const { settings } = live;
+    this.receipts.push({
+      token: player.token,
+      receipt: {
+        gameId: game.id,
+        publicId: mine.account,
+        game: settings.game === "picture" ? settings.picture : settings.game,
+        answers: settings.answers,
+        rounds: game.deal.length,
+        players: ended.players,
+        place: mine.place,
+        score: mine.score,
+        endedAt: ended.at,
+      },
+    });
   }
 
   private toLobby(now: number) {

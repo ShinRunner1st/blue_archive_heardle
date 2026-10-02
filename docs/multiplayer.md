@@ -193,8 +193,9 @@ page                          Worker / room (Durable Object)
  |                             -> on the sockets                  [0 rows]
  | stay           ("I'm still here", in the last minute)
  | tick           (10 min idle) -> closes: error "idle" to all    [0 rows]
- | start (host)                -> deals every round; writes the game,
- |                                 sets the tidy alarm           [2 rows]
+ | start (host)                -> deals every round, makes the game id;
+ |                                 writes the game, sets the tidy
+ |                                 alarm                         [2 rows]
  | <- room {loading, current: file}
  | ready {round 0}             -> once everyone's in, or 10 s:
  | <- room {playing, startsIn, endsIn, current + choices, next: file}
@@ -212,8 +213,14 @@ page                          Worker / room (Durable Object)
  | tick           (6 s, if this page has the next song)
  | tick           (12 s, if still waiting)
  |                             -> next round: playing, as above
- | ...                         (last round -> over)          [1 row]
+ | ...                         (last round -> over; the game's end and
+ |                                 each signed-in player's place and
+ |                                 score in the same write)      [1 row]
  | <- room {over, endsIn (30 s)}
+ | <- receipt {receipt}        (a signed-in player's own connection only,
+ |                                 as it came with their pass; again if
+ |                                 they come back; none for a guest or a
+ |                                 game a vote ended)            [free]
  | again          (each player's Back to the lobby)
  | tick (30 s) or the last again -> back to the lobby; deletes the game
  |                                 and the alarm                 [~2 rows]

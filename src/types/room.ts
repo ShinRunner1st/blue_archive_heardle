@@ -8,7 +8,7 @@ import { Server } from "./server";
  * whenever a message changes, and a page on an older version is told to
  * reload.
  */
-export const PROTOCOL = 5;
+export const PROTOCOL = 6;
 
 /** The games a room can play: songs, students by voice, or by picture. */
 export type RoomGame = "ost" | "voice" | "picture";
@@ -424,4 +424,12 @@ export interface RoomNudge {
 
 export type ServerMessage =
   | { t: "room"; view: RoomView }
-  | { t: "error"; code: RoomError };
+  | { t: "error"; code: RoomError }
+  /**
+   * A signed-in player's result, as the game they played to its end shows
+   * it in the standings, signed by the room for their account
+   * (src/accounts/roomReceipt.ts); sent on their own connection only, and
+   * again if they come back to the standings. Their page takes it to the
+   * accounts Worker (docs/verified-stats.md, section 8). Guests get none.
+   */
+  | { t: "receipt"; receipt: string };

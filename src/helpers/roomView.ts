@@ -6,6 +6,7 @@
 import { songs } from "../constants/songs";
 import { Pick, PlayerView, RoomAccess, RoomSettings } from "../types/room";
 import { SERVER_NAMES } from "../types/server";
+import { places } from "./roomPlaces";
 import { studentById } from "./studentRounds";
 
 const songByTheme = new Map(songs.map((song) => [song.themeNo, song]));
@@ -184,20 +185,7 @@ export function pickName(settings: RoomSettings, pick: Pick): string {
   return studentById.get(Number(pick))?.name ?? "?";
 }
 
-/**
- * Each player's place: most right first, the faster over those right
- * breaking a tie, and a tie on both sharing the place (1, 2, 2, 4).
- */
-export function places(players: PlayerView[]): Map<string, number> {
-  const ahead = (a: PlayerView, b: PlayerView) =>
-    a.score > b.score || (a.score === b.score && a.time < b.time);
-  return new Map(
-    players.map((player) => [
-      player.id,
-      1 + players.filter((other) => ahead(other, player)).length,
-    ])
-  );
-}
+export { places };
 
 /** The players in the order of their places, ties in the order they came. */
 export function standings(players: PlayerView[]): PlayerView[] {

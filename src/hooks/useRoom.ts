@@ -231,6 +231,9 @@ export function useRoom(): RoomConnection {
         setError(null);
         return;
       }
+      // A signed-in player's receipt (docs/verified-stats.md, section 8):
+      // not a refusal. Nothing takes it to the account yet.
+      if (message.t === "receipt") return;
 
       refused = true;
       if (message.code === "missing" && target.rejoin && !target.recreate) {

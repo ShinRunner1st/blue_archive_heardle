@@ -17,10 +17,14 @@
  *   the room sends is free.
  * - Rooms made and connections opened are counted per address a minute,
  *   before any room wakes, so nobody can spend the day's allowance.
+ * - A game played to its end sends each signed-in player a receipt of
+ *   their result (docs/verified-stats.md, section 8): signed here with
+ *   ROOM_PASS_KEY, outgoing so free, with no call to the accounts or D1.
  */
 import { DurableObject } from "cloudflare:workers";
 
 import { readRoomPass } from "../src/accounts/roomPass";
+import { makeRoomReceipt } from "../src/accounts/roomReceipt";
 import {
   countMessage,
   Flood,
@@ -43,8 +47,9 @@ interface Env {
   MAKE_LIMIT?: RateLimit;
   JOIN_LIMIT?: RateLimit;
   /**
-   * Checks signed-in players' room passes: the accounts Worker signs them
-   * with the same secret. Unset, every player is a guest.
+   * Checks signed-in players' room passes, and signs their receipts: the
+   * accounts Worker signs the passes and checks the receipts with the same
+   * secret. Unset, every player is a guest.
    */
   ROOM_PASS_KEY?: string;
 }
@@ -259,6 +264,18 @@ export class GameRoom extends DurableObject<Env> {
         t: "room",
         view: room.viewFor(player, now),
       });
+    }
+    // Signed-in players' results, once the game's end is stored, each on
+    // its own player's connection: signed under its own kind with the
+    // shared key, which the accounts Worker checks. Last, as signing waits
+    // on WebCrypto and nothing is read or written after it.
+    const key = this.env.ROOM_PASS_KEY;
+    if (!key) return;
+    for (const { token, receipt } of room.receipts) {
+      const ws = sockets.get(token);
+      if (!ws) continue;
+      const signed = await makeRoomReceipt(receipt, key).catch(() => null);
+      if (signed) send(ws, { t: "receipt", receipt: signed });
     }
   }
 

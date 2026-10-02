@@ -1,17 +1,16 @@
 import { PICTURE_KINDS } from "../types/picture";
 import { MAX_PLAYERS, MIN_PLAYERS, ROUND_RANGE } from "../types/room";
-import { ROOM_RECEIPT_MS, RoomAnswer } from "../types/verified";
+import { ROOM_RECEIPT_MS } from "../types/verified";
 import { randomBase32, readSigned, signValue } from "./crypto";
-import { Db } from "./store";
-import { changesOf, countInSummary, dayInZone } from "./verified";
 
 /**
  * A room's receipt for one signed-in player's result (docs/verified-stats.md,
  * section 8). The room is the judge of a game and never writes to D1: as
  * a game reaches its standings, it signs each signed-in player's result
  * with ROOM_PASS_KEY (shared with the accounts Worker) and sends it on that
- * player's connection only; their page brings it here. The rooms' side
- * comes in step 3; this is the receipt's format and its checks.
+ * player's connection only; their page brings it here. This is the
+ * receipt's format, its signing and its checks, with nothing of D1, as
+ * the rooms Worker bundles it; verified.ts keeps a checked one.
  *
  * A valid signature is never enough: the receipt must be for the account
  * signed in, not expired, in range, and new.
@@ -118,52 +117,4 @@ export async function readRoomReceipt(
     score: s as number,
     endedAt: t as number,
   };
-}
-
-/**
- * Keeps a checked receipt for the account signed in: "counted", "already"
- * (it came before, from any device; nothing is written), or "notYours"
- * (another account's result, whoever passed it on).
- */
-export async function recordRoomResult(
-  db: Db,
-  account: string,
-  receipt: RoomReceipt
-): Promise<RoomAnswer["status"] | "notYours"> {
-  const row = await db
-    .prepare("SELECT public_id FROM accounts WHERE id = ?")
-    .bind(account)
-    .first<{ public_id: string }>();
-  if (!row || row.public_id !== receipt.publicId) return "notYours";
-
-  const results = await db.batch([
-    db
-      .prepare(
-        `INSERT INTO verified_room
-           (account_id, game_id, game, answers, rounds, players, place, score, ended_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-         ON CONFLICT (account_id, game_id) DO NOTHING`
-      )
-      .bind(
-        account,
-        receipt.gameId,
-        receipt.game,
-        receipt.answers,
-        receipt.rounds,
-        receipt.players,
-        receipt.place,
-        receipt.score,
-        receipt.endedAt
-      ),
-    countInSummary(db, account, "rooms", {
-      won: receipt.place === 1,
-      abandoned: false,
-      key: String(receipt.place),
-      streak: 0,
-      time: null,
-      // A puzzle number, in UTC, as a room has no time zone.
-      day: dayInZone("UTC", receipt.endedAt),
-    }),
-  ]);
-  return changesOf(results[0]) === 1 ? "counted" : "already";
 }

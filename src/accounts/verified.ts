@@ -9,12 +9,14 @@ import {
 import {
   FinishAnswer,
   LATE_DAYS,
+  RoomAnswer,
   StartAnswer,
   VerifiedDailyStats,
   VerifiedOutcome,
   VerifiedView,
 } from "../types/verified";
 import { randomBase32 } from "./crypto";
+import { RoomReceipt } from "./roomReceipt";
 import { Db, Statement } from "./store";
 
 /**
@@ -635,4 +637,52 @@ export async function readVerified(
         }
       : null,
   };
+}
+
+/**
+ * Keeps a checked receipt for the account signed in: "counted", "already"
+ * (it came before, from any device; nothing is written), or "notYours"
+ * (another account's result, whoever passed it on).
+ */
+export async function recordRoomResult(
+  db: Db,
+  account: string,
+  receipt: RoomReceipt
+): Promise<RoomAnswer["status"] | "notYours"> {
+  const row = await db
+    .prepare("SELECT public_id FROM accounts WHERE id = ?")
+    .bind(account)
+    .first<{ public_id: string }>();
+  if (!row || row.public_id !== receipt.publicId) return "notYours";
+
+  const results = await db.batch([
+    db
+      .prepare(
+        `INSERT INTO verified_room
+           (account_id, game_id, game, answers, rounds, players, place, score, ended_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+         ON CONFLICT (account_id, game_id) DO NOTHING`
+      )
+      .bind(
+        account,
+        receipt.gameId,
+        receipt.game,
+        receipt.answers,
+        receipt.rounds,
+        receipt.players,
+        receipt.place,
+        receipt.score,
+        receipt.endedAt
+      ),
+    countInSummary(db, account, "rooms", {
+      won: receipt.place === 1,
+      abandoned: false,
+      key: String(receipt.place),
+      streak: 0,
+      time: null,
+      // A puzzle number, in UTC, as a room has no time zone.
+      day: dayInZone("UTC", receipt.endedAt),
+    }),
+  ]);
+  return changesOf(results[0]) === 1 ? "counted" : "already";
 }

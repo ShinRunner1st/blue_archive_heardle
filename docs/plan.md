@@ -961,7 +961,10 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   same functions), on `feat/verified-rules`, off `docs/verified-stats`.
   Step 2, the accounts Worker (the four tables, `/verified`, the zone and
   day rules, late finishes, lazy closing, streaks, room receipts'
-  checks), on `feat/verified-worker`, off `feat/verified-rules`._
+  checks), on `feat/verified-worker`, off `feat/verified-rules`. Step 3,
+  the rooms (a game id, receipts signed for each signed-in player on
+  their own connection, `PROTOCOL` 6), on `feat/verified-rooms`, off
+  `feat/verified-worker`._
 - **Levels, with accounts** (asked for 2026-10-01): an account level
   from the rounds and missions it has played, shown on the card.
 - **Other players' profiles and cosmetics in rooms, with accounts**:

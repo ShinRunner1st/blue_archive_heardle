@@ -360,14 +360,22 @@ Reading a streak back reads every daily the account played on those days
 so a short streak costs a few rows and a 30-day one about 40. Deleting an
 account costs a row written for each of its rows, the verified ones too.
 
-### Rooms (estimates)
+### Rooms (checked in step 3)
 
 - **Rooms Worker requests**: none added.
 - **Durable Object requests**: none added. A receipt is an outgoing
   message, which isn't billed as a request; signing it is a moment of the
   standings' own handling.
 - **Durable Object rows**: none added. The game id rides in the record
-  the room already writes as a game starts (to confirm when building).
+  the room already writes as a game starts, and its end in the one it
+  writes as the standings begin: the same single key each time, and the
+  tests hold that a receipt sent again writes nothing.
+- **The rooms Worker** bundles 59.6 KiB gzipped, from 57.9, with nothing
+  of D1 or the dailies' rules in it. A local game of three (two signed
+  in) gave each signed-in player one receipt, the guest none, a reload
+  the same one again; the accounts Worker counted each (3 rows read, 2
+  written), answered "already" to one sent again and refused one taken
+  to another account (3 read, 0 written each).
 - **Room-receipt traffic on the accounts Worker**: the row above, one
   request and 2 writes per signed-in player per finished game; none for
   guests.
@@ -431,6 +439,21 @@ Each step only once the user approves it, on its own stacked branch:
    the account (Delete account, the two-year cleanup); Download my data
    gains them with the policy in step 5. Measured above._
 3. **The rooms**: the game id and the receipts, `PROTOCOL` bumped.
+   _Built on `feat/verified-rooms`, `PROTOCOL` 6: a game's id is made as
+   it starts, in the write it makes then; as its last reveal gives way to
+   the standings, the game keeps when it ended, how many stand in them
+   and each signed-in player's place and score (the standings' own
+   `places`, now `roomPlaces.ts`), in the write the standings make anyway.
+   The Worker signs each one's receipt (`makeRoomReceipt`) once that's
+   stored and sends it as a `receipt` message on that player's own
+   connection, only if its hello carried that account's pass (a page
+   back by its token without it keeps its account for kicks and locks,
+   but gets none). A player back at the standings by their account, or a
+   reload, gets the same receipt again; one who arrives at the standings,
+   a guest, a game a vote ended, or one with fewer than two left in its
+   standings gets none. The page ignores the message until step 4. The
+   receipt's D1 half (`recordRoomResult`) moved to `verified.ts`, so the
+   rooms Worker bundles none of it._
 4. **The page**: start and finish around each daily (signed in only), the
    kept finishes and receipts, the Verified section.
 5. **Privacy**: the policy, About, the README, What's new.

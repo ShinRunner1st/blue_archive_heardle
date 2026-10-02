@@ -23,7 +23,7 @@ import {
   ProviderKeys,
 } from "./providers";
 import { MAX_VERIFIED_BODY } from "../types/verified";
-import { readRoomReceipt, recordRoomResult } from "./roomReceipt";
+import { readRoomReceipt } from "./roomReceipt";
 import { makeRoomPass } from "./roomPass";
 import {
   accountView,
@@ -38,7 +38,12 @@ import {
   takeSignInCode,
   unlinkIdentity,
 } from "./store";
-import { finishDaily, readVerified, startDaily } from "./verified";
+import {
+  finishDaily,
+  readVerified,
+  recordRoomResult,
+  startDaily,
+} from "./verified";
 
 /**
  * The accounts Worker's requests (accounts-worker/ is only its glue):

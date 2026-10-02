@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { makeRoomReceipt, readRoomReceipt } from "../accounts/roomReceipt";
 import { audioClips } from "../constants/audioClips";
 import { voiceLines } from "../constants/voiceLines";
 import {
@@ -40,9 +41,11 @@ import {
   PlayerRecord,
   Room,
   samePassword,
+  Saved,
   TIDY_MS,
 } from "./room";
 import { DEFAULT_LOOK } from "./roomLook";
+import { places } from "./roomPlaces";
 import { hasTitleCall, voicePool } from "./voiceRounds";
 import badges from "../content/badges.json";
 import cosmetics from "../content/cosmetics.json";
@@ -1636,5 +1639,397 @@ describe("signed-in players, by their room pass", () => {
     // The host's browser, then each other player's browser and account.
     expect(game.live!.members).toHaveLength(15);
     expect(JSON.stringify(attachment).length).toBeLessThan(1800);
+  });
+});
+
+describe("receipts for signed-in players (verified stats)", () => {
+  const KEY = "test-pass-key";
+  const passFor = (publicId: string, name: string): RoomPass => ({
+    publicId,
+    name,
+    student: null,
+    look: DEFAULT_LOOK,
+    expires: 1e13,
+  });
+  const ARU = passFor("aruaruaruaruaru2", "Aru");
+  const MUTSUKI = passFor("mutsukimutsuki22", "Mutsuki");
+  const HARUKA = passFor("harukaharukahar2", "Haruka");
+
+  /** Aru (signed in) makes the room; Mutsuki (signed in) and Kayoko join. */
+  function signedRoom(settings: Partial<RoomSettings> = {}) {
+    const game = new Room("ABCD", null, null, [], seeded());
+    const join = (
+      token: string,
+      name: string,
+      pass: RoomPass | null,
+      now: number,
+      create = false
+    ) => {
+      const made = game.hello(
+        hello(
+          token,
+          name,
+          create
+            ? { create: { ...DEFAULT_ROOM_SETTINGS, rounds: 5, ...settings } }
+            : {}
+        ),
+        now,
+        create,
+        pass
+      );
+      if (!("player" in made)) throw new Error(made.error);
+      return made.player;
+    };
+    const players = [
+      join("token-aru", "Aru", ARU, 0, true),
+      join("token-m", "Mutsuki", MUTSUKI, 1),
+      join("token-k", "Kayoko", null, 2),
+    ];
+    return { game, players };
+  }
+
+  /**
+   * Plays a started game's rounds: `right` gives when each player here
+   * (by their place in the room's list) names the answer, or null for no
+   * answer; `during` runs as each round starts, `afterReveal` once it's
+   * revealed. Returns when the standings began.
+   */
+  function playRounds(
+    game: Room,
+    right: (round: number, i: number) => number | null,
+    during: (round: number, startsAt: number) => void = () => undefined,
+    afterReveal: (round: number) => void = () => undefined
+  ): number {
+    readyAll(game, game.players, 0, 200);
+    let now = 0;
+    for (let round = 0; round < game.game!.deal.length; round++) {
+      const startsAt = game.live!.startsAt!;
+      during(round, startsAt);
+      game.players.forEach((player, i) => {
+        const ms = right(round, i);
+        if (ms === null) return;
+        const pick = answerOfRound(game);
+        game.message(player, { t: "guess", round, pick }, startsAt + ms);
+      });
+      readyAll(game, game.players, round + 1, startsAt + 50);
+      now = game.live!.endsAt! + GRACE_MS;
+      game.message(game.players[0], { t: "tick" }, now);
+      afterReveal(round);
+      game.message(game.players[0], { t: "tick" }, now + REVEAL_MS);
+    }
+    expect(game.live!.phase).toBe("over");
+    return now + REVEAL_MS;
+  }
+
+  /** Starts the game and plays it to its end. */
+  function playOut(
+    game: Room,
+    right: (round: number, i: number) => number | null,
+    during?: (round: number, startsAt: number) => void
+  ): number {
+    game.message(game.players[0], { t: "start" }, 100);
+    return playRounds(game, right, during);
+  }
+
+  /** Aru right at 3 s every round, Mutsuki at 1 s, Kayoko twice at 0.5 s. */
+  const usual = (round: number, i: number) =>
+    i === 0 ? 3000 : i === 1 ? 1000 : round < 2 ? 500 : null;
+
+  it("gives each signed-in player their own result, as the standings show it", () => {
+    const { game, players } = signedRoom();
+    const [aru, mutsuki] = players;
+    const end = playOut(game, usual);
+    const gameId = game.game!.id!;
+    expect(gameId).toMatch(/^[a-z2-7]{26}$/);
+    const common = {
+      gameId,
+      game: "ost",
+      answers: "typed",
+      rounds: 5,
+      players: 3,
+      endedAt: end,
+    };
+    expect(game.receipts).toEqual([
+      {
+        token: "token-aru",
+        receipt: { ...common, publicId: ARU.publicId, place: 2, score: 5 },
+      },
+      {
+        token: "token-m",
+        receipt: { ...common, publicId: MUTSUKI.publicId, place: 1, score: 5 },
+      },
+    ]);
+    // The places the page's standings show.
+    const shown = places(game.viewFor(aru, end).players);
+    expect(shown.get(aru.id)).toBe(2);
+    expect(shown.get(mutsuki.id)).toBe(1);
+    // The guest, Kayoko, gets none.
+    expect(JSON.stringify(game.receipts)).not.toContain("token-k");
+  });
+
+  it("shares a tied place, as the standings do", () => {
+    const { game, players } = signedRoom();
+    const end = playOut(game, (_, i) => (i < 2 ? 2000 : null));
+    expect(game.receipts.map(({ receipt }) => receipt.place)).toEqual([1, 1]);
+    const shown = places(game.viewFor(players[0], end).players);
+    expect([shown.get(players[0].id), shown.get(players[1].id)]).toEqual([
+      1, 1,
+    ]);
+  });
+
+  it("signs a receipt the accounts Worker takes, and no other key does", async () => {
+    const { game } = signedRoom({
+      game: "picture",
+      picture: "weapon",
+      answers: "choice",
+    });
+    const end = playOut(game, usual);
+    const { receipt } = game.receipts[1];
+    expect(receipt).toMatchObject({ game: "weapon", answers: "choice" });
+    const signed = await makeRoomReceipt(receipt, KEY);
+    expect(await readRoomReceipt(signed, KEY, end + 1000)).toEqual(receipt);
+    expect(await readRoomReceipt(signed, "another-key", end)).toBeNull();
+    // Signed again, the same: a player sent it twice counts once anyway.
+    expect(await makeRoomReceipt(receipt, KEY)).toBe(signed);
+  });
+
+  it("takes the account only from a checked pass, never from a hello", () => {
+    const { game } = signedRoom({ maxPlayers: 4 });
+    // A page claiming an account in its hello, with no pass that checked.
+    const forged = parseMessage(
+      JSON.stringify({
+        ...hello("token-haruka", "Haruka"),
+        account: MUTSUKI.publicId,
+        publicId: MUTSUKI.publicId,
+        passed: true,
+      })
+    );
+    expect(forged).not.toHaveProperty("account");
+    expect(forged).not.toHaveProperty("passed");
+    const joined = game.hello(forged as never, 3, false);
+    if (!("player" in joined)) throw new Error(joined.error);
+    expect(joined.player.account).toBeUndefined();
+    playOut(game, () => 1000);
+    expect(game.receipts.map(({ token }) => token)).toEqual([
+      "token-aru",
+      "token-m",
+    ]);
+  });
+
+  it("gives none for a game ended early by a vote", () => {
+    const { game, players } = signedRoom();
+    game.message(players[0], { t: "start" }, 100);
+    endGame(game, players, 6000);
+    expect(game.live!.phase).toBe("over");
+    expect(game.game!.ended).toBeUndefined();
+    expect(game.receipts).toEqual([]);
+    // Nor to anyone coming back to its standings.
+    game.hello(hello("token-m2", "Mutsuki"), 6100, false, MUTSUKI);
+    expect(game.receipts).toEqual([]);
+  });
+
+  it("leaves a kicked player out, and gives none to a game of one", () => {
+    const kicked = signedRoom();
+    playOut(kicked.game, usual, (round, startsAt) => {
+      if (round !== 1) return;
+      kicked.game.message(
+        kicked.players[0],
+        { t: "kick", id: kicked.players[1].id },
+        startsAt
+      );
+    });
+    expect(kicked.game.receipts).toHaveLength(1);
+    expect(kicked.game.receipts[0].receipt).toMatchObject({
+      publicId: ARU.publicId,
+      players: 2,
+    });
+
+    const alone = signedRoom();
+    playOut(alone.game, usual, (round, startsAt) => {
+      if (round !== 1) return;
+      for (const other of alone.players.slice(1)) {
+        alone.game.message(
+          alone.players[0],
+          { t: "kick", id: other.id },
+          startsAt
+        );
+      }
+    });
+    expect(alone.game.receipts).toEqual([]);
+    expect(alone.game.game!.ended).toBeUndefined();
+  });
+
+  it("sends a player back at the standings the same receipt, with their pass", () => {
+    const { game, players } = signedRoom();
+    const [, mutsuki] = players;
+    // Mutsuki's connection drops during the last round, after answering:
+    // gone at its reveal, so that round isn't hers, as before receipts.
+    playOut(game, usual, (round, startsAt) => {
+      if (round !== 4) return;
+      game.message(
+        mutsuki,
+        { t: "guess", round, pick: answerOfRound(game) },
+        startsAt + 1000
+      );
+      game.leave(mutsuki, startsAt + 1100);
+    });
+    expect(game.receipts.map(({ token }) => token)).toEqual(["token-aru"]);
+    const end = game.game!.ended!.at;
+
+    // Back on her phone, by her account: her result, on the new connection.
+    game.receipts = [];
+    game.save = false;
+    const back = game.hello(
+      hello("token-phone", "M"),
+      end + 2000,
+      false,
+      MUTSUKI
+    );
+    expect("player" in back && back.player.id).toBe(mutsuki.id);
+    // Her place and score as the standings show them: 4, behind Aru's 5.
+    const shown = places(game.viewFor(mutsuki, end + 2000).players);
+    expect(shown.get(mutsuki.id)).toBe(2);
+    expect(game.receipts).toEqual([
+      {
+        token: "token-phone",
+        receipt: expect.objectContaining({
+          publicId: MUTSUKI.publicId,
+          place: 2,
+          score: 4,
+          players: 3,
+          endedAt: end,
+        }),
+      },
+    ]);
+    // A reload on the phone: the same receipt again, and nothing written.
+    const first = game.receipts[0].receipt;
+    game.receipts = [];
+    game.hello(hello("token-phone", "M"), end + 3000, false, MUTSUKI);
+    expect(game.receipts.map(({ receipt }) => receipt)).toEqual([first]);
+    expect(game.save).toBe(false);
+  });
+
+  it("gives none to a connection back without the account's own pass", () => {
+    const { game, players } = signedRoom();
+    const [aru, mutsuki] = players;
+    const end = playOut(game, usual);
+    game.receipts = [];
+    // Mutsuki's tab back by its token, its pass not sent: still herself,
+    // her score and account kept, as before receipts, but no receipt.
+    game.leave(mutsuki, end + 100);
+    const back = game.hello(hello("token-m", "Mutsuki"), end + 200, false);
+    expect("player" in back && back.player).toMatchObject({
+      id: mutsuki.id,
+      score: 5,
+      account: MUTSUKI.publicId,
+    });
+    expect(game.receipts).toEqual([]);
+    // Aru's tab with another account's pass (signed in as someone else).
+    game.leave(aru, end + 300);
+    game.hello(hello("token-aru", "Aru"), end + 400, false, HARUKA);
+    expect(game.receipts).toEqual([]);
+  });
+
+  it("gives none to a signed-in player who arrives at the standings", () => {
+    const { game } = signedRoom({ maxPlayers: 4 });
+    const end = playOut(game, usual);
+    game.receipts = [];
+    const late = game.hello(
+      hello("token-h", "Haruka"),
+      end + 500,
+      false,
+      HARUKA
+    );
+    expect("player" in late && late.player.returned).toBe(true);
+    expect(game.receipts).toEqual([]);
+  });
+
+  it("follows the account to its newest device at the standings", () => {
+    const { game } = signedRoom();
+    playOut(game, usual);
+    game.receipts = [];
+    const moved = game.hello(
+      hello("token-tablet", "Mutsuki"),
+      game.game!.ended!.at + 100,
+      false,
+      MUTSUKI
+    );
+    expect(moved).toMatchObject({ elsewhere: true });
+    expect(game.receipts.map(({ token }) => token)).toEqual(["token-tablet"]);
+  });
+
+  it("keeps the game's end through a restart", () => {
+    const { game } = signedRoom();
+    const end = playOut(game, usual);
+    const before = game.receipts.find(({ token }) => token === "token-aru")!;
+    const restarted = Room.resume(
+      "ABCD",
+      JSON.parse(JSON.stringify(game.saved())),
+      end + 5000
+    );
+    restarted.hello(hello("token-aru", "Aru"), end + 5100, false, ARU);
+    expect(restarted.receipts).toEqual([before]);
+  });
+
+  it("ends a game restarted at its last reveal, everyone's result kept", () => {
+    const { game, players } = signedRoom();
+    game.message(players[0], { t: "start" }, 100);
+    let saved: Saved | null = null;
+    playRounds(
+      game,
+      () => 1000,
+      undefined,
+      (round) => {
+        if (round === 4) saved = JSON.parse(JSON.stringify(game.saved()));
+      }
+    );
+    const again = Room.resume("ABCD", saved!, 900_000);
+    expect(again.live!.phase).toBe("over");
+    expect(again.game!.ended).toMatchObject({ at: 900_000, players: 3 });
+    again.hello(hello("token-m", "Mutsuki"), 900_100, false, MUTSUKI);
+    expect(again.receipts[0].receipt).toMatchObject({
+      publicId: MUTSUKI.publicId,
+      endedAt: 900_000,
+      score: 5,
+    });
+  });
+
+  it("makes a new id for each game, in the write it makes as it starts", () => {
+    const { game, players } = signedRoom();
+    game.save = false;
+    game.message(players[0], { t: "start" }, 100);
+    expect(game.save).toBe(true);
+    const first = game.game!.id;
+    expect(game.saved()!.game.id).toBe(first);
+    endGame(game, players, 6000);
+    for (const player of players) game.message(player, { t: "again" }, 7000);
+    expect(game.live!.phase).toBe("lobby");
+    game.message(players[0], { t: "start" }, 8000);
+    expect(game.game!.id).toMatch(/^[a-z2-7]{26}$/);
+    expect(game.game!.id).not.toBe(first);
+  });
+
+  it("keeps the game's end in the write its standings make anyway", () => {
+    const { game } = signedRoom();
+    playOut(game, usual);
+    expect(game.save).toBe(true);
+    expect(game.saved()!.game.ended).toMatchObject({ players: 3 });
+    expect(game.saved()!.game.ended!.finishers).toHaveLength(2);
+  });
+
+  it("gives none for a game from before receipts, with no id", () => {
+    const { game } = signedRoom();
+    playOut(game, usual, (round) => {
+      if (round === 0) delete game.game!.id;
+    });
+    expect(game.receipts).toEqual([]);
+  });
+
+  it("never puts a receipt, a game's id or an account in a page's view", () => {
+    const { game, players } = signedRoom();
+    const end = playOut(game, usual);
+    const views = JSON.stringify(players.map((p) => game.viewFor(p, end)));
+    expect(views).not.toContain(game.game!.id!);
+    expect(views).not.toContain(MUTSUKI.publicId);
   });
 });
