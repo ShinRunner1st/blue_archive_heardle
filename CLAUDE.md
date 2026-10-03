@@ -355,7 +355,8 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
 - **OST badges**: Vol.1-8, earned by guessing every song on an album. On
   the profile (beside its table by game, and on its OST tab).
 - **Missions** (☰ Missions): 73 one-off missions, a tab per game, each
-  unlocking one reward, a ladder in every tab from starter to months, worked
+  unlocking one reward, each tab its starters then a ladder per kind of
+  goal, easiest first (the file's order is the pop-up's), worked
   out from the saves on both servers (`src/helpers/missions.ts`, list in
   `src/constants/missions.ts`, ids never renamed), each counting one of
   the game's own counts or a rule made of games, ways to play, server,

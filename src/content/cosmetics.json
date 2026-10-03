@@ -228,7 +228,7 @@
     {
       "id": "mika",
       "name": "Mika",
-      "mission": "daily-days-150"
+      "mission": "daily-first-100"
     },
     {
       "id": "yuuka",
@@ -1173,7 +1173,7 @@
     {
       "id": "halo-gold",
       "name": "Halo gold",
-      "mission": "daily-days-50",
+      "mission": "daily-first-10",
       "colors": ["#D9961C", "#FFD86B", "#FFF8DC"],
       "fill": [0, 1, 0],
       "angle": 90,
