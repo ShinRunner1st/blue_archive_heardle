@@ -246,7 +246,7 @@
       "id": "voice-first-try",
       "group": "voice",
       "title": "I know that voice",
-      "text": "Name a student by voice before any hint, in Daily or Classic.",
+      "text": "Name a student by voice before any hint, in Daily, Classic or No hints.",
       "guests": true,
       "fact": "voiceFirstTry",
       "goal": 1
@@ -566,11 +566,7 @@
       "group": "multiplayer",
       "title": "Player two",
       "text": "Finish 50 multiplayer games.",
-      "rule": {
-        "count": "rounds",
-        "games": ["multiplayer"],
-        "result": "played"
-      },
+      "fact": "roomsPlayed",
       "goal": 50
     },
     {
@@ -594,10 +590,7 @@
       "group": "multiplayer",
       "title": "Crowd favourite",
       "text": "Finish first in 10 multiplayer games.",
-      "rule": {
-        "count": "rounds",
-        "games": ["multiplayer"]
-      },
+      "fact": "roomsWon",
       "goal": 10
     },
     {

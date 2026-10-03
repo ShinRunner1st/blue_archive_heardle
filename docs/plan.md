@@ -1230,7 +1230,8 @@ admin`, on their PC only, nothing deployed or in the site's build),
      dailies on the first try, Prism for 50 songs from 1 second, Kivotos sky
      for 20 Voice 4-Choice right in a row, Gehenna ember for 25 in one
      Picture Time Attack run, Sakura for the daily student on 30 days,
-     Arcade neon for 10 room wins. The characters on bigger ones: Mika
+     Arcade neon for 10 room wins (the multiplayer two from the
+     game's own counts after a second check). The characters on bigger ones: Mika
      for 100 dailies on the first try, Yuuka for 25 OST
      4-Choice in a row, Kazusa for 250 different songs, Kayoko for 50
      voices in No hints, Aru for 100 different halos, Azusa for 100
