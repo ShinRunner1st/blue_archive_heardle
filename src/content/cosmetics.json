@@ -1202,7 +1202,7 @@
     },
     {
       "id": "neon",
-      "name": "Arcade neon",
+      "name": "Neon sign",
       "mission": "room-win-10",
       "colors": ["#FF4FA3", "#FFD6EA"],
       "fill": [1],
@@ -1218,7 +1218,7 @@
     },
     {
       "id": "sakura",
-      "name": "Sakura",
+      "name": "Sakura bloom",
       "mission": "students-days-30",
       "colors": ["#FF6FA8", "#FFB3D1"],
       "fill": [0, 1],
