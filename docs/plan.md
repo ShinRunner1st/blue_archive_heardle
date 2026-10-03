@@ -1209,6 +1209,17 @@ admin`, on their PC only, nothing deployed or in the site's build),
      screenshots wait for the user, who checks each set-up in
      `npm run admin`. Step 2's What's new items sit in the unreleased
      "Guests and accounts" entry; add one for the new characters there._
+     _Built on `claude/task-ab4kq8` (the cloud session's branch, in place
+     of `feat/more-characters`), off `feat/moving-cosmetics`, 2026-10-03:
+     the game's own polls weren't found, so the picks are the top tens of
+     Dengeki Online's polls (January 2025 and July 2026) not here yet:
+     Mika, Yuuka, Kayoko, Aru, Kazusa, Kei, Rio and Azusa. Their Windows
+     sprites came with the pinned BA-AD and UnityPy (Yuuka's in the
+     prologue group, `prologdepengroup-...-yuuka_spr-_mxprolog`); 5.5 MB
+     on the site Worker, 24 files (127 in the build). None has touch
+     bones, so all tap only. Eyes framed against Hina's and Aris's, faces
+     picked from renders of each; all free. For the user to check in
+     `npm run admin`._
   4. **Missions and rewards again**, with the new cosmetics: more missions
      and rules where needed, favouring what other players see, reasonable,
      none past about 200 days.

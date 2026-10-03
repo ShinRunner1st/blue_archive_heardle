@@ -42,6 +42,11 @@
         "icon": "IoColorPalette",
         "title": "Card colours for everyone",
         "text": "Every Sensei card colour is yours from the start: no mission needed."
+      },
+      {
+        "icon": "IoPeople",
+        "title": "Eight more characters",
+        "text": "Mika, Yuuka, Kayoko, Aru, Kazusa, Kei, Rio and Azusa can stand beside the game now, each with her own faces for every guess. Pick one in Settings, on a wide screen."
       }
     ]
   },

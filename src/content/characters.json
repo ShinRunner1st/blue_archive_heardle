@@ -227,5 +227,181 @@
       "lost": "10",
       "tapped": ["00", "03", "07", "010", "11"]
     }
+  },
+  {
+    "id": "mika",
+    "name": "Mika",
+    "note": "Bright and quick to tears: >< for a first-try win (10), wide eyes as the tries go, and crying (18) for a loss.",
+    "skel": "mika/CH0069_spr.skel",
+    "atlas": "mika/CH0069_spr.atlas",
+    "centerX": 0,
+    "eyes": 1043,
+    "idle": "Idle_01",
+    "blink": "Eye_Close_01",
+    "blinkable": ["00"],
+    "touch": null,
+    "moods": {
+      "idle": "00",
+      "listening": "99",
+      "wrong": "04",
+      "nervous": ["12", "08", "11", "17", "20"],
+      "won": ["10", "03", "15", "14", "02", "01"],
+      "lost": "18",
+      "tapped": ["02", "03", "10", "15", "22", "23", "27"]
+    }
+  },
+  {
+    "id": "yuuka",
+    "name": "Yuuka",
+    "note": "Her sprite has few faces (00-07): a frown (05) for a miss, flustered (04) late on, her smug smile (07) for a good win.",
+    "skel": "yuuka/yuuka_spr.skel",
+    "atlas": "yuuka/yuuka_spr.atlas",
+    "centerX": 0,
+    "eyes": 1075,
+    "idle": "Idle_01",
+    "blink": "Eye_Close_01",
+    "blinkable": ["00"],
+    "touch": null,
+    "moods": {
+      "idle": "00",
+      "listening": "99",
+      "wrong": "05",
+      "nervous": ["01", "05", "06", "02", "04"],
+      "won": ["03", "03", "07", "07", "01", "00"],
+      "lost": "02",
+      "tapped": ["03", "04", "06", "07"]
+    }
+  },
+  {
+    "id": "kayoko",
+    "name": "Kayoko",
+    "note": "Quiet like Shiroko: a win is her soft smile (03), and the shut-eyed blush (06) is only for taps.",
+    "skel": "kayoko/kayoko_spr.skel",
+    "atlas": "kayoko/kayoko_spr.atlas",
+    "centerX": 0,
+    "eyes": 1024,
+    "idle": "Idle_01",
+    "blink": "Eye_Close_01",
+    "blinkable": ["00"],
+    "touch": null,
+    "moods": {
+      "idle": "00",
+      "listening": "99",
+      "wrong": "05",
+      "nervous": ["02", "05", "07", "04", "07"],
+      "won": ["03", "03", "03", "01", "01", "00"],
+      "lost": "04",
+      "tapped": ["01", "03", "04", "06", "07"]
+    }
+  },
+  {
+    "id": "aru",
+    "name": "Aru",
+    "note": "At rest her confident smile (01), the face her blink is drawn on; the panic (06, 10) as the tries go and the wail (11) for a loss.",
+    "skel": "aru/aru_spr.skel",
+    "atlas": "aru/aru_spr.atlas",
+    "centerX": 0,
+    "eyes": 1072,
+    "idle": "Idle_01",
+    "blink": "Eye_Close_01",
+    "blinkable": ["01"],
+    "touch": null,
+    "moods": {
+      "idle": "01",
+      "listening": "99",
+      "wrong": "10",
+      "nervous": ["07", "13", "10", "06", "12"],
+      "won": ["08", "09", "14", "03", "01", "01"],
+      "lost": "11",
+      "tapped": ["00", "04", "08", "09", "12", "14"]
+    }
+  },
+  {
+    "id": "kazusa",
+    "name": "Kazusa",
+    "note": "Cool at rest (00, the face her blink suits); her shy smile (03) for a quick win and the anger mark (11) for a loss.",
+    "skel": "kazusa/kazusa_spr.skel",
+    "atlas": "kazusa/kazusa_spr.atlas",
+    "centerX": 0,
+    "eyes": 1016,
+    "idle": "Idle_01",
+    "blink": "Eye_Close_01",
+    "blinkable": ["00"],
+    "touch": null,
+    "moods": {
+      "idle": "00",
+      "listening": "99",
+      "wrong": "10",
+      "nervous": ["02", "04", "10", "12", "08"],
+      "won": ["03", "13", "06", "06", "01", "01"],
+      "lost": "11",
+      "tapped": ["03", "07", "09", "11", "13"]
+    }
+  },
+  {
+    "id": "kei",
+    "name": "Kei",
+    "note": "Kei as a student of her own (CH0335). Flat at rest; the swirly eyes (26) late on, the dark lines (30) for a loss.",
+    "skel": "kei/CH0335_spr.skel",
+    "atlas": "kei/CH0335_spr.atlas",
+    "centerX": 0,
+    "eyes": 995,
+    "idle": "Idle_01",
+    "blink": "Eye_Close_01",
+    "blinkable": ["00"],
+    "touch": null,
+    "moods": {
+      "idle": "00",
+      "listening": "99",
+      "wrong": "33",
+      "nervous": ["06", "11", "13", "20", "26"],
+      "won": ["14", "08", "19", "03", "03", "00"],
+      "lost": "30",
+      "tapped": ["03", "17", "21", "23", "25", "27", "31"]
+    }
+  },
+  {
+    "id": "rio",
+    "name": "Rio",
+    "note": "Composed: her faces change little, so her rare grin (09) is for a first-try win and the sad look (07) for a loss.",
+    "skel": "rio/CH0158_spr.skel",
+    "atlas": "rio/CH0158_spr.atlas",
+    "centerX": 0,
+    "eyes": 1075,
+    "idle": "Idle_01",
+    "blink": "Eye_Close_01",
+    "blinkable": ["00"],
+    "touch": null,
+    "moods": {
+      "idle": "00",
+      "listening": "99",
+      "wrong": "05",
+      "nervous": ["02", "04", "07", "06", "05"],
+      "won": ["09", "03", "08", "03", "01", "01"],
+      "lost": "07",
+      "tapped": ["02", "03", "04", "08", "09"]
+    }
+  },
+  {
+    "id": "azusa",
+    "name": "Azusa",
+    "note": "Serious at rest; her open smile (08) for a quick win, the blank eyes (07) for a loss, and a tap can bring out the gas mask (09).",
+    "skel": "azusa/azusa_spr.skel",
+    "atlas": "azusa/azusa_spr.atlas",
+    "centerX": 0,
+    "eyes": 972,
+    "idle": "Idle_01",
+    "blink": "Eye_Close_01",
+    "blinkable": ["00"],
+    "touch": null,
+    "moods": {
+      "idle": "00",
+      "listening": "99",
+      "wrong": "05",
+      "nervous": ["02", "04", "06", "05", "07"],
+      "won": ["08", "03", "03", "03", "01", "00"],
+      "lost": "07",
+      "tapped": ["02", "03", "06", "08", "09"]
+    }
   }
 ]

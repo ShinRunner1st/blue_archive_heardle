@@ -1239,7 +1239,10 @@ draws at most 60 frames a second.
 
 Arona, Plana and Mari are everyone's; Shiroko, Hoshino, Hina and Aris (the
 students' own `_spr` sprites, tap only, 0.7-0.9 MB each) are unlocked by a
-mission each, listed with the others in `src/content/cosmetics.json`.
+mission each, listed with the others in `src/content/cosmetics.json`. Mika,
+Yuuka, Kayoko, Aru, Kazusa, Kei, Rio and Azusa (0.5-1 MB each), the most
+popular in Dengeki Online's polls of 2025 and 2026, are everyone's
+(`"free": true`) until missions are given them.
 
 To add a character, use the admin tool (`npm run admin`, Characters, New
 character): pick a student's sprite from `.cache/game/sprites/` (there once

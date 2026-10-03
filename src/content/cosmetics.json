@@ -224,6 +224,46 @@
       "id": "aris",
       "name": "Aris",
       "mission": "room-win-25"
+    },
+    {
+      "id": "mika",
+      "name": "Mika",
+      "free": true
+    },
+    {
+      "id": "yuuka",
+      "name": "Yuuka",
+      "free": true
+    },
+    {
+      "id": "kayoko",
+      "name": "Kayoko",
+      "free": true
+    },
+    {
+      "id": "aru",
+      "name": "Aru",
+      "free": true
+    },
+    {
+      "id": "kazusa",
+      "name": "Kazusa",
+      "free": true
+    },
+    {
+      "id": "kei",
+      "name": "Kei",
+      "free": true
+    },
+    {
+      "id": "rio",
+      "name": "Rio",
+      "free": true
+    },
+    {
+      "id": "azusa",
+      "name": "Azusa",
+      "free": true
     }
   ],
   "banners": [

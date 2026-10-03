@@ -81,7 +81,22 @@
   ],
   "cardColors": ["schale", "sakura", "night", "gold", "sky", "echo"],
   "cursorColors": ["blue", "pink", "gold", "green", "violet", "red", "rainbow"],
-  "characters": ["auto", "mari", "shiroko", "hoshino", "hina", "aris"],
+  "characters": [
+    "auto",
+    "mari",
+    "shiroko",
+    "hoshino",
+    "hina",
+    "aris",
+    "mika",
+    "yuuka",
+    "kayoko",
+    "aru",
+    "kazusa",
+    "kei",
+    "rio",
+    "azusa"
+  ],
   "banners": [
     "none",
     "schale",

@@ -336,9 +336,10 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   load), OST songs as theme numbers, multiplayer games as a list
   (`roomGames`) beside the old counts; `mergeSaves` (`saveMerge.ts`) puts
   two devices' copies of an account's together. Format 1 data still reads.
-- **Characters**: Arona (light) / Plana (dark) / Mari, and Shiroko,
-  Hoshino, Hina and Aris unlocked by missions (`cosmetics.json`), drawn
-  with Spine, react to guesses; Arona and Plana can be held and stroked,
+- **Characters**: Arona (light) / Plana (dark) / Mari, Shiroko,
+  Hoshino, Hina and Aris unlocked by missions (`cosmetics.json`), and
+  Mika, Yuuka, Kayoko, Aru, Kazusa, Kei, Rio and Azusa (free for now; not
+  released yet), drawn with Spine, react to guesses; Arona and Plana can be held and stroked,
   all tapped. Wide screens only.
 - **Streak places**: every 10 wins in a row moves the background somewhere new
   in Kivotos, up to the sky at 100; a loss sends it back to the Trinity library.

@@ -24,7 +24,7 @@ describe("character choice", () => {
   });
 
   it("ignores a junk saved value", () => {
-    localStorage.setItem(CHARACTER_KEY, "yuuka");
+    localStorage.setItem(CHARACTER_KEY, "not-a-character");
 
     expect(getCharacterChoice()).toBe("auto");
   });
