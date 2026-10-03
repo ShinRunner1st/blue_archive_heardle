@@ -543,9 +543,9 @@ songs` put the new files on the Worker and R2 first. About 0.3 KB gzipped
   `chore/accounts-preview`). About 2.5 KB gzipped more on the first
   load, still five files; 103 files on the site Worker (two lazy
   chunks); no new files on R2.
-- **3 Oct 2026, release prepared** (to go out as a fast-forward of
-  `feat/more-characters`, stacked since ff43d5d; the merge, deploy ids and
-  rollback points to be added once CI has deployed): profiles from a
+- **3 Oct 2026, cosmetics, guests and room profiles released**
+  (fast-forward of `feat/more-characters`, main b7d79da, stacked since
+  ff43d5d): profiles from a
   card in rooms (`PROTOCOL` 7, migration 0006), the local admin tool
   (not in the site's build), guest limits (starter missions for guests,
   a fresh account, no save file), 73 missions with one reward each,
@@ -561,7 +561,12 @@ songs` put the new files on the Worker and R2 first. About 0.3 KB gzipped
   eight characters' sprites, 5.5 MB, cached for a week and fetched only
   by whoever picks one); 18 new pictures for the audio Worker and R2
   (banner and card scenes, the anniversary backdrops, 681 KB), put up by
-  `npm run songs` before the merge.
+  `npm run songs` before the merge. CI took D1's Time Travel bookmark
+  (`0000002b-00000000-000050f9-726e10cd1f653b8ef55cf80d995cb7da`),
+  applied migrations 0006 and 0007, then deployed the accounts
+  (65aed4c9), rooms (26958f18) and site (66bc3551); the live-site check
+  after it passed. Rollback points accounts 38537a37, rooms 9da33fc0,
+  site f19f3008, main 15f61ae.
 
 ## Content files
 

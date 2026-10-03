@@ -998,8 +998,8 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   `feat/profile-page`. Step 5, measured on the Cloudflare preview with
   its own accounts Worker and database (their config still only on
   `chore/accounts-preview`), the figures on `docs/profile-measured`, off
-  `docs/profile-privacy`. Approved for release with the rest on
-  2026-10-03._
+  `docs/profile-privacy`. Released 2026-10-03 with the rest (main
+  b7d79da)._
 - **An admin tool** (decided 2026-10-02): the user wants a tool to add,
   edit and retire missions and rewards (and seasons, badges and What's
   new) rather than editing the JSON. Every change needs a build and a
@@ -1130,7 +1130,9 @@ admin`, on their PC only, nothing deployed or in the site's build),
   missions use rules. `ids.lock.json` was rewritten to match._
 
 - **Cosmetics people see, and moving ones** (the user's feedback on the
-  59 missions, 2026-10-03). Done at once: the tool's 9 problems (the
+  59 missions, 2026-10-03). _All four steps released on 2026-10-03, with
+  guest limits, room profiles and the admin tool (fast-forward of
+  `feat/more-characters`, main b7d79da)._ Done at once: the tool's 9 problems (the
   missions taken back, now listed as `withdrawn` in `ids.lock.json`),
   cleared missions under the ones left to do, backgrounds as sharp scenes,
   nothing past about 200 days of steady play. Then, a step at a time, each
@@ -1294,7 +1296,7 @@ admin`, on their PC only, nothing deployed or in the site's build),
   5. What's new, the full check and screenshots. _Built: a "Guests and
      accounts" entry (starter missions, a fresh account, no more save
      files, the two rewards moved, sharper banners); checked at 1920×911
-     and on a phone. Approved for release on 2026-10-03._
+     and on a phone. Released 2026-10-03 (main b7d79da)._
      _Before it, on the same branch: banners show sharp pictures of their
      scenes (`pictures/scenes/banner-*`, 640×160, a new banner size in the
      picture maker), not the seasons' blurred backdrops._
