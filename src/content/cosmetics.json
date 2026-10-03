@@ -228,42 +228,42 @@
     {
       "id": "mika",
       "name": "Mika",
-      "free": true
+      "mission": "daily-days-150"
     },
     {
       "id": "yuuka",
       "name": "Yuuka",
-      "free": true
+      "mission": "ost-choice-25"
     },
     {
       "id": "kayoko",
       "name": "Kayoko",
-      "free": true
+      "mission": "voice-nohint-50"
     },
     {
       "id": "aru",
       "name": "Aru",
-      "free": true
+      "mission": "halo-100"
     },
     {
       "id": "kazusa",
       "name": "Kazusa",
-      "free": true
+      "mission": "ost-250"
     },
     {
       "id": "kei",
       "name": "Kei",
-      "free": true
+      "mission": "room-50"
     },
     {
       "id": "rio",
       "name": "Rio",
-      "free": true
+      "mission": "students-30s-50"
     },
     {
       "id": "azusa",
       "name": "Azusa",
-      "free": true
+      "mission": "weapon-100"
     }
   ],
   "banners": [
@@ -1173,7 +1173,7 @@
     {
       "id": "halo-gold",
       "name": "Halo gold",
-      "free": true,
+      "mission": "daily-days-50",
       "colors": ["#D9961C", "#FFD86B", "#FFF8DC"],
       "fill": [0, 1, 0],
       "angle": 90,
@@ -1191,7 +1191,7 @@
     {
       "id": "sky",
       "name": "Kivotos sky",
-      "free": true,
+      "mission": "voice-choice-20",
       "colors": ["#128AFA", "#3FC6FF", "#7FE3FF"],
       "fill": [0, 1, 2],
       "angle": 90,
@@ -1203,7 +1203,7 @@
     {
       "id": "neon",
       "name": "Arcade neon",
-      "free": true,
+      "mission": "room-win-10",
       "colors": ["#FF4FA3", "#FFD6EA"],
       "fill": [1],
       "glow": {
@@ -1219,7 +1219,7 @@
     {
       "id": "sakura",
       "name": "Sakura",
-      "free": true,
+      "mission": "students-days-30",
       "colors": ["#FF6FA8", "#FFB3D1"],
       "fill": [0, 1],
       "angle": 90,
@@ -1236,7 +1236,7 @@
     {
       "id": "prism",
       "name": "Prism",
-      "free": true,
+      "mission": "ost-1s-50",
       "colors": ["#FF6B6B", "#FFC93D", "#4CC46A", "#4D96FF", "#B04CFF"],
       "fill": [0, 1, 2, 3, 4],
       "angle": 90,
@@ -1248,7 +1248,7 @@
     {
       "id": "ember",
       "name": "Gehenna ember",
-      "free": true,
+      "mission": "picture-timeattack-25",
       "colors": ["#C0182B", "#FF7A2E", "#FFD36B"],
       "fill": [0, 1, 2],
       "angle": 0,

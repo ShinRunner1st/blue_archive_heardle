@@ -373,7 +373,7 @@ they need no more height than the OST, and every game fits a 1080p window.
   profile shows each album's progress (its overview and OST tab); the result screen says when a
   round adds to one. The albums' songs are in `src/constants/volumes.ts`, from their
   published tracklists.
-- **Missions** - 59 one-off missions in ☰ → Missions, a tab for each game
+- **Missions** - 73 one-off missions in ☰ → Missions, a tab for each game
   (Daily, OST, Voice, Picture, Students, Multiplayer, Kivotos), such as all
   six dailies on one day, a song from its 1-second clip, a halo from its
   silhouette or a multiplayer win. They're worked out from the saves on both
@@ -1241,8 +1241,8 @@ Arona, Plana and Mari are everyone's; Shiroko, Hoshino, Hina and Aris (the
 students' own `_spr` sprites, tap only, 0.7-0.9 MB each) are unlocked by a
 mission each, listed with the others in `src/content/cosmetics.json`. Mika,
 Yuuka, Kayoko, Aru, Kazusa, Kei, Rio and Azusa (0.5-1 MB each), the most
-popular in Dengeki Online's polls of 2025 and 2026, are everyone's
-(`"free": true`) until missions are given them.
+popular in Dengeki Online's polls of 2025 and 2026, have a mission each
+too.
 
 To add a character, use the admin tool (`npm run admin`, Characters, New
 character): pick a student's sprite from `.cache/game/sprites/` (there once

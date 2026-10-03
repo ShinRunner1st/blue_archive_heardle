@@ -72,6 +72,17 @@
       "goal": 6
     },
     {
+      "id": "daily-days-50",
+      "group": "daily",
+      "title": "Golden routine",
+      "text": "Clear a daily puzzle on 50 different days, in any game.",
+      "rule": {
+        "count": "days",
+        "modes": ["daily"]
+      },
+      "goal": 50
+    },
+    {
       "id": "daily-30",
       "group": "daily",
       "title": "A month on duty",
@@ -85,6 +96,17 @@
       "title": "Office hours",
       "text": "Clear 150 daily puzzles, in any games.",
       "fact": "dailiesWon",
+      "goal": 150
+    },
+    {
+      "id": "daily-days-150",
+      "group": "daily",
+      "title": "Tea party regular",
+      "text": "Clear a daily puzzle on 150 different days, in any game.",
+      "rule": {
+        "count": "days",
+        "modes": ["daily"]
+      },
       "goal": 150
     },
     {
@@ -137,6 +159,18 @@
       "goal": 10
     },
     {
+      "id": "ost-choice-25",
+      "group": "ost",
+      "title": "Balanced books",
+      "text": "Answer 25 OST 4-Choice rounds right in a row.",
+      "rule": {
+        "count": "streak",
+        "games": ["ost"],
+        "modes": ["choice"]
+      },
+      "goal": 25
+    },
+    {
       "id": "ost-timeattack",
       "group": "ost",
       "title": "Speed listener",
@@ -166,6 +200,19 @@
       "goal": 25
     },
     {
+      "id": "ost-1s-50",
+      "group": "ost",
+      "title": "Perfect ear",
+      "text": "Name 50 songs from their 1-second clip, in Daily or Classic.",
+      "rule": {
+        "count": "rounds",
+        "games": ["ost"],
+        "modes": ["daily", "classic"],
+        "tries": 1
+      },
+      "goal": 50
+    },
+    {
       "id": "ost-badges",
       "group": "ost",
       "title": "Full shelf",
@@ -180,6 +227,17 @@
       "text": "Name 35 songs in one OST Time Attack run.",
       "fact": "ostTimeAttack",
       "goal": 35
+    },
+    {
+      "id": "ost-250",
+      "group": "ost",
+      "title": "After-school band",
+      "text": "Guess 250 different songs.",
+      "rule": {
+        "count": "different",
+        "games": ["ost"]
+      },
+      "goal": 250
     },
     {
       "id": "ost-all",
@@ -236,12 +294,36 @@
       "goal": 10
     },
     {
+      "id": "voice-choice-20",
+      "group": "voice",
+      "title": "Clear signal",
+      "text": "Answer 20 Voice 4-Choice rounds right in a row.",
+      "rule": {
+        "count": "streak",
+        "games": ["voice"],
+        "modes": ["choice"]
+      },
+      "goal": 20
+    },
+    {
       "id": "voice-150",
       "group": "voice",
       "title": "Voice library",
       "text": "Name 150 different students by their voice.",
       "fact": "voicesNamed",
       "goal": 150
+    },
+    {
+      "id": "voice-nohint-50",
+      "group": "voice",
+      "title": "Quiet listener",
+      "text": "Name 50 voices in No hints.",
+      "rule": {
+        "count": "rounds",
+        "games": ["voice"],
+        "modes": ["nohint"]
+      },
+      "goal": 50
     },
     {
       "id": "voice-timeattack-30",
@@ -322,12 +404,45 @@
       "goal": 10
     },
     {
+      "id": "picture-timeattack-25",
+      "group": "picture",
+      "title": "Rapid fire",
+      "text": "Name 25 pictures in one Picture Time Attack run.",
+      "rule": {
+        "count": "run",
+        "games": ["halo", "weapon"]
+      },
+      "goal": 25
+    },
+    {
       "id": "picture-150",
       "group": "picture",
       "title": "Picture archive",
       "text": "Name 150 different halos and weapons.",
       "fact": "picturesNamed",
       "goal": 150
+    },
+    {
+      "id": "halo-100",
+      "group": "picture",
+      "title": "Halo collector",
+      "text": "Name 100 different halos.",
+      "rule": {
+        "count": "different",
+        "games": ["halo"]
+      },
+      "goal": 100
+    },
+    {
+      "id": "weapon-100",
+      "group": "picture",
+      "title": "Field inspection",
+      "text": "Name 100 different weapons.",
+      "rule": {
+        "count": "different",
+        "games": ["weapon"]
+      },
+      "goal": 100
     },
     {
       "id": "picture-250",
@@ -371,6 +486,18 @@
       "goal": 50
     },
     {
+      "id": "students-days-30",
+      "group": "students",
+      "title": "Morning roll call",
+      "text": "Find the daily student on 30 different days, in Gameplay or Lore.",
+      "rule": {
+        "count": "days",
+        "games": ["gameplay", "lore"],
+        "modes": ["daily"]
+      },
+      "goal": 30
+    },
+    {
       "id": "students-quick-25",
       "group": "students",
       "title": "Detective work",
@@ -397,6 +524,18 @@
       "text": "Find 150 different students.",
       "fact": "studentsFound",
       "goal": 150
+    },
+    {
+      "id": "students-30s-50",
+      "group": "students",
+      "title": "Calculated",
+      "text": "Find 50 students in under 30 seconds on the clock.",
+      "rule": {
+        "count": "rounds",
+        "games": ["gameplay", "lore"],
+        "seconds": 30
+      },
+      "goal": 50
     },
     {
       "id": "students-250",
@@ -440,6 +579,17 @@
       "goal": 5
     },
     {
+      "id": "room-win-10",
+      "group": "multiplayer",
+      "title": "Crowd favourite",
+      "text": "Finish first in 10 multiplayer games.",
+      "rule": {
+        "count": "rounds",
+        "games": ["multiplayer"]
+      },
+      "goal": 10
+    },
+    {
       "id": "room-25",
       "group": "multiplayer",
       "title": "Arcade regular",
@@ -457,6 +607,18 @@
         "games": ["multiplayer"]
       },
       "goal": 3
+    },
+    {
+      "id": "room-50",
+      "group": "multiplayer",
+      "title": "Game Dev regular",
+      "text": "Finish 50 multiplayer games.",
+      "rule": {
+        "count": "rounds",
+        "games": ["multiplayer"],
+        "result": "played"
+      },
+      "goal": 50
     },
     {
       "id": "room-win-25",

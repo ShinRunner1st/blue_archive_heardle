@@ -1223,6 +1223,19 @@ admin`, on their PC only, nothing deployed or in the site's build),
   4. **Missions and rewards again**, with the new cosmetics: more missions
      and rules where needed, favouring what other players see, reasonable,
      none past about 200 days.
+     _Built on `claude/task-ab4kq8`, after the characters (the user's go,
+     2026-10-03): 14 new missions (73), one for each cosmetic still free,
+     all from rules (no new code), none for guests. The six name effects,
+     which others see in rooms, on mid-ladder goals: Halo gold for dailies
+     on 50 different days, Prism for 50 songs from 1 second, Kivotos sky
+     for 20 Voice 4-Choice right in a row, Gehenna ember for 25 in one
+     Picture Time Attack run, Sakura for the daily student on 30 days,
+     Arcade neon for 10 room wins. The characters on bigger ones: Mika
+     for dailies on 150 different days (the longest), Yuuka for 25 OST
+     4-Choice in a row, Kazusa for 250 different songs, Kayoko for 50
+     voices in No hints, Aru for 100 different halos, Azusa for 100
+     different weapons, Rio for 50 finds under 30 seconds, Kei for 50
+     multiplayer games. Card colours stay everyone's._
 
 - **Guest limits** (decided 2026-10-03, reversing "guests never feel
   second-class"): an account is what keeps progress, so guests get less.

@@ -856,7 +856,7 @@ describe("missions and room passes", () => {
     banner: "sakura", // daily-14
     frame: "gold", // daily-30
     background: "cherry", // first-daily
-    nameEffect: "sky", // everyone's for now
+    nameEffect: "sky", // voice-choice-20
     cardColors: "schale",
     editedAt: now,
     summary: {},
@@ -920,14 +920,14 @@ describe("missions and room passes", () => {
       publicId: account.publicId,
       name: "Shin",
       student: 10004,
-      // Sakura banner and the gold frame need missions not cleared: the
-      // banner falls back to none, the default.
+      // Sakura banner, the gold frame and the sky name effect need missions
+      // not cleared: each falls back to its default.
       look: {
         title: "dependable",
         banner: "none",
         frame: "schale",
         background: "cherry",
-        nameEffect: "sky",
+        nameEffect: "none",
       },
       expires: now + ROOM_PASS_MS,
     });

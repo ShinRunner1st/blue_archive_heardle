@@ -58,7 +58,21 @@
     "streak-50",
     "rounds-2500",
     "streak-100",
-    "rounds-5000"
+    "rounds-5000",
+    "daily-days-50",
+    "daily-days-150",
+    "ost-choice-25",
+    "ost-1s-50",
+    "ost-250",
+    "voice-choice-20",
+    "voice-nohint-50",
+    "picture-timeattack-25",
+    "halo-100",
+    "weapon-100",
+    "students-days-30",
+    "students-30s-50",
+    "room-win-10",
+    "room-50"
   ],
   "titles": [
     "none",

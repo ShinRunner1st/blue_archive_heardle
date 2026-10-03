@@ -337,9 +337,9 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   (`roomGames`) beside the old counts; `mergeSaves` (`saveMerge.ts`) puts
   two devices' copies of an account's together. Format 1 data still reads.
 - **Characters**: Arona (light) / Plana (dark) / Mari, Shiroko,
-  Hoshino, Hina and Aris unlocked by missions (`cosmetics.json`), and
-  Mika, Yuuka, Kayoko, Aru, Kazusa, Kei, Rio and Azusa (free for now; not
-  released yet), drawn with Spine, react to guesses; Arona and Plana can be held and stroked,
+  Hoshino, Hina, Aris, Mika, Yuuka, Kayoko, Aru, Kazusa, Kei, Rio and
+  Azusa (the last eight not released yet) unlocked by missions
+  (`cosmetics.json`), drawn with Spine, react to guesses; Arona and Plana can be held and stroked,
   all tapped. Wide screens only.
 - **Streak places**: every 10 wins in a row moves the background somewhere new
   in Kivotos, up to the sky at 100; a loss sends it back to the Trinity library.
@@ -354,7 +354,7 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   Streak places still win from 10 wins. `?season=<id>` previews one in dev.
 - **OST badges**: Vol.1-8, earned by guessing every song on an album. On
   the profile (beside its table by game, and on its OST tab).
-- **Missions** (☰ Missions): 59 one-off missions, a tab per game, each
+- **Missions** (☰ Missions): 73 one-off missions, a tab per game, each
   unlocking one reward, a ladder in every tab from starter to months, worked
   out from the saves on both servers (`src/helpers/missions.ts`, list in
   `src/constants/missions.ts`, ids never renamed), each counting one of
