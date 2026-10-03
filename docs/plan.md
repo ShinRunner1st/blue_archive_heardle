@@ -1193,6 +1193,22 @@ admin`, on their PC only, nothing deployed or in the site's build),
   3. **More characters**: the most popular in the official polls of 2025
      and 2026, their sprites from the game's files (downloading what's
      missing with BA-AD), a basic set-up each for the user to check.
+     _Go given 2026-10-03; handed to a cloud session then. Notes for it:
+     branch `feat/more-characters` off `feat/moving-cosmetics` (the user
+     pushed the stack for this; push only when asked, never merge). The
+     sprites (`.cache/game/sprites/<DevName>_spr`) are on the user's PC
+     only: fetch them as `.github/workflows/content-update.yml` does
+     (pinned BA-AD and UnityPy, `scripts/lib/gameFiles.mjs`), which needs
+     the cloud environment's network set to Full. If that can't work,
+     stop and list each pick's DevName and the
+     `python scripts/build-spine.py <.skel> <id>` line for the user to
+     run locally. Then the set-up as the README's "Characters" says (eyes,
+     centerX, faces per mood, blinks, pat), in `characters.json` and a
+     Rewards entry in `cosmetics.json`, `"free": true` until step 4 gives
+     missions; the full check after. No Chrome or admin tool there:
+     screenshots wait for the user, who checks each set-up in
+     `npm run admin`. Step 2's What's new items sit in the unreleased
+     "Guests and accounts" entry; add one for the new characters there._
   4. **Missions and rewards again**, with the new cosmetics: more missions
      and rules where needed, favouring what other players see, reasonable,
      none past about 200 days.
