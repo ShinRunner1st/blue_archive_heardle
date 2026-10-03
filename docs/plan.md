@@ -998,8 +998,8 @@ Built on `feat/cloudflare-site` (details in the README's "Deploying"):
   `feat/profile-page`. Step 5, measured on the Cloudflare preview with
   its own accounts Worker and database (their config still only on
   `chore/accounts-preview`), the figures on `docs/profile-measured`, off
-  `docs/profile-privacy`. The release waits for the user (not yet, they
-  said on 2026-10-02)._
+  `docs/profile-privacy`. Approved for release with the rest on
+  2026-10-03._
 - **An admin tool** (decided 2026-10-02): the user wants a tool to add,
   edit and retire missions and rewards (and seasons, badges and What's
   new) rather than editing the JSON. Every change needs a build and a
@@ -1209,8 +1209,9 @@ admin`, on their PC only, nothing deployed or in the site's build),
      screenshots wait for the user, who checks each set-up in
      `npm run admin`. Step 2's What's new items sit in the unreleased
      "Guests and accounts" entry; add one for the new characters there._
-     _Built on `claude/task-ab4kq8` (the cloud session's branch, in place
-     of `feat/more-characters`), off `feat/moving-cosmetics`, 2026-10-03:
+     _Built on `feat/more-characters` (first pushed as the cloud
+     session's `claude/task-ab4kq8`, then moved under the user's name),
+     off `feat/moving-cosmetics`, 2026-10-03:
      the game's own polls weren't found, so the picks are the top tens of
      Dengeki Online's polls (January 2025 and July 2026) not here yet:
      Mika, Yuuka, Kayoko, Aru, Kazusa, Kei, Rio and Azusa. Their Windows
@@ -1223,7 +1224,7 @@ admin`, on their PC only, nothing deployed or in the site's build),
   4. **Missions and rewards again**, with the new cosmetics: more missions
      and rules where needed, favouring what other players see, reasonable,
      none past about 200 days.
-     _Built on `claude/task-ab4kq8`, after the characters (the user's go,
+     _Built on `feat/more-characters`, after the characters (the user's go,
      2026-10-03): 14 new missions (73), one for each cosmetic still free,
      all from rules (no new code), none for guests. The six name effects,
      which others see in rooms, on mid-ladder goals: Halo gold for 10
@@ -1293,7 +1294,7 @@ admin`, on their PC only, nothing deployed or in the site's build),
   5. What's new, the full check and screenshots. _Built: a "Guests and
      accounts" entry (starter missions, a fresh account, no more save
      files, the two rewards moved, sharper banners); checked at 1920×911
-     and on a phone. The release waits for the user._
+     and on a phone. Approved for release on 2026-10-03._
      _Before it, on the same branch: banners show sharp pictures of their
      scenes (`pictures/scenes/banner-*`, 640×160, a new banner size in the
      picture maker), not the seasons' blurred backdrops._

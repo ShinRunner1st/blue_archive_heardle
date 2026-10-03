@@ -338,7 +338,7 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   two devices' copies of an account's together. Format 1 data still reads.
 - **Characters**: Arona (light) / Plana (dark) / Mari, Shiroko,
   Hoshino, Hina, Aris, Mika, Yuuka, Kayoko, Aru, Kazusa, Kei, Rio and
-  Azusa (the last eight not released yet) unlocked by missions
+  Azusa unlocked by missions
   (`cosmetics.json`), drawn with Spine, react to guesses; Arona and Plana can be held and stroked,
   all tapped. Wide screens only.
 - **Streak places**: every 10 wins in a row moves the background somewhere new
@@ -388,8 +388,11 @@ scripts/requirements.txt`, `BAAD` and `BAAX` pointing at the tools.
   (`PlayerCard`) shows every player in a room: yours as you dressed it,
   read in your browser; other players' with what the room says they
   wear: a guest's as their page sent it (each checked to exist), a
-  signed-in player's from their room pass. Tapping a card for their
-  profile waits for after the accounts release.
+  signed-in player's from their room pass. Tapping a signed-in player's
+  card in the lobby or standings opens their profile
+  (`docs/room-profiles.md`): their card, verified record and their saves'
+  summary marked unverified, found by a ticket the room signs (`PROTOCOL`
+  7), guests can look, and the Account tab has a switch to hide it.
 - **Verified stats** (`docs/verified-stats.md`, Phase 1), signed in only:
   a record the server keeps itself, apart from the saves. Each of the 11
   dailies (OST; Voice, Halo, Weapon, Gameplay, Lore on Global and JP)
@@ -540,6 +543,22 @@ songs` put the new files on the Worker and R2 first. About 0.3 KB gzipped
   `chore/accounts-preview`). About 2.5 KB gzipped more on the first
   load, still five files; 103 files on the site Worker (two lazy
   chunks); no new files on R2.
+- **3 Oct 2026, release prepared** (to go out as a fast-forward of
+  `feat/more-characters`, stacked since ff43d5d; the merge, deploy ids and
+  rollback points to be added once CI has deployed): profiles from a
+  card in rooms (`PROTOCOL` 7, migration 0006), the local admin tool
+  (not in the site's build), guest limits (starter missions for guests,
+  a fresh account, no save file), 73 missions with one reward each,
+  banners as nameplates, moving cosmetics and name effects (`PROTOCOL` 8,
+  migration 0007), and Mika, Yuuka, Kayoko, Aru, Kazusa, Kei, Rio and
+  Azusa. Room profiles were measured on the Cloudflare preview on
+  2026-10-02; name effects in rooms and 0007 are tried there before the
+  merge. Measured against `main`: about 8 KB gzipped more on the first
+  load, still five files; 127 files on the site Worker (24 more, the
+  eight characters' sprites, 5.5 MB, cached for a week and fetched only
+  by whoever picks one); 18 new pictures for the audio Worker and R2
+  (banner and card scenes, the anniversary backdrops, 681 KB), put up by
+  `npm run songs` before the merge.
 
 ## Content files
 
