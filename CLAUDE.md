@@ -552,8 +552,11 @@ songs` put the new files on the Worker and R2 first. About 0.3 KB gzipped
   banners as nameplates, moving cosmetics and name effects (`PROTOCOL` 8,
   migration 0007), and Mika, Yuuka, Kayoko, Aru, Kazusa, Kei, Rio and
   Azusa. Room profiles were measured on the Cloudflare preview on
-  2026-10-02; name effects in rooms and 0007 are tried there before the
-  merge. Measured against `main`: about 8 KB gzipped more on the first
+  2026-10-02; name effects in rooms, 0007 and the rest were tried there
+  on 2026-10-03 (migration 0007 on the preview's database alone; the user
+  signed in with Google, played a daily, wore a name effect and a banner,
+  picked a new character, and played a room with a guest who tapped
+  their card), all fine. Measured against `main`: about 8 KB gzipped more on the first
   load, still five files; 127 files on the site Worker (24 more, the
   eight characters' sprites, 5.5 MB, cached for a week and fetched only
   by whoever picks one); 18 new pictures for the audio Worker and R2
